@@ -14,6 +14,16 @@ Object.assign(
     ),
   ),
 );
+// Admin rebuild (2026-11): new screens' strings; overrides older wording.
+Object.assign(
+  source,
+  JSON.parse(
+    await readFile(
+      new URL('../data/i18n/admin-rebuild.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 const locales = ['en', 'it', 'es', 'fr', 'de', 'ru', 'tr'];
 for (const [key, values] of Object.entries(source))
   if (

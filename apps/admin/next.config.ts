@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 const config: NextConfig = {
   poweredByHeader: false,
+  // The dev-only indicator sat on top of the mobile bottom nav.
+  devIndicators: false,
   transpilePackages: ['@stella/shared'],
   experimental: { cpus: 2 },
   async headers() {

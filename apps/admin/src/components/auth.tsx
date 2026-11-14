@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@stella/shared/admin';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAdmin } from '../lib/admin-context';
-import { LanguageSelect } from './ui';
+import { LanguageSelect } from './language-select';
 import { PasswordInput } from './password-input';
 export function Auth() {
   const { me, request, refresh, t, report, online } = useAdmin(),

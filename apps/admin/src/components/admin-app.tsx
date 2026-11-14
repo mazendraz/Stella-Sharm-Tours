@@ -1,230 +1,196 @@
 'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  Inbox,
-  Map,
-  Tags,
-  Images,
-  Grid2X2,
-  Film,
-  Layers,
-  Package,
-  House,
-  Languages,
-  Users,
-  Settings,
-  History,
-  User,
-  FileText,
-} from 'lucide-react';
+import { useEffect, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { can, type Permission } from '@stella/shared/admin';
-import { useAdmin, useData } from '../lib/admin-context';
+import { useAdmin } from '../lib/admin-context';
+import { GuardProvider } from '../lib/guard';
 import { Auth } from './auth';
-import { LanguageSelect, Loading } from './ui';
-import { Requests } from './requests';
-import { Trips, Prices, Collections, Packages } from './trips';
-import { Media, Heroes } from './media';
-import {
-  ContentPages,
-  Homepage,
-  LanguageSettings,
-  TranslationQueue,
-  SettingsScreen,
-  UsersScreen,
-  Activity,
-  Account,
-} from './management';
-const menu = [
-  ['requests', Inbox, 'requests'],
-  ['trips', Map, 'content'],
-  ['prices', Tags, 'prices'],
-  ['media', Images, 'content'],
-  ['hero', Film, 'heroDraft'],
-  ['collections', Layers, 'content'],
-  ['packages', Package, 'content'],
-  ['homepage', House, 'content'],
-  ['pages', FileText, 'content'],
-  ['languages', Languages, 'languages'],
-  ['queue', Languages, 'translations'],
-  ['settings', Settings, 'settings'],
-  ['users', Users, 'users'],
-  ['activity', History, 'audit'],
-  ['account', User, null],
-] as const;
+import { ConfirmProvider } from './ui/dialog';
+import { AppShell, MorePage, activeNav } from './ui/app-shell';
+import { EmptyState, Skeleton } from './ui/states';
+import { AppLink } from './ui/link';
+import { Overview } from '../screens/overview';
+import { Requests } from '../screens/requests';
+import { TripsList } from '../screens/trips';
+import { TripEditor } from '../screens/trip-editor';
+import { PackagesList, PackageEditor } from '../screens/packages';
+import { CollectionsList, CollectionEditor } from '../screens/collections';
+import { Prices } from '../screens/prices';
+import { MediaLibrary, MediaDetail } from '../screens/media';
+import { HeroList, HeroEditor } from '../screens/hero';
+import { Homepage } from '../screens/homepage';
+import { PagesIndex, FaqEditor, StaticPageEditor } from '../screens/pages';
+import { Translations } from '../screens/translations';
+import { LanguageSettings } from '../screens/languages';
+import { SettingsScreen } from '../screens/settings';
+import { Team, Member } from '../screens/team';
+import { Activity } from '../screens/activity';
+import { Account } from '../screens/account';
+
 export function AdminApp() {
   const { me, loading } = useAdmin();
   if (loading)
     return (
-      <main className="main-wrap">
-        <Loading />
+      <main className="boot">
+        <Skeleton rows={3} />
       </main>
     );
   if (!me?.mfa_passed) return <Auth key={me?.id ?? 'signed-out'} />;
-  return <Shell />;
-}
-function Shell() {
-  const { me, t } = useAdmin(),
-    path = usePathname(),
-    segment = path.split('/')[1] || 'requests';
-  const permitted = menu.filter(
-    ([, , permission]) =>
-      !permission || can(me!.role, permission as Permission),
-  );
-  const selected = permitted.find(([name]) => name === segment);
   return (
-    <div
-      className="app-shell"
-      onClickCapture={(event) => {
-        const link = (event.target as Element).closest('a[href]');
-        if (
-          link &&
-          !link.getAttribute('href')?.startsWith('#') &&
-          document.querySelector('form[data-dirty="true"]') &&
-          !window.confirm(t('unsaved'))
-        ) {
-          event.preventDefault();
-          event.stopPropagation();
+    <ConfirmProvider>
+      <GuardProvider>
+        <Routes />
+      </GuardProvider>
+    </ConfirmProvider>
+  );
+}
+
+/** Old addresses keep working. */
+const redirects: Record<string, string> = {
+  '/queue': '/translations',
+  '/languages': '/settings/languages',
+  '/users': '/team',
+};
+
+function Routes() {
+  const { me, t } = useAdmin(),
+    path = usePathname() || '/',
+    router = useRouter(),
+    parts = path.split('/').filter(Boolean),
+    [section, id, sub] = parts;
+  useEffect(() => {
+    const target = redirects['/' + (section ?? '')];
+    if (target) router.replace(target);
+  }, [section, router]);
+  const allowed = (permission: Permission | null) =>
+    !permission || can(me!.role, permission);
+  const guard = (permission: Permission | null, node: ReactNode) =>
+    allowed(permission) ? node : <NoAccess />;
+  let screen: ReactNode;
+  switch (section) {
+    case undefined:
+      screen = <Overview />;
+      break;
+    case 'requests':
+      screen = guard('requests', <Requests {...(id ? { id } : {})} />);
+      break;
+    case 'trips':
+      screen = guard(
+        'content',
+        id ? <TripEditor key={id} id={id} /> : <TripsList />,
+      );
+      break;
+    case 'packages':
+      screen = guard(
+        'content',
+        id ? <PackageEditor key={id} id={id} /> : <PackagesList />,
+      );
+      break;
+    case 'collections':
+      screen = guard(
+        'content',
+        id ? <CollectionEditor key={id} id={id} /> : <CollectionsList />,
+      );
+      break;
+    case 'prices':
+      screen = guard('prices', <Prices />);
+      break;
+    case 'media':
+      screen = guard(
+        'content',
+        id ? <MediaDetail key={id} id={id} /> : <MediaLibrary />,
+      );
+      break;
+    case 'hero':
+      screen = guard(
+        'heroDraft',
+        id ? <HeroEditor key={id} id={id} /> : <HeroList />,
+      );
+      break;
+    case 'homepage':
+      screen = guard('content', <Homepage />);
+      break;
+    case 'pages':
+      screen = guard(
+        'content',
+        !id ? (
+          <PagesIndex />
+        ) : id === 'faq' ? (
+          <FaqEditor />
+        ) : (
+          <StaticPageEditor key={id} pageKey={id} />
+        ),
+      );
+      break;
+    case 'translations':
+    case 'queue':
+      screen = guard('translations', <Translations />);
+      break;
+    case 'settings':
+      screen =
+        id === 'languages'
+          ? guard('languages', <LanguageSettings />)
+          : guard('settings', <SettingsScreen />);
+      break;
+    case 'languages':
+      screen = guard('languages', <LanguageSettings />);
+      break;
+    case 'team':
+    case 'users':
+      screen = guard('users', id ? <Member key={id} id={id} /> : <Team />);
+      break;
+    case 'activity':
+      screen = guard('audit', <Activity />);
+      break;
+    case 'account':
+      screen = <Account />;
+      break;
+    case 'more':
+      screen = <MorePage />;
+      break;
+    default:
+      screen = <NotFound />;
+  }
+  void sub;
+  const current = activeNav(path);
+  return (
+    <AppShell path={path} title={t(current === 'more' ? 'more' : current)}>
+      {screen}
+    </AppShell>
+  );
+}
+
+function NoAccess() {
+  const { t } = useAdmin();
+  return (
+    <div className="page">
+      <EmptyState
+        variant="error"
+        title={t('noAccessTitle')}
+        body={t('forbidden')}
+        action={
+          <AppLink className="btn" href="/">
+            {t('backToOverview')}
+          </AppLink>
         }
-      }}
-    >
-      <a className="skip" href="#main">
-        {t('skip')}
-      </a>
-      <aside className="sidebar">
-        <Link href="/" className="wordmark">
-          <img
-            className="brand-mark"
-            src="/brand/mark.webp"
-            alt=""
-            width={117}
-            height={112}
-          />
-          <img
-            className="brand-word"
-            src="/brand/wordmark.webp"
-            alt="Stella Sharm Tours"
-            width={283}
-            height={96}
-          />
-        </Link>
-        {permitted.map(([name, Icon]) => (
-          <Link
-            className={'nav-link ' + (segment === name ? 'active' : '')}
-            key={name}
-            href={'/' + name}
-          >
-            <Icon aria-hidden />
-            {t(name)}
-          </Link>
-        ))}
-      </aside>
-      <div className="main-wrap">
-        <header className="topbar">
-          <Link href="/" className="wordmark">
-            <img
-              className="brand-mark"
-              src="/brand/mark.webp"
-              alt=""
-              width={117}
-              height={112}
-            />
-            <img
-              className="brand-word"
-              src="/brand/wordmark.webp"
-              alt="Stella Sharm Tours"
-              width={283}
-              height={96}
-            />
-          </Link>
-          <LanguageSelect />
-        </header>
-        <main id="main">
-          <p className="eyebrow">
-            {me!.name} · {t(me!.role)}
-          </p>
-          <h1>{t(selected?.[0] ?? 'more')}</h1>
-          {!selected || segment === 'more' ? (
-            <div className="menu-grid">
-              {permitted.map(([name, Icon]) => (
-                <Link key={name} href={'/' + name}>
-                  <Icon aria-hidden />
-                  {t(name)}
-                </Link>
-              ))}
-            </div>
-          ) : segment === 'requests' ? (
-            <Requests />
-          ) : segment === 'trips' ? (
-            <Trips />
-          ) : segment === 'prices' ? (
-            <Prices />
-          ) : segment === 'collections' ? (
-            <Collections />
-          ) : segment === 'packages' ? (
-            <Packages />
-          ) : segment === 'media' ? (
-            <Media />
-          ) : segment === 'hero' ? (
-            <Heroes />
-          ) : segment === 'homepage' ? (
-            <Homepage />
-          ) : segment === 'pages' ? (
-            <ContentPages />
-          ) : segment === 'languages' ? (
-            <LanguageSettings />
-          ) : segment === 'queue' ? (
-            <TranslationQueue />
-          ) : segment === 'settings' ? (
-            <SettingsScreen />
-          ) : segment === 'users' ? (
-            <UsersScreen />
-          ) : segment === 'activity' ? (
-            <Activity />
-          ) : (
-            <Account />
-          )}
-        </main>
-      </div>
-      <nav className="mobile-nav" aria-label={t('dashboard')}>
-        {permitted
-          .filter(([name]) =>
-            ['requests', 'trips', 'prices', 'media'].includes(name),
-          )
-          .map(([name, Icon]) => (
-            <Link
-              key={name}
-              className={'nav-link ' + (name === segment ? 'active' : '')}
-              href={'/' + name}
-            >
-              <Icon aria-hidden />
-              {t(name)}
-              {name === 'requests' && <RequestBadge />}
-            </Link>
-          ))}
-        <Link
-          href="/more"
-          className={
-            'nav-link ' +
-            (!['requests', 'trips', 'prices', 'media'].includes(segment)
-              ? 'active'
-              : '')
-          }
-        >
-          <Grid2X2 aria-hidden />
-          {t('more')}
-        </Link>
-      </nav>
+      />
     </div>
   );
 }
-function RequestBadge() {
-  const query = useData<unknown[]>(
-    '/v1/admin/requests?status=new',
-    true,
-    30000,
+
+function NotFound() {
+  const { t } = useAdmin();
+  return (
+    <div className="page">
+      <EmptyState
+        title={t('notFoundTitle')}
+        body={t('notFoundBody')}
+        action={
+          <AppLink className="btn" href="/">
+            {t('backToOverview')}
+          </AppLink>
+        }
+      />
+    </div>
   );
-  return query.data?.length ? (
-    <span className="badge">{query.data.length}</span>
-  ) : null;
 }
