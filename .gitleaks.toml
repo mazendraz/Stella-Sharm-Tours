@@ -1,0 +1,8 @@
+title = "Stella secret scanning"
+[extend]
+useDefault = true
+[allowlist]
+description = "Ignored local tools, generated credentials and third-party binaries"
+regexTarget = "secret"
+regexes = ['''^i18n_glossary$''']
+paths = ['''(^|/)\.local/''', '''(^|/)\.tools/''', '''(^|/)node_modules/''', '''(^|/)\.pnpm-store/''', '''(^|/)\.next/''', '''(^|/)\.git/''', '''\.(woff2?|ttf|png|jpg|mp4|ico)$''']

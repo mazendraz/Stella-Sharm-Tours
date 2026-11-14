@@ -1,0 +1,18 @@
+{
+  admin 127.0.0.1:2019
+  auto_https off
+}
+import /etc/caddy/stella/common.caddy
+:8080 {
+  import security
+  route {
+  @internal path /api/revalidate /readyz
+  respond @internal 404
+  handle_path /media/* {
+    import public_media
+  }
+  handle {
+    reverse_proxy web:3000
+  }
+  }
+}

@@ -1,0 +1,30 @@
+# Use with -f docker-compose.prod.yml -f docker-compose.staging.yml.
+services:
+  caddy:
+    ports: !reset []
+    env_file:
+      - path: ${ENV_DIR}/staging-gate.env
+        format: raw
+    volumes:
+      - ${PROXY_CONFIG_DIR:-.}/Caddyfile.staging:/etc/caddy/Caddyfile:ro
+    networks:
+      gateway:
+        ipv4_address: 172.30.19.3
+        aliases: [stella-staging-gateway]
+  worker:
+    # NEVER point staging at a customer/staff SMTP server.
+    environment:
+      NODE_ENV: test
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_SECURE: 'false'
+      SMTP_USER: ''
+      SMTP_PASSWORD: ''
+      TRANSLATE_PROVIDER: fake
+      DEEPL_API_KEY: ''
+      GOOGLE_TRANSLATE_KEY: ''
+      LIBRETRANSLATE_URL: ''
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    restart: unless-stopped
+    networks: [edge]

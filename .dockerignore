@@ -1,0 +1,17 @@
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+.git
+.tools
+.local
+.pnpm-store
+**/.env
+**/.env.*
+**/*.log
+reference
+assets
+docs/screens
+test-results
+playwright-report
+coverage

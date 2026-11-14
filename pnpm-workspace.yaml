@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Native install scripts are disabled until reviewed individually.
+onlyBuiltDependencies: []

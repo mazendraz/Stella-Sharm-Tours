@@ -1,0 +1,10 @@
+{
+  "name": "@stella/ui",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base.css": "./base.css",
+    "./tokens.css": "./tokens.css"
+  }
+}

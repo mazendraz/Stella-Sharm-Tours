@@ -1,0 +1,192 @@
+# Changelog
+
+## Unreleased
+
+- Admin password fields (sign in, reset, re-auth) have a show/hide button
+  (44 px, translated label in all seven languages, `aria-pressed`).
+- `DEV_SIMPLE_ADMIN_LOGIN` (API env, default `false`): on a developer machine the
+  admin login is email + password only, with no 2FA enrolment, login
+  rate limit or lockout. The API refuses
+  to start with it outside `NODE_ENV=development`, so staging and production
+  keep mandatory owner/manager 2FA. Covered by a config test.
+- Footer redesigned (mobile first): brand and address (links to Contact) once,
+  two labelled columns (Journeys, Contact with WhatsApp and FAQ), then the
+  no-payment note, legal links and a © line. Removes the repeated brand name and
+  the misleading ↗ on an internal link. Uses existing UI strings only, checked
+  in all seven languages at 390 px (no overflow, 44 px targets, axe clean) and
+  at 1440 px.
+- Fixed a hydration mismatch on every page (JSON-LD `nonce`, which browsers hide
+  after parsing) and a Next image warning for media without size variants.
+- "Beyond Egypt" now uses the licensed stock photo `sinai-mountains.jpg` as its
+  cover (catalog for fresh setups; linked in the local dev DB). Its alt text
+  already exists in all seven languages. The Petra clip stays unpublished
+  (`unknown` rights) and the collection's hero slide remains a draft.
+
+- File 08 review: ticked I1–I8 (already implemented, evidence in earlier
+  verification files) and recorded font gaps for scripts outside the launch set.
+  The web middleware called `/v1/public/locales` on every page request and that
+  endpoint built the full catalog (~19 ms inside Docker). It now reads only the
+  two i18n settings rows (~8 ms) and the middleware caches live locales for
+  60 s (10 s retry after a failure, keeping the last known list).
+- Mobile rendering budget work (2026-11-14), measured with the local QA stack:
+  client components now receive only the fields they render (cards drop
+  gallery/itinerary/items/notes; the layout shell gets six site fields instead
+  of the whole site; navigation collections drop images), home HTML 198 → 164 kB;
+  Manrope/Marcellus split by script with `unicode-range` (Latin-only preload);
+  the language menu uses the system font so a closed menu no longer downloads
+  Cyrillic/Latin-Extended subsets; `content-visibility: auto` on below-the-fold
+  home sections and the footer (first layout 95 → 35 ms); all images below the
+  hero are deferred; off-screen gallery videos get their poster only when
+  visible. Lighthouse 3-run medians: home mobile 92 → 95 (LCP 3.24 → 2.87 s),
+  trip 94 → 95 (3.12 → 2.97 s), desktop 98 → 99 (1.17 → 0.90 s), CLS 0,
+  accessibility 100. The strict <2.5 s mobile LCP is still not met; see
+  `docs/build-order-verification.md`.
+
+- File 07 reconciles the old scaffold checklist with seven current workspaces,
+  frozen Node 22/pnpm installation, app readiness, PostgreSQL/Mailpit and local
+  Husky setup. CI now enforces maintained-source formatting; generated Drizzle
+  metadata and OpenAPI snapshots are not rewritten by the formatter.
+- Replaced CI's whole-checkout Gitleaks mount with offline source/history
+  exports and disabled checkout credential persistence. Full-history scanning
+  mirrors all refs without checkout config/current env files; committed ignored
+  paths remain scannable. Four real Git/Gitleaks regressions cover clean,
+  deleted remote-only secrets, empty and shallow histories with redacted logs.
+  Local frozen install, 105 unit tests, lint/typecheck/build, workflow validation
+  and dependency audit pass. See `docs/scaffold-verification.md`; no remote CI
+  or deployment ran. Stop before file 08; file-06 launch gaps remain open.
+
+- File 06 reconciles M0–M7 and checks the already implemented public M2/M3 work;
+  adds a five-command fresh setup with a private initial-owner link, current
+  add-trip/deploy/backup handoff and 259 real-stack screenshots (187 public,
+  72 synthetic admin). Existing configuration and data are preserved.
+- Corrected responsive image candidates to match worker outputs and separated
+  home reveals from dialog imports (Linux home First Load JS 146 → 132 kB).
+  Fixed genuine no-JS trip rendering by resolving Private on the server and
+  removing the public streaming loading boundary; content, prices and WhatsApp
+  now render without JS in all seven languages. Private URL/booking preselection
+  works in pages and intercepted overlays.
+- Local file-06 checks: 105 unit and 52 PostgreSQL tests, all 46 distinct public
+  browser cases verified (45 full-run passes plus the stabilized 21-locale/width
+  rerun), 14 admin browser passes, builds/typecheck/lint and clean dependency
+  audit. Added repeatable Lighthouse gates that fail on missed strict budgets:
+  final three-run medians 92/100 home mobile, 93/100 trip, 98/100 desktop, CLS 0.
+  Mobile LCP remains 3.1–3.2 s against <2.5 s; real staff/device, content/legal/
+  security and remote deployment acceptance remain open. Evidence:
+  `docs/build-order-verification.md`. Stop before file 07.
+
+- Implemented file 05 dashboard in EN/IT/ES/FR/DE/RU/TR: real auth/MFA/setup/reset,
+  mobile tabs/desktop navigation, install/offline shell, requests/privacy,
+  translated trip sections, prices/bulk/history, collections/packages, media,
+  hero ordering/scheduling/preview, homepage/pages/FAQ, review queue/languages,
+  owner settings/users, audit/history and account controls.
+- Added exact revision IDs for accessible Undo, editor review drafts, preserved
+  page/duplicate translation provenance, MFA policy/session revocation, private
+  generic Web Push with its own durable queue, and poster-frame controls.
+  Fixed nullable/creation restores and price-confirmation edge cases. Runtime
+  admin URLs/config/readiness now support actual built-image promotion.
+- Local checks: 105 unit, 52 PostgreSQL and 14 dashboard browser tests, including
+  real owner UI → public price/hero revalidation and Undo, actual image upload,
+  keyboard ordering, seven-language saves and automated accessibility checks.
+  Root/admin/image builds, lint/typecheck and production dependency audit pass.
+  Public container regression: 37 pass. Added a pinned Next.js repeat tag
+  invalidation maintenance patch, proved failing before/passing after against
+  the real cache, and repeated actual publication/Undo twice in one process.
+  Admin ZAP baseline has no High; the inline-style Medium remains a launch
+  review gate. Real two-staff usability, HTTPS push/SMTP, authenticated staging
+  security, legal/native review and VPS acceptance remain open. Evidence:
+  `docs/admin-verification.md`; no remote deployment or next-file work is claimed.
+
+- Completed file 04's local implementation/audit phases: HMAC-backed session
+  revocation, race-safe password/MFA transitions, revoke-all and bounded device
+  recognition with seven-language new-device emails. Staff must log in again
+  after this upgrade; rotating SESSION_SECRET revokes existing cookies.
+- Added reauthenticated phone-specific privacy export/erase, historical copy and
+  pending-notification scrubbing, calendar-month retention and explicit immutable
+  anonymization state; tightened CSV formula escaping and codec child environments.
+- Hardened 128-bit HTML nonces/fallback CSP, streaming body bounds/deadlines,
+  exact JSON type and trusted proxy/origin validation. Prepared unpublished,
+  idempotent privacy drafts in all seven languages without provider calls.
+- Local security acceptance: 101 unit, 43 DB and 37 browser tests (three widths,
+  seven locales), eight operational cases, actual encrypted restore, builds,
+  dependency/source/config checks. ZAP completed with warnings: no High, one
+  Medium type for the plan's permitted inline styles. Real staging/VPS/admin UI,
+  legal publication, off-site restore and that launch finding remain open.
+  Evidence: `docs/security-verification.md`; subsequent dashboard work is recorded above.
+
+- Completed file 03's local integration phases: operational admin scaffold and
+  dependency readiness; runtime browser/API/canonical/sitemap URLs; private signed
+  draft previews with seven-language status copy and disabled draft bookings.
+- Added non-root/read-only Docker images, private production PostgreSQL roles,
+  Caddy TLS/security/AVIF negotiation, authenticated isolated staging, SHA-based
+  deploy/rollback with proxy snapshots, private backups, fail-closed staging scrub,
+  optional Cairo refresh timers, restic and operator monitoring/runbooks.
+- Prepared CI/release/Renovate, privacy-limited Sentry/GlitchTip-compatible code
+  events, opt-in self-hosted analytics guards and seven-language owner summaries.
+  No external translation, error, analytics, production mail or storage service
+  was used. Local acceptance: 96 unit, 33 DB integration, 34 container browser,
+  8 simulated operational cases, actual staging auth/encrypted restore, root/image
+  builds and source/config checks. Lighthouse home 93/100, trip 94/100; strict
+  LCP/real VPS/remote CI/admin UI and operator go-live gates remain open.
+
+- Recorded the standing owner rule: every future content/UI edit includes all
+  seven core locales together; shared behavior/layout/prices are verified in
+  all seven. Core translations are authored directly without a translation
+  subscription, and newly missing/stale translations block completion.
+
+### Complete seven-language content — 2026-11-12
+
+- Authored all existing site content in IT/ES/FR/DE/RU/TR alongside EN: 374
+  translated source phrases plus 35 language-independent sources, covering every
+  tour, draft package, collection, home block, itinerary/item, note and image alt.
+  Stored the translations in the repository and an idempotent DB seed; human
+  content wins. No translation service, subscription or provider key is required.
+- Fixed hero text inheritance to resolve translations from its collection and
+  localized departure/itinerary labels and confirmation plurals/pickup labels.
+- Changed language links to document navigation so HTML language/direction and
+  locale fonts update together; added comprehensive real-language browser checks.
+
+### Backend and revised plans — 2026-11-12
+
+- Applied the seven-core-language change (EN/IT/ES/FR/DE/RU/TR), added FR/DE/TR
+  UI drafts, phone defaults, core routing/switcher handling and parity/browser checks.
+  Corrected stale German-auto acceptance examples; native review remains pending.
+- Implemented file 02 in phases B1–B6: self-hosted PostgreSQL schema/migrations,
+  real idempotent catalog/media seed, Hono public/admin API, server booking prices,
+  atomic snapshots/outbox, authentication/MFA/CSRF/RBAC, draft publication/Undo,
+  price bulk previews, hero/homepage controls, audit/revisions and signed API previews.
+- Added private quarantine/magic-byte upload validation, HEIC fallback decoding,
+  image/video variants, rights gates, AVIF/Range delivery and versioned hashes.
+  Added pg-boss SMTP/revalidation/translation/retention/cleanup/weekly price jobs.
+- Verified 86 unit and 29 PostgreSQL integration tests, OpenAPI snapshot, local
+  real-stack browser booking/SMTP and authenticated price/hero invalidation/Undo.
+  Local Lighthouse: optimized home 93/100 and trip 93/100. Strict LCP <2.5 s,
+  native content approval and production acceptance stay open. See backend evidence.
+- Added least-privilege development compose roles, unique local config generator,
+  pinned test/password data setup and API/worker documentation. File 03 and admin
+  UI remain outside this handoff.
+
+### Earlier frontend implementation
+
+- Reviewed project plans, catalog and asset boundaries; added a phased M0
+  execution file honoring the user's file-by-file handoff requirement.
+- Recorded environment prerequisites and source inconsistencies for follow-up.
+
+- Completed the overview scope/source review and added phases directly in
+  `docs/00-overview.md`; recorded the user's numerical file order and mandatory
+  handoff after each file.
+- Incorporated current EN/IT/ES/RU, automatic-translation and admin hero-order
+  requirements; corrected the overview link to `08-i18n-plan.md`.
+- Initial workspace files preceded the order clarification. The public frontend
+  has now been implemented and verified locally; DB/admin/deployment gates remain
+  pending under the user's file-by-file handoff.
+- Added the mobile-first Concept E public site: Private-first home, API-driven
+  story hero, collections and trip overlays, desktop accordion/drawers, galleries,
+  My trip builder, shared price/day logic, request sheet and confirmation contract.
+- Added EN/IT/ES/RU dictionaries, live-locale discovery, honest language fallback,
+  RTL layout, vendored fonts/licenses, SEO, CSP and protected revalidation endpoint.
+- Kept production reads behind validated public API contracts. Added an isolated
+  read-only catalog/media fixture; actual bookings cannot succeed without the API.
+- Verified 29 unit/contract tests and 21 browser tests at 390/768/1440, production
+  build, typecheck and lint. Local Lighthouse mobile: home 90/100, trip 95/100
+  (performance/accessibility). Strict mobile LCP budget remains unmet; see
+  docs/frontend-verification.md for evidence, limits and integration follow-ups.

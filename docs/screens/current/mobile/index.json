@@ -1,0 +1,323 @@
+{
+  "captured": "2026-11-14T10:53:45.751Z",
+  "origin": "http://localhost:4983",
+  "source": "isolated PostgreSQL/API; no booking submission or external contact",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "trips": 38,
+  "collections": 7,
+  "inventory": [
+    {
+      "path": "/en",
+      "image": "en.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/private",
+      "image": "en-c-private.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/history",
+      "image": "en-c-history.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/sea",
+      "image": "en-c-sea.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/desert",
+      "image": "en-c-desert.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/beyond",
+      "image": "en-c-beyond.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/relax",
+      "image": "en-c-relax.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/all",
+      "image": "en-c-all.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/t/aqua-park",
+      "image": "en-t-aqua-park.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/arabian-night-safari",
+      "image": "en-t-arabian-night-safari.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/buggy-car-safari",
+      "image": "en-t-buggy-car-safari.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-alexandria-bus-2-days",
+      "image": "en-t-cairo-alexandria-bus-2-days.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-bus-2-days",
+      "image": "en-t-cairo-bus-2-days.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-bus-gem",
+      "image": "en-t-cairo-bus-gem.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-bus-old-museum",
+      "image": "en-t-cairo-bus-old-museum.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-plane-1-day",
+      "image": "en-t-cairo-plane-1-day.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/cairo-plane-2-days-private",
+      "image": "en-t-cairo-plane-2-days-private.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/camping-nabq",
+      "image": "en-t-camping-nabq.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/dahab-day-trip",
+      "image": "en-t-dahab-day-trip.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/desert-horse-riding",
+      "image": "en-t-desert-horse-riding.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/dolphin-show",
+      "image": "en-t-dolphin-show.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/glass-bottom-boat",
+      "image": "en-t-glass-bottom-boat.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/horse-riding-by-sea-nabq",
+      "image": "en-t-horse-riding-by-sea-nabq.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/jerusalem-bethlehem",
+      "image": "en-t-jerusalem-bethlehem.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/luxor-plane-1-day",
+      "image": "en-t-luxor-plane-1-day.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/mount-sinai-st-catherine",
+      "image": "en-t-mount-sinai-st-catherine.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/nabq-private-afternoon",
+      "image": "en-t-nabq-private-afternoon.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/nabq-private-morning",
+      "image": "en-t-nabq-private-morning.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/petra-bus-ferry",
+      "image": "en-t-petra-bus-ferry.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/private-speed-boat",
+      "image": "en-t-private-speed-boat.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/quad-bike-safari",
+      "image": "en-t-quad-bike-safari.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/t/ras-mohammed-bus",
+      "image": "en-t-ras-mohammed-bus.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/ras-mohammed-private-car",
+      "image": "en-t-ras-mohammed-private-car.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/ras-mohammed-white-island-boat",
+      "image": "en-t-ras-mohammed-white-island-boat.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/red-canyon-blue-hole",
+      "image": "en-t-red-canyon-blue-hole.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/red-canyon-three-pools",
+      "image": "en-t-red-canyon-three-pools.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/romantic-dinner-cruise",
+      "image": "en-t-romantic-dinner-cruise.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/sea-scope-submarine",
+      "image": "en-t-sea-scope-submarine.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/sharm-city-tour",
+      "image": "en-t-sharm-city-tour.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/spa-turkish-bath",
+      "image": "en-t-spa-turkish-bath.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/st-catherine-monastery-dahab",
+      "image": "en-t-st-catherine-monastery-dahab.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/stella-sharm-7in1",
+      "image": "en-t-stella-sharm-7in1.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/super-safari-5in1",
+      "image": "en-t-super-safari-5in1.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/tiran-island-boat",
+      "image": "en-t-tiran-island-boat.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/water-activities",
+      "image": "en-t-water-activities.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/wishwash-lake-canyon",
+      "image": "en-t-wishwash-lake-canyon.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/my-trip",
+      "image": "en-my-trip.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/contact",
+      "image": "en-contact.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/faq",
+      "image": "en-faq.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/terms",
+      "image": "en-legal-terms.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/privacy",
+      "image": "en-legal-privacy.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/cancellation",
+      "image": "en-legal-cancellation.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/it",
+      "image": "it.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/es",
+      "image": "es.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/fr",
+      "image": "fr.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/de",
+      "image": "de.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/ru",
+      "image": "ru.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/tr",
+      "image": "tr.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/t/quad-bike-safari#request",
+      "image": "request.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/my-trip#selection",
+      "image": "builder-selection.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/private#overlay",
+      "image": "collection-overlay.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/tiran-island-boat#overlay",
+      "image": "trip-overlay.jpg",
+      "fullPage": false
+    }
+  ]
+}

@@ -1,0 +1,2237 @@
+{
+  "collections": [
+    {
+      "id": "private",
+      "order": 0,
+      "virtual": true,
+      "rule": "shows every trip with format=private; every other trip offers 'private on request'",
+      "name": {
+        "en": "Private with Stella",
+        "it": "Privato con Stella"
+      },
+      "short": {
+        "en": "Private",
+        "it": "Privato"
+      },
+      "color": "#14213D",
+      "headline": {
+        "en": "Your trip, your way.",
+        "it": "Il tuo viaggio, a modo tuo."
+      },
+      "sub": {
+        "en": "Your own car, your own guide, your start time. Any trip can be private — some are private only.",
+        "it": "La tua auto, la tua guida, il tuo orario. Ogni gita può essere privata."
+      },
+      "hero_video": "assets/video-stock/hero6-private-h.mp4",
+      "cover": "assets/images/stock/yacht.jpg",
+      "perks": [
+        [
+          "Your own car",
+          "Air-conditioned, from your hotel door"
+        ],
+        [
+          "Your own guide",
+          "English or Italian"
+        ],
+        [
+          "Your start time",
+          "Pickup when it suits you"
+        ],
+        [
+          "Your pace",
+          "Stay longer, stop where you like"
+        ]
+      ],
+      "kind": "private_virtual",
+      "hero_video_mobile": "assets/video-stock/hero6-private-v.mp4"
+    },
+    {
+      "id": "history",
+      "order": 1,
+      "name": {
+        "en": "Pharaohs & Temples",
+        "it": "Faraoni e Templi"
+      },
+      "short": {
+        "en": "History",
+        "it": "Storia"
+      },
+      "color": "#1D4A8F",
+      "headline": {
+        "en": "Walk with the pharaohs.",
+        "it": "Cammina con i faraoni."
+      },
+      "sub": {
+        "en": "Cairo, Luxor, Alexandria and Mount Sinai — by bus, by plane or overnight from Sharm.",
+        "it": "Il Cairo, Luxor, Alessandria e il Monte Sinai — in bus, in aereo o di notte da Sharm."
+      },
+      "hero_video": "assets/video-stock/hero6-history-h.mp4",
+      "cover": "assets/images/stock/pyr-andreea.jpg",
+      "kind": "normal",
+      "hero_video_mobile": "assets/video-stock/hero6-history-v.mp4"
+    },
+    {
+      "id": "sea",
+      "order": 2,
+      "name": {
+        "en": "The Red Sea",
+        "it": "Il Mar Rosso"
+      },
+      "short": {
+        "en": "Sea",
+        "it": "Mare"
+      },
+      "color": "#0A7F8A",
+      "headline": {
+        "en": "Straight into the blue.",
+        "it": "Dritti nel blu."
+      },
+      "sub": {
+        "en": "Ras Mohammed, Tiran, boats, submarines and water sports — minutes from your hotel.",
+        "it": "Ras Mohammed, Tiran, barche, sottomarino e sport acquatici — a pochi minuti dall’hotel."
+      },
+      "hero_video": "assets/video-stock/hero6-sea-h.mp4",
+      "cover": "assets/images/stock/sea-Eitg.jpg",
+      "kind": "normal",
+      "hero_video_mobile": "assets/video-stock/hero6-sea-v.mp4"
+    },
+    {
+      "id": "desert",
+      "order": 3,
+      "name": {
+        "en": "Desert & Adventure",
+        "it": "Deserto e Avventura"
+      },
+      "short": {
+        "en": "Desert",
+        "it": "Deserto"
+      },
+      "color": "#9A5B12",
+      "headline": {
+        "en": "Where the road ends.",
+        "it": "Dove finisce la strada."
+      },
+      "sub": {
+        "en": "Quads, buggies, canyons, Bedouin nights and Nabq National Park.",
+        "it": "Quad, buggy, canyon, notti beduine e il Parco Nazionale di Nabq."
+      },
+      "hero_video": "assets/video-stock/hero6-desert-h.mp4",
+      "cover": "assets/images/stock/quad.jpg",
+      "kind": "normal",
+      "hero_video_mobile": "assets/video/hero6-desert-v.mp4"
+    },
+    {
+      "id": "beyond",
+      "order": 4,
+      "name": {
+        "en": "Beyond Egypt",
+        "it": "Oltre l’Egitto"
+      },
+      "short": {
+        "en": "Petra & Jerusalem",
+        "it": "Petra e Gerusalemme"
+      },
+      "color": "#7A2E2A",
+      "headline": {
+        "en": "One border, two wonders.",
+        "it": "Un confine, due meraviglie."
+      },
+      "sub": {
+        "en": "Petra by bus and ferry, Jerusalem & Bethlehem by bus.",
+        "it": "Petra in bus e traghetto, Gerusalemme e Betlemme in bus."
+      },
+      "hero_video": "assets/video-stock/hero6-beyond-h.mp4",
+      "cover": "assets/images/stock/sinai-mountains.jpg",
+      "kind": "normal",
+      "hero_video_mobile": "assets/video-stock/hero6-beyond-v.mp4"
+    },
+    {
+      "id": "relax",
+      "order": 5,
+      "name": {
+        "en": "Sharm Fun & Relax",
+        "it": "Sharm: svago e relax"
+      },
+      "short": {
+        "en": "Fun & relax",
+        "it": "Svago"
+      },
+      "color": "#6B3FA0",
+      "headline": {
+        "en": "Evenings, shows and slow days.",
+        "it": "Serate, spettacoli e giornate lente."
+      },
+      "sub": {
+        "en": "Dolphin show, dinner cruise, aqua park, horse riding, spa and the city tour.",
+        "it": "Delfini, cena in crociera, aqua park, equitazione, spa e tour della città."
+      },
+      "hero_video": "assets/video-stock/hero6-relax-h.mp4",
+      "cover": "assets/images/stock/sharm-bay.jpg",
+      "kind": "normal",
+      "hero_video_mobile": "assets/video-stock/hero6-relax-v.mp4"
+    },
+    {
+      "id": "all",
+      "order": 6,
+      "name": {
+        "en": "All of Egypt",
+        "it": "Tutto l’Egitto"
+      },
+      "short": {
+        "en": "All in one",
+        "it": "Tutto in uno"
+      },
+      "color": "#1B1712",
+      "headline": {
+        "en": "All of Egypt. One trip.",
+        "it": "Tutto l’Egitto. Un solo viaggio."
+      },
+      "sub": {
+        "en": "Ready-made journeys that join history, sea and desert — or build your own.",
+        "it": "Viaggi pronti che uniscono storia, mare e deserto — oppure crea il tuo."
+      },
+      "hero_video": "assets/video-stock/hero6-all-h.mp4",
+      "cover": "assets/images/stock/pyr-camels.jpg",
+      "kind": "packages",
+      "hero_video_mobile": "assets/video-stock/hero6-all-v.mp4"
+    }
+  ],
+  "trips": [
+    {
+      "slug": "cairo-bus-old-museum",
+      "collection": "history",
+      "title": "Cairo by Bus — One Day (Old Egyptian Museum)",
+      "days": "Every day",
+      "departure": "00:30–01:00",
+      "duration": "1 long day (overnight bus)",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 55,
+          "unit": "person"
+        }
+      ],
+      "highlights": [
+        "Old Egyptian Museum",
+        "Giza Pyramids",
+        "Great Sphinx",
+        "Egyptian lunch"
+      ],
+      "includes": [
+        "Round-trip transportation",
+        "Licensed tour guide",
+        "Old Egyptian Museum entrance",
+        "Pyramids & Sphinx visit",
+        "Lunch"
+      ],
+      "optional": [
+        "Felucca sailing on the Nile",
+        "Shopping stop"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sphinx.jpg",
+        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+      },
+      "source": [
+        "flyer-five-cairo-journeys",
+        "pricelist-excursions-programs-b #1"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "cairo-bus-gem",
+      "collection": "history",
+      "title": "Cairo by Bus — One Day (Grand Egyptian Museum)",
+      "days": "Every day",
+      "departure": "00:30–01:00",
+      "duration": "1 long day (overnight bus)",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 90,
+          "unit": "person"
+        }
+      ],
+      "highlights": [
+        "Grand Egyptian Museum",
+        "Giza Pyramids",
+        "Great Sphinx",
+        "Egyptian lunch"
+      ],
+      "includes": [
+        "Round-trip transportation",
+        "Licensed tour guide",
+        "Grand Egyptian Museum entrance",
+        "Pyramids & Sphinx visit",
+        "Lunch"
+      ],
+      "optional": [
+        "Felucca sailing on the Nile",
+        "Shopping stop"
+      ],
+      "media": {
+        "cover": "assets/images/stock/pyramids.jpg",
+        "video": "assets/video-stock/stock-giza-camels.mp4"
+      },
+      "source": [
+        "flyer-five-cairo-journeys",
+        "pricelist-excursions-programs-b #2"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "cairo-plane-1-day",
+      "collection": "history",
+      "title": "Cairo by Plane — One Day",
+      "days": "Every day",
+      "departure": "04:30–06:00",
+      "return_time": "~21:00",
+      "duration": "1 long day",
+      "transport": "plane",
+      "flight": true,
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 250,
+          "unit": "person"
+        }
+      ],
+      "conflicts": [],
+      "highlights": [
+        "Grand Egyptian Museum",
+        "Giza Pyramids",
+        "Great Sphinx",
+        "Egyptian lunch"
+      ],
+      "includes": [
+        "Round-trip flight",
+        "Comfortable transportation in Cairo",
+        "Licensed tour guide",
+        "Grand Egyptian Museum entrance",
+        "Pyramids & Sphinx visit",
+        "Lunch"
+      ],
+      "optional": [
+        "Felucca sailing on the Nile",
+        "Shopping stop"
+      ],
+      "media": {
+        "cover": "assets/images/stock/pyr-artfox.jpg",
+        "video": "assets/video-stock/stock-giza-camels.mp4"
+      },
+      "source": [
+        "flyer-cairo-plane-1day",
+        "flyer-five-cairo-journeys",
+        "pricelist-excursions-programs-b #3"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "itinerary": [],
+      "notes": [
+        "Resolved: client said pick one; staff can change it in the admin. Was: €250 on the Cairo flyers, €260 on the excursions price list — confirm which is current"
+      ],
+      "family": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "cairo-bus-2-days",
+      "collection": "history",
+      "title": "Cairo by Bus — 2 Days",
+      "days": "Every day",
+      "departure": "00:30–01:00",
+      "duration": "2 days · 1 night",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 195,
+          "unit": "person"
+        }
+      ],
+      "conflicts": [],
+      "itinerary": [
+        [
+          "Day 1",
+          "Grand Egyptian Museum, Giza Pyramids, Great Sphinx, Egyptian lunch, felucca (optional)"
+        ],
+        [
+          "Night",
+          "1 night hotel, bed & breakfast — downtown or pyramids view"
+        ],
+        [
+          "Day 2",
+          "Coptic Cairo or Islamic Cairo, old bazaar, Egyptian lunch (or choose your spots)"
+        ]
+      ],
+      "includes": [
+        "Round-trip transportation",
+        "Licensed tour guide",
+        "Grand Egyptian Museum entrance",
+        "Pyramids & Sphinx visit",
+        "Lunch",
+        "1 night hotel with breakfast (downtown or pyramids view)"
+      ],
+      "optional": [
+        "Felucca sailing on the Nile"
+      ],
+      "media": {
+        "cover": "assets/images/stock/pyr-camels.jpg",
+        "video": "assets/video/coptic-cairo-v.mp4"
+      },
+      "source": [
+        "flyer-five-cairo-journeys",
+        "pricelist-excursions-programs-b #4"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "notes": [
+        "Resolved: client said pick one; staff can change it in the admin. Was: €195 on the five-journeys flyer, €190 on the excursions price list — confirm"
+      ],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "cairo-alexandria-bus-2-days",
+      "collection": "history",
+      "title": "Cairo & Alexandria by Bus — 2 Days",
+      "days": "Every day",
+      "departure": "00:30–01:00",
+      "duration": "2 days · 1 night",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 200,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "Day 1 — Cairo",
+          "Grand Egyptian Museum, Giza Pyramids, Great Sphinx, Egyptian lunch, felucca on the Nile (optional)"
+        ],
+        [
+          "Night",
+          "1 night hotel, bed & breakfast — downtown or pyramids view"
+        ],
+        [
+          "Day 2 — Alexandria",
+          "El Montazah Park, Alexandria Library (outside), Mosque of Morsi Abu Abbas, Citadel of Qaitbay, Egyptian lunch"
+        ]
+      ],
+      "includes": [
+        "Round-trip transportation",
+        "Licensed tour guide",
+        "Grand Egyptian Museum entrance",
+        "Pyramids & Sphinx visit",
+        "Lunch",
+        "1 night hotel with breakfast"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sphinx.jpg",
+        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+      },
+      "notes": [
+        "No Alexandria photos yet — need one (Qaitbay citadel)"
+      ],
+      "source": [
+        "flyer-cairo-alexandria-bus-2days",
+        "flyer-five-cairo-journeys",
+        "pricelist-excursions-programs-b #5"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "cairo-plane-2-days-private",
+      "collection": "history",
+      "title": "Cairo by Plane — 2 Days (Private)",
+      "days": "On request",
+      "duration": "2 days · 1 night",
+      "transport": "plane",
+      "flight": true,
+      "format": "private",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 450,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "Day 1 — Cairo",
+          "Hotel → Sharm airport, flight to Cairo, private air-conditioned car and guide. Giza Pyramids, Great Sphinx, Grand Egyptian Museum, Egyptian lunch. Optional: shopping, Nile cruise"
+        ],
+        [
+          "Night",
+          "1 night hotel, bed & breakfast — downtown Cairo or pyramids view"
+        ],
+        [
+          "Day 2 — Historic Cairo",
+          "Mohamed Ali Pasha Citadel, historic Cairo & Khan El Khalili, Christian Cairo & ancient churches, Egyptian lunch"
+        ],
+        [
+          "Return",
+          "Transfer to Cairo airport, flight to Sharm, transfer to your hotel"
+        ]
+      ],
+      "includes": [
+        "Flights Sharm–Cairo–Sharm",
+        "Private air-conditioned vehicle",
+        "Professional guide",
+        "Meals as listed",
+        "1 night hotel with breakfast"
+      ],
+      "optional": [
+        "Shopping",
+        "Nile cruise"
+      ],
+      "media": {
+        "cover": "assets/images/stock/pyr-kai.jpg",
+        "video": "assets/video/cairo-citadel-mosque-v.mp4"
+      },
+      "source": [
+        "flyer-cairo-plane-2days-private"
+      ],
+      "status": "published",
+      "excludes": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "luxor-plane-1-day",
+      "collection": "history",
+      "title": "Luxor by Plane — One Day",
+      "days": "Every day",
+      "departure": "04:00",
+      "return_time": "~21:00",
+      "duration": "1 long day",
+      "transport": "plane",
+      "flight": true,
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 260,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "04:00",
+          "Hotel pickup and transfer to the airport"
+        ],
+        [
+          "~05:00",
+          "Flight to Luxor (about 60 min)"
+        ],
+        [
+          "Morning",
+          "Karnak Temple"
+        ],
+        [
+          "",
+          "Hatshepsut Temple"
+        ],
+        [
+          "",
+          "The West Bank"
+        ],
+        [
+          "",
+          "Colossi of Memnon"
+        ],
+        [
+          "",
+          "Lunch at a local restaurant"
+        ],
+        [
+          "Optional",
+          "Nile boat trip / Banana Island"
+        ],
+        [
+          "~21:00",
+          "Back in Sharm El Sheikh"
+        ]
+      ],
+      "includes": [
+        "Pickup and drop-off to the airport",
+        "Round-trip flight tickets Sharm ↔ Luxor",
+        "Entrance fees (Karnak, Hatshepsut, West Bank, Colossi of Memnon)",
+        "Lunch at a local restaurant",
+        "Professional guide"
+      ],
+      "excludes": [
+        "Drinks",
+        "Optional Nile boat trip / Banana Island",
+        "Shopping and personal expenses"
+      ],
+      "media": {
+        "cover": "assets/images/stock/luxor-night.jpg",
+        "gallery": [
+          "assets/images/stock/karnak.jpg"
+        ]
+      },
+      "source": [
+        "flyer-luxor-plane",
+        "pricelist-excursions-programs-b #6"
+      ],
+      "status": "published",
+      "format": "both",
+      "optional": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "mount-sinai-st-catherine",
+      "collection": "history",
+      "title": "Mount Sinai Sunrise & St Catherine",
+      "days": "Sunday · Wednesday · Friday",
+      "departure": "19:30–20:00",
+      "return_time": "~13:00–13:30 next day",
+      "duration": "Overnight",
+      "transport": "car",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 40,
+          "unit": "person"
+        }
+      ],
+      "conflicts": [],
+      "itinerary": [
+        [
+          "20:00",
+          "Pickup from your hotel by air-conditioned car with a professional guide"
+        ],
+        [
+          "00:00",
+          "Arrive at the mountain"
+        ],
+        [
+          "",
+          "Start the hike with a local Bedouin guide"
+        ],
+        [
+          "~3¾ h",
+          "Hike to the top for sunrise from the highest mountain in Egypt"
+        ],
+        [
+          "After sunrise",
+          "Descent (around 2 hours)"
+        ],
+        [
+          "1 hour",
+          "Visit St Catherine Monastery"
+        ],
+        [
+          "13:30",
+          "Back in Sharm"
+        ]
+      ],
+      "includes": [
+        "Pickup and drop-off from Sharm",
+        "Professional guide",
+        "All required fees and tickets",
+        "Local Bedouin guide for the hike",
+        "Torch"
+      ],
+      "excludes": [
+        "Food and drinks"
+      ],
+      "notes": [
+        "Bring: comfortable sport shoes, warm clothes, sunglasses",
+        "Resolved: client said pick one; staff can change it in the admin. Was: Price list says 19:30 → 13:00 next day; flyer says 20:00 pickup → back ~13:30. Confirm times."
+      ],
+      "media": {
+        "cover": "assets/images/stock/sinai-mountains.jpg",
+        "video": "assets/video-stock/stock-mount-sinai-sunrise.mp4",
+        "gallery": [
+          "assets/images/stock/stcath.jpg"
+        ]
+      },
+      "source": [
+        "flyer-mount-sinai-st-catherine",
+        "pricelist-excursions-programs-a #9"
+      ],
+      "status": "published",
+      "format": "both",
+      "optional": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "st-catherine-monastery-dahab",
+      "collection": "history",
+      "title": "Monastery of Saint Catherine & Dahab",
+      "days": "Saturday · Monday · Tuesday",
+      "departure": "05:30",
+      "return_time": "17:30",
+      "duration": "Full day",
+      "transport": "car",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 40,
+          "unit": "person"
+        }
+      ],
+      "highlights": [
+        "Church",
+        "Moses’ Well",
+        "Dahab city",
+        "Lunch",
+        "Shopping"
+      ],
+      "includes": [
+        "Licensed guide",
+        "Lunch"
+      ],
+      "media": {
+        "cover": "assets/images/stock/stcath.jpg",
+        "video": "assets/video-stock/stock-saint-catherine.mp4"
+      },
+      "source": [
+        "pricelist-excursions-programs-a #10"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "petra-bus-ferry",
+      "collection": "beyond",
+      "title": "Petra — One Day by Bus & Ferry",
+      "days": "Saturday · Monday · Wednesday",
+      "departure": "01:00",
+      "return_time": "~01:00 next night",
+      "duration": "~24 h",
+      "transport": "bus + ferry",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 240,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "01:00",
+          "Pickup in Sharm El Sheikh"
+        ],
+        [
+          "~3 h",
+          "Drive to Taba Heights (15-min break)"
+        ],
+        [
+          "05:00",
+          "Access to Taba Heights"
+        ],
+        [
+          "~50 min",
+          "Cruise ship to Jordan"
+        ],
+        [
+          "08:15",
+          "Arrival at Aqaba (Talabay)"
+        ],
+        [
+          "~1 h",
+          "Border procedures"
+        ],
+        [
+          "2 h",
+          "Drive from Aqaba to Petra"
+        ],
+        [
+          "11:30–12:00",
+          "Arrival at Petra"
+        ],
+        [
+          "4 h",
+          "Petra: the Siq, Al-Khazneh, Royal Tombs, Roman Theatre"
+        ],
+        [
+          "",
+          "10-min drive to lunch, 1 hour"
+        ],
+        [
+          "17:00",
+          "Leave Petra for Aqaba (2 h)"
+        ],
+        [
+          "~1 h",
+          "Departure procedures"
+        ],
+        [
+          "",
+          "Arrive at Taba Heights, drive back to Sharm"
+        ],
+        [
+          "01:00",
+          "Expected arrival in Sharm"
+        ]
+      ],
+      "includes": [
+        "Transportation",
+        "Lunch in a restaurant in Petra (open buffet)",
+        "English / Italian / Russian / Polish speaking guide"
+      ],
+      "excludes": [
+        "Re-entry visa for Egypt if needed",
+        "Drinks",
+        "Anything not listed as included"
+      ],
+      "notes": [
+        "Timing may vary with boat arrival, movements and security procedures"
+      ],
+      "media": {
+        "video": "assets/video-stock/stock-petra-treasury.mp4",
+        "cover": "assets/images/stock/petra.jpg"
+      },
+      "source": [
+        "flyer-petra",
+        "pricelist-excursions-programs-b #8"
+      ],
+      "status": "published",
+      "format": "both",
+      "optional": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "jerusalem-bethlehem",
+      "collection": "beyond",
+      "title": "Jerusalem & Bethlehem — Day Tour by Bus",
+      "days": "Monday · Thursday",
+      "departure": "21:00",
+      "duration": "~28 hours",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 320,
+          "unit": "person"
+        }
+      ],
+      "conflicts": [],
+      "highlights": [
+        "Dead Sea",
+        "Jordan River",
+        "Bethlehem — Church of the Nativity",
+        "Mount of Olives",
+        "Western Wall",
+        "Via Dolorosa & Church of the Holy Sepulchre"
+      ],
+      "includes": [
+        "Visa included in the price (per flyer)",
+        "Lunch at a local restaurant in Bethlehem"
+      ],
+      "excludes": [
+        "Drinks",
+        "Personal shopping expenses"
+      ],
+      "notes": [
+        "Book at least 24 hours before departure",
+        "Needed: mother’s full name, father’s full name, passport copy, mobile number",
+        "Resolved: client said pick one; staff can change it in the admin. Was: Flyer: departure 21:00, ~28 h. Price list: 19:30–24:00. Confirm."
+      ],
+      "media": {
+        "video": "assets/video/jerusalem-dome-v.mp4"
+      },
+      "source": [
+        "flyer-jerusalem-bethlehem",
+        "pricelist-excursions-programs-b #7"
+      ],
+      "status": "published",
+      "format": "both",
+      "optional": [],
+      "itinerary": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "ras-mohammed-bus",
+      "collection": "sea",
+      "title": "Ras Mohammed by Bus",
+      "days": "Every day",
+      "departure": "08:30",
+      "return_time": "13:30",
+      "duration": "~5 h",
+      "transport": "bus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 25,
+          "unit": "person"
+        }
+      ],
+      "highlights": [
+        "Gate of Allah",
+        "Mangrove trees",
+        "Earthquake crack",
+        "Magic Lake swim",
+        "Snorkelling"
+      ],
+      "includes": [
+        "Licensed guide",
+        "All entrance fees"
+      ],
+      "media": {
+        "cover": "assets/images/stock/white-island.jpg",
+        "gallery": [
+          "assets/images/stock/reef.jpg"
+        ],
+        "video": "assets/video-stock/stock-red-sea-reef.mp4"
+      },
+      "source": [
+        "flyer-ras-mohammed-bus",
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "ras-mohammed-private-car",
+      "collection": "sea",
+      "title": "Ras Mohammed — Private Car",
+      "days": "Every day · flexible start",
+      "departure": "~08:00",
+      "return_time": "~13:30",
+      "duration": "~5½ h",
+      "transport": "private car (Xpander or similar)",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "car"
+        }
+      ],
+      "highlights": [
+        "Gate of Allah",
+        "Mangrove forest",
+        "Earthquake crack",
+        "Magic Lake (salt water)",
+        "Snorkelling at the Aqaba Gulf"
+      ],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Professional tour guide",
+        "National park fees",
+        "Snorkelling gear (life jackets included)",
+        "Bottled water"
+      ],
+      "excludes": [
+        "Lunch (available as an optional extra)"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sea-BkRr.jpg",
+        "video": "assets/video-stock/stock-red-sea-reef.mp4"
+      },
+      "notes": [
+        "Price not on any flyer — ask Stella"
+      ],
+      "source": [
+        "flyer-ras-mohammed-private"
+      ],
+      "status": "published",
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "ras-mohammed-white-island-boat",
+      "collection": "sea",
+      "title": "Ras Mohammed & White Island by Boat",
+      "days": "Every day",
+      "departure": "07:45",
+      "return_time": "17:30",
+      "duration": "Full day",
+      "transport": "yacht",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "07:45",
+          "Pickup (round-trip transfer included)"
+        ],
+        [
+          "",
+          "Yacht cruise to Ras Mohammed"
+        ],
+        [
+          "",
+          "2 snorkelling stops in Ras Mohammed"
+        ],
+        [
+          "",
+          "White Island — relax, swim, sunbathe"
+        ],
+        [
+          "",
+          "Lunch on board: breaded fried chicken cutlets, kofta, vegetables, rice, pasta, salads, bread"
+        ],
+        [
+          "17:30",
+          "Return"
+        ]
+      ],
+      "includes": [
+        "Round-trip transfer hotel ⇄ marina",
+        "Marina fees",
+        "Yacht cruise",
+        "2 snorkelling stops",
+        "White Island visit",
+        "Lunch & soft drinks",
+        "Snorkelling equipment (mask & life jackets)",
+        "Professional guides"
+      ],
+      "optional": [
+        "Intro scuba diving with instructor (+€15 per price list)",
+        "Underwater photos & videos"
+      ],
+      "media": {
+        "cover": "assets/images/stock/white-island.jpg",
+        "video": "assets/video-stock/stock-sea-boat.mp4",
+        "gallery": [
+          "assets/images/stock/reef.jpg",
+          "assets/images/stock/fish.jpg"
+        ]
+      },
+      "source": [
+        "flyer-ras-mohammed-white-island-boat",
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "tiran-island-boat",
+      "collection": "sea",
+      "title": "Tiran Island by Boat",
+      "days": "Every day",
+      "departure": "08:00",
+      "return_time": "17:00",
+      "duration": "Full day",
+      "transport": "boat",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "2 snorkelling stops",
+        "Lunch",
+        "Drinks",
+        "Life jackets"
+      ],
+      "optional": [
+        "Intro diving +€15"
+      ],
+      "media": {
+        "cover": "assets/images/stock/tiran-boat.jpg",
+        "gallery": [
+          "assets/images/stock/sea-Eitg.jpg"
+        ],
+        "video": "assets/video-stock/stock-red-sea-reef.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "sea-scope-submarine",
+      "collection": "sea",
+      "title": "Sea Scope (Submarine)",
+      "days": "Every day",
+      "departure": "09:30 or 14:00",
+      "duration": "~2 h",
+      "transport": "boat",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "family": true,
+      "highlights": [
+        "Red Sea coral reefs",
+        "Colourful fish"
+      ],
+      "includes": [
+        "Welcome drink"
+      ],
+      "media": {
+        "cover": "assets/images/stock/fish.jpg",
+        "video": "assets/video/reef-snorkel-v.mp4"
+      },
+      "notes": [
+        "Need a real Sea Scope photo"
+      ],
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "glass-bottom-boat",
+      "collection": "sea",
+      "title": "Glass Bottom Boat",
+      "days": "Every day",
+      "departure": "09:00 or 15:00",
+      "duration": "1 hour trip",
+      "transport": "boat",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 15,
+          "unit": "person"
+        }
+      ],
+      "family": true,
+      "highlights": [
+        "Coral reef viewing",
+        "Family friendly"
+      ],
+      "media": {
+        "cover": "assets/images/stock/fish.jpg",
+        "video": "assets/video/reef-snorkel-v.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "private-speed-boat",
+      "collection": "sea",
+      "title": "Private Speed Boat (VIP)",
+      "days": "Every day",
+      "departure": "09:00–17:00",
+      "duration": "Per hour",
+      "transport": "speed boat",
+      "format": "private",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 100,
+          "unit": "hour"
+        }
+      ],
+      "highlights": [
+        "Private boat",
+        "Snorkelling stops",
+        "Perfect for couples & families"
+      ],
+      "media": {
+        "cover": "assets/images/stock/yacht.jpg",
+        "gallery": [
+          "assets/images/stock/boat-guest.jpg"
+        ],
+        "video": "assets/video-stock/stock-sea-boat.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "water-activities",
+      "collection": "sea",
+      "title": "Water Activities — Parasailing, Banana & Sofa Boat",
+      "days": "Every day",
+      "duration": "Half day",
+      "transport": "private transfer",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "family": true,
+      "includes": [
+        "Parasailing",
+        "Banana boat",
+        "Sofa boat",
+        "Private transfer"
+      ],
+      "media": {
+        "cover": "assets/images/stock/beach-family.jpg"
+      },
+      "notes": [
+        "Need real parasailing photo/video"
+      ],
+      "source": [
+        "flyer-water-activities",
+        "pricelist-excursions-programs-a"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "quad-bike-safari",
+      "collection": "desert",
+      "title": "Quad Bike Safari",
+      "days": "Every day",
+      "departure": "04:00 (sunrise) or 17:00 (sunset)",
+      "duration": "~3 h",
+      "transport": "quad",
+      "prices": [
+        {
+          "label": "Single (1 per quad)",
+          "amount_eur": 15,
+          "unit": "person"
+        },
+        {
+          "label": "Double (2 per quad)",
+          "amount_eur": 20,
+          "unit": "quad"
+        }
+      ],
+      "highlights": [
+        "Bedouin tea",
+        "Sunrise or sunset",
+        "Mountain photos"
+      ],
+      "media": {
+        "cover": "assets/images/stock/quad.jpg",
+        "video": "assets/video/bedouin-quad-v.mp4"
+      },
+      "notes": [
+        "Confirm whether Double €20 is per quad or per person"
+      ],
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "buggy-car-safari",
+      "collection": "desert",
+      "title": "Buggy Car Safari",
+      "days": "Every day",
+      "departure": "04:00 or 17:00",
+      "duration": "~3 h",
+      "transport": "buggy",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "buggy"
+        }
+      ],
+      "highlights": [
+        "Bedouin tea",
+        "Desert adventure",
+        "Mountain views"
+      ],
+      "media": {
+        "cover": "assets/images/stock/desert-palms.jpg",
+        "video": "assets/video/desert-jeep-v.mp4"
+      },
+      "notes": [
+        "Confirm unit (per buggy or per person)",
+        "Need a real buggy photo"
+      ],
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "super-safari-5in1",
+      "collection": "desert",
+      "title": "Super Safari 5 in 1",
+      "days": "Every day",
+      "departure": "17:00",
+      "return_time": "22:00",
+      "duration": "Evening · ~5 h",
+      "transport": "quad + 4x4",
+      "prices": [
+        {
+          "label": "Single",
+          "amount_eur": 35,
+          "unit": "person"
+        },
+        {
+          "label": "Double",
+          "amount_eur": 55,
+          "unit": "quad"
+        }
+      ],
+      "includes": [
+        "Quad bike",
+        "Bedouin tea",
+        "Camel ride",
+        "Dinner",
+        "Evening show & party"
+      ],
+      "media": {
+        "cover": "assets/images/stock/camel.jpg",
+        "video": "assets/video/bedouin-quad-v.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "stella-sharm-7in1",
+      "collection": "desert",
+      "title": "Stella Sharm 7 in 1",
+      "days": "Every day",
+      "departure": "10:00",
+      "return_time": "16:00",
+      "duration": "Full day",
+      "transport": "mixed",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 60,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "Quad bike safari",
+        "Buggy car safari",
+        "Camel ride",
+        "Bedouin tea",
+        "Lunch",
+        "Parasailing",
+        "Banana boat"
+      ],
+      "media": {
+        "cover": "assets/images/stock/quad.jpg",
+        "video": "assets/video/hero-desert-v.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "arabian-night-safari",
+      "collection": "desert",
+      "title": "Arabian Night Safari (Private)",
+      "days": "On request",
+      "departure": "~17:30",
+      "return_time": "~22:30",
+      "duration": "Evening · ~5 h",
+      "transport": "private car",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "17:30",
+          "Pickup by private air-conditioned car"
+        ],
+        [
+          "",
+          "Choose buggy or quad"
+        ],
+        [
+          "",
+          "Private safari with a private guide"
+        ],
+        [
+          "",
+          "Bedouin village: tea and photos"
+        ],
+        [
+          "",
+          "Camel riding"
+        ],
+        [
+          "",
+          "Drive through the desert to the Arabic night party"
+        ],
+        [
+          "",
+          "BBQ dinner & live show"
+        ],
+        [
+          "",
+          "Telescope and stargazing"
+        ],
+        [
+          "22:30",
+          "Drop-off at your hotel"
+        ]
+      ],
+      "media": {
+        "cover": "assets/images/stock/camel.jpg",
+        "video": "assets/video/bedouin-quad-v.mp4"
+      },
+      "notes": [
+        "Price not on flyer — ask Stella"
+      ],
+      "source": [
+        "flyer-arabian-night-safari"
+      ],
+      "status": "published",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "nabq-private-morning",
+      "collection": "desert",
+      "title": "Nabq National Park — Private Morning Tour",
+      "days": "On request",
+      "departure": "~07:45",
+      "duration": "Full morning",
+      "transport": "jeep",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "group"
+        }
+      ],
+      "includes": [
+        "Jeep safari",
+        "Canyon adventure",
+        "Sandboarding",
+        "Moto / quad biking",
+        "Kayaking in the mangrove forest",
+        "Lunch",
+        "Camel ride on the beach",
+        "Bedouin tea & traditional snacks"
+      ],
+      "media": {
+        "cover": "assets/images/stock/desert-palms.jpg",
+        "video": "assets/video/desert-jeep-v.mp4"
+      },
+      "source": [
+        "flyer-nabq-private-tours",
+        "pricelist-excursions-programs-a"
+      ],
+      "status": "published",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "nabq-private-afternoon",
+      "collection": "desert",
+      "title": "Nabq National Park — Private Afternoon & Evening Tour",
+      "days": "On request",
+      "departure": "~14:00",
+      "duration": "Afternoon + evening",
+      "transport": "jeep",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "group"
+        }
+      ],
+      "includes": [
+        "Jeep safari",
+        "Canyon adventure",
+        "Sandboarding",
+        "Moto / quad biking",
+        "Stargazing with telescope",
+        "Mangrove forest visit",
+        "Camel ride on the beach",
+        "Dinner and Bedouin night show",
+        "Bedouin tea & traditional snacks"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sinai-mountains.jpg",
+        "video": "assets/video/desert-jeep-v.mp4"
+      },
+      "source": [
+        "flyer-nabq-private-tours",
+        "pricelist-excursions-programs-a"
+      ],
+      "status": "published",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "camping-nabq",
+      "collection": "desert",
+      "title": "Camping in Nabq National Park",
+      "days": "On request",
+      "departure": "12:00",
+      "return_time": "12:00 next day",
+      "duration": "Overnight",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "person"
+        }
+      ],
+      "media": {
+        "cover": null,
+        "video": "assets/video/desert-jeep-v.mp4"
+      },
+      "notes": [
+        "Use Stella’s own cabin photos (flyer shows cabins)"
+      ],
+      "source": [
+        "flyer-camping-nabq"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "red-canyon-three-pools",
+      "collection": "desert",
+      "title": "Red Canyon (Salama) & Three Pools",
+      "days": "Every day",
+      "departure": "07:00",
+      "return_time": "17:00",
+      "duration": "Full day",
+      "transport": "jeep",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "Jeep safari",
+        "Red Canyon (Salama)",
+        "Snorkelling in the Three Pools",
+        "Lunch",
+        "Camel riding",
+        "Quad bike"
+      ],
+      "media": {
+        "cover": "assets/images/stock/desert-palms.jpg",
+        "video": "assets/video/coloured-canyon-v.mp4"
+      },
+      "source": [
+        "pricelist-excursions-programs-a #13"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "red-canyon-blue-hole",
+      "collection": "desert",
+      "title": "Red Canyon (Salama) & Blue Hole",
+      "days": "Every day",
+      "departure": "07:00",
+      "return_time": "17:00",
+      "duration": "Full day",
+      "transport": "jeep",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 55,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "Jeep safari",
+        "Red Canyon (Salama)",
+        "Snorkelling at the Blue Hole",
+        "Lunch",
+        "Camel ride",
+        "Quad bike"
+      ],
+      "media": {
+        "cover": "assets/images/stock/dahab.jpg",
+        "video": "assets/video/coloured-canyon-v.mp4"
+      },
+      "source": [
+        "pricelist-excursions-programs-a #12"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "dahab-day-trip",
+      "collection": "desert",
+      "title": "Dahab Day Trip",
+      "days": "Every day",
+      "departure": "~07:40",
+      "return_time": "~17:30",
+      "duration": "Full day",
+      "transport": "AC minibus",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "07:40",
+          "Pickup (exact time depends on hotel location)"
+        ],
+        [
+          "",
+          "Snorkelling in the Gulf of Aqaba — masks & life jackets included"
+        ],
+        [
+          "",
+          "20-minute quad biking by the sea"
+        ],
+        [
+          "",
+          "10-minute camel ride on the beach"
+        ],
+        [
+          "",
+          "Jeep safari + 40-minute canyon mountains walk (Nuweiba desert)"
+        ],
+        [
+          "",
+          "Lunch: chicken, rice, vegetables and salad"
+        ],
+        [
+          "",
+          "Free time for shopping"
+        ],
+        [
+          "17:30",
+          "Drop-off"
+        ]
+      ],
+      "includes": [
+        "All activities in the program",
+        "All fees and services mentioned",
+        "Air-conditioned transportation",
+        "Lunch"
+      ],
+      "excludes": [
+        "Drinks",
+        "Photographer services",
+        "Personal expenses"
+      ],
+      "optional": [
+        "Snorkelling at the Blue Hole (entrance fee 20 USD)"
+      ],
+      "media": {
+        "cover": "assets/images/stock/dahab.jpg",
+        "video": "assets/video/desert-camel-v.mp4"
+      },
+      "source": [
+        "flyer-dahab-day-trip"
+      ],
+      "status": "published",
+      "format": "both",
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "wishwash-lake-canyon",
+      "collection": "desert",
+      "title": "Wishwash Lake & Canyon (Private)",
+      "days": "On request",
+      "departure": "06:00",
+      "return_time": "17:00",
+      "duration": "Full day",
+      "transport": "jeep",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "group"
+        }
+      ],
+      "includes": [
+        "Canyon",
+        "Swimming",
+        "Wishwash Lake",
+        "Lunch",
+        "Shopping"
+      ],
+      "media": {
+        "video": "assets/video/coloured-canyon-v.mp4"
+      },
+      "source": [
+        "pricelist-excursions-programs-a #11"
+      ],
+      "status": "published",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    },
+    {
+      "slug": "desert-horse-riding",
+      "collection": "relax",
+      "title": "Desert Horse Riding",
+      "days": "Every day",
+      "departure": "09:00–18:00",
+      "duration": "1 hour",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 25,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "1 hour horseback riding",
+        "Bedouin tea",
+        "Desert landscape"
+      ],
+      "media": {},
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "horse-riding-by-sea-nabq",
+      "collection": "relax",
+      "title": "Horse Riding by the Sea (Nabq National Park)",
+      "days": "Every day",
+      "departure": "09:00–18:00",
+      "duration": "1 hour",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "1 hour horseback",
+        "Sea views",
+        "Nabq National Park"
+      ],
+      "media": {},
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "dolphin-show",
+      "collection": "relax",
+      "title": "Dolphin Show",
+      "days": "Every day",
+      "departure": "14:00–17:00",
+      "duration": "~2 h",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": "Show",
+          "amount_eur": 25,
+          "unit": "person"
+        },
+        {
+          "label": "+ 15 min swim with dolphins",
+          "amount_eur": 90,
+          "unit": "person"
+        },
+        {
+          "label": "+ 30 min swim with dolphins",
+          "amount_eur": 120,
+          "unit": "person"
+        }
+      ],
+      "family": true,
+      "media": {},
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "notes": [
+        "Consider animal-welfare wording; some EU visitors avoid dolphin shows"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "conflicts": [],
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "romantic-dinner-cruise",
+      "collection": "relax",
+      "title": "Romantic Dinner Cruise",
+      "days": "Every day",
+      "departure": "17:00",
+      "return_time": "22:00",
+      "duration": "Evening",
+      "transport": "boat",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 30,
+          "unit": "person"
+        }
+      ],
+      "includes": [
+        "Seafood dinner",
+        "Belly dance",
+        "Oriental show",
+        "Magic show"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sunset-coast.jpg",
+        "video": "assets/video-stock/stock-sharm-sunset.mp4"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "aqua-park",
+      "collection": "relax",
+      "title": "Aqua Park",
+      "days": "Every day",
+      "departure": "10:00",
+      "return_time": "16:00",
+      "duration": "Full day",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": null,
+          "amount_eur": 55,
+          "unit": "person"
+        }
+      ],
+      "family": true,
+      "includes": [
+        "48 water slides",
+        "Lunch",
+        "Drinks"
+      ],
+      "media": {
+        "cover": "assets/images/stock/beach-family.jpg"
+      },
+      "source": [
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "spa-turkish-bath",
+      "collection": "relax",
+      "title": "Spa & Turkish Bath",
+      "days": "Every day",
+      "duration": "50–120 min",
+      "transport": "transfer",
+      "prices": [
+        {
+          "label": "VIP program · 120 min",
+          "amount_eur": 55,
+          "unit": "person"
+        },
+        {
+          "label": "Turkish bath · 90 min",
+          "amount_eur": 45,
+          "unit": "person"
+        },
+        {
+          "label": "Cleopatra program · 90 min",
+          "amount_eur": 45,
+          "unit": "person"
+        },
+        {
+          "label": "Massage program · 50 min",
+          "amount_eur": 35,
+          "unit": "person"
+        }
+      ],
+      "itinerary": [
+        [
+          "VIP · 120 min",
+          "Sauna, steam room, jacuzzi, peeling, foam massage, full back oil massage (45 min), face mask (chocolate or milk), body scrub (chocolate or coconut), foot & hand scrub (Dead Sea salt)"
+        ],
+        [
+          "Turkish bath · 90 min",
+          "Sauna, steam room, jacuzzi, peeling, foam massage, full back oil massage (45 min)"
+        ],
+        [
+          "Cleopatra · 90 min",
+          "Sauna, steam room, jacuzzi, body scrub (coconut + chocolate), salt scrub (hand + feet), face mask, 45-min massage"
+        ],
+        [
+          "Massage · 50 min",
+          "50-min massage, face mask with chocolate or milk"
+        ]
+      ],
+      "media": {},
+      "notes": [
+        "Price list says Turkish bath 'from €35' — matches the 50-min massage program"
+      ],
+      "source": [
+        "flyer-spa-turkish-bath",
+        "pricelist-sea-desert-extras"
+      ],
+      "status": "published",
+      "format": "both",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": true
+    },
+    {
+      "slug": "sharm-city-tour",
+      "collection": "relax",
+      "title": "Sharm El Sheikh City Tour (Private)",
+      "days": "On request",
+      "departure": "On request",
+      "duration": "Evening",
+      "transport": "private car",
+      "format": "private",
+      "prices": [
+        {
+          "label": "On request",
+          "amount_eur": null,
+          "unit": "group"
+        }
+      ],
+      "highlights": [
+        "SOHO Square",
+        "Farsha Café",
+        "Old Market",
+        "Al Sahaba Mosque",
+        "Al Nour area",
+        "Al Mustafa Mosque",
+        "Heavenly Cathedral Church",
+        "Sharm El Sheikh Museum",
+        "Shopping"
+      ],
+      "media": {
+        "cover": "assets/images/stock/sharm-bay.jpg",
+        "video": "assets/video-stock/stock-sharm-sunset.mp4"
+      },
+      "source": [
+        "pricelist-excursions-programs-a #14"
+      ],
+      "status": "published",
+      "includes": [],
+      "excludes": [],
+      "optional": [],
+      "itinerary": [],
+      "notes": [],
+      "conflicts": [],
+      "family": false,
+      "flight": false,
+      "private_on_request": false
+    }
+  ],
+  "packages": [
+    {
+      "slug": "egypt-in-4-days",
+      "title": "Egypt in 4 Days",
+      "trips": [
+        "ras-mohammed-white-island-boat",
+        "cairo-plane-1-day",
+        "quad-bike-safari",
+        "mount-sinai-st-catherine"
+      ],
+      "note": "Suggested combo built from real trips — Stella sets the package price",
+      "sum_of_parts_eur": 340,
+      "price_eur": null,
+      "status": "draft",
+      "collection": "all"
+    },
+    {
+      "slug": "history-in-3-days",
+      "title": "All of Ancient Egypt",
+      "trips": [
+        "cairo-plane-1-day",
+        "luxor-plane-1-day",
+        "mount-sinai-st-catherine"
+      ],
+      "note": "Suggested — beach day after each flight day",
+      "sum_of_parts_eur": 550,
+      "price_eur": null,
+      "status": "draft",
+      "collection": "all"
+    },
+    {
+      "slug": "sea-week",
+      "title": "The Red Sea in 3 Days",
+      "trips": [
+        "ras-mohammed-white-island-boat",
+        "tiran-island-boat",
+        "dahab-day-trip"
+      ],
+      "note": "Suggested",
+      "sum_of_parts_eur": 105,
+      "price_eur": null,
+      "status": "draft",
+      "collection": "all"
+    },
+    {
+      "slug": "family-days",
+      "title": "Family Days",
+      "trips": [
+        "glass-bottom-boat",
+        "ras-mohammed-white-island-boat",
+        "aqua-park",
+        "super-safari-5in1"
+      ],
+      "note": "Suggested",
+      "sum_of_parts_eur": 140,
+      "price_eur": null,
+      "status": "draft",
+      "collection": "all"
+    }
+  ],
+  "business": {
+    "name": "Stella Sharm Tours",
+    "legal_line": "by Heroes Travel (shown on price lists — confirm legal entity)",
+    "whatsapp": [
+      "+20 100 860 5904",
+      "+20 106 901 2881"
+    ],
+    "address": "152 Malek El Bahrain Street, Old Market, Sharm El Sheikh, Egypt",
+    "languages": [
+      "en",
+      "it"
+    ],
+    "currency": "EUR",
+    "pickup_policy": "All tours include pickup and drop-off by air-conditioned transportation (per price lists)"
+  }
+}

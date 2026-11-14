@@ -1,0 +1,14 @@
+# Add only after private setup/credentials and reviewed images are complete.
+stats.example.com {
+  import security
+  @tracker path /script.js /api/send
+  handle @tracker {
+    reverse_proxy umami:3000
+  }
+  handle {
+    basic_auth {
+      REPLACE_USER REPLACE_BCRYPT_HASH
+    }
+    reverse_proxy umami:3000
+  }
+}

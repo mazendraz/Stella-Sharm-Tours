@@ -1,0 +1,44 @@
+# Optional self-hosted tools. Only loopback ports; reach setup via SSH tunnels.
+name: stella-tools
+x-tool: &tool
+  restart: unless-stopped
+  security_opt: [no-new-privileges:true]
+  logging:
+    driver: json-file
+    options: { max-size: 50m, max-file: '5' }
+services:
+  umami-db:
+    <<: *tool
+    image: postgres:16
+    user: postgres
+    env_file:
+      - path: /srv/stella/tools/env/postgres.env
+        format: raw
+    volumes: [umami_pg:/var/lib/postgresql/data]
+    networks: [analytics]
+    mem_limit: 256m
+  umami:
+    <<: *tool
+    image: ${UMAMI_IMAGE:?Pin a reviewed Umami image digest}
+    user: '1000:1000'
+    env_file:
+      - path: /srv/stella/tools/env/umami.env
+        format: raw
+    ports: ['127.0.0.1:3300:3000']
+    networks: [analytics, gateway]
+    mem_limit: 512m
+  uptime-kuma:
+    <<: *tool
+    image: ${KUMA_IMAGE:?Pin a reviewed Uptime Kuma image digest}
+    user: '1000:1000'
+    ports: ['127.0.0.1:3301:3001']
+    volumes: [/srv/stella/tools/kuma:/app/data]
+    networks: [gateway]
+    mem_limit: 384m
+volumes:
+  umami_pg:
+networks:
+  analytics: { internal: true }
+  gateway:
+    name: stella_gateway
+    external: true

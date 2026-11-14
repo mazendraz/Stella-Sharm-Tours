@@ -1,0 +1,57 @@
+{
+  admin 127.0.0.1:2019
+  auto_https off
+  servers {
+    trusted_proxies static 172.30.19.2
+    trusted_proxies_strict
+  }
+}
+import /etc/caddy/stella/common.caddy
+:8080 {
+  route {
+    header X-Robots-Tag "noindex, nofollow, noarchive"
+    basic_auth {
+      {$STAGING_USER} {$STAGING_PASSWORD_HASH}
+    }
+    @admin host {$ADMIN_HOST}
+    handle @admin {
+      handle /v1/admin/* {
+        reverse_proxy api:4000 {
+          header_up X-Forwarded-For {client_ip}
+        }
+      }
+      handle {
+        reverse_proxy admin:3001
+      }
+    }
+    @api host {$API_HOST}
+    handle @api {
+      reverse_proxy api:4000 {
+        header_up X-Forwarded-For {client_ip}
+      }
+    }
+    @media host {$MEDIA_HOST}
+    handle @media {
+      import public_media
+    }
+    @web host {$WEB_HOST}
+    handle @web {
+      route {
+      @internal path /api/revalidate /readyz
+      respond @internal 404
+      handle /v1/requests {
+        reverse_proxy api:4000 {
+          header_up X-Forwarded-For {client_ip}
+        }
+      }
+      handle_path /media/* {
+        import public_media
+      }
+      handle {
+        reverse_proxy web:3000
+      }
+      }
+    }
+    respond 404
+  }
+}

@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stella Sharm Tours — Journeys · Mobile</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#E9E2D4;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#1B1712}
+a{color:#1D4A8F}a:hover{color:#123366}
+*{box-sizing:border-box}
+button{font-family:inherit}
+.mc{font-family:Marcellus,Georgia,serif;font-weight:400;letter-spacing:.005em}
+.scr{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.scr::-webkit-scrollbar{display:none}
+.hx::-webkit-scrollbar{display:none}
+.hx{scrollbar-width:none}
+.bg{position:absolute;inset:0;opacity:0;transition:opacity 1.1s ease}
+.bg.on{opacity:1}
+.bg img,.bg video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.bg.on img{animation:kb 7.5s cubic-bezier(.2,.6,.3,1) both}
+@keyframes kb{from{transform:scale(1.16) translate(1.5%,1%)}to{transform:scale(1.02)}}
+.hl{position:absolute;left:0;right:0;bottom:0;opacity:0;pointer-events:none}
+.hl .l{display:block;transform:translateY(28px);opacity:0;transition:transform .9s cubic-bezier(.16,.84,.24,1),opacity .7s ease}
+.hl.on{opacity:1;pointer-events:auto}
+.hl.on .l{transform:none;opacity:1}
+.hl.on .l2{transition-delay:.08s}.hl.on .l3{transition-delay:.18s}.hl.on .l4{transition-delay:.28s}
+.bar{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.32);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#FFFFFF}
+.bar.done i{width:100%}
+.bar.run i{animation:fill 6s linear forwards}
+.paused .bar.run i{animation-play-state:paused}
+@keyframes fill{from{width:0}to{width:100%}}
+.pill{flex:none;min-height:38px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.35);background:rgba(20,16,10,.25);color:#FFFFFF;font:600 13px Manrope,sans-serif;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .3s ease,color .3s ease,border-color .3s ease}
+.pill.on{background:#FFFFFF;color:#1B1712;border-color:#FFFFFF}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 22px;border-radius:999px;border:0;font:700 15px Manrope,sans-serif;cursor:pointer;text-decoration:none;transition:transform .15s ease,background .2s ease}
+.btn:active{transform:scale(.96)}
+.btn-w{background:#FFFFFF;color:#1B1712}
+.btn-gold{background:#E0A84A;color:#1B1712}
+.btn-ink{background:#1B1712;color:#FFFFFF}
+.btn-ghost{background:rgba(255,255,255,.14);color:#FFFFFF;border:1px solid rgba(255,255,255,.45)}
+.btn-line{background:#FFFFFF;color:#1B1712;border:1.5px solid #1B1712}
+.ico{width:20px;height:20px;flex:none}
+.card{position:sticky;display:block;width:100%;height:430px;border:0;padding:0;border-radius:28px;overflow:hidden;cursor:pointer;text-align:left;color:#FFFFFF;background:#2A231B;transform-origin:50% 0;box-shadow:0 -8px 30px rgba(27,23,18,.18)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s ease}
+.card:hover img{transform:scale(1.04)}
+.card .dim{position:absolute;inset:0;background:#000000;opacity:0;pointer-events:none}
+.rv{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .9s cubic-bezier(.16,.84,.24,1)}
+.rv.in{opacity:1;transform:none}
+.tcard{flex:none;width:250px;scroll-snap-align:start;border:0;padding:0;background:none;text-align:left;cursor:pointer;color:#1B1712}
+.tcard .im{position:relative;height:300px;border-radius:22px;overflow:hidden}
+.tcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+.tcard:hover img{transform:scale(1.05)}
+.tag{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:0 11px;border-radius:999px;background:rgba(255,255,255,.92);color:#1B1712;font:700 12px Manrope,sans-serif}
+.layer{position:absolute;inset:0;background:#F4EEE3}
+.open-clip{animation:clipopen .62s cubic-bezier(.7,0,.2,1) both}
+@keyframes clipopen{from{clip-path:inset(var(--t) var(--r) var(--b) var(--l) round 28px)}to{clip-path:inset(0 0 0 0 round 0)}}
+.close-fade{animation:fadeout .32s ease both}
+@keyframes fadeout{to{opacity:0;transform:scale(.97)}}
+.slide-in{animation:slidein .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slidein{from{transform:translateX(100%)}to{transform:none}}
+.slide-out{animation:slideout .32s cubic-bezier(.6,0,.8,.4) both}
+@keyframes slideout{to{transform:translateX(100%)}}
+.up-in{animation:upin .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes upin{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.st{animation:upin .7s cubic-bezier(.2,.8,.2,1) both}
+.chip{flex:none;min-height:38px;padding:0 15px;border-radius:999px;border:1px solid #D3C8B4;background:#FFFFFF;color:#1B1712;font:600 13px Manrope,sans-serif;cursor:pointer;transition:all .2s ease}
+.chip.on{background:#1B1712;color:#FFFFFF;border-color:#1B1712}
+.trow{display:block;width:100%;border:0;padding:0;background:none;text-align:left;cursor:pointer;color:#1B1712}
+.trow .im{position:relative;height:220px;border-radius:24px;overflow:hidden}
+.trow img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+.trow:hover img{transform:scale(1.04)}
+.add{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #1B1712;background:#FFFFFF;color:#1B1712;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .25s ease}
+.add.on{background:#1B1712;color:#FFFFFF}
+.add:active{transform:scale(.9)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:56px;border:0;background:none;color:#8C8170;font:700 11px Manrope,sans-serif;cursor:pointer;position:relative}
+.tab.on{color:#1B1712}
+.badge{position:absolute;top:4px;left:calc(50% + 6px);min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#C2410C;color:#FFFFFF;font:800 11px/19px Manrope,sans-serif;text-align:center}
+.bump{animation:bump .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bump2{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.bump2{animation:bump2 .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.fly{position:absolute;left:0;top:0;width:18px;height:18px;border-radius:50%;background:#E0A84A;box-shadow:0 0 0 4px rgba(224,168,74,.35);z-index:80;pointer-events:none;animation:fly .7s cubic-bezier(.5,-0.3,.6,1) forwards}
+@keyframes fly{from{transform:translate(var(--fx),var(--fy)) scale(1)}to{transform:translate(236px,790px) scale(.4);opacity:.4}}
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:#D3C8B4;transform-origin:top;animation:draw 1.1s .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes draw{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.tl li{position:relative;padding:0 0 18px}
+.tl li::before{content:"";position:absolute;left:-25px;top:5px;width:12px;height:12px;border-radius:50%;background:#F4EEE3;border:2.5px solid var(--c)}
+.sheet-bg{position:absolute;inset:0;background:rgba(20,16,10,.5);animation:fadein .3s ease both;border:0;cursor:pointer;width:100%}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:90%;overflow-y:auto;background:#FBF8F2;border-radius:28px 28px 0 0;animation:sheetup .45s cubic-bezier(.2,.9,.25,1) both;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+@keyframes sheetup{from{transform:translateY(100%)}to{transform:none}}
+.lab{display:block;margin:0 0 8px;font:700 12px Manrope,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#5E5548}
+.fld{width:100%;min-height:50px;border:1.5px solid #D3C8B4;border-radius:14px;background:#FFFFFF;padding:0 14px;font:500 16px Manrope,sans-serif;color:#1B1712}
+.fld:focus{outline:none;border-color:#1D4A8F;box-shadow:0 0 0 3px rgba(29,74,143,.18)}
+.fld.err{border-color:#B42318;background:#FFF6F5}
+.errt{margin:6px 0 0;font-size:13px;color:#B42318;font-weight:600}
+.dchip{flex:none;width:58px;min-height:66px;border-radius:16px;border:1.5px solid #D3C8B4;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:#1B1712}
+.dchip b{font:800 19px Manrope,sans-serif}
+.dchip span{font:600 11px Manrope,sans-serif;color:#5E5548}
+.dchip.on{background:#1D4A8F;border-color:#1D4A8F;color:#FFFFFF}
+.dchip.on span{color:#DCE4F2}
+.stp{display:flex;align-items:center;justify-content:space-between;min-height:58px;padding:0 6px 0 16px;border:1.5px solid #D3C8B4;border-radius:14px;background:#FFFFFF}
+.stp button{width:44px;height:44px;border-radius:50%;border:0;background:#F1EADC;font:700 20px Manrope,sans-serif;cursor:pointer;color:#1B1712}
+.stp button:disabled{opacity:.35;cursor:not-allowed}
+.seg{flex:1;min-height:46px;border:0;border-radius:12px;background:transparent;font:700 14px Manrope,sans-serif;cursor:pointer;color:#5E5548}
+.seg.on{background:#FFFFFF;color:#1B1712;box-shadow:0 2px 8px rgba(27,23,18,.12)}
+.shim{position:relative;overflow:hidden}
+.shim::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);transform:translateX(-100%);animation:shim 3.2s 1.2s ease-in-out infinite}
+@keyframes shim{0%{transform:translateX(-100%)}40%,100%{transform:translateX(100%)}}
+.cnt{display:inline-block;animation:upin .4s ease both}
+.lux img,.bg img,.bg video,.card img,.trow img,.tcard img,.panel img,.story img{filter:brightness(1.06) saturate(1.18) contrast(1.03)}
+.modes{display:flex;gap:4px;padding:4px;border-radius:16px;background:#EAE2D3}
+.mode{flex:1;min-height:46px;border:0;border-radius:12px;background:transparent;font:700 14px Manrope,sans-serif;color:#5E5548;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .25s ease;padding:0 14px}
+.mode.on{background:#FFFFFF;color:#1B1712;box-shadow:0 2px 8px rgba(27,23,18,.12)}
+.mode.pv.on{background:#14213D;color:#F3D49C}
+.pvx{position:relative;overflow:hidden;border-radius:28px;background:linear-gradient(155deg,#14213D 0%,#1D3F7A 100%);color:#FFFFFF}
+.perk{display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.perk i{flex:none;width:28px;height:28px;border-radius:50%;background:#E0A84A;color:#14213D;display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:13px}
+.pcard{flex:none;width:200px;border:0;padding:0;background:none;text-align:left;cursor:pointer;color:#FFFFFF;scroll-snap-align:start}
+.pcard .im{position:relative;display:block;height:150px;border-radius:18px;overflow:hidden}
+.pcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s ease}
+.pcard:hover img{transform:scale(1.05)}
+@media (prefers-reduced-motion:reduce){.bg.on img,.bar.run i,.shim::after{animation:none}.rv{opacity:1;transform:none}.open-clip,.slide-in,.up-in,.st,.sheet{animation-duration:.01s}}
+</style>
+</helmet>
+<div ref="{{ refPhone }}" style="position: relative; width: 390px; height: 844px; overflow: hidden; background: #F4EEE3">
+
+<!-- ================= HOME ================= -->
+<div class="scr" ref="{{ refHome }}" onScroll="{{ onHome }}">
+
+  <!-- HERO: stories-style collection switcher -->
+  <section style="position: sticky; top: 0; height: 780px; z-index: 0">
+    <div ref="{{ refHeroIn }}" style="position: absolute; inset: 0; overflow: hidden; background: #1B1712; transform-origin: 50% 30%">
+      <sc-for list="{{ heroBgs }}" as="h" hint-placeholder-count="4">
+        <div class="{{ h.cls }}">
+          <sc-if value="{{ h.isVideo }}" hint-placeholder-val="{{ false }}"><video src="{{ h.video }}" poster="{{ h.poster }}" muted="{{ true }}" autoPlay="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" aria-hidden="true"></video></sc-if>
+          <sc-if value="{{ h.isImg }}" hint-placeholder-val="{{ true }}"><img src="{{ h.img }}" alt="{{ h.alt }}"></sc-if>
+        </div>
+      </sc-for>
+      <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,10,6,.38) 0%, rgba(14,10,6,0) 24%, rgba(14,10,6,0) 46%, rgba(14,10,6,.7) 100%)"></div>
+    </div>
+
+    <div class="{{ barsCls }}" style="position: absolute; left: 16px; right: 16px; top: 14px; display: flex; gap: 5px; z-index: 3">
+      <sc-for list="{{ bars }}" as="b" hint-placeholder-count="4"><span class="{{ b.cls }}"><i></i></span></sc-for>
+    </div>
+
+    <button aria-label="Previous collection" onClick="{{ prevStory }}" style="position: absolute; left: 0; top: 80px; width: 35%; height: 300px; border: 0; background: transparent; cursor: pointer; z-index: 2"></button>
+    <button aria-label="Next collection" onClick="{{ nextStory }}" style="position: absolute; right: 0; top: 80px; width: 65%; height: 300px; border: 0; background: transparent; cursor: pointer; z-index: 2"></button>
+
+    <div ref="{{ refHeroTxt }}" style="position: absolute; left: 22px; right: 22px; bottom: 76px; height: 330px; z-index: 3; color: #FFFFFF">
+      <sc-for list="{{ heroTxt }}" as="h" hint-placeholder-count="4">
+        <div class="{{ h.cls }}">
+          <span class="l l1" style="font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: {{ h.kc }}">{{ h.kicker }}</span>
+          <h1 class="mc l l2" style="margin: 10px 0 0; font-size: 46px; line-height: 1.02">{{ h.head }}</h1>
+          <p class="l l3" style="margin: 14px 0 0; font-size: 16px; line-height: 1.5; color: #EFE8DC; max-width: 320px">{{ h.sub }}</p>
+          <div class="l l4" style="display: flex; gap: 10px; margin-top: 20px">
+            <button class="btn btn-w" onClick="{{ h.open }}">{{ h.cta }} <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+            <button class="btn btn-ghost" onClick="{{ openContact }}">WhatsApp</button>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div class="hx" style="position: absolute; left: 0; right: 0; bottom: 18px; z-index: 3; display: flex; gap: 8px; overflow-x: auto; padding: 0 22px">
+      <sc-for list="{{ pills }}" as="p" hint-placeholder-count="4"><button class="{{ p.cls }}" aria-pressed="{{ p.on }}" onClick="{{ p.go }}">{{ p.label }}</button></sc-for>
+    </div>
+  </section>
+
+  <!-- TOP BAR -->
+  <header style="{{ topStyle }}">
+    <div style="display: flex; align-items: center; gap: 9px">
+      <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.4"/><path d="M5 21h22" stroke="currentColor" stroke-width="1.4"/><path d="M16 7l1.6 4.6h4.8l-3.9 2.8 1.5 4.6L16 16.2 12 19l1.5-4.6-3.9-2.8h4.8z" fill="#E0A84A"/></svg>
+      <div style="line-height: 1"><span class="mc" style="display: block; font-size: 19px; letter-spacing: .14em">STELLA</span><span style="display: block; margin-top: 3px; font: 700 9px Manrope, sans-serif; letter-spacing: .3em; opacity: .8">SHARM TOURS</span></div>
+    </div>
+    <button aria-label="Talk on WhatsApp" onClick="{{ openContact }}" style="pointer-events: auto; width: 44px; height: 44px; border-radius: 50%; border: 1px solid currentColor; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 10c.5 2 2 3.5 4 4l1.2-1.2 2 1-.6 1.6c-3.5 0-7-3.5-7-7l1.6-.6 1 2z"/></svg></button>
+  </header>
+
+  <!-- CONTENT SHEET over hero -->
+  <div style="position: relative; z-index: 2; margin-top: -24px; background: #F4EEE3; border-radius: 28px 28px 0 0; padding: 30px 0 120px">
+    <div style="padding: 0 14px 36px">
+      <div class="pvx rv" style="padding: 26px 22px 22px">
+        <svg width="260" height="260" viewBox="0 0 220 220" aria-hidden="true" style="position: absolute; right: -80px; top: -80px; opacity: .16"><circle cx="110" cy="110" r="100" fill="none" stroke="#E0A84A"/><circle cx="110" cy="110" r="70" fill="none" stroke="#E0A84A"/><path d="M110 40l9 50 50 9-50 9-9 50-9-50-50-9 50-9z" fill="#E0A84A"/></svg>
+        <p style="position: relative; margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #F3D49C">Private with Stella</p>
+        <h2 class="mc" style="position: relative; margin: 8px 0 0; font-size: 34px; line-height: 1.06">Your trip, your way.</h2>
+        <p style="position: relative; margin: 10px 0 0; font-size: 15px; line-height: 1.6; color: #DCE4F2">Just your family or friends — your own car and guide, your start time, your pace. Any trip on this site can be done privately, and some are private only.</p>
+        <div style="position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px">
+          <sc-for list="{{ privPerks }}" as="p" hint-placeholder-count="4"><div class="perk"><i>{{ p.n }}</i><span><b style="display: block; font-size: 14px">{{ p.t }}</b><span style="font-size: 12.5px; line-height: 1.4; color: #C9D3E6">{{ p.s }}</span></span></div></sc-for>
+        </div>
+        <div class="hx" style="position: relative; display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 18px -22px 0; padding: 0 22px">
+          <sc-for list="{{ privTrips }}" as="t" hint-placeholder-count="5"><button class="pcard" onClick="{{ t.open }}"><span class="im lux"><img src="{{ t.img }}" alt="{{ t.name }}" loading="lazy"><span class="tag" style="position: absolute; right: 8px; bottom: 8px; background: #E0A84A">{{ t.priceTag }}</span></span><span style="display: block; margin-top: 8px; font-size: 14px; font-weight: 700; line-height: 1.3">{{ t.name }}</span></button></sc-for>
+        </div>
+        <div style="position: relative; display: flex; gap: 10px; margin-top: 20px">
+          <button class="btn btn-gold" onClick="{{ openPrivate }}" style="flex: 1">See private trips</button>
+          <button class="btn btn-ghost" onClick="{{ openContact }}">Ask us</button>
+        </div>
+      </div>
+    </div>
+    <div style="padding: 0 22px">
+      <p class="rv" style="margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #9A5B12">Choose your journey</p>
+      <h2 class="mc rv" style="margin: 8px 0 0; font-size: 34px; line-height: 1.08">Trips grouped the way you think about Egypt.</h2>
+      <p class="rv" style="margin: 12px 0 0; font-size: 15.5px; line-height: 1.6; color: #5E5548">Pick a collection — history, sea or desert — or let us join them into one trip.</p>
+    </div>
+
+    <div style="padding: 24px 14px 30px">
+      <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+          <button class="card" ref="{{ c.ref }}" onClick="{{ c.open }}" style="{{ c.style }}" aria-label="Open {{ c.name }}">
+            <img src="{{ c.img }}" alt="{{ c.alt }}" loading="lazy">
+            <span style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,10,6,.18) 0%, rgba(14,10,6,0) 38%, rgba(14,10,6,.72) 100%)"></span>
+            <span style="position: absolute; left: 20px; top: 18px; display: flex; align-items: center; gap: 8px; font: 700 12px Manrope, sans-serif; letter-spacing: .14em; text-transform: uppercase"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{ c.dot }}"></span>{{ c.kicker }}</span>
+            <span style="position: absolute; left: 20px; right: 20px; bottom: 20px">
+              <span class="mc" style="display: block; font-size: 34px; line-height: 1.05">{{ c.name }}</span>
+              <span style="display: block; margin-top: 8px; font-size: 14.5px; line-height: 1.5; color: #EFE8DC">{{ c.line }}</span>
+              <span style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px">
+                <span style="display: flex; align-items: center">
+                  <sc-for list="{{ c.thumbs }}" as="t" hint-placeholder-count="3"><span style="{{ t.st }}"><img src="{{ t.img }}" alt="" style="position: static; width: 100%; height: 100%; object-fit: cover; border-radius: 50%"></span></sc-for>
+                  <span style="margin-left: 10px; font: 700 13px Manrope, sans-serif">{{ c.meta }}</span>
+                </span>
+                <span style="width: 46px; height: 46px; border-radius: 50%; background: #FFFFFF; color: #1B1712; display: flex; align-items: center; justify-content: center"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+              </span>
+            </span>
+            <span class="dim" ref="{{ c.refDim }}"></span>
+          </button>
+      </sc-for>
+    </div>
+
+    <!-- Good first days -->
+    <div style="padding: 20px 22px 0">
+      <p class="rv" style="margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #0A7F8A">Short on time?</p>
+      <h2 class="mc rv" style="margin: 8px 0 0; font-size: 30px; line-height: 1.1">Easy first days</h2>
+    </div>
+    <div class="hx" style="display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 18px 22px 8px; scroll-padding: 0 22px">
+      <sc-for list="{{ firsts }}" as="t" hint-placeholder-count="4">
+        <button class="tcard" onClick="{{ t.open }}">
+          <span class="im" style="display: block"><img src="{{ t.img }}" alt="{{ t.name }}" loading="lazy"><span style="position: absolute; left: 12px; top: 12px" class="tag">{{ t.dur }}</span><span style="position: absolute; right: 12px; bottom: 12px; background: #1B1712; color: #FFFFFF" class="tag">{{ t.priceTag }}</span></span>
+          <span style="display: block; margin-top: 12px; font: 700 12px Manrope, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: {{ t.c }}">{{ t.col }}</span>
+          <span class="mc" style="display: block; margin-top: 5px; font-size: 21px; line-height: 1.2">{{ t.name }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <!-- Build your own -->
+    <div style="padding: 34px 14px 0">
+      <div class="rv" style="position: relative; overflow: hidden; border-radius: 28px; background: #1B1712; color: #FFFFFF; padding: 28px 22px 24px">
+        <svg width="220" height="220" viewBox="0 0 220 220" aria-hidden="true" style="position: absolute; right: -60px; top: -60px; opacity: .18"><circle cx="110" cy="110" r="100" fill="none" stroke="#E0A84A" stroke-width="1"/><circle cx="110" cy="110" r="70" fill="none" stroke="#E0A84A" stroke-width="1"/><circle cx="110" cy="110" r="40" fill="none" stroke="#E0A84A" stroke-width="1"/></svg>
+        <p style="margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #E0A84A">Mix it all</p>
+        <h2 class="mc" style="margin: 8px 0 0; font-size: 31px; line-height: 1.1">Build your own Egypt.</h2>
+        <p style="margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: #CFC5B3">Tap <b style="color: #FFFFFF">+</b> on any trip. We line them up day by day, leave a beach day after early flights, and you send it in one message.</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px">
+          <sc-for list="{{ mixSlots }}" as="m" hint-placeholder-count="3"><div style="border-radius: 16px; padding: 12px 10px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12)"><span style="display: block; width: 8px; height: 8px; border-radius: 50%; background: {{ m.dot }}"></span><b style="display: block; margin-top: 10px; font-size: 22px">{{ m.n }}</b><span style="font-size: 12px; color: #CFC5B3">{{ m.label }}</span></div></sc-for>
+        </div>
+        <button class="btn btn-gold shim" onClick="{{ goTray }}" style="width: 100%; margin-top: 18px">{{ mixCta }}</button>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div style="padding: 44px 22px 0">
+      <p class="rv" style="margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #1D4A8F">How it works</p>
+      <h2 class="mc rv" style="margin: 8px 0 22px; font-size: 30px; line-height: 1.1">Three steps. No payment online.</h2>
+      <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+        <div class="rv" style="display: flex; gap: 16px; padding: 16px 0; border-top: 1px solid #DDD3C0">
+          <span class="mc" style="flex: none; width: 46px; height: 46px; border-radius: 50%; background: {{ s.bg }}; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px">{{ s.n }}</span>
+          <div><b style="display: block; font-size: 16.5px">{{ s.t }}</b><span style="display: block; margin-top: 4px; font-size: 14.5px; line-height: 1.55; color: #5E5548">{{ s.p }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- Contact -->
+    <div style="padding: 30px 14px 0">
+      <div class="rv" style="border-radius: 28px; background: #DCE4F2; padding: 24px 22px">
+        <h3 class="mc" style="margin: 0; font-size: 26px; line-height: 1.15; color: #12305E">Not sure what to pick?</h3>
+        <p style="margin: 10px 0 18px; font-size: 15px; line-height: 1.55; color: #2D3F5C">Tell us your hotel and dates on WhatsApp — the team suggests a plan in English or Italian.</p>
+        <button class="btn btn-ink" onClick="{{ openContact }}" style="width: 100%">Message the team</button>
+      </div>
+      <p style="margin: 26px 8px 0; font-size: 12px; line-height: 1.6; color: #6D6354; text-align: center">Design prototype · prices from Stella’s price list (Nov 2026) · some photos are stock (Pexels/Unsplash), to be replaced by Stella’s own</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= COLLECTION ================= -->
+<sc-if value="{{ col.open }}" hint-placeholder-val="{{ false }}">
+  <div class="{{ col.cls }}" style="{{ col.vars }}">
+    <div class="scr" ref="{{ refCol }}" onScroll="{{ onCol }}">
+      <div style="position: relative; height: 400px; overflow: hidden; background: #1B1712">
+        <div ref="{{ refColImg }}" style="position: absolute; inset: 0">
+          <sc-if value="{{ col.isVideo }}" hint-placeholder-val="{{ false }}"><video src="{{ col.video }}" poster="{{ col.poster }}" muted="{{ true }}" autoPlay="{{ true }}" loop="{{ true }}" playsInline="{{ true }}" aria-hidden="true" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></video></sc-if>
+          <sc-if value="{{ col.isImg }}" hint-placeholder-val="{{ true }}"><img src="{{ col.img }}" alt="{{ col.alt }}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover"></sc-if>
+        </div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,10,6,.3), rgba(14,10,6,0) 35%, rgba(14,10,6,.72))"></div>
+        <div class="st" style="position: absolute; left: 22px; right: 22px; bottom: 44px; color: #FFFFFF; animation-delay: .35s">
+          <span style="font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: {{ col.kc }}">{{ col.kicker }}</span>
+          <h1 class="mc" style="margin: 8px 0 0; font-size: 40px; line-height: 1.04">{{ col.name }}</h1>
+          <p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #EFE8DC">{{ col.sub }}</p>
+        </div>
+      </div>
+      <div style="position: relative; margin-top: -24px; border-radius: 28px 28px 0 0; background: #F4EEE3; padding: 22px 0 130px">
+        <div class="st" style="display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 22px; border-radius: 18px; background: #FFFFFF; animation-delay: .45s">
+          <sc-for list="{{ col.stats }}" as="s" hint-placeholder-count="3"><div style="padding: 14px 12px; text-align: center; border-right: 1px solid #EEE6D8"><b style="display: block; font-size: 18px">{{ s.v }}</b><span style="font-size: 12px; color: #5E5548">{{ s.k }}</span></div></sc-for>
+        </div>
+        <sc-if value="{{ col.hasModes }}" hint-placeholder-val="{{ true }}">
+          <div class="modes" role="tablist" aria-label="Trip type" style="margin: 16px 22px 0"><sc-for list="{{ col.modes }}" as="m" hint-placeholder-count="2"><button class="{{ m.cls }}" role="tab" aria-selected="{{ m.on }}" onClick="{{ m.go }}">{{ m.label }}<span style="font-size: 12px; opacity: .7">{{ m.n }}</span></button></sc-for></div>
+        </sc-if>
+        <sc-if value="{{ col.isPrivMode }}" hint-placeholder-val="{{ false }}">
+          <div class="pvx up-in" style="margin: 14px 22px 0; padding: 20px">
+            <p style="margin: 0; font: 700 11.5px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #F3D49C">Private with Stella</p>
+            <h3 class="mc" style="margin: 6px 0 0; font-size: 24px; line-height: 1.15">{{ col.privTitle }}</h3>
+            <p style="margin: 8px 0 14px; font-size: 14px; line-height: 1.55; color: #DCE4F2">Your own car and guide, your start time and stops. Trips marked “Private on request” are priced by the team on WhatsApp.</p>
+            <button class="btn btn-gold" onClick="{{ openContact }}" style="width: 100%; min-height: 46px">Ask for a private quote</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ col.hasChips }}" hint-placeholder-val="{{ true }}">
+          <div class="hx" style="position: sticky; top: 0; z-index: 4; display: flex; gap: 8px; overflow-x: auto; padding: 16px 22px 12px; background: #F4EEE3">
+            <sc-for list="{{ col.chips }}" as="c" hint-placeholder-count="5"><button class="{{ c.cls }}" aria-pressed="{{ c.on }}" onClick="{{ c.go }}">{{ c.label }}</button></sc-for>
+          </div>
+        </sc-if>
+        <div style="padding: 8px 22px 0; display: flex; flex-direction: column; gap: 28px">
+          <sc-for list="{{ col.trips }}" as="t" hint-placeholder-count="4">
+            <div class="st" style="{{ t.delay }}">
+              <button class="trow" onClick="{{ t.open }}">
+                <span class="im" style="display: block"><img src="{{ t.img }}" alt="{{ t.name }}" loading="lazy"><span class="tag" style="position: absolute; left: 12px; top: 12px">{{ t.dur }}</span><sc-if value="{{ t.priv }}" hint-placeholder-val="{{ false }}"><span class="tag" style="position: absolute; left: 12px; top: 46px; background: #E0A84A">Private</span></sc-if> <sc-if value="{{ t.privReq }}" hint-placeholder-val="{{ false }}"><span class="tag" style="position: absolute; left: 12px; top: 46px; background: #14213D; color: #F3D49C">Private on request</span></sc-if><span class="tag" style="position: absolute; right: 12px; bottom: 12px; background: #1B1712; color: #FFFFFF">{{ t.priceTag }} <span style="font-weight: 500; opacity: .75">/ {{ t.unit }}</span></span></span>
+              </button>
+              <div style="display: flex; gap: 14px; align-items: flex-start; margin-top: 14px">
+                <button class="trow" onClick="{{ t.open }}" style="flex: 1">
+                  <span class="mc" style="display: block; font-size: 23px; line-height: 1.2">{{ t.name }}</span>
+                  <span style="display: block; margin-top: 6px; font-size: 14.5px; line-height: 1.5; color: #5E5548">{{ t.line }}</span>
+                </button>
+                <button class="{{ t.addCls }}" onClick="{{ t.add }}" aria-label="{{ t.addLabel }}" aria-pressed="{{ t.inTray }}">
+                  <sc-if value="{{ t.inTray }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+                  <sc-if value="{{ t.notInTray }}" hint-placeholder-val="{{ true }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></sc-if>
+                </button>
+              </div>
+              <sc-if value="{{ t.isPack }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px"><sc-for list="{{ t.parts }}" as="p" hint-placeholder-count="4"><span style="display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 11px; border-radius: 999px; background: #FFFFFF; font-size: 12.5px; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{ p.dot }}"></span>{{ p.name }}</span></sc-for></div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}"><div style="padding: 40px 10px; text-align: center; color: #5E5548">No trips match this filter. <button onClick="{{ col.reset }}" style="border: 0; background: none; color: #1D4A8F; font: 700 15px Manrope, sans-serif; text-decoration: underline; cursor: pointer; min-height: 44px">Show all</button></div></sc-if>
+        </div>
+
+        <sc-if value="{{ col.hasCombo }}" hint-placeholder-val="{{ true }}">
+          <div class="st" style="margin: 36px 14px 0; border-radius: 28px; background: {{ col.color }}; color: #FFFFFF; padding: 24px 22px; animation-delay: .6s">
+            <span style="font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; opacity: .8">Collect them</span>
+            <h3 class="mc" style="margin: 8px 0 0; font-size: 27px; line-height: 1.15">{{ col.combo.title }}</h3>
+            <p style="margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; opacity: .88">{{ col.combo.p }}</p>
+            <div style="display: flex; margin: 16px 0 0"><sc-for list="{{ col.combo.thumbs }}" as="t" hint-placeholder-count="3"><span style="{{ t.st }}"><img src="{{ t.img }}" alt="" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%"></span></sc-for></div>
+            <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; gap: 12px"><div><span style="font-size: 12px; opacity: .8">Together</span><b style="display: block; font-size: 26px">€{{ col.combo.price }}</b></div><button class="btn btn-w" onClick="{{ col.combo.add }}">{{ col.combo.cta }}</button></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ col.isPrivCol }}" hint-placeholder-val="{{ false }}">
+          <div class="pvx st" style="margin: 36px 14px 0; padding: 24px 22px; animation-delay: .6s">
+            <h3 class="mc" style="margin: 0; font-size: 26px; line-height: 1.15">Want another trip private?</h3>
+            <p style="margin: 10px 0 16px; font-size: 14.5px; line-height: 1.55; color: #DCE4F2">Cairo, Luxor, Ras Mohammed, the desert — tell us the trip and your dates and the team sends a private price.</p>
+            <button class="btn btn-gold" onClick="{{ openContact }}" style="width: 100%">Ask for a private quote</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ col.isAll }}" hint-placeholder-val="{{ false }}">
+          <div class="st" style="margin: 36px 14px 0; border-radius: 28px; background: #1B1712; color: #FFFFFF; padding: 24px 22px; animation-delay: .6s">
+            <h3 class="mc" style="margin: 0; font-size: 27px; line-height: 1.15">Or build your own.</h3>
+            <p style="margin: 10px 0 16px; font-size: 14.5px; line-height: 1.55; color: #CFC5B3">Open any collection, tap + on the days you like, and we’ll join them up.</p>
+            <button class="btn btn-gold" onClick="{{ goTray }}" style="width: 100%">Open my trip</button>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="{{ col.barStyle }}">
+      <button onClick="{{ closeCol }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: #1B1712; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.12)"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <span class="mc" style="{{ col.barTitle }}">{{ col.name }}</span>
+      <span style="width: 44px"></span>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ================= MY TRIP ================= -->
+<sc-if value="{{ tray.open }}" hint-placeholder-val="{{ false }}">
+  <div class="layer up-in" style="z-index: 15">
+    <div class="scr" style="padding: 0 0 130px">
+      <div style="padding: 26px 22px 0">
+        <p style="margin: 0; font: 700 12px Manrope, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #9A5B12">My trip</p>
+        <h1 class="mc" style="margin: 8px 0 0; font-size: 38px; line-height: 1.05">Your Egypt, day by day.</h1>
+      </div>
+      <sc-if value="{{ tray.empty }}" hint-placeholder-val="{{ false }}">
+        <div style="margin: 26px 22px 0; padding: 30px 22px; border-radius: 26px; border: 1.5px dashed #CFC5B3; text-align: center">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true"><circle cx="28" cy="28" r="27" stroke="#CFC5B3"/><path d="M10 36h36" stroke="#CFC5B3"/><path d="M18 36l10-16 10 16" stroke="#E0A84A" stroke-width="1.6"/></svg>
+          <p style="margin: 12px 0 18px; font-size: 15.5px; line-height: 1.55; color: #5E5548">Nothing here yet. Open a collection and tap <b>+</b> on the days you like.</p>
+          <div style="display: flex; flex-direction: column; gap: 10px"><sc-for list="{{ tray.starts }}" as="s" hint-placeholder-count="3"><button class="btn btn-line" onClick="{{ s.go }}">{{ s.label }}</button></sc-for></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ tray.has }}" hint-placeholder-val="{{ true }}">
+        <div style="margin: 20px 22px 0; padding: 18px; border-radius: 22px; background: #FFFFFF">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><b style="font-size: 17px">{{ tray.days }} days · {{ tray.count }} trips</b><span style="font-size: 13px; color: #5E5548">{{ tray.mixLabel }}</span></div>
+          <div style="display: flex; height: 10px; border-radius: 6px; overflow: hidden; margin-top: 12px; background: #EEE6D8"><sc-for list="{{ tray.segs }}" as="g" hint-placeholder-count="3"><span style="{{ g.st }}"></span></sc-for></div>
+          <div style="display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap"><sc-for list="{{ tray.segs }}" as="g" hint-placeholder-count="3"><span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: #5E5548"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ g.c }}"></span>{{ g.label }}</span></sc-for></div>
+        </div>
+        <ol style="list-style: none; margin: 22px 0 0; padding: 0 22px; display: flex; flex-direction: column; gap: 12px">
+          <sc-for list="{{ tray.rows }}" as="r" hint-placeholder-count="4">
+            <li class="st" style="{{ r.delay }}">
+              <sc-if value="{{ r.isRest }}" hint-placeholder-val="{{ false }}"><div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 18px; background: #E7F2F1; color: #0B5C63"><b style="flex: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; width: 52px">Day {{ r.day }}</b><span style="font-size: 14px; line-height: 1.45">Beach day — rest after the early flight</span></div></sc-if>
+              <sc-if value="{{ r.isTrip }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 20px; background: #FFFFFF">
+                  <b style="flex: none; width: 52px; text-align: center; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: {{ r.c }}">Day {{ r.day }}</b>
+                  <button onClick="{{ r.open }}" style="flex: 1; display: flex; align-items: center; gap: 12px; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; color: #1B1712; min-height: 56px"><img src="{{ r.img }}" alt="" style="width: 56px; height: 56px; border-radius: 14px; object-fit: cover"><span><b style="display: block; font-size: 15px; line-height: 1.3">{{ r.name }}</b><span style="font-size: 13px; color: #5E5548">{{ r.dur }} · {{ r.priceStr }}</span></span></button>
+                  <button onClick="{{ r.remove }}" aria-label="Remove {{ r.name }}" style="flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #F4EEE3; color: #5E5548; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+                </div>
+              </sc-if>
+            </li>
+          </sc-for>
+        </ol>
+        <div style="margin: 22px 22px 0; padding: 20px; border-radius: 22px; background: #1B1712; color: #FFFFFF">
+          <div style="display: flex; justify-content: space-between; align-items: center"><span style="font-size: 15px">Adults</span><div style="display: flex; align-items: center; gap: 14px"><button onClick="{{ trayAdDec }}" aria-label="Fewer adults" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: transparent; color: #FFFFFF; font-size: 20px; cursor: pointer">−</button><b style="font-size: 18px; min-width: 18px; text-align: center">{{ tray.adults }}</b><button onClick="{{ trayAdInc }}" aria-label="More adults" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: transparent; color: #FFFFFF; font-size: 20px; cursor: pointer">+</button></div></div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.15)"><span style="font-size: 13px; color: #CFC5B3; line-height: 1.5">Estimated total<br>confirmed by the team</span><b class="cnt" style="font-size: 32px">{{ tray.totalStr }}</b></div>
+          <button class="btn btn-gold" onClick="{{ trayRequest }}" style="width: 100%; margin-top: 16px">Request this trip</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ================= TAB BAR ================= -->
+<nav aria-label="Main" style="{{ tabStyle }}">
+  <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4">
+    <button class="{{ t.cls }}" onClick="{{ t.go }}" aria-current="{{ t.cur }}">
+      <sc-if value="{{ t.isHome }}" hint-placeholder-val="{{ true }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg></sc-if>
+      <sc-if value="{{ t.isCols }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19l6-11 4 7 3-4 5 8z"/><circle cx="17" cy="6" r="2"/></svg></sc-if>
+      <sc-if value="{{ t.isTrip }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg></sc-if>
+      <sc-if value="{{ t.isChat }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/></svg></sc-if>
+      {{ t.label }}
+      <sc-if value="{{ t.hasBadge }}" hint-placeholder-val="{{ false }}"><span class="{{ badgeCls }}">{{ trayCount }}</span></sc-if>
+    </button>
+  </sc-for>
+</nav>
+
+<!-- ================= TRIP DETAIL ================= -->
+<sc-if value="{{ dt.open }}" hint-placeholder-val="{{ false }}">
+  <div class="{{ dt.cls }}" style="z-index: 25">
+    <div class="scr" style="padding-bottom: 120px">
+      <div style="position: relative; height: 420px; background: #1B1712">
+        <div class="hx" ref="{{ refGal }}" onScroll="{{ onGal }}" style="display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory">
+          <sc-for list="{{ dt.gallery }}" as="g" hint-placeholder-count="3"><img src="{{ g.img }}" alt="{{ g.alt }}" style="flex: none; width: 390px; height: 420px; object-fit: cover; scroll-snap-align: start"></sc-for>
+        </div>
+        <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(14,10,6,.28), rgba(14,10,6,0) 30%, rgba(14,10,6,0) 75%, rgba(14,10,6,.38))"></div>
+        <div style="position: absolute; left: 0; right: 0; bottom: 38px; display: flex; justify-content: center; gap: 6px; pointer-events: none"><sc-for list="{{ dt.dots }}" as="d" hint-placeholder-count="3"><span style="{{ d.st }}"></span></sc-for></div>
+      </div>
+      <div style="position: relative; margin-top: -26px; border-radius: 28px 28px 0 0; background: #F4EEE3; padding: 26px 22px 0">
+        <span class="st" style="display: inline-flex; align-items: center; gap: 8px; font: 700 12px Manrope, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: {{ dt.c }}; animation-delay: .25s"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{ dt.c }}"></span>{{ dt.colName }}</span>
+        <h1 class="mc st" style="margin: 10px 0 0; font-size: 33px; line-height: 1.08; animation-delay: .3s">{{ dt.name }}</h1>
+        <p class="st" style="margin: 10px 0 0; font-size: 16px; line-height: 1.55; color: #5E5548; animation-delay: .35s">{{ dt.line }}</p>
+        <div class="st" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; animation-delay: .4s">
+          <sc-for list="{{ dt.facts }}" as="f" hint-placeholder-count="4"><div style="padding: 13px 14px; border-radius: 16px; background: #FFFFFF"><span style="display: block; font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6D6354">{{ f.k }}</span><b style="display: block; margin-top: 4px; font-size: 14.5px; line-height: 1.35">{{ f.v }}</b></div></sc-for>
+        </div>
+        <h2 class="mc" style="margin: 32px 0 16px; font-size: 25px">{{ dt.planTitle }}</h2>
+        <ol class="tl" style="list-style: none; margin: 0; padding-top: 0; padding-bottom: 0; padding-right: 0; --c: {{ dt.c }}">
+          <sc-for list="{{ dt.plan }}" as="p" hint-placeholder-count="5"><li><b style="display: block; font-size: 13px; color: {{ dt.c }}">{{ p.t }}</b><span style="display: block; margin-top: 2px; font-size: 15px; line-height: 1.5">{{ p.s }}</span></li></sc-for>
+        </ol>
+        <sc-if value="{{ dt.isPack }}" hint-placeholder-val="{{ false }}">
+          <h2 class="mc" style="margin: 20px 0 14px; font-size: 25px">The days inside</h2>
+          <div style="display: flex; flex-direction: column; gap: 10px"><sc-for list="{{ dt.parts }}" as="p" hint-placeholder-count="4"><button onClick="{{ p.open }}" style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 18px; border: 0; background: #FFFFFF; cursor: pointer; text-align: left; color: #1B1712"><img src="{{ p.img }}" alt="" style="width: 58px; height: 58px; border-radius: 14px; object-fit: cover"><span style="flex: 1"><b style="display: block; font-size: 15px">{{ p.name }}</b><span style="font-size: 13px; color: #5E5548">{{ p.dur }}</span></span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></sc-for></div>
+        </sc-if>
+        <h2 class="mc" style="margin: 28px 0 12px; font-size: 25px">Included</h2>
+        <ul style="list-style: none; margin: 0; padding: 0"><sc-for list="{{ dt.inc }}" as="x" hint-placeholder-count="4"><li style="display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid #E3D9C7; font-size: 15px"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#0A7F8A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>{{ x }}</li></sc-for></ul>
+        <p style="margin: 18px 0 0; padding: 14px 16px; border-radius: 16px; background: #F7E9CF; font-size: 13.5px; line-height: 1.55; color: #5A3B0C">{{ dt.note }}</p>
+      </div>
+    </div>
+    <div style="position: absolute; left: 16px; right: 16px; top: 16px; display: flex; justify-content: space-between">
+      <button onClick="{{ closeTrip }}" aria-label="Back" style="width: 44px; height: 44px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: #1B1712; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <span style="min-height: 32px; padding: 7px 12px; border-radius: 999px; background: rgba(20,16,10,.5); color: #FFFFFF; font: 700 12px Manrope, sans-serif">{{ dt.galIdx }} / {{ dt.galN }}</span>
+    </div>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 16px 22px; background: #FBF8F2; border-top: 1px solid #E3D9C7; display: flex; align-items: center; gap: 10px">
+      <div style="flex: 1; line-height: 1.2"><span style="font-size: 12px; color: #5E5548">{{ dt.fromLabel }}</span><b style="display: block; font-size: 22px">{{ dt.priceStr }} <span style="font-size: 13px; font-weight: 600; color: #5E5548">/ {{ dt.unit }}</span></b></div>
+      <button class="{{ dt.addCls }}" onClick="{{ dt.add }}" aria-label="{{ dt.addLabel }}" aria-pressed="{{ dt.inTray }}">
+        <sc-if value="{{ dt.inTray }}" hint-placeholder-val="{{ false }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+        <sc-if value="{{ dt.notInTray }}" hint-placeholder-val="{{ true }}"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></sc-if>
+      </button>
+      <button class="btn btn-ink" onClick="{{ dt.request }}">Request</button>
+    </div>
+  </div>
+</sc-if>
+
+<!-- ================= BOOKING SHEET ================= -->
+<sc-if value="{{ bk.open }}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; z-index: 40">
+    <button class="sheet-bg" onClick="{{ closeSheet }}" aria-label="Close"></button>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="{{ bk.title }}">
+      <div style="position: sticky; top: 0; z-index: 2; background: #FBF8F2; padding: 10px 22px 12px; border-radius: 28px 28px 0 0">
+        <span style="display: block; width: 40px; height: 5px; border-radius: 3px; background: #D3C8B4; margin: 0 auto 14px"></span>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><h2 class="mc" style="margin: 0; font-size: 24px; line-height: 1.15">{{ bk.title }}</h2><button onClick="{{ closeSheet }}" aria-label="Close" style="flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #F1EADC; color: #1B1712; display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <p style="margin: 4px 0 0; font-size: 13.5px; color: #5E5548">{{ bk.sub }}</p>
+      </div>
+      <sc-if value="{{ bk.isForm }}" hint-placeholder-val="{{ true }}">
+        <div style="padding: 8px 22px 30px; display: flex; flex-direction: column; gap: 20px">
+          <div><span class="lab">{{ bk.dateLabel }}</span><div class="hx" style="display: flex; gap: 8px; overflow-x: auto; margin: 0 -22px; padding: 0 22px"><sc-for list="{{ bk.dates }}" as="d" hint-placeholder-count="8"><button class="{{ d.cls }}" onClick="{{ d.pick }}" aria-pressed="{{ d.on }}"><span>{{ d.wd }}</span><b>{{ d.n }}</b><span>{{ d.m }}</span></button></sc-for></div><sc-if value="{{ bk.errDate }}" hint-placeholder-val="{{ false }}"><p class="errt">Pick a date.</p></sc-if></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+            <div><span class="lab">Adults</span><div class="stp"><b style="font-size: 17px">{{ bk.adults }}</b><div style="display: flex; gap: 6px"><button onClick="{{ adDec }}" disabled="{{ bk.adMin }}" aria-label="Fewer adults">−</button><button onClick="{{ adInc }}" aria-label="More adults">+</button></div></div></div>
+            <div><span class="lab">Children</span><div class="stp"><b style="font-size: 17px">{{ bk.kids }}</b><div style="display: flex; gap: 6px"><button onClick="{{ chDec }}" disabled="{{ bk.chMin }}" aria-label="Fewer children">−</button><button onClick="{{ chInc }}" aria-label="More children">+</button></div></div></div>
+          </div>
+          <sc-if value="{{ bk.canPriv }}" hint-placeholder-val="{{ true }}"><div><span class="lab">How you travel</span><div style="display: flex; gap: 4px; padding: 4px; border-radius: 15px; background: #EEE6D8"><button class="{{ bk.gCls }}" onClick="{{ setGroup }}">Group</button><button class="{{ bk.pCls }}" onClick="{{ setPriv }}">Private · price on request</button></div></div></sc-if>
+          <div><span class="lab">Pickup area</span><div style="display: flex; flex-wrap: wrap; gap: 8px"><sc-for list="{{ bk.areas }}" as="a" hint-placeholder-count="6"><button class="{{ a.cls }}" onClick="{{ a.pick }}" aria-pressed="{{ a.on }}">{{ a.label }}</button></sc-for></div><sc-if value="{{ bk.errArea }}" hint-placeholder-val="{{ false }}"><p class="errt">Choose where we collect you.</p></sc-if></div>
+          <div><label class="lab" for="e-name">Your name</label><input id="e-name" class="{{ bk.nameCls }}" value="{{ bk.name }}" onInput="{{ setName }}" placeholder="Full name" autocomplete="name"><sc-if value="{{ bk.errName }}" hint-placeholder-val="{{ false }}"><p class="errt">Add your name.</p></sc-if></div>
+          <div><label class="lab" for="e-phone">WhatsApp number</label><input id="e-phone" class="{{ bk.phoneCls }}" value="{{ bk.phone }}" onInput="{{ setPhone }}" placeholder="+39 …" inputmode="tel" autocomplete="tel"><sc-if value="{{ bk.errPhone }}" hint-placeholder-val="{{ false }}"><p class="errt">Add a phone number we can reach.</p></sc-if></div>
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; padding-top: 16px; border-top: 1px solid #E3D9C7"><span style="font-size: 13px; line-height: 1.5; color: #5E5548">Estimated total<br>no payment online</span><b style="font-size: 30px">{{ bk.totalStr }}</b></div>
+          <button class="btn btn-ink" onClick="{{ send }}" style="width: 100%; min-height: 56px">Send request</button>
+          <p style="margin: -6px 0 0; text-align: center; font-size: 12.5px; color: #6D6354">Prototype — nothing leaves this page.</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ bk.isDone }}" hint-placeholder-val="{{ false }}">
+        <div class="up-in" style="padding: 8px 22px 34px">
+          <div style="width: 64px; height: 64px; border-radius: 50%; background: #0A7F8A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; margin: 6px 0 14px"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+          <h3 class="mc" style="margin: 0; font-size: 28px">Request ready.</h3>
+          <p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; color: #5E5548">On the live site this opens WhatsApp with the message below. The team replies with pickup time and availability. Nothing was sent from this prototype.</p>
+          <div style="margin-top: 18px; padding: 14px; border-radius: 18px; background: #E5DDD3">
+            <div style="margin-left: 34px; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: #D9FDD3; font-size: 14px; line-height: 1.55; color: #12301E; white-space: pre-line">{{ bk.msg }}</div>
+          </div>
+          <p style="margin: 14px 0 0; font-size: 12.5px; color: #6D6354">Ref {{ bk.ref }} · WhatsApp number set at launch</p>
+          <button class="btn btn-line" onClick="{{ closeSheet }}" style="width: 100%; margin-top: 18px">Done</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<!-- contact sheet -->
+<sc-if value="{{ contact }}" hint-placeholder-val="{{ false }}">
+  <div style="position: absolute; inset: 0; z-index: 40">
+    <button class="sheet-bg" onClick="{{ closeContact }}" aria-label="Close"></button>
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Contact" style="padding: 12px 22px 34px">
+      <span style="display: block; width: 40px; height: 5px; border-radius: 3px; background: #D3C8B4; margin: 0 auto 18px"></span>
+      <h2 class="mc" style="margin: 0; font-size: 27px">Talk to the team</h2>
+      <p style="margin: 8px 0 18px; font-size: 15px; line-height: 1.55; color: #5E5548">English · Italiano · العربية. Real numbers and hours are added at launch.</p>
+      <div style="padding: 14px; border-radius: 18px; background: #E5DDD3"><div style="margin-left: 34px; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: #D9FDD3; font-size: 14px; line-height: 1.55; color: #12301E">Hi Stella! We’re staying in Naama Bay from the 14th — what would you suggest for 2 adults and a child?</div></div>
+      <button class="btn btn-ink" onClick="{{ closeContact }}" style="width: 100%; margin-top: 18px">Open WhatsApp (at launch)</button>
+      <p style="margin: 14px 0 0; text-align: center; font-size: 13px; color: #5E5548">Office: Old Market, Sharm El Sheikh — address &amp; hours to confirm</p>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ fly.on }}" hint-placeholder-val="{{ false }}"><span class="fly" style="{{ fly.st }}"></span></sc-if>
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div role="status" class="up-in" style="position: absolute; left: 16px; right: 16px; bottom: 92px; z-index: 70; padding: 14px 16px; border-radius: 16px; background: #1B1712; color: #FFFFFF; font-size: 14px; line-height: 1.45; display: flex; justify-content: space-between; align-items: center; gap: 12px">{{ toastText }}<sc-if value="{{ toastAction }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goTray }}" style="flex: none; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 0; background: #E0A84A; color: #1B1712; font: 800 13px Manrope, sans-serif; cursor: pointer">View</button></sc-if></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { story: 0, solid: false, paused: false, col: null, colClosing: false, colFilter: 'all', clip: null, trip: null, tripClosing: false, tab: 'home', tray: [], trayAdults: 2, gal: 0, sheet: null, contact: false, fly: null, bump: 0, toast: '', toastAction: false,
+      bk: { date: '', adults: 2, kids: 0, priv: false, area: '', name: '', phone: '', tried: false, done: false } };
+    this.r = {};
+  }
+  B(id) { return '/_blob/' + id; }
+  cols() {
+    return [{"id": "private", "name": "Private with Stella", "short": "Private", "kicker": "Your trip, your way", "color": "#14213D", "kc": "#F3D49C", "head": "Your trip, your way.", "sub": "Your own car, your own guide, your start time. Any trip can be private — some are private only.", "img": "/_blob/b33bc22c055dc1e115d62ac80cedae75", "alt": "A private boat passing the cliffs near Sharm El Sheikh", "video": null, "poster": null, "line": "Your own car and guide, on your schedule.", "cta": "See private trips", "heroVideo": false}, {"id": "history", "name": "Pharaohs & Temples", "short": "History", "kicker": "Collection 01 · History", "color": "#1D4A8F", "kc": "#BFD0EE", "head": "Walk with the pharaohs.", "sub": "Cairo, Luxor, Alexandria and Mount Sinai — by bus, by plane or overnight from Sharm.", "img": "/_blob/176f8eab9be781885fa11cf40e811df6", "alt": "The Pyramids of Giza at sunset", "video": "/_blob/572dedb941e101d62e79be81ee95206b", "poster": "/_blob/844c45a0e59c0d1e9eecb7cbcd822721", "line": "Pyramids, temples and a sunrise on Mount Sinai.", "cta": "See history trips", "combo": {"ids": ["cairo-plane-1-day", "luxor-plane-1-day", "mount-sinai-st-catherine"], "title": "All of ancient Egypt in 3 days", "p": "Cairo and Luxor by plane plus the Sinai sunrise — with beach days in between.", "save": 0}, "heroVideo": true}, {"id": "sea", "name": "The Red Sea", "short": "Sea", "kicker": "Collection 02 · Sea", "color": "#0A7F8A", "kc": "#9FE3E8", "head": "Straight into the blue.", "sub": "Ras Mohammed, Tiran, submarines, boats and water sports — minutes from your hotel.", "img": "/_blob/6ecbf28cbfdf0807ec420349b939c109", "alt": "Turquoise reef water and boats from above", "video": "/_blob/fc90c38ce24e761ca51eb6ea850d17e9", "poster": "/_blob/2becb0f7f2cb296e5754e274247f5927", "line": "Ras Mohammed, Tiran and the reefs.", "cta": "See sea trips", "combo": {"ids": ["ras-mohammed-white-island-boat", "tiran-island-boat", "sea-scope-submarine"], "title": "Three days on the water", "p": "Ras Mohammed & White Island, Tiran Island and the Sea Scope submarine.", "save": 0}, "heroVideo": true}, {"id": "desert", "name": "Desert & Adventure", "short": "Desert", "kicker": "Collection 03 · Desert", "color": "#9A5B12", "kc": "#F3D49C", "head": "Where the road ends.", "sub": "Quads, buggies, canyons, Bedouin nights and Nabq National Park.", "img": "/_blob/900246cba0143ab9eca5d9209f31e1dc", "alt": "Quad bikes on desert dunes", "video": "/_blob/a0435f5a8b47f8907bcbe6ab21543dc1", "poster": "/_blob/9cbe2955c5eb1f348671ece0270bfd15", "line": "Quads, canyons, Dahab and Bedouin nights.", "cta": "See desert trips", "combo": {"ids": ["dahab-day-trip", "red-canyon-three-pools", "super-safari-5in1"], "title": "Desert in three moods", "p": "A Dahab day, the Red Canyon & Three Pools, and the evening Super Safari.", "save": 0}, "heroVideo": true}, {"id": "beyond", "name": "Beyond Egypt", "short": "Petra & Jerusalem", "kicker": "Collection 04 · Beyond Egypt", "color": "#7A2E2A", "kc": "#F2B8A8", "head": "One border, two wonders.", "sub": "Petra by bus and ferry, Jerusalem & Bethlehem by bus — from your hotel in Sharm.", "img": "/_blob/d7f983a0be670d39bf2be78ee3f77c00", "alt": "The Treasury at Petra", "video": "/_blob/85d5c2420a73edcc89d234427e6fd779", "poster": "/_blob/eda2b18dee5d60d4a52c2557131e570b", "line": "Petra and Jerusalem, one long day each.", "cta": "See Petra & Jerusalem", "combo": {"ids": ["petra-bus-ferry", "jerusalem-bethlehem"], "title": "Petra + Jerusalem", "p": "Two of the world’s great cities in one week from Sharm.", "save": 0}, "heroVideo": true}, {"id": "relax", "name": "Sharm Fun & Relax", "short": "Fun & relax", "kicker": "Collection 05 · Fun & relax", "color": "#6B3FA0", "kc": "#D7C4F0", "head": "Evenings, shows and slow days.", "sub": "Dinner cruise, dolphin show, aqua park, horse riding, spa and the city tour.", "img": "/_blob/4725c6373b6d786f3d874dcc260117e3", "alt": "Al Sahaba Mosque above Sharm El Maya bay", "video": null, "poster": null, "line": "Shows, spa, horses and the city.", "cta": "See fun & relax", "combo": {"ids": ["romantic-dinner-cruise", "aqua-park", "spa-turkish-bath"], "title": "Three easy days", "p": "A dinner cruise, a day at the aqua park and a spa afternoon.", "save": 0}, "heroVideo": false}, {"id": "all", "name": "All of Egypt", "short": "All in one", "kicker": "Collection 06 · Everything", "color": "#1B1712", "kc": "#E0A84A", "head": "All of Egypt. One trip.", "sub": "History, sea and desert joined into ready-made journeys — or build your own.", "img": "/_blob/6a05237b577ff23019374c81286207c2", "alt": "A camel caravan in front of the Pyramids", "video": "/_blob/84fc48a4a2197a2e5f8bf43c1eee5e0d", "poster": "/_blob/2547b39fc2c16db60036a51beb65f524", "line": "Ready-made journeys that mix it all.", "cta": "See the journeys", "heroVideo": true}];
+  }
+  trips() {
+    return [{"id": "cairo-bus-old-museum", "col": "history", "name": "Cairo by Bus — One Day (Old Egyptian Museum)", "line": "Old Egyptian Museum · Giza Pyramids · Great Sphinx", "dur": "1 long day (overnight bus)", "days_run": "Every day", "dep": "00:30–01:00", "hrs": 22, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 55, "unit": "person", "priceRows": "€55 / person", "multi": false, "img": "/_blob/ec24956b2e892cd9e0d46d5159c53262", "gal": ["/_blob/ec24956b2e892cd9e0d46d5159c53262", "/_blob/9e64090267c363d412522eec65299361", "/_blob/3fa9f89dc94d9bbc2c85fe57128d51d8"], "inc": ["Round-trip transportation", "Licensed tour guide", "Old Egyptian Museum entrance", "Pyramids & Sphinx visit", "Lunch"], "exc": [], "opt": ["Felucca sailing on the Nile", "Shopping stop"], "plan": [["00:30–01:00", "Pickup from your hotel"], ["", "Old Egyptian Museum"], ["", "Giza Pyramids"], ["", "Great Sphinx"], ["", "Egyptian lunch"]], "note": ""}, {"id": "cairo-bus-gem", "col": "history", "name": "Cairo by Bus — One Day (Grand Egyptian Museum)", "line": "Grand Egyptian Museum · Giza Pyramids · Great Sphinx", "dur": "1 long day (overnight bus)", "days_run": "Every day", "dep": "00:30–01:00", "hrs": 22, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 90, "unit": "person", "priceRows": "€90 / person", "multi": false, "img": "/_blob/9e64090267c363d412522eec65299361", "gal": ["/_blob/9e64090267c363d412522eec65299361", "/_blob/860c9f197e6f83fcdaff37ceee8c9dea", "/_blob/ec24956b2e892cd9e0d46d5159c53262"], "inc": ["Round-trip transportation", "Licensed tour guide", "Grand Egyptian Museum entrance", "Pyramids & Sphinx visit", "Lunch"], "exc": [], "opt": ["Felucca sailing on the Nile", "Shopping stop"], "plan": [["00:30–01:00", "Pickup from your hotel"], ["", "Grand Egyptian Museum"], ["", "Giza Pyramids"], ["", "Great Sphinx"], ["", "Egyptian lunch"]], "note": ""}, {"id": "cairo-plane-1-day", "col": "history", "name": "Cairo by Plane — One Day", "line": "Grand Egyptian Museum · Giza Pyramids · Great Sphinx", "dur": "1 long day", "days_run": "Every day", "dep": "04:30–06:00", "hrs": 16, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": true, "overnight": false, "p": 250, "unit": "person", "priceRows": "€250 / person", "multi": false, "img": "/_blob/860c9f197e6f83fcdaff37ceee8c9dea", "gal": ["/_blob/860c9f197e6f83fcdaff37ceee8c9dea", "/_blob/3fa9f89dc94d9bbc2c85fe57128d51d8", "/_blob/ec24956b2e892cd9e0d46d5159c53262"], "inc": ["Round-trip flight", "Comfortable transportation in Cairo", "Licensed tour guide", "Grand Egyptian Museum entrance", "Pyramids & Sphinx visit", "Lunch"], "exc": [], "opt": ["Felucca sailing on the Nile", "Shopping stop"], "plan": [["04:30–06:00", "Pickup from your hotel"], ["", "Grand Egyptian Museum"], ["", "Giza Pyramids"], ["", "Great Sphinx"], ["", "Egyptian lunch"], ["~21:00", "Back at your hotel"]], "note": ""}, {"id": "cairo-bus-2-days", "col": "history", "name": "Cairo by Bus — 2 Days", "line": "Round-trip transportation · Licensed tour guide · Grand Egyptian Museum entrance", "dur": "2 days · 1 night", "days_run": "Every day", "dep": "00:30–01:00", "hrs": 44, "days": 2, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 195, "unit": "person", "priceRows": "€195 / person", "multi": false, "img": "/_blob/1e8e3ad75854b92389cd85614f49e88b", "gal": ["/_blob/1e8e3ad75854b92389cd85614f49e88b", "/_blob/9e64090267c363d412522eec65299361", "/_blob/ec24956b2e892cd9e0d46d5159c53262"], "inc": ["Round-trip transportation", "Licensed tour guide", "Grand Egyptian Museum entrance", "Pyramids & Sphinx visit", "Lunch", "1 night hotel with breakfast (downtown or pyramids view)"], "exc": [], "opt": ["Felucca sailing on the Nile"], "plan": [["Day 1", "Grand Egyptian Museum, Giza Pyramids, Great Sphinx, Egyptian lunch, felucca (optional)"], ["Night", "1 night hotel, bed & breakfast — downtown or pyramids view"], ["Day 2", "Coptic Cairo or Islamic Cairo, old bazaar, Egyptian lunch (or choose your spots)"]], "note": ""}, {"id": "cairo-alexandria-bus-2-days", "col": "history", "name": "Cairo & Alexandria by Bus — 2 Days", "line": "Round-trip transportation · Licensed tour guide · Grand Egyptian Museum entrance", "dur": "2 days · 1 night", "days_run": "Every day", "dep": "00:30–01:00", "hrs": 44, "days": 2, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 200, "unit": "person", "priceRows": "€200 / person", "multi": false, "img": "/_blob/6a05237b577ff23019374c81286207c2", "gal": ["/_blob/6a05237b577ff23019374c81286207c2", "/_blob/ec24956b2e892cd9e0d46d5159c53262", "/_blob/860c9f197e6f83fcdaff37ceee8c9dea"], "inc": ["Round-trip transportation", "Licensed tour guide", "Grand Egyptian Museum entrance", "Pyramids & Sphinx visit", "Lunch", "1 night hotel with breakfast"], "exc": [], "opt": [], "plan": [["Day 1 — Cairo", "Grand Egyptian Museum, Giza Pyramids, Great Sphinx, Egyptian lunch, felucca on the Nile (optional)"], ["Night", "1 night hotel, bed & breakfast — downtown or pyramids view"], ["Day 2 — Alexandria", "El Montazah Park, Alexandria Library (outside), Mosque of Morsi Abu Abbas, Citadel of Qaitbay, Egyptian lunch"]], "note": ""}, {"id": "cairo-plane-2-days-private", "col": "history", "name": "Cairo by Plane — 2 Days (Private)", "line": "Flights Sharm–Cairo–Sharm · Private air-conditioned vehicle · Professional guide", "dur": "2 days · 1 night", "days_run": "On request", "dep": "", "hrs": 40, "days": 2, "fmt": "Private", "priv": true, "family": false, "flight": true, "overnight": false, "p": 450, "unit": "person", "priceRows": "€450 / person", "multi": false, "img": "/_blob/553bd328d6ec6e1540cf86aa45cbb420", "gal": ["/_blob/553bd328d6ec6e1540cf86aa45cbb420", "/_blob/1e8e3ad75854b92389cd85614f49e88b", "/_blob/860c9f197e6f83fcdaff37ceee8c9dea"], "inc": ["Flights Sharm–Cairo–Sharm", "Private air-conditioned vehicle", "Professional guide", "Meals as listed", "1 night hotel with breakfast"], "exc": [], "opt": ["Shopping", "Nile cruise"], "plan": [["Day 1 — Cairo", "Hotel → Sharm airport, flight to Cairo, private air-conditioned car and guide. Giza Pyramids, Great Sphinx, Grand Egyptian Museum, Egyptian lunch. Optional: shopping, Nile cruise"], ["Night", "1 night hotel, bed & breakfast — downtown Cairo or pyramids view"], ["Day 2 — Historic Cairo", "Mohamed Ali Pasha Citadel, historic Cairo & Khan El Khalili, Christian Cairo & ancient churches, Egyptian lunch"], ["Return", "Transfer to Cairo airport, flight to Sharm, transfer to your hotel"]], "note": ""}, {"id": "luxor-plane-1-day", "col": "history", "name": "Luxor by Plane — One Day", "line": "Pickup and drop-off to the airport · Round-trip flight tickets Sharm ↔ Luxor · Entrance fees (Karnak, Hatshepsut, West Bank, Colossi of Memnon)", "dur": "1 long day", "days_run": "Every day", "dep": "04:00", "hrs": 17, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": true, "overnight": false, "p": 260, "unit": "person", "priceRows": "€260 / person", "multi": false, "img": "/_blob/80a9c3b53acafe6a8b097af6f740c59e", "gal": ["/_blob/80a9c3b53acafe6a8b097af6f740c59e", "/_blob/9cbae81145ef6eba205c730986a3af1f", "/_blob/ec24956b2e892cd9e0d46d5159c53262"], "inc": ["Pickup and drop-off to the airport", "Round-trip flight tickets Sharm ↔ Luxor", "Entrance fees (Karnak, Hatshepsut, West Bank, Colossi of Memnon)", "Lunch at a local restaurant", "Professional guide"], "exc": ["Drinks", "Optional Nile boat trip / Banana Island", "Shopping and personal expenses"], "opt": [], "plan": [["04:00", "Hotel pickup and transfer to the airport"], ["~05:00", "Flight to Luxor (about 60 min)"], ["Morning", "Karnak Temple"], ["", "Hatshepsut Temple"], ["", "The West Bank"], ["", "Colossi of Memnon"], ["", "Lunch at a local restaurant"], ["Optional", "Nile boat trip / Banana Island"], ["~21:00", "Back in Sharm El Sheikh"]], "note": ""}, {"id": "mount-sinai-st-catherine", "col": "history", "name": "Mount Sinai Sunrise & St Catherine", "line": "Pickup and drop-off from Sharm · Professional guide · All required fees and tickets", "dur": "Overnight", "days_run": "Sunday · Wednesday · Friday", "dep": "19:30–20:00", "hrs": 17, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": true, "p": 40, "unit": "person", "priceRows": "€40 / person", "multi": false, "img": "/_blob/a88c98a64ed221b1a6a3664a33556a73", "gal": ["/_blob/a88c98a64ed221b1a6a3664a33556a73", "/_blob/159c23ca3ec0e593ac4f514436b70b8c", "/_blob/be3dc43c5160898f3e2e7ec38a3a3952"], "inc": ["Pickup and drop-off from Sharm", "Professional guide", "All required fees and tickets", "Local Bedouin guide for the hike", "Torch"], "exc": ["Food and drinks"], "opt": [], "plan": [["20:00", "Pickup from your hotel by air-conditioned car with a professional guide"], ["00:00", "Arrive at the mountain"], ["", "Start the hike with a local Bedouin guide"], ["~3¾ h", "Hike to the top for sunrise from the highest mountain in Egypt"], ["After sunrise", "Descent (around 2 hours)"], ["1 hour", "Visit St Catherine Monastery"], ["13:30", "Back in Sharm"]], "note": "Bring: comfortable sport shoes, warm clothes, sunglasses"}, {"id": "st-catherine-monastery-dahab", "col": "history", "name": "Monastery of Saint Catherine & Dahab", "line": "Church · Moses’ Well · Dahab city", "dur": "Full day", "days_run": "Saturday · Monday · Tuesday", "dep": "05:30", "hrs": 12, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 40, "unit": "person", "priceRows": "€40 / person", "multi": false, "img": "/_blob/be3dc43c5160898f3e2e7ec38a3a3952", "gal": ["/_blob/be3dc43c5160898f3e2e7ec38a3a3952", "/_blob/159c23ca3ec0e593ac4f514436b70b8c", "/_blob/289f3f8d7a085931dfab75e01edf140d"], "inc": ["Licensed guide", "Lunch"], "exc": [], "opt": [], "plan": [["05:30", "Pickup from your hotel"], ["", "Church"], ["", "Moses’ Well"], ["", "Dahab city"], ["", "Lunch"], ["", "Shopping"], ["17:30", "Back at your hotel"]], "note": ""}, {"id": "petra-bus-ferry", "col": "beyond", "name": "Petra — One Day by Bus & Ferry", "line": "Transportation · Lunch in a restaurant in Petra (open buffet) · English / Italian / Russian / Polish speaking guide", "dur": "~24 h", "days_run": "Saturday · Monday · Wednesday", "dep": "01:00", "hrs": 24, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": true, "p": 240, "unit": "person", "priceRows": "€240 / person", "multi": false, "img": "/_blob/d7f983a0be670d39bf2be78ee3f77c00", "gal": ["/_blob/d7f983a0be670d39bf2be78ee3f77c00"], "inc": ["Transportation", "Lunch in a restaurant in Petra (open buffet)", "English / Italian / Russian / Polish speaking guide"], "exc": ["Re-entry visa for Egypt if needed", "Drinks", "Anything not listed as included"], "opt": [], "plan": [["01:00", "Pickup in Sharm El Sheikh"], ["~3 h", "Drive to Taba Heights (15-min break)"], ["05:00", "Access to Taba Heights"], ["~50 min", "Cruise ship to Jordan"], ["08:15", "Arrival at Aqaba (Talabay)"], ["~1 h", "Border procedures"], ["2 h", "Drive from Aqaba to Petra"], ["11:30–12:00", "Arrival at Petra"], ["4 h", "Petra: the Siq, Al-Khazneh, Royal Tombs, Roman Theatre"], ["", "10-min drive to lunch, 1 hour"], ["17:00", "Leave Petra for Aqaba (2 h)"], ["~1 h", "Departure procedures"], ["", "Arrive at Taba Heights, drive back to Sharm"], ["01:00", "Expected arrival in Sharm"]], "note": "Timing may vary with boat arrival, movements and security procedures"}, {"id": "jerusalem-bethlehem", "col": "beyond", "name": "Jerusalem & Bethlehem — Day Tour by Bus", "line": "Dead Sea · Jordan River · Bethlehem — Church of the Nativity", "dur": "~28 hours", "days_run": "Monday · Thursday", "dep": "21:00", "hrs": 28, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": true, "p": 320, "unit": "person", "priceRows": "€320 / person", "multi": false, "img": "/_blob/eda2b18dee5d60d4a52c2557131e570b", "gal": ["/_blob/eda2b18dee5d60d4a52c2557131e570b"], "inc": ["Visa included in the price (per flyer)", "Lunch at a local restaurant in Bethlehem"], "exc": ["Drinks", "Personal shopping expenses"], "opt": [], "plan": [["21:00", "Pickup from your hotel"], ["", "Dead Sea"], ["", "Jordan River"], ["", "Bethlehem — Church of the Nativity"], ["", "Mount of Olives"], ["", "Western Wall"]], "note": "Book at least 24 hours before departure"}, {"id": "ras-mohammed-bus", "col": "sea", "name": "Ras Mohammed by Bus", "line": "Gate of Allah · Mangrove trees · Earthquake crack", "dur": "~5 h", "days_run": "Every day", "dep": "08:30", "hrs": 5, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 25, "unit": "person", "priceRows": "€25 / person", "multi": false, "img": "/_blob/5a9ae8af78da47f079a8cb925bfabfc3", "gal": ["/_blob/5a9ae8af78da47f079a8cb925bfabfc3", "/_blob/c5664a2280fb96f347d49da3c14ff1bb", "/_blob/f88ec77d3556f746d8166e4143e93e1d"], "inc": ["Licensed guide", "All entrance fees"], "exc": [], "opt": [], "plan": [["08:30", "Pickup from your hotel"], ["", "Gate of Allah"], ["", "Mangrove trees"], ["", "Earthquake crack"], ["", "Magic Lake swim"], ["", "Snorkelling"], ["13:30", "Back at your hotel"]], "note": ""}, {"id": "ras-mohammed-private-car", "col": "sea", "name": "Ras Mohammed — Private Car", "line": "Gate of Allah · Mangrove forest · Earthquake crack", "dur": "~5½ h", "days_run": "Every day · flexible start", "dep": "~08:00", "hrs": 5.5, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "car", "priceRows": "On request On request", "multi": false, "img": "/_blob/e92b450628f9f83914ac9963da5a14b7", "gal": ["/_blob/e92b450628f9f83914ac9963da5a14b7", "/_blob/c5664a2280fb96f347d49da3c14ff1bb", "/_blob/b65bff631432d328b95862cf320e2b78"], "inc": ["Hotel pickup & drop-off", "Professional tour guide", "National park fees", "Snorkelling gear (life jackets included)", "Bottled water"], "exc": ["Lunch (available as an optional extra)"], "opt": [], "plan": [["~08:00", "Pickup from your hotel"], ["", "Gate of Allah"], ["", "Mangrove forest"], ["", "Earthquake crack"], ["", "Magic Lake (salt water)"], ["", "Snorkelling at the Aqaba Gulf"], ["~13:30", "Back at your hotel"]], "note": ""}, {"id": "ras-mohammed-white-island-boat", "col": "sea", "name": "Ras Mohammed & White Island by Boat", "line": "Round-trip transfer hotel ⇄ marina · Marina fees · Yacht cruise", "dur": "Full day", "days_run": "Every day", "dep": "07:45", "hrs": 10, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/9e3977f8835a5de08fd1a89d6deade94", "gal": ["/_blob/9e3977f8835a5de08fd1a89d6deade94", "/_blob/850b6ff1c4da8c024a84271564a3757d", "/_blob/c5664a2280fb96f347d49da3c14ff1bb"], "inc": ["Round-trip transfer hotel ⇄ marina", "Marina fees", "Yacht cruise", "2 snorkelling stops", "White Island visit", "Lunch & soft drinks"], "exc": [], "opt": ["Intro scuba diving with instructor (+€15 per price list)", "Underwater photos & videos"], "plan": [["07:45", "Pickup (round-trip transfer included)"], ["", "Yacht cruise to Ras Mohammed"], ["", "2 snorkelling stops in Ras Mohammed"], ["", "White Island — relax, swim, sunbathe"], ["", "Lunch on board: breaded fried chicken cutlets, kofta, vegetables, rice, pasta, salads, bread"], ["17:30", "Return"]], "note": ""}, {"id": "tiran-island-boat", "col": "sea", "name": "Tiran Island by Boat", "line": "2 snorkelling stops · Lunch · Drinks", "dur": "Full day", "days_run": "Every day", "dep": "08:00", "hrs": 9, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/31b16f82e6d9b7c7df0c85efe8e5ef6a", "gal": ["/_blob/31b16f82e6d9b7c7df0c85efe8e5ef6a", "/_blob/6ecbf28cbfdf0807ec420349b939c109", "/_blob/e92b450628f9f83914ac9963da5a14b7"], "inc": ["2 snorkelling stops", "Lunch", "Drinks", "Life jackets"], "exc": [], "opt": ["Intro diving +€15"], "plan": [["08:00", "Pickup from your hotel"], ["", "2 snorkelling stops"], ["", "Lunch"], ["", "Drinks"], ["", "Life jackets"], ["17:00", "Back at your hotel"]], "note": ""}, {"id": "sea-scope-submarine", "col": "sea", "name": "Sea Scope (Submarine)", "line": "Red Sea coral reefs · Colourful fish", "dur": "~2 h", "days_run": "Every day", "dep": "09:30 or 14:00", "hrs": 2, "days": 1, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/b65bff631432d328b95862cf320e2b78", "gal": ["/_blob/b65bff631432d328b95862cf320e2b78", "/_blob/c5664a2280fb96f347d49da3c14ff1bb"], "inc": ["Welcome drink"], "exc": [], "opt": [], "plan": [["09:30 or 14:00", "Pickup from your hotel"], ["", "Red Sea coral reefs"], ["", "Colourful fish"]], "note": ""}, {"id": "glass-bottom-boat", "col": "sea", "name": "Glass Bottom Boat", "line": "Coral reef viewing · Family friendly", "dur": "1 hour trip", "days_run": "Every day", "dep": "09:00 or 15:00", "hrs": 1, "days": 1, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 15, "unit": "person", "priceRows": "€15 / person", "multi": false, "img": "/_blob/c5664a2280fb96f347d49da3c14ff1bb", "gal": ["/_blob/c5664a2280fb96f347d49da3c14ff1bb", "/_blob/b65bff631432d328b95862cf320e2b78", "/_blob/1a826cb6b818ca860a7e80168853a3a2"], "inc": [], "exc": [], "opt": [], "plan": [["09:00 or 15:00", "Pickup from your hotel"], ["", "Coral reef viewing"], ["", "Family friendly"]], "note": ""}, {"id": "private-speed-boat", "col": "sea", "name": "Private Speed Boat (VIP)", "line": "Private boat · Snorkelling stops · Perfect for couples & families", "dur": "Per hour", "days_run": "Every day", "dep": "09:00–17:00", "hrs": 1, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": 100, "unit": "hour", "priceRows": "€100 / hour", "multi": false, "img": "/_blob/d69ea0dec1dec860c6e9d8d78b912acb", "gal": ["/_blob/d69ea0dec1dec860c6e9d8d78b912acb", "/_blob/b33bc22c055dc1e115d62ac80cedae75", "/_blob/db14cc48f021b7afbf84c297e84d0fbc"], "inc": [], "exc": [], "opt": [], "plan": [["09:00–17:00", "Pickup from your hotel"], ["", "Private boat"], ["", "Snorkelling stops"], ["", "Perfect for couples & families"]], "note": ""}, {"id": "water-activities", "col": "sea", "name": "Water Activities — Parasailing, Banana & Sofa Boat", "line": "Parasailing · Banana boat · Sofa boat", "dur": "Half day", "days_run": "Every day", "dep": "", "hrs": 4, "days": 1, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/1a826cb6b818ca860a7e80168853a3a2", "gal": ["/_blob/1a826cb6b818ca860a7e80168853a3a2", "/_blob/d69ea0dec1dec860c6e9d8d78b912acb"], "inc": ["Parasailing", "Banana boat", "Sofa boat", "Private transfer"], "exc": [], "opt": [], "plan": [["Pickup", "Pickup from your hotel"], ["", "Parasailing"], ["", "Banana boat"], ["", "Sofa boat"], ["", "Private transfer"]], "note": ""}, {"id": "quad-bike-safari", "col": "desert", "name": "Quad Bike Safari", "line": "Bedouin tea · Sunrise or sunset · Mountain photos", "dur": "~3 h", "days_run": "Every day", "dep": "04:00 (sunrise) or 17:00 (sunset)", "hrs": 3, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 15, "unit": "person", "priceRows": "Single (1 per quad) €15 / person · Double (2 per quad) €20 / quad", "multi": true, "img": "/_blob/900246cba0143ab9eca5d9209f31e1dc", "gal": ["/_blob/900246cba0143ab9eca5d9209f31e1dc", "/_blob/42bc345121e5c565cfa9a7a90395e154", "/_blob/f88ec77d3556f746d8166e4143e93e1d"], "inc": [], "exc": [], "opt": [], "plan": [["04:00 (sunrise) or 17:00 (sunset)", "Pickup from your hotel"], ["", "Bedouin tea"], ["", "Sunrise or sunset"], ["", "Mountain photos"]], "note": ""}, {"id": "buggy-car-safari", "col": "desert", "name": "Buggy Car Safari", "line": "Bedouin tea · Desert adventure · Mountain views", "dur": "~3 h", "days_run": "Every day", "dep": "04:00 or 17:00", "hrs": 3, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "buggy", "priceRows": "€35 / buggy", "multi": false, "img": "/_blob/f88ec77d3556f746d8166e4143e93e1d", "gal": ["/_blob/f88ec77d3556f746d8166e4143e93e1d", "/_blob/900246cba0143ab9eca5d9209f31e1dc"], "inc": [], "exc": [], "opt": [], "plan": [["04:00 or 17:00", "Pickup from your hotel"], ["", "Bedouin tea"], ["", "Desert adventure"], ["", "Mountain views"]], "note": ""}, {"id": "super-safari-5in1", "col": "desert", "name": "Super Safari 5 in 1", "line": "Quad bike · Bedouin tea · Camel ride", "dur": "Evening · ~5 h", "days_run": "Every day", "dep": "17:00", "hrs": 5, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "Single €35 / person · Double €55 / quad", "multi": true, "img": "/_blob/42bc345121e5c565cfa9a7a90395e154", "gal": ["/_blob/42bc345121e5c565cfa9a7a90395e154", "/_blob/bf1c04c34291f8af98d306fee293c57d", "/_blob/900246cba0143ab9eca5d9209f31e1dc"], "inc": ["Quad bike", "Bedouin tea", "Camel ride", "Dinner", "Evening show & party"], "exc": [], "opt": [], "plan": [["17:00", "Pickup from your hotel"], ["", "Quad bike"], ["", "Bedouin tea"], ["", "Camel ride"], ["", "Dinner"], ["", "Evening show & party"], ["22:00", "Back at your hotel"]], "note": ""}, {"id": "stella-sharm-7in1", "col": "desert", "name": "Stella Sharm 7 in 1", "line": "Quad bike safari · Buggy car safari · Camel ride", "dur": "Full day", "days_run": "Every day", "dep": "10:00", "hrs": 6, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 60, "unit": "person", "priceRows": "€60 / person", "multi": false, "img": "/_blob/900246cba0143ab9eca5d9209f31e1dc", "gal": ["/_blob/900246cba0143ab9eca5d9209f31e1dc", "/_blob/bf1c04c34291f8af98d306fee293c57d", "/_blob/1a826cb6b818ca860a7e80168853a3a2"], "inc": ["Quad bike safari", "Buggy car safari", "Camel ride", "Bedouin tea", "Lunch", "Parasailing"], "exc": [], "opt": [], "plan": [["10:00", "Pickup from your hotel"], ["", "Quad bike safari"], ["", "Buggy car safari"], ["", "Camel ride"], ["", "Bedouin tea"], ["", "Lunch"], ["16:00", "Back at your hotel"]], "note": ""}, {"id": "arabian-night-safari", "col": "desert", "name": "Arabian Night Safari (Private)", "line": "Arabian Night Safari (Private)", "dur": "Evening · ~5 h", "days_run": "On request", "dep": "~17:30", "hrs": 5, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "person", "priceRows": "On request On request", "multi": false, "img": "/_blob/eea39917a2222fc7d47a4e17b4970126", "gal": ["/_blob/eea39917a2222fc7d47a4e17b4970126", "/_blob/bf1c04c34291f8af98d306fee293c57d", "/_blob/900246cba0143ab9eca5d9209f31e1dc"], "inc": [], "exc": [], "opt": [], "plan": [["17:30", "Pickup by private air-conditioned car"], ["", "Choose buggy or quad"], ["", "Private safari with a private guide"], ["", "Bedouin village: tea and photos"], ["", "Camel riding"], ["", "Drive through the desert to the Arabic night party"], ["", "BBQ dinner & live show"], ["", "Telescope and stargazing"], ["22:30", "Drop-off at your hotel"]], "note": ""}, {"id": "nabq-private-morning", "col": "desert", "name": "Nabq National Park — Private Morning Tour", "line": "Jeep safari · Canyon adventure · Sandboarding", "dur": "Full morning", "days_run": "On request", "dep": "~07:45", "hrs": 6, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "group", "priceRows": "On request On request", "multi": false, "img": "/_blob/203483c7015c309018575b6b25c51d2b", "gal": ["/_blob/203483c7015c309018575b6b25c51d2b", "/_blob/f88ec77d3556f746d8166e4143e93e1d", "/_blob/bf1c04c34291f8af98d306fee293c57d"], "inc": ["Jeep safari", "Canyon adventure", "Sandboarding", "Moto / quad biking", "Kayaking in the mangrove forest", "Lunch"], "exc": [], "opt": [], "plan": [["~07:45", "Pickup from your hotel"], ["", "Jeep safari"], ["", "Canyon adventure"], ["", "Sandboarding"], ["", "Moto / quad biking"], ["", "Kayaking in the mangrove forest"]], "note": ""}, {"id": "nabq-private-afternoon", "col": "desert", "name": "Nabq National Park — Private Afternoon & Evening Tour", "line": "Jeep safari · Canyon adventure · Sandboarding", "dur": "Afternoon + evening", "days_run": "On request", "dep": "~14:00", "hrs": 7, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "group", "priceRows": "On request On request", "multi": false, "img": "/_blob/159c23ca3ec0e593ac4f514436b70b8c", "gal": ["/_blob/159c23ca3ec0e593ac4f514436b70b8c", "/_blob/eea39917a2222fc7d47a4e17b4970126", "/_blob/203483c7015c309018575b6b25c51d2b"], "inc": ["Jeep safari", "Canyon adventure", "Sandboarding", "Moto / quad biking", "Stargazing with telescope", "Mangrove forest visit"], "exc": [], "opt": [], "plan": [["~14:00", "Pickup from your hotel"], ["", "Jeep safari"], ["", "Canyon adventure"], ["", "Sandboarding"], ["", "Moto / quad biking"], ["", "Stargazing with telescope"]], "note": ""}, {"id": "camping-nabq", "col": "desert", "name": "Camping in Nabq National Park", "line": "Camping in Nabq National Park", "dur": "Overnight", "days_run": "On request", "dep": "12:00", "hrs": 24, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": true, "p": null, "unit": "person", "priceRows": "On request On request", "multi": false, "img": "/_blob/eea39917a2222fc7d47a4e17b4970126", "gal": ["/_blob/eea39917a2222fc7d47a4e17b4970126"], "inc": [], "exc": [], "opt": [], "plan": [["12:00", "Pickup from your hotel"], ["12:00 next day", "Back at your hotel"]], "note": ""}, {"id": "red-canyon-three-pools", "col": "desert", "name": "Red Canyon (Salama) & Three Pools", "line": "Jeep safari · Red Canyon (Salama) · Snorkelling in the Three Pools", "dur": "Full day", "days_run": "Every day", "dep": "07:00", "hrs": 10, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/bc8de492016a14f1a55899dd66275feb", "gal": ["/_blob/bc8de492016a14f1a55899dd66275feb", "/_blob/c5664a2280fb96f347d49da3c14ff1bb", "/_blob/bf1c04c34291f8af98d306fee293c57d"], "inc": ["Jeep safari", "Red Canyon (Salama)", "Snorkelling in the Three Pools", "Lunch", "Camel riding", "Quad bike"], "exc": [], "opt": [], "plan": [["07:00", "Pickup from your hotel"], ["", "Jeep safari"], ["", "Red Canyon (Salama)"], ["", "Snorkelling in the Three Pools"], ["", "Lunch"], ["", "Camel riding"], ["17:00", "Back at your hotel"]], "note": ""}, {"id": "red-canyon-blue-hole", "col": "desert", "name": "Red Canyon (Salama) & Blue Hole", "line": "Jeep safari · Red Canyon (Salama) · Snorkelling at the Blue Hole", "dur": "Full day", "days_run": "Every day", "dep": "07:00", "hrs": 10, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 55, "unit": "person", "priceRows": "€55 / person", "multi": false, "img": "/_blob/289f3f8d7a085931dfab75e01edf140d", "gal": ["/_blob/289f3f8d7a085931dfab75e01edf140d", "/_blob/bc8de492016a14f1a55899dd66275feb", "/_blob/c5664a2280fb96f347d49da3c14ff1bb"], "inc": ["Jeep safari", "Red Canyon (Salama)", "Snorkelling at the Blue Hole", "Lunch", "Camel ride", "Quad bike"], "exc": [], "opt": [], "plan": [["07:00", "Pickup from your hotel"], ["", "Jeep safari"], ["", "Red Canyon (Salama)"], ["", "Snorkelling at the Blue Hole"], ["", "Lunch"], ["", "Camel ride"], ["17:00", "Back at your hotel"]], "note": ""}, {"id": "dahab-day-trip", "col": "desert", "name": "Dahab Day Trip", "line": "All activities in the program · All fees and services mentioned · Air-conditioned transportation", "dur": "Full day", "days_run": "Every day", "dep": "~07:40", "hrs": 10, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/289f3f8d7a085931dfab75e01edf140d", "gal": ["/_blob/289f3f8d7a085931dfab75e01edf140d", "/_blob/203483c7015c309018575b6b25c51d2b", "/_blob/bf1c04c34291f8af98d306fee293c57d"], "inc": ["All activities in the program", "All fees and services mentioned", "Air-conditioned transportation", "Lunch"], "exc": ["Drinks", "Photographer services", "Personal expenses"], "opt": ["Snorkelling at the Blue Hole (entrance fee 20 USD)"], "plan": [["07:40", "Pickup (exact time depends on hotel location)"], ["", "Snorkelling in the Gulf of Aqaba — masks & life jackets included"], ["", "20-minute quad biking by the sea"], ["", "10-minute camel ride on the beach"], ["", "Jeep safari + 40-minute canyon mountains walk (Nuweiba desert)"], ["", "Lunch: chicken, rice, vegetables and salad"], ["", "Free time for shopping"], ["17:30", "Drop-off"]], "note": ""}, {"id": "wishwash-lake-canyon", "col": "desert", "name": "Wishwash Lake & Canyon (Private)", "line": "Canyon · Swimming · Wishwash Lake", "dur": "Full day", "days_run": "On request", "dep": "06:00", "hrs": 11, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "group", "priceRows": "On request On request", "multi": false, "img": "/_blob/bc8de492016a14f1a55899dd66275feb", "gal": ["/_blob/bc8de492016a14f1a55899dd66275feb", "/_blob/f88ec77d3556f746d8166e4143e93e1d"], "inc": ["Canyon", "Swimming", "Wishwash Lake", "Lunch", "Shopping"], "exc": [], "opt": [], "plan": [["06:00", "Pickup from your hotel"], ["", "Canyon"], ["", "Swimming"], ["", "Wishwash Lake"], ["", "Lunch"], ["", "Shopping"], ["17:00", "Back at your hotel"]], "note": ""}, {"id": "desert-horse-riding", "col": "relax", "name": "Desert Horse Riding", "line": "1 hour horseback riding · Bedouin tea · Desert landscape", "dur": "1 hour", "days_run": "Every day", "dep": "09:00–18:00", "hrs": 1, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 25, "unit": "person", "priceRows": "€25 / person", "multi": false, "img": "/_blob/eea39917a2222fc7d47a4e17b4970126", "gal": ["/_blob/eea39917a2222fc7d47a4e17b4970126"], "inc": ["1 hour horseback riding", "Bedouin tea", "Desert landscape"], "exc": [], "opt": [], "plan": [["09:00–18:00", "Pickup from your hotel"], ["", "1 hour horseback riding"], ["", "Bedouin tea"], ["", "Desert landscape"]], "note": ""}, {"id": "horse-riding-by-sea-nabq", "col": "relax", "name": "Horse Riding by the Sea (Nabq National Park)", "line": "1 hour horseback · Sea views · Nabq National Park", "dur": "1 hour", "days_run": "Every day", "dep": "09:00–18:00", "hrs": 1, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 35, "unit": "person", "priceRows": "€35 / person", "multi": false, "img": "/_blob/5a9ae8af78da47f079a8cb925bfabfc3", "gal": ["/_blob/5a9ae8af78da47f079a8cb925bfabfc3"], "inc": ["1 hour horseback", "Sea views", "Nabq National Park"], "exc": [], "opt": [], "plan": [["09:00–18:00", "Pickup from your hotel"], ["", "1 hour horseback"], ["", "Sea views"], ["", "Nabq National Park"]], "note": ""}, {"id": "dolphin-show", "col": "relax", "name": "Dolphin Show", "line": "Dolphin Show", "dur": "~2 h", "days_run": "Every day", "dep": "14:00–17:00", "hrs": 2, "days": 1, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 25, "unit": "person", "priceRows": "Show €25 / person · + 15 min swim with dolphins €90 / person · + 30 min swim with dolphins €120 / person", "multi": true, "img": "/_blob/b65bff631432d328b95862cf320e2b78", "gal": ["/_blob/b65bff631432d328b95862cf320e2b78"], "inc": [], "exc": [], "opt": [], "plan": [["14:00–17:00", "Pickup from your hotel"]], "note": "Consider animal-welfare wording; some EU visitors avoid dolphin shows"}, {"id": "romantic-dinner-cruise", "col": "relax", "name": "Romantic Dinner Cruise", "line": "Seafood dinner · Belly dance · Oriental show", "dur": "Evening", "days_run": "Every day", "dep": "17:00", "hrs": 5, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 30, "unit": "person", "priceRows": "€30 / person", "multi": false, "img": "/_blob/7eb0d3873b446b1c637c9dc643bd9b56", "gal": ["/_blob/7eb0d3873b446b1c637c9dc643bd9b56", "/_blob/4725c6373b6d786f3d874dcc260117e3"], "inc": ["Seafood dinner", "Belly dance", "Oriental show", "Magic show"], "exc": [], "opt": [], "plan": [["17:00", "Pickup from your hotel"], ["", "Seafood dinner"], ["", "Belly dance"], ["", "Oriental show"], ["", "Magic show"], ["22:00", "Back at your hotel"]], "note": ""}, {"id": "aqua-park", "col": "relax", "name": "Aqua Park", "line": "48 water slides · Lunch · Drinks", "dur": "Full day", "days_run": "Every day", "dep": "10:00", "hrs": 6, "days": 1, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 55, "unit": "person", "priceRows": "€55 / person", "multi": false, "img": "/_blob/1a826cb6b818ca860a7e80168853a3a2", "gal": ["/_blob/1a826cb6b818ca860a7e80168853a3a2"], "inc": ["48 water slides", "Lunch", "Drinks"], "exc": [], "opt": [], "plan": [["10:00", "Pickup from your hotel"], ["", "48 water slides"], ["", "Lunch"], ["", "Drinks"], ["16:00", "Back at your hotel"]], "note": ""}, {"id": "spa-turkish-bath", "col": "relax", "name": "Spa & Turkish Bath", "line": "Spa & Turkish Bath", "dur": "50–120 min", "days_run": "Every day", "dep": "", "hrs": 2, "days": 1, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 55, "unit": "person", "priceRows": "VIP program · 120 min €55 / person · Turkish bath · 90 min €45 / person · Cleopatra program · 90 min €45 / person · Massage program · 50 min €35 / person", "multi": true, "img": "/_blob/7eb0d3873b446b1c637c9dc643bd9b56", "gal": ["/_blob/7eb0d3873b446b1c637c9dc643bd9b56"], "inc": [], "exc": [], "opt": [], "plan": [["VIP · 120 min", "Sauna, steam room, jacuzzi, peeling, foam massage, full back oil massage (45 min), face mask (chocolate or milk), body scrub (chocolate or coconut), foot & hand scrub (Dead Sea salt)"], ["Turkish bath · 90 min", "Sauna, steam room, jacuzzi, peeling, foam massage, full back oil massage (45 min)"], ["Cleopatra · 90 min", "Sauna, steam room, jacuzzi, body scrub (coconut + chocolate), salt scrub (hand + feet), face mask, 45-min massage"], ["Massage · 50 min", "50-min massage, face mask with chocolate or milk"]], "note": "Price list says Turkish bath 'from €35' — matches the 50-min massage program"}, {"id": "sharm-city-tour", "col": "relax", "name": "Sharm El Sheikh City Tour (Private)", "line": "SOHO Square · Farsha Café · Old Market", "dur": "Evening", "days_run": "On request", "dep": "On request", "hrs": 4, "days": 1, "fmt": "Private", "priv": true, "family": false, "flight": false, "overnight": false, "p": null, "unit": "group", "priceRows": "On request On request", "multi": false, "img": "/_blob/4725c6373b6d786f3d874dcc260117e3", "gal": ["/_blob/4725c6373b6d786f3d874dcc260117e3", "/_blob/7eb0d3873b446b1c637c9dc643bd9b56"], "inc": [], "exc": [], "opt": [], "plan": [["On request", "Pickup from your hotel"], ["", "SOHO Square"], ["", "Farsha Café"], ["", "Old Market"], ["", "Al Sahaba Mosque"], ["", "Al Nour area"]], "note": ""}, {"id": "p4", "col": "all", "pack": true, "name": "Egypt in 4 Days", "line": "Ras Mohammed by boat, the Pyramids by plane, a quad at sunset and the Sinai sunrise.", "dur": "4 days", "days_run": "Your dates", "dep": "", "hrs": 96, "days": 4, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 340, "unit": "adult · sum of trips", "priceRows": "Sum of the trips €340 — package price set by Stella", "multi": false, "img": "/_blob/6a05237b577ff23019374c81286207c2", "gal": ["/_blob/9e3977f8835a5de08fd1a89d6deade94", "/_blob/860c9f197e6f83fcdaff37ceee8c9dea", "/_blob/900246cba0143ab9eca5d9209f31e1dc"], "inc": ["Every pickup and transfer", "All days as listed", "One WhatsApp contact for the whole trip"], "exc": [], "opt": [], "plan": [["Day 1", "Ras Mohammed & White Island by Boat"], ["Day 2", "Cairo by Plane — One Day"], ["Day 3", "Quad Bike Safari"], ["Day 4", "Mount Sinai Sunrise & St Catherine"]], "parts": ["ras-mohammed-white-island-boat", "cairo-plane-1-day", "quad-bike-safari", "mount-sinai-st-catherine"], "note": ""}, {"id": "p3", "col": "all", "pack": true, "name": "All of Ancient Egypt", "line": "Cairo and Luxor by plane, then the Mount Sinai sunrise — with beach days in between.", "dur": "3 days", "days_run": "Your dates", "dep": "", "hrs": 96, "days": 3, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 550, "unit": "adult · sum of trips", "priceRows": "Sum of the trips €550 — package price set by Stella", "multi": false, "img": "/_blob/80a9c3b53acafe6a8b097af6f740c59e", "gal": ["/_blob/860c9f197e6f83fcdaff37ceee8c9dea", "/_blob/80a9c3b53acafe6a8b097af6f740c59e", "/_blob/a88c98a64ed221b1a6a3664a33556a73"], "inc": ["Every pickup and transfer", "All days as listed", "One WhatsApp contact for the whole trip"], "exc": [], "opt": [], "plan": [["Day 1", "Cairo by Plane — One Day"], ["Day 2", "Luxor by Plane — One Day"], ["Day 3", "Mount Sinai Sunrise & St Catherine"]], "parts": ["cairo-plane-1-day", "luxor-plane-1-day", "mount-sinai-st-catherine"], "note": ""}, {"id": "psea", "col": "all", "pack": true, "name": "The Red Sea in 3 Days", "line": "Ras Mohammed & White Island, Tiran Island and a Dahab day with the Blue Hole.", "dur": "3 days", "days_run": "Your dates", "dep": "", "hrs": 96, "days": 3, "fmt": "Group", "priv": false, "family": false, "flight": false, "overnight": false, "p": 105, "unit": "adult · sum of trips", "priceRows": "Sum of the trips €105 — package price set by Stella", "multi": false, "img": "/_blob/9e3977f8835a5de08fd1a89d6deade94", "gal": ["/_blob/9e3977f8835a5de08fd1a89d6deade94", "/_blob/31b16f82e6d9b7c7df0c85efe8e5ef6a", "/_blob/289f3f8d7a085931dfab75e01edf140d"], "inc": ["Every pickup and transfer", "All days as listed", "One WhatsApp contact for the whole trip"], "exc": [], "opt": [], "plan": [["Day 1", "Ras Mohammed & White Island by Boat"], ["Day 2", "Tiran Island by Boat"], ["Day 3", "Dahab Day Trip"]], "parts": ["ras-mohammed-white-island-boat", "tiran-island-boat", "dahab-day-trip"], "note": ""}, {"id": "pfam", "col": "all", "pack": true, "name": "Family Days", "line": "Glass-bottom boat, Ras Mohammed, the aqua park and an evening safari.", "dur": "4 days", "days_run": "Your dates", "dep": "", "hrs": 96, "days": 4, "fmt": "Group", "priv": false, "family": true, "flight": false, "overnight": false, "p": 140, "unit": "adult · sum of trips", "priceRows": "Sum of the trips €140 — package price set by Stella", "multi": false, "img": "/_blob/1a826cb6b818ca860a7e80168853a3a2", "gal": ["/_blob/c5664a2280fb96f347d49da3c14ff1bb", "/_blob/9e3977f8835a5de08fd1a89d6deade94", "/_blob/1a826cb6b818ca860a7e80168853a3a2"], "inc": ["Every pickup and transfer", "All days as listed", "One WhatsApp contact for the whole trip"], "exc": [], "opt": [], "plan": [["Day 1", "Glass Bottom Boat"], ["Day 2", "Ras Mohammed & White Island by Boat"], ["Day 3", "Aqua Park"], ["Day 4", "Super Safari 5 in 1"]], "parts": ["glass-bottom-boat", "ras-mohammed-white-island-boat", "aqua-park", "super-safari-5in1"], "note": ""}];
+  }
+  componentDidMount() {
+    var self = this, r = this.r;
+    var reduced = false; try { reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    this.reduced = reduced;
+    this.startTimer();
+    if ('IntersectionObserver' in window && r.home && !reduced) {
+      this.io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); self.io.unobserve(e.target); } }); }, { root: r.home, threshold: 0.12 });
+      setTimeout(function () { r.home.querySelectorAll('.rv').forEach(function (el) { self.io.observe(el); }); }, 60);
+    } else if (r.home) { r.home.querySelectorAll('.rv').forEach(function (el) { el.classList.add('in'); }); }
+    setTimeout(function () { self.onHomeScroll(); self.playVideos(); }, 80);
+  }
+  playVideos() { var ph = this.r.phone; if (!ph) return; ph.querySelectorAll('video').forEach(function (v) { try { v.muted = true; var p = v.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }); }
+  componentWillUnmount() { clearInterval(this.timer); if (this.io) this.io.disconnect(); }
+  startTimer() { var self = this; clearInterval(this.timer); this.timer = setInterval(function () { var s = self.state; if (s.paused || s.col || s.trip || s.tab !== 'home' || s.sheet || s.contact) return; self.setState({ story: (s.story + 1) % self.cols().length }); }, 6000); }
+  setStory(i) { var n = this.cols().length; this.setState({ story: (i + n) % n }); this.startTimer(); }
+  onHomeScroll() {
+    var r = this.r, el = r.home; if (!el) return;
+    var y = el.scrollTop, s = this.state;
+    if (r.heroIn && !this.reduced) { var k = Math.min(y / 700, 1); r.heroIn.style.transform = 'scale(' + (1 - k * 0.1) + ')'; r.heroIn.style.borderRadius = (k * 36) + 'px'; r.heroIn.style.filter = 'brightness(' + (1 - k * 0.45) + ')'; }
+    if (r.heroTxt) r.heroTxt.style.opacity = Math.max(0, 1 - y / 260);
+    var base = el.getBoundingClientRect().top, sc = (el.getBoundingClientRect().height / 844) || 1;
+    for (var i = 0; i < 4; i++) {
+      var c = r['card' + i], n = r['card' + (i + 1)]; if (!c) continue;
+      var p = 0;
+      if (n) { var ct = (c.getBoundingClientRect().top - base) / sc, nt = (n.getBoundingClientRect().top - base) / sc; p = Math.max(0, Math.min(1, 1 - (nt - ct) / 430)); }
+      if (!this.reduced) c.style.transform = 'scale(' + (1 - p * 0.07) + ')';
+      var d = r['dim' + i]; if (d) d.style.opacity = (p * 0.45).toFixed(3);
+    }
+    var solid = y > 640, paused = y > 300;
+    if (solid !== s.solid || paused !== s.paused) this.setState({ solid: solid, paused: paused });
+  }
+  openCol(id, el) {
+    var r = this.r, clip = null;
+    if (el && r.phone && !this.reduced) {
+      var pr = r.phone.getBoundingClientRect(), sc = pr.width / 390, er = el.getBoundingClientRect();
+      clip = { t: Math.max(0, (er.top - pr.top) / sc), l: Math.max(0, (er.left - pr.left) / sc), r: Math.max(0, (pr.right - er.right) / sc), b: Math.max(0, (pr.bottom - er.bottom) / sc) };
+    }
+    var self = this; this.setState({ col: id, colClosing: false, colSolid: false, colFilter: 'all', colMode: 'group', clip: clip, tab: id ? 'cols' : this.state.tab }); setTimeout(function () { self.playVideos(); }, 60);
+  }
+  closeCol() { var self = this; this.setState({ colClosing: true }); setTimeout(function () { self.setState({ col: null, colClosing: false, tab: self.state.tab === 'cols' ? 'home' : self.state.tab }); }, 300); }
+  openTrip(id) { this.setState({ trip: id, tripClosing: false, gal: 0 }); }
+  closeTrip() { var self = this; this.setState({ tripClosing: true }); setTimeout(function () { self.setState({ trip: null, tripClosing: false }); }, 300); }
+  toggleTray(id, e) {
+    var self = this, s = this.state, has = s.tray.indexOf(id) >= 0;
+    var tray = has ? s.tray.filter(function (x) { return x !== id; }) : s.tray.concat([id]);
+    var fly = null;
+    if (!has && e && e.currentTarget && this.r.phone && !this.reduced) {
+      var pr = this.r.phone.getBoundingClientRect(), sc = pr.width / 390, br = e.currentTarget.getBoundingClientRect();
+      fly = { x: (br.left - pr.left) / sc + br.width / sc / 2 - 9, y: (br.top - pr.top) / sc + br.height / sc / 2 - 9, k: Date.now() };
+    }
+    this.setState({ tray: tray, fly: null });
+    if (fly) { setTimeout(function () { self.setState({ fly: fly }); }, 10); setTimeout(function () { self.setState({ fly: null, bump: s.bump + 1 }); }, 720); }
+    this.showToast(has ? 'Removed from your trip.' : 'Added to your trip.', !has);
+  }
+  addMany(ids) { var s = this.state, tray = s.tray.slice(); ids.forEach(function (x) { if (tray.indexOf(x) < 0) tray.push(x); }); this.setState({ tray: tray, bump: s.bump + 1 }); this.showToast(ids.length + ' trips added to your trip.', true); }
+  showToast(t, act) { var self = this; this.setState({ toast: t, toastAction: !!act }); clearTimeout(this.tt); this.tt = setTimeout(function () { self.setState({ toast: '' }); }, 2600); }
+  openSheet(mode) { var b = this.state.bk, tr = this.state.trip, tt = tr ? this.trips().filter(function (x) { return x.id === tr; })[0] : null, pv = !!(mode === 'trip' && tt && (tt.priv || this.state.colMode === 'private')); this.setState({ sheet: mode, bk: Object.assign({}, b, { tried: false, done: false, priv: pv, adults: mode === 'tray' ? this.state.trayAdults : b.adults }) }); }
+  renderVals() {
+    var s = this.state, self = this, r = this.r;
+    var ref = function (k) { return function (el) { r[k] = el; }; };
+    var C = this.cols(), T = this.trips();
+    var cmap = {}; C.forEach(function (c) { cmap[c.id] = c; });
+    var tmap = {}; T.forEach(function (t) { tmap[t.id] = t; });
+    var colTrips = function (id) { return T.filter(function (t) { return id === 'private' ? !!t.priv : t.col === id; }); };
+    var minP = function (id) { var ps = colTrips(id).map(function (t) { return t.p; }).filter(function (p) { return p != null; }); return ps.length ? Math.min.apply(null, ps) : 0; };
+    var tagOf = function (t) { return t.p == null ? 'On request' : 'from €' + t.p; };
+    var strOf = function (p) { return p == null ? 'On request' : '€' + p; };
+    var thumbsOf = function (imgs, size, border) { return imgs.map(function (im, i) { return { img: im, st: 'display: inline-block; width: ' + size + 'px; height: ' + size + 'px; border-radius: 50%; border: 2px solid ' + border + '; overflow: hidden; margin-left: ' + (i ? -10 : 0) + 'px; position: relative' }; }); };
+    var inTray = function (id) { return s.tray.indexOf(id) >= 0; };
+
+    // collection screen
+    var col = { open: false };
+    if (s.col) {
+      var c = cmap[s.col], list = colTrips(c.id);
+      var f = s.colFilter;
+      var pmode = s.colMode === 'private' && c.id !== 'all' && c.id !== 'private';
+      var modeList = (c.id === 'private' || c.id === 'all') ? list : (pmode ? list.slice().sort(function (a, b) { return (b.priv ? 1 : 0) - (a.priv ? 1 : 0); }) : list.filter(function (t) { return !t.priv; }));
+      var shown = modeList.filter(function (t) { return f === 'all' || (f === 'group' && !t.priv) || (f === 'private' && t.priv) || (f === 'family' && t.family) || (f === 'short' && t.hrs <= 5); });
+      var cl = s.clip;
+      var combo = c.combo ? (function () { var ids = c.combo.ids, sum = ids.reduce(function (a, id) { return a + (tmap[id].p || 0); }, 0); var all = ids.every(inTray); return { title: c.combo.title, p: c.combo.p, price: sum, thumbs: thumbsOf(ids.map(function (id) { return tmap[id].img; }), 44, c.color), cta: all ? 'All added ✓' : 'Add all ' + ids.length, add: function () { self.addMany(ids); } }; })() : null;
+      col = { open: true, cls: 'layer ' + (s.colClosing ? 'close-fade' : (cl ? 'open-clip' : 'up-in')), vars: 'z-index: 10; --t: ' + (cl ? cl.t : 0) + 'px; --r: ' + (cl ? cl.r : 0) + 'px; --b: ' + (cl ? cl.b : 0) + 'px; --l: ' + (cl ? cl.l : 0) + 'px',
+        name: c.name, kicker: c.kicker, kc: c.kc, sub: c.sub, img: c.img, alt: c.alt, isVideo: !!c.video, isImg: !c.video, video: c.video, poster: c.poster, color: c.color,
+        stats: (function () { var mx = Math.max.apply(null, list.map(function (t) { return t.days || 1; })); return c.id === 'all' ? [{ v: String(list.length), k: 'journeys' }, { v: '3–4', k: 'days' }, { v: '€' + minP('all'), k: 'sum of trips' }] : [{ v: String(list.length), k: 'trips' }, { v: mx > 1 ? '1–' + mx : '1', k: 'days max' }, { v: '€' + minP(c.id), k: 'from' }]; })(),
+        hasChips: c.id !== 'all', hasModes: c.id !== 'all' && c.id !== 'private', isPrivMode: pmode, isPrivCol: c.id === 'private', privTitle: 'Make any ' + c.short.toLowerCase() + ' trip private',
+        modes: [['group', 'Group trips', list.filter(function (t) { return !t.priv; }).length], ['private', 'Private', '']].map(function (m) { var on = (s.colMode || 'group') === m[0]; return { label: m[1], n: m[2], on: on, cls: 'mode' + (m[0] === 'private' ? ' pv' : '') + (on ? ' on' : ''), go: function () { self.setState({ colMode: m[0], colFilter: 'all' }); } }; }),
+        chips: [['all', 'All'], ['family', 'Family'], ['short', 'Under 5 h']].map(function (x) { var on = f === x[0]; return { label: x[1], on: on, cls: on ? 'chip on' : 'chip', go: function () { self.setState({ colFilter: x[0] }); } }; }),
+        trips: shown.map(function (t, i) { var it = inTray(t.id); return { name: t.name, line: t.line, img: t.img, dur: t.dur, price: t.p, priceTag: tagOf(t), unit: t.unit, priv: !!t.priv, privReq: pmode && !t.priv, isPack: !!t.pack, parts: (t.parts || []).map(function (id) { return { name: tmap[id].name, dot: cmap[tmap[id].col].color }; }), inTray: it, notInTray: !it, addCls: it ? 'add on' : 'add', addLabel: it ? 'Remove from my trip' : 'Add to my trip', delay: 'animation-delay: ' + (0.45 + i * 0.09) + 's', open: function () { self.openTrip(t.id); }, add: function (e) { self.toggleTray(t.id, e); } }; }),
+        empty: shown.length === 0, reset: function () { self.setState({ colFilter: 'all' }); },
+        hasCombo: !!combo, combo: combo || { thumbs: [] }, isAll: c.id === 'all',
+        barStyle: 'position: absolute; left: 0; right: 0; top: 0; z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; transition: background .3s ease; background: ' + (s.colSolid ? 'rgba(244,238,227,.96)' : 'transparent'),
+        barTitle: 'font-size: 18px; transition: opacity .3s ease; opacity: ' + (s.colSolid ? 1 : 0) };
+    }
+
+    // trip detail
+    var dt = { open: false };
+    if (s.trip) {
+      var t = tmap[s.trip], tc = cmap[t.col], it2 = inTray(t.id);
+      dt = { open: true, cls: 'layer ' + (s.tripClosing ? 'slide-out' : 'slide-in'), name: t.name, line: t.line, c: tc.color, colName: tc.name, price: t.p, priceStr: strOf(t.p), fromLabel: t.pack ? 'sum of the trips' : (t.p == null ? 'price' : 'from'), unit: t.p == null ? 'ask us' : t.unit, note: (t.note ? t.note + ' ' : '') + 'Prices from Stella’s current price list; the team confirms on WhatsApp.',
+        gallery: t.gal.map(function (g, i) { return { img: g, alt: t.name + ' — photo ' + (i + 1) }; }), galN: t.gal.length, galIdx: s.gal + 1,
+        dots: t.gal.map(function (g, i) { return { st: 'height: 6px; border-radius: 3px; background: #FFFFFF; transition: width .3s ease, opacity .3s ease; width: ' + (i === s.gal ? 22 : 6) + 'px; opacity: ' + (i === s.gal ? 1 : 0.55) }; }),
+        facts: [{ k: 'Duration', v: t.dur }, { k: 'Runs', v: t.days_run || 'On request' }, { k: 'Pickup', v: t.dep ? t.dep + ' · from your hotel' : 'From your hotel' }, { k: 'Format', v: t.priv ? 'Private' : 'Group · private on request' }].concat(t.multi ? [{ k: 'Prices', v: t.priceRows }] : []).concat(t.family ? [{ k: 'Good for', v: 'Families' }] : []),
+        planTitle: t.pack ? 'The plan' : 'Your day', plan: t.plan.map(function (p) { return { t: p[0], s: p[1] }; }), inc: t.inc,
+        isPack: !!t.pack, parts: (t.parts || []).map(function (id) { var x = tmap[id]; return { name: x.name, dur: x.dur, img: x.img, open: function () { self.openTrip(id); } }; }),
+        inTray: it2, notInTray: !it2, addCls: it2 ? 'add on' : 'add', addLabel: it2 ? 'Remove from my trip' : 'Add to my trip',
+        add: function (e) { self.toggleTray(t.id, e); }, request: function () { self.openSheet('trip'); } };
+    }
+
+    // tray
+    var order = { history: 0, sea: 1, desert: 2, all: 3 };
+    var items = s.tray.map(function (id) { return tmap[id]; }).filter(Boolean);
+    var seaFirst = items.slice().sort(function (a, b) { var oa = a.col === 'sea' ? 0 : a.col === 'desert' ? 1 : 2, ob = b.col === 'sea' ? 0 : b.col === 'desert' ? 1 : 2; return oa - ob; });
+    var rows = [], day = 1;
+    seaFirst.forEach(function (x, i) {
+      rows.push({ isTrip: true, isRest: false, day: day, name: x.name, dur: x.dur, price: x.p, priceStr: strOf(x.p), img: x.img, c: cmap[x.col].color, delay: 'animation-delay: ' + (i * 0.06) + 's', open: function () { self.openTrip(x.id); }, remove: function () { self.toggleTray(x.id); } });
+      day += x.days || 1;
+      if ((x.flight || x.overnight) && i < seaFirst.length - 1) { rows.push({ isTrip: false, isRest: true, day: day, delay: '' }); day += 1; }
+    });
+    var counts = {}; C.forEach(function (c) { counts[c.id] = 0; });
+    items.forEach(function (x) { counts[x.col] += x.days || 1; });
+    var totalDays = day - 1;
+    var segs = C.map(function (c) { return c.id; }).filter(function (k) { return counts[k] > 0; }).map(function (k) { return { c: cmap[k].color, label: cmap[k].short, st: 'height: 100%; background: ' + cmap[k].color + '; flex: ' + counts[k] + '; transition: flex .5s ease' }; });
+    var trayTotal = items.reduce(function (a, x) { return a + (x.priv ? (x.p || 0) : (x.p || 0) * s.trayAdults); }, 0);
+    var anyReq = items.some(function (x) { return x.p == null; });
+    var tray = { open: s.tab === 'trip' && !s.col, empty: items.length === 0, has: items.length > 0, count: items.length, days: totalDays, segs: segs, rows: rows, adults: s.trayAdults, total: trayTotal, totalStr: '€' + trayTotal + (anyReq ? ' + on request' : ''),
+      mixLabel: segs.length > 1 ? 'a real mix' : (segs.length ? 'one collection' : ''),
+      starts: C.slice(0, 3).map(function (c) { return { label: c.name, go: function () { self.setState({ tab: 'home' }); self.openCol(c.id); } }; }) };
+
+    // booking
+    var bk = s.bk, tripObj = s.trip ? tmap[s.trip] : null;
+    var dates = [], now = new Date();
+    for (var i = 1; i <= 12; i++) { var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i); dates.push(d); }
+    var iso = function (d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+    var WD = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var single = s.sheet === 'trip' && tripObj;
+    var pp = function (x) { return x.p || 0; };
+    var bTotal = single ? (tripObj.priv ? pp(tripObj) : Math.round(bk.adults * pp(tripObj) + bk.kids * pp(tripObj))) : items.reduce(function (a, x) { return a + (x.priv ? pp(x) : Math.round(bk.adults * pp(x) + bk.kids * pp(x))); }, 0);
+    var bReq = single ? tripObj.p == null : anyReq;
+    var errs = { date: !bk.date, area: !bk.area, name: !(bk.name || '').trim(), phone: (bk.phone || '').replace(/\D/g, '').length < 7 };
+    var sh = bk.tried, setBk = function (o) { self.setState({ bk: Object.assign({}, self.state.bk, o) }); };
+    var dSel = dates.filter(function (d) { return iso(d) === bk.date; })[0];
+    var dLabel = dSel ? WD[dSel.getDay()] + ' ' + dSel.getDate() + ' ' + MO[dSel.getMonth()] : '—';
+    var what = single ? tripObj.name : seaFirst.map(function (x) { return '• ' + x.name; }).join('\n');
+    var msg = 'Hi Stella Sharm Tours!\n' + (single ? 'I’d like: ' + what : 'I’d like this trip:\n' + what) + '\n' + (single ? 'Date: ' : 'Starting: ') + dLabel + '\nGuests: ' + bk.adults + ' adults, ' + bk.kids + ' children' + (single && !tripObj.priv ? '\nFormat: ' + (bk.priv ? 'private' : 'group') : '') + '\nPickup: ' + (bk.area || '—') + '\nName: ' + ((bk.name || '').trim() || '—') + '\nEstimated total ≈ €' + bTotal + (bReq ? ' + on-request items' : '');
+    var areaList = ['Naama Bay', 'Nabq Bay', 'Sharks Bay', 'Hadaba', 'Old Market', 'Other'];
+    var bkv = { open: !!s.sheet, title: single ? tripObj.name : 'Request my trip', sub: single ? (tripObj.p == null ? 'Price on request' : 'from €' + tripObj.p + ' / ' + tripObj.unit) : items.length + ' trips · ' + totalDays + ' days', dateLabel: single ? 'Date' : 'First day',
+      isForm: !bk.done, isDone: !!bk.done,
+      dates: dates.map(function (d) { var on = iso(d) === bk.date; return { wd: WD[d.getDay()], n: d.getDate(), m: MO[d.getMonth()], on: on, cls: on ? 'dchip on' : 'dchip', pick: function () { setBk({ date: iso(d) }); } }; }),
+      adults: bk.adults, kids: bk.kids, adMin: bk.adults <= 1, chMin: bk.kids <= 0,
+      canPriv: !!(single && !tripObj.priv), gCls: bk.priv ? 'seg' : 'seg on', pCls: bk.priv ? 'seg on' : 'seg',
+      areas: areaList.map(function (a) { var on = bk.area === a; return { label: a, on: on, cls: on ? 'chip on' : 'chip', pick: function () { setBk({ area: a }); } }; }),
+      name: bk.name, phone: bk.phone,
+      errDate: sh && errs.date, errArea: sh && errs.area, errName: sh && errs.name, errPhone: sh && errs.phone,
+      nameCls: 'fld' + (sh && errs.name ? ' err' : ''), phoneCls: 'fld' + (sh && errs.phone ? ' err' : ''),
+      total: bTotal, totalStr: '€' + bTotal + (bReq ? ' + on request' : ''), msg: msg, ref: 'STL-' + String(1000 + (bTotal * 7) % 9000) };
+
+    var homeCards = C.map(function (c, i) {
+      var list = colTrips(c.id);
+      return { name: c.name, kicker: c.kicker, line: c.line, img: c.img, alt: c.alt, dot: c.id === 'all' ? '#E0A84A' : c.kc, ref: ref('card' + i), refDim: ref('dim' + i),
+        style: 'top: ' + (74 + i * 12) + 'px; margin-bottom: ' + (i < C.length - 1 ? 44 : 0) + 'px',
+        thumbs: thumbsOf(list.slice(0, 3).map(function (t) { return t.img; }), 34, '#FFFFFF'), meta: (c.id === 'all' ? list.length + ' journeys' : list.length + ' trips') + ' · from €' + minP(c.id),
+        open: function (e) { self.openCol(c.id, e.currentTarget); } };
+    });
+
+    return {
+      refPhone: ref('phone'), refHome: ref('home'), refHeroIn: ref('heroIn'), refHeroTxt: ref('heroTxt'), refCol: ref('col'), refColImg: ref('colImg'), refGal: ref('gal'),
+      onHome: function () { if (self.raf) return; self.raf = requestAnimationFrame(function () { self.raf = 0; self.onHomeScroll(); }); },
+      onCol: function (e) { var y = e.target.scrollTop; if (r.colImg && !self.reduced) r.colImg.style.transform = 'translateY(' + (y * 0.4) + 'px) scale(' + (1 + y / 2000) + ')'; var so = y > 320; if (so !== !!self.state.colSolid) self.setState({ colSolid: so }); },
+      onGal: function (e) { var i = Math.round(e.target.scrollLeft / e.target.clientWidth); if (i !== self.state.gal) self.setState({ gal: i }); },
+      heroBgs: C.map(function (c, i) { return { cls: 'bg' + (i === s.story ? ' on' : ''), isVideo: !!c.heroVideo, isImg: !c.heroVideo, video: c.video, poster: c.poster, img: c.img, alt: c.alt }; }),
+      heroTxt: C.map(function (c, i) { return { cls: 'hl' + (i === s.story ? ' on' : ''), kicker: c.kicker, kc: c.kc, head: c.head, sub: c.sub, cta: c.cta, open: function () { self.openCol(c.id); } }; }),
+      barsCls: s.paused ? 'paused' : '',
+      bars: C.map(function (c, i) { return { cls: 'bar' + (i < s.story ? ' done' : i === s.story ? ' run' : '') }; }),
+      pills: C.map(function (c, i) { var on = i === s.story; return { label: c.short, on: on, cls: on ? 'pill on' : 'pill', go: function () { self.setStory(i); } }; }),
+      prevStory: function () { self.setStory(s.story - 1); }, nextStory: function () { self.setStory(s.story + 1); },
+      topStyle: 'position: absolute; left: 0; right: 0; top: 28px; z-index: 5; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; color: #FFFFFF; pointer-events: none',
+      cards: homeCards,
+      firsts: ['ras-mohammed-white-island-boat', 'quad-bike-safari', 'cairo-plane-1-day', 'glass-bottom-boat'].map(function (id) { var t = tmap[id]; return { name: t.name, img: t.img, dur: t.dur, price: t.p, priceTag: tagOf(t), col: cmap[t.col].short, c: cmap[t.col].color, open: function () { self.openTrip(id); } }; }),
+      mixSlots: ['history', 'sea', 'desert'].map(function (k) { var n = items.filter(function (x) { return x.col === k; }).length; return { dot: k === 'history' ? '#7FA2E0' : k === 'sea' ? '#3CC9D3' : '#E0A84A', n: n, label: cmap[k].short }; }),
+      mixCta: items.length ? 'Open my trip · ' + items.length + ' days picked' : 'Start building',
+      privPerks: [{ n: '1', t: 'Your own car', s: 'Air-conditioned, from your hotel door' }, { n: '2', t: 'Your own guide', s: 'English or Italian' }, { n: '3', t: 'Your start time', s: 'Pickup when it suits you' }, { n: '4', t: 'Your pace', s: 'Stay longer, stop where you like' }],
+      privTrips: T.filter(function (t) { return t.priv; }).map(function (t) { return { name: t.name, img: t.img, priceTag: tagOf(t), open: function () { self.openTrip(t.id); } }; }),
+      privTrips4: T.filter(function (t) { return t.priv; }).slice(0, 4).map(function (t) { return { name: t.name, img: t.img, priceTag: tagOf(t), open: function () { self.openTrip(t.id); } }; }),
+      openPrivate: function (e) { self.openCol('private', e && e.currentTarget ? e.currentTarget.closest('.pvx') : null); },
+      steps: [{ n: '1', bg: '#1D4A8F', t: 'Pick your days', p: 'One trip, a collection, or your own mix.' }, { n: '2', bg: '#0A7F8A', t: 'Send one request', p: 'Date, guests and hotel — straight to WhatsApp.' }, { n: '3', bg: '#9A5B12', t: 'We confirm', p: 'Pickup time, final price and how to pay. Nothing is charged online.' }],
+      col: col, closeCol: function () { self.closeCol(); },
+      dt: dt, closeTrip: function () { self.closeTrip(); },
+      tray: tray, trayAdInc: function () { self.setState({ trayAdults: s.trayAdults + 1 }); }, trayAdDec: function () { self.setState({ trayAdults: Math.max(1, s.trayAdults - 1) }); },
+      trayRequest: function () { self.openSheet('tray'); },
+      goTray: function () { self.setState({ tab: 'trip', col: null, trip: null, toast: '' }); },
+      tabStyle: 'position: absolute; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; padding: 6px 8px 14px; background: rgba(251,248,242,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid #E3D9C7; transition: transform .35s ease; transform: translateY(' + (s.trip ? 110 : 0) + '%)',
+      tabs: [['home', 'Home'], ['cols', 'Journeys'], ['trip', 'My trip'], ['chat', 'Contact']].map(function (x) {
+        var on = x[0] === 'cols' ? !!s.col : (x[0] === s.tab && !s.col);
+        return { label: x[1], cls: on ? 'tab on' : 'tab', cur: on ? 'page' : 'false', isHome: x[0] === 'home', isCols: x[0] === 'cols', isTrip: x[0] === 'trip', isChat: x[0] === 'chat', hasBadge: x[0] === 'trip' && items.length > 0,
+          go: function () {
+            if (x[0] === 'home') { self.setState({ tab: 'home', col: null }); }
+            else if (x[0] === 'cols') { self.setState({ tab: 'home', col: null }); setTimeout(function () { var el = r.card0, h = r.home; if (el && h) { var hr = h.getBoundingClientRect(), k = hr.height / 844 || 1; h.scrollTo({ top: h.scrollTop + (el.getBoundingClientRect().top - hr.top) / k - 150, behavior: 'smooth' }); } }, 30); }
+            else if (x[0] === 'trip') { self.setState({ tab: 'trip', col: null }); }
+            else { self.setState({ contact: true }); }
+          } };
+      }),
+      trayCount: items.length, badgeCls: 'badge ' + (s.bump % 2 ? 'bump' : 'bump2'),
+      bk: bkv,
+      closeSheet: function () { self.setState({ sheet: null }); },
+      adInc: function () { setBk({ adults: bk.adults + 1 }); }, adDec: function () { setBk({ adults: Math.max(1, bk.adults - 1) }); }, chInc: function () { setBk({ kids: bk.kids + 1 }); }, chDec: function () { setBk({ kids: Math.max(0, bk.kids - 1) }); },
+      setGroup: function () { setBk({ priv: false }); }, setPriv: function () { setBk({ priv: true }); },
+      setName: function (e) { setBk({ name: e.target.value }); }, setPhone: function (e) { setBk({ phone: e.target.value }); },
+      send: function () { var bad = errs.date || errs.area || errs.name || errs.phone; setBk({ tried: true, done: !bad }); },
+      contact: s.contact, openContact: function () { self.setState({ contact: true }); }, closeContact: function () { self.setState({ contact: false }); },
+      fly: s.fly ? { on: true, st: '--fx: ' + s.fly.x + 'px; --fy: ' + s.fly.y + 'px' } : { on: false },
+      toast: !!s.toast, toastText: s.toast, toastAction: s.toastAction && s.tab !== 'trip'
+    };
+  }
+}
+</script>
+</body>
+</html>

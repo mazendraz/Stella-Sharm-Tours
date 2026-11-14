@@ -1,0 +1,37 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["tsconfig.base.json", "**/.env*"],
+  "globalEnv": [
+    "NODE_ENV",
+    "API_INTERNAL_URL",
+    "SITE_URL",
+    "PUBLIC_API_URL",
+    "MEDIA_PUBLIC_URL",
+    "WEB_REVALIDATE_SECRET",
+    "SENTRY_DSN",
+    "UMAMI_SCRIPT_URL",
+    "UMAMI_WEBSITE_ID",
+    "NEXT_PUBLIC_SITE_URL",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_ADMIN_URL",
+    "HOST",
+    "PORT",
+    "LOG_LEVEL"
+  ],
+  "tasks": {
+    "@stella/api#build": { "dependsOn": ["^build"], "outputs": [] },
+    "@stella/worker#build": { "dependsOn": ["^build"], "outputs": [] },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "outputs": []
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

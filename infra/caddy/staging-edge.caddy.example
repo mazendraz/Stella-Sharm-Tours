@@ -1,0 +1,8 @@
+# Append/import this on the production gateway only after creating staging.
+# Use actual staging DNS hostnames. Both gateways join stella_gateway.
+staging.example.com, staging-admin.example.com, staging-api.example.com, staging-media.example.com {
+  import security
+  reverse_proxy stella-staging-gateway:8080 {
+    header_up X-Forwarded-For {remote_host}
+  }
+}

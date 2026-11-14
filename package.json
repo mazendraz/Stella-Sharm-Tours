@@ -1,0 +1,89 @@
+{
+  "name": "stella-sharm-tours",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.34.9",
+  "engines": {
+    "node": ">=22 <23",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "dev:web": "pnpm --filter @stella/web dev",
+    "dev:api": "pnpm --filter @stella/api dev",
+    "dev:setup": "tsx scripts/setup-local.ts",
+    "dev:prepare": "pnpm security:setup && pnpm dev:setup",
+    "db:prepare": "pnpm db:migrate && pnpm db:seed",
+    "verify:performance": "node scripts/verify-performance.mjs",
+    "security:setup": "tsx scripts/setup-security.ts",
+    "security:scan:source": "node scripts/security-source-scan.mjs",
+    "security:scan:history": "node scripts/security-history-scan.mjs",
+    "test:security:history": "node scripts/test-history-scan.mjs",
+    "admin:messages": "node scripts/admin-messages.mjs",
+    "admin:setup-link": "tsx --env-file-if-exists=.env scripts/admin-setup-link.ts",
+    "test:e2e:admin": "playwright test --config playwright.admin.config.ts",
+    "security:baseline:local": "node scripts/security-baseline.mjs",
+    "test:e2e:api": "playwright test --config playwright.api.config.ts",
+    "test:e2e:languages": "playwright test --config playwright.languages.config.ts",
+    "test:e2e:integration": "node scripts/test-integration-browser.mjs",
+    "infra:configure": "node infra/configure.mjs",
+    "infra:verify:setup": "node scripts/setup-integration-verification.mjs",
+    "dev:worker": "pnpm --filter @stella/api worker",
+    "db:generate": "pnpm --filter @stella/db generate",
+    "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
+    "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
+    "db:sync-media": "tsx --env-file-if-exists=.env scripts/sync-catalog-media.ts",
+    "privacy:prepare": "tsx --env-file-if-exists=.env scripts/prepare-privacy-draft.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:prepare": "tsx scripts/prepare-tests.ts",
+    "test:integration:native": "tsx scripts/test-native-postgres.ts",
+    "test:e2e": "playwright test",
+    "preview:fixture": "node tests/fixtures/server.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0",
+    "@testcontainers/postgresql": "12.2.1",
+    "@types/busboy": "1.5.5",
+    "@types/node": "22.20.5",
+    "@types/nodemailer": "8.0.2",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/web-push": "^3.6.4",
+    "drizzle-kit": "0.31.11",
+    "eslint": "9.39.5",
+    "husky": "9.1.7",
+    "lighthouse": "13.6.0",
+    "lint-staged": "16.4.0",
+    "prettier": "3.9.10",
+    "tsx": "4.23.15",
+    "turbo": "2.11.10",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.72.2",
+    "vitest": "3.2.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": "8.5.32"
+    },
+    "patchedDependencies": {
+      "next@15.5.29": "patches/next@15.5.29.patch"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,yml,yaml,css,md}": "prettier --write"
+  }
+}

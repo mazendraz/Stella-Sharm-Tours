@@ -1,0 +1,118 @@
+{
+  "captured": "2026-11-14T10:55:14.552Z",
+  "origin": "http://localhost:4983",
+  "source": "isolated PostgreSQL/API; no booking submission or external contact",
+  "viewport": {
+    "width": 768,
+    "height": 1024
+  },
+  "trips": 38,
+  "collections": 7,
+  "inventory": [
+    {
+      "path": "/en",
+      "image": "en.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/private",
+      "image": "en-c-private.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/sea",
+      "image": "en-c-sea.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/c/all",
+      "image": "en-c-all.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/t/quad-bike-safari",
+      "image": "en-t-quad-bike-safari.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/my-trip",
+      "image": "en-my-trip.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/contact",
+      "image": "en-contact.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/faq",
+      "image": "en-faq.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/terms",
+      "image": "en-legal-terms.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/privacy",
+      "image": "en-legal-privacy.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/legal/cancellation",
+      "image": "en-legal-cancellation.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/it",
+      "image": "it.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/es",
+      "image": "es.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/fr",
+      "image": "fr.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/de",
+      "image": "de.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/ru",
+      "image": "ru.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/tr",
+      "image": "tr.jpg",
+      "fullPage": true
+    },
+    {
+      "path": "/en/t/quad-bike-safari#request",
+      "image": "request.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/my-trip#selection",
+      "image": "builder-selection.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/c/private#overlay",
+      "image": "collection-overlay.jpg",
+      "fullPage": false
+    },
+    {
+      "path": "/en/t/tiran-island-boat#overlay",
+      "image": "trip-overlay.jpg",
+      "fullPage": false
+    }
+  ]
+}

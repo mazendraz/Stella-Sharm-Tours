@@ -1,0 +1,22 @@
+:root {
+  --paper: #f4eee3;
+  --paper-2: #fbf8f2;
+  --card: #fff;
+  --line: #e3d9c7;
+  --line-strong: #d3c8b4;
+  --ink: #1b1712;
+  --ink-2: #5e5548;
+  --ink-3: #6d6354;
+  --gold: #e0a84a;
+  --history: #1d4a8f;
+  --sea: #0a7f8a;
+  --desert: #9a5b12;
+  --beyond: #7a2e2a;
+  --relax: #6b3fa0;
+  --all: #1b1712;
+  --danger: #b42318;
+  --ok: #0a7f8a;
+  --private: #14213d;
+  --private-ink: #f3d49c;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

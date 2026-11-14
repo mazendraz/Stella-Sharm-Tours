@@ -1,0 +1,58 @@
+{
+  "en": {
+    "offline": "You’re offline. Changes are not saved.",
+    "requests": "Requests",
+    "trips": "Trips",
+    "prices": "Prices",
+    "media": "Media",
+    "more": "More"
+  },
+  "it": {
+    "offline": "Sei offline. Le modifiche non vengono salvate.",
+    "requests": "Richieste",
+    "trips": "Escursioni",
+    "prices": "Prezzi",
+    "media": "Media",
+    "more": "Altro"
+  },
+  "es": {
+    "offline": "Sin conexión. Los cambios no se guardan.",
+    "requests": "Solicitudes",
+    "trips": "Excursiones",
+    "prices": "Precios",
+    "media": "Archivos",
+    "more": "Más"
+  },
+  "fr": {
+    "offline": "Hors ligne. Les modifications ne sont pas enregistrées.",
+    "requests": "Demandes",
+    "trips": "Excursions",
+    "prices": "Prix",
+    "media": "Médias",
+    "more": "Plus"
+  },
+  "de": {
+    "offline": "Du bist offline. Änderungen werden nicht gespeichert.",
+    "requests": "Anfragen",
+    "trips": "Ausflüge",
+    "prices": "Preise",
+    "media": "Medien",
+    "more": "Mehr"
+  },
+  "ru": {
+    "offline": "Нет сети. Изменения не сохраняются.",
+    "requests": "Заявки",
+    "trips": "Экскурсии",
+    "prices": "Цены",
+    "media": "Медиа",
+    "more": "Ещё"
+  },
+  "tr": {
+    "offline": "Çevrimdışısınız. Değişiklikler kaydedilmez.",
+    "requests": "Talepler",
+    "trips": "Turlar",
+    "prices": "Fiyatlar",
+    "media": "Medya",
+    "more": "Diğer"
+  }
+}

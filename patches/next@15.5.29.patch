@@ -1,0 +1,30 @@
+diff --git a/dist/esm/server/lib/incremental-cache/file-system-cache.js b/dist/esm/server/lib/incremental-cache/file-system-cache.js
+index efec8b08232fa8ed7802af04a8a667e774ab52cb..ffa7526b8d9eb5a811384d50402eacca48ffae56 100644
+--- a/dist/esm/server/lib/incremental-cache/file-system-cache.js
++++ b/dist/esm/server/lib/incremental-cache/file-system-cache.js
+@@ -65,9 +65,7 @@ export default class FileSystemCache {
+             return;
+         }
+         for (const tag of tags){
+-            if (!tagsManifest.has(tag)) {
+-                tagsManifest.set(tag, Date.now());
+-            }
++            tagsManifest.set(tag, Date.now());
+         }
+     }
+     async get(...args) {
+diff --git a/dist/server/lib/incremental-cache/file-system-cache.js b/dist/server/lib/incremental-cache/file-system-cache.js
+index 194852585b41c14b8c99711ffc6ac565e52c4d46..0ab9739005c7276517d5371431fc9f0c051afa6a 100644
+--- a/dist/server/lib/incremental-cache/file-system-cache.js
++++ b/dist/server/lib/incremental-cache/file-system-cache.js
+@@ -80,9 +80,7 @@ class FileSystemCache {
+             return;
+         }
+         for (const tag of tags){
+-            if (!_tagsmanifestexternal.tagsManifest.has(tag)) {
+-                _tagsmanifestexternal.tagsManifest.set(tag, Date.now());
+-            }
++            _tagsmanifestexternal.tagsManifest.set(tag, Date.now());
+         }
+     }
+     async get(...args) {

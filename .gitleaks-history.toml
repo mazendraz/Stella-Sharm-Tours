@@ -1,0 +1,8 @@
+title = "Stella full-history scanning"
+[extend]
+useDefault = true
+[allowlist]
+description = "Known public schema identifier, not a credential"
+regexTarget = "secret"
+regexes = ['''^i18n_glossary$''']
+# Unlike the source scan, committed .local/.env/tool files are NOT exempt.

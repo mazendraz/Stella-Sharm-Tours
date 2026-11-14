@@ -1,0 +1,7 @@
+[Unit]
+Description=Optional nightly Stella staging refresh (Cairo; leaves staging offline)
+[Timer]
+OnCalendar=*-*-* 02:45:00 Africa/Cairo
+Persistent=true
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,36 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+  background: #f4eee3;
+  color: #1b1712;
+}
+main {
+  width: min(100% - 44px, 800px);
+  margin: 0 auto;
+  padding-block: clamp(48px, 10vh, 120px);
+}
+h1 {
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+a {
+  color: #1d4a8f;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 12px;
+}
+:focus-visible {
+  outline: 3px solid #1d4a8f;
+  outline-offset: 4px;
+}

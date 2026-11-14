@@ -1,0 +1,168 @@
+name: ${COMPOSE_PROJECT_NAME:?Choose a unique environment project}
+x-runtime: &runtime
+  restart: unless-stopped
+  init: true
+  read_only: true
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  tmpfs: ['/tmp:size=256m,mode=1777']
+  pids_limit: 256
+  mem_limit: 768m
+  logging:
+    driver: json-file
+    options: { max-size: 50m, max-file: '5' }
+x-api: &api
+  <<: *runtime
+  stop_grace_period: 2m
+  image: ${IMAGE_PREFIX:?Set registry/org prefix}/stella-api:${RELEASE:?Use immutable commit SHA}
+  env_file:
+    - path: ${ENV_DIR:?Set environment-specific env directory}/api.env
+      format: raw
+  environment:
+    NODE_ENV: production
+    HOST: 0.0.0.0
+    PORT: 4000
+    MEDIA_ROOT: /srv/stella/media
+    ORIGINALS_ROOT: /srv/stella/originals
+    WEB_REVALIDATE_URL: http://web:3000/api/revalidate
+    TRUSTED_PROXY_IPS: ${CADDY_IP:?Set fixed proxy address}
+    BREACHED_PASSWORDS_FILE: /run/security/common-passwords-100k.txt
+  volumes:
+    - ${DATA_DIR:?Set environment-specific data directory}/media:/srv/stella/media
+    - ${DATA_DIR}/originals:/srv/stella/originals
+    - ${DATA_DIR}/security:/run/security:ro
+  networks: [edge, internal]
+services:
+  postgres:
+    <<: *runtime
+    image: ${POSTGRES_IMAGE:-postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5}
+    user: postgres
+    mem_limit: 768m
+    cap_drop: [ALL]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set distinct production/staging DB}
+      POSTGRES_USER: stella_migrate
+    env_file:
+      - path: ${ENV_DIR}/postgres.env
+        format: raw
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init-prod.sh:/docker-entrypoint-initdb.d/10-stella-roles.sh:ro
+    tmpfs: ['/tmp:size=64m,mode=1777', '/var/run/postgresql:size=16m,mode=1777']
+    networks: [internal]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U stella_migrate -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    <<: *api
+    depends_on: { postgres: { condition: service_healthy } }
+    healthcheck:
+      test: [CMD, node, /app/infra/healthcheck.mjs, api]
+      interval: 15s
+      timeout: 6s
+      start_period: 30s
+      retries: 4
+  worker:
+    <<: *api
+    mem_limit: 1024m
+    env_file:
+      - path: ${ENV_DIR}/api.env
+        format: raw
+      - path: ${ENV_DIR}/worker.env
+        format: raw
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      MEDIA_ROOT: /srv/stella/media
+      ORIGINALS_ROOT: /srv/stella/originals
+      WEB_REVALIDATE_URL: http://web:3000/api/revalidate
+      BREACHED_PASSWORDS_FILE: /run/security/common-passwords-100k.txt
+      WORKER_HEARTBEAT_FILE: /tmp/worker-heartbeat
+    command: [node, --import, tsx, apps/api/src/worker-main.ts]
+    depends_on: { api: { condition: service_healthy } }
+    healthcheck:
+      test: [CMD, node, /app/infra/healthcheck.mjs, worker]
+      interval: 15s
+      timeout: 5s
+      start_period: 45s
+      retries: 4
+  web:
+    <<: *runtime
+    image: ${IMAGE_PREFIX}/stella-web:${RELEASE}
+    env_file:
+      - path: ${ENV_DIR}/web.env
+        format: raw
+    environment: { NODE_ENV: production, API_INTERNAL_URL: 'http://api:4000' }
+    volumes: [webcache:/app/apps/web/.next/cache]
+    networks: [edge]
+    healthcheck:
+      test: [CMD, node, /app/infra/healthcheck.mjs, web]
+      interval: 15s
+      timeout: 6s
+      start_period: 30s
+      retries: 4
+  admin:
+    <<: *runtime
+    image: ${IMAGE_PREFIX}/stella-admin:${RELEASE}
+    env_file:
+      - path: ${ENV_DIR}/admin.env
+        required: true
+        format: raw
+    environment: { NODE_ENV: production, API_INTERNAL_URL: 'http://api:4000' }
+    networks: [edge]
+    healthcheck:
+      test: [CMD, node, /app/infra/healthcheck.mjs, admin]
+      interval: 15s
+      timeout: 6s
+      start_period: 30s
+      retries: 4
+  migrate:
+    <<: *api
+    profiles: [operations]
+    restart: 'no'
+    env_file:
+      - path: ${ENV_DIR}/migration.env
+        format: raw
+    command: [node, --import, tsx, scripts/migrate.ts]
+    networks: [internal]
+  caddy:
+    <<: *runtime
+    image: ${CADDY_IMAGE:-caddy:2-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9}
+    user: '1000:1000'
+    mem_limit: 256m
+    environment:
+      WEB_HOST: ${WEB_HOST:?Set public hostname}
+      ADMIN_HOST: ${ADMIN_HOST:?Set admin hostname}
+      API_HOST: ${API_HOST:?Set API hostname}
+      MEDIA_HOST: ${MEDIA_HOST:?Set media hostname}
+      ACME_EMAIL: ${ACME_EMAIL:?Set TLS contact email}
+    ports: ['80:8080', '443:8443', '443:8443/udp']
+    volumes:
+      - ${PROXY_CONFIG_DIR:-.}/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${PROXY_CONFIG_DIR:-.}/caddy:/etc/caddy/stella:ro
+      - ${DATA_DIR}/media:/srv/stella/media:ro
+      - ${DATA_DIR}/caddy/data:/data
+      - ${DATA_DIR}/caddy/config:/config
+    networks:
+      edge: { ipv4_address: '${CADDY_IP}' }
+      gateway: { ipv4_address: 172.30.19.2 }
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1:2019/config/']
+      interval: 20s
+      timeout: 5s
+      retries: 3
+volumes:
+  pgdata:
+  webcache:
+networks:
+  internal: { internal: true }
+  edge:
+    ipam:
+      config:
+        - subnet: '${EDGE_SUBNET:?Set a unique private subnet}'
+          ip_range: '${EDGE_DYNAMIC_RANGE:?Reserve low addresses for trusted proxies}'
+  gateway:
+    name: stella_gateway
+    external: true

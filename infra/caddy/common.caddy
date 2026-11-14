@@ -1,0 +1,40 @@
+(security) {
+  header {
+    Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+    X-Content-Type-Options nosniff
+    ?Referrer-Policy strict-origin-when-cross-origin
+    Permissions-Policy "camera=(self), geolocation=(), microphone=()"
+    X-Frame-Options DENY
+    ?Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+    -Server
+  }
+}
+(public_media) {
+  root * /srv/stella/media
+  # Whitelist only immutable processed outputs. Originals/quarantine are never mounted.
+  @variant path_regexp variant ^(/[a-f0-9]{2}/[a-f0-9]{64}/)(?:(160|480|768|1200|1920|poster)\.(jpg|avif|webp)|mp4_[vh]\.mp4)$
+  handle @variant {
+    header Cache-Control "public, max-age=31536000, immutable"
+    header Cross-Origin-Resource-Policy cross-origin
+    @jpeg path *.jpg
+    header @jpeg Vary Accept
+    @avif {
+      path *.jpg
+      header Accept *image/avif*
+      not header_regexp Accept "(?i)image/avif[[:space:]]*;[[:space:]]*q=0([.]0*)?([[:space:]]*,|[[:space:]]*$)"
+      file {re.variant.1}{re.variant.2}.avif
+    }
+    @webp {
+      path *.jpg
+      header Accept *image/webp*
+      not header_regexp Accept "(?i)image/webp[[:space:]]*;[[:space:]]*q=0([.]0*)?([[:space:]]*,|[[:space:]]*$)"
+      file {re.variant.1}{re.variant.2}.webp
+    }
+    route {
+      rewrite @avif {re.variant.1}{re.variant.2}.avif
+      rewrite @webp {re.variant.1}{re.variant.2}.webp
+      file_server
+    }
+  }
+  respond 404
+}

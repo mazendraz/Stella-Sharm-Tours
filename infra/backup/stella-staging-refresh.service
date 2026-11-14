@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Stella staging from a scrubbed production backup
+After=docker.service
+OnFailure=stella-alert@%n.service
+[Service]
+Type=oneshot
+User=deploy
+Group=deploy
+WorkingDirectory=/srv/stella/repo
+ExecStart=/bin/bash /srv/stella/repo/infra/backup/refresh-staging.sh
+UMask=0077

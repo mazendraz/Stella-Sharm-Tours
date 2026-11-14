@@ -1,0 +1,6 @@
+[Unit]
+Description=Stella operational failure for %i
+[Service]
+Type=oneshot
+# Local journal notification only until the owner configures a real alert channel.
+ExecStart=/usr/bin/logger -p daemon.crit Stella unit %i failed; inspect journalctl

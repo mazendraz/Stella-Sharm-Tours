@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794414610308,
+      "tag": "0000_gifted_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794415689679,
+      "tag": "0001_shiny_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794484888064,
+      "tag": "0002_good_frog_thor",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794499158579,
+      "tag": "0003_absurd_jackpot",
+      "breakpoints": true
+    }
+  ]
+}

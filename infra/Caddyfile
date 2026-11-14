@@ -1,0 +1,43 @@
+{
+  email {$ACME_EMAIL}
+  http_port 8080
+  https_port 8443
+  # Caddy is the first public hop. No trusted client-supplied forwarding headers.
+  admin 127.0.0.1:2019
+  servers {
+    timeouts {
+      read_header 10s
+      read_body 10m
+      read_body_idle 30s
+    }
+  }
+}
+import /etc/caddy/stella/common.caddy
+{$WEB_HOST} {
+  import security
+  encode zstd gzip
+  @internal path /api/revalidate /readyz
+  respond @internal 404
+  reverse_proxy web:3000
+}
+{$ADMIN_HOST} {
+  import security
+  header X-Robots-Tag "noindex, nofollow"
+  reverse_proxy admin:3001
+}
+{$API_HOST} {
+  import security
+  request_body {
+    max_size 301MB
+  }
+  @private path /media/* /readyz
+  respond @private 404
+  reverse_proxy api:4000 {
+    header_up X-Forwarded-For {remote_host}
+  }
+}
+{$MEDIA_HOST} {
+  import security
+  import public_media
+}
+# Optional staging ingress is mounted/generated separately; see staging-edge.caddy.
