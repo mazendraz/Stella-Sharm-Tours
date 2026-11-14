@@ -1,6 +1,6 @@
 import { randomUUID, createHmac } from 'node:crypto';
 import type { Hono } from 'hono';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql, getTableColumns } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -23,6 +23,7 @@ import type { Config } from './config';
 import { authService, opaque, sha, seal, equal } from './auth';
 import {
   recordChange,
+  tripListExtras,
   usableMedia,
   canPublishTrip,
   tripSnapshot,
@@ -148,6 +149,11 @@ export function registerMore(
         .for('update');
       if (!before) fail(404, 'NOT_FOUND');
       if (
+        id === c.get('principal').id &&
+        ((b.role && b.role !== before.role) || b.disabled)
+      )
+        fail(409, 'SELF_CHANGE');
+      if (
         before.role === 'owner' &&
         ((b.role && b.role !== 'owner') || b.disabled)
       ) {
@@ -208,9 +214,17 @@ export function registerMore(
   app.get('/v1/admin/packages', auth.guard('content'), async (c) =>
     c.json(
       await db
-        .select()
+        .select({ ...getTableColumns(s.trips), ...tripListExtras })
         .from(s.trips)
-        .where(and(eq(s.trips.kind, 'package'), isNull(s.trips.archivedAt))),
+        .where(
+          and(
+            eq(s.trips.kind, 'package'),
+            c.req.query('archived') === '1'
+              ? sql`${s.trips.archivedAt} is not null`
+              : isNull(s.trips.archivedAt),
+          ),
+        )
+        .orderBy(s.trips.sort, sql`${s.trips.title}->>'en'`),
     ),
   );
   for (const method of ['post', 'patch'] as const) {
@@ -315,7 +329,12 @@ export function registerMore(
       const id = uuid(c.req.param('id')),
         b = await parse(
           c,
-          z.strictObject({ slug: z.string().regex(/^[a-z0-9-]{1,120}$/) }),
+          z.strictObject({
+            slug: z
+              .string()
+              .regex(/^[a-z0-9-]{1,120}$/)
+              .optional(),
+          }),
         );
       const newId = await db.transaction(async (tx) => {
         const [before] = await tx
@@ -329,11 +348,34 @@ export function registerMore(
           updatedAt: _updated,
           ...base
         } = before;
+        // "{title} (copy)" in every locale; slug "{slug}-copy", then -copy-2…
+        let slug = b.slug;
+        if (!slug) {
+          const stem = before.slug.slice(0, 110) + '-copy',
+            taken = new Set(
+              (
+                await tx
+                  .select({ slug: s.trips.slug })
+                  .from(s.trips)
+                  .where(sql`${s.trips.slug} like ${stem + '%'}`)
+              ).map((r) => r.slug),
+            );
+          slug = stem;
+          for (let n = 2; taken.has(slug); n++) slug = stem + '-' + n;
+        }
+        const title = Object.fromEntries(
+          Object.entries(before.title).map(([locale, text]) => [
+            locale,
+            typeof text === 'string' && text ? text + ' (copy)' : text,
+          ]),
+        ) as typeof before.title;
         const [row] = await tx
           .insert(s.trips)
           .values({
             ...base,
-            slug: b.slug,
+            title,
+            slug,
+            sort: before.sort + 1,
             status: 'draft',
             featuredOrder: null,
             archivedAt: null,
@@ -492,7 +534,17 @@ export function registerMore(
     publish: z.boolean().default(false),
   });
   app.get('/v1/admin/faqs', auth.guard('content'), async (c) =>
-    c.json(await db.select().from(s.faqs).orderBy(s.faqs.sort)),
+    c.json(
+      await db
+        .select()
+        .from(s.faqs)
+        .where(
+          c.req.query('archived') === '1'
+            ? sql`${s.faqs.archivedAt} is not null`
+            : isNull(s.faqs.archivedAt),
+        )
+        .orderBy(s.faqs.sort),
+    ),
   );
   app.post('/v1/admin/faqs', auth.guard('content'), async (c) => {
     const b = await parse(c, faqSchema);
@@ -822,6 +874,86 @@ export function registerMore(
       .select()
       .from(s.contentDrafts)
       .where(eq(s.contentDrafts.entity, 'translation'));
+    // Human-readable "where": the owning item's title and admin link target.
+    const [
+      tripRows,
+      childRows,
+      collectionRows,
+      slideRows,
+      mediaRows,
+      faqRows,
+      blockRows,
+    ] = await Promise.all([
+      db
+        .select({ id: s.trips.id, title: s.trips.title, kind: s.trips.kind })
+        .from(s.trips),
+      db.execute<{ id: string; trip_id: string }>(
+        sql`select id::text, trip_id::text from trip_items union all select id::text, trip_id::text from trip_prices union all select id::text, trip_id::text from trip_itinerary`,
+      ),
+      db
+        .select({ id: s.collections.id, name: s.collections.name })
+        .from(s.collections),
+      db
+        .select({
+          id: s.heroSlides.id,
+          headline: s.heroSlides.headline,
+          collectionId: s.heroSlides.collectionId,
+        })
+        .from(s.heroSlides),
+      db.select({ id: s.media.id, alt: s.media.alt }).from(s.media),
+      db.select({ id: s.faqs.id, q: s.faqs.q }).from(s.faqs),
+      db
+        .select({ id: s.pageBlocks.id, pageKey: s.pageBlocks.pageKey })
+        .from(s.pageBlocks),
+    ]);
+    const parentOf = new Map(childRows.rows.map((r) => [r.id, r.trip_id]));
+    const where = (entity: string, id: string) => {
+      if (['trip', 'trip_item', 'trip_price', 'itinerary'].includes(entity)) {
+        const tripId = entity === 'trip' ? id : parentOf.get(id);
+        const trip = tripRows.find((t) => t.id === tripId);
+        return {
+          parentId: tripId ?? null,
+          parentKind: trip?.kind ?? 'trip',
+          itemTitle: trip?.title ?? null,
+        };
+      }
+      if (entity === 'collection')
+        return {
+          parentId: id,
+          parentKind: 'collection',
+          itemTitle: collectionRows.find((r) => r.id === id)?.name ?? null,
+        };
+      if (entity === 'hero_slide') {
+        const slide = slideRows.find((r) => r.id === id);
+        return {
+          parentId: id,
+          parentKind: 'hero_slide',
+          itemTitle:
+            slide?.headline ??
+            collectionRows.find((r) => r.id === slide?.collectionId)?.name ??
+            null,
+        };
+      }
+      if (entity === 'media')
+        return {
+          parentId: id,
+          parentKind: 'media',
+          itemTitle: mediaRows.find((r) => r.id === id)?.alt ?? null,
+        };
+      if (entity === 'faq')
+        return {
+          parentId: id,
+          parentKind: 'faq',
+          itemTitle: faqRows.find((r) => r.id === id)?.q ?? null,
+        };
+      if (entity === 'page_block')
+        return {
+          parentId: blockRows.find((r) => r.id === id)?.pageKey ?? null,
+          parentKind: 'page',
+          itemTitle: null,
+        };
+      return { parentId: null, parentKind: entity, itemTitle: null };
+    };
     return c.json(
       fields
         .filter((f) => !p.data.entity || p.data.entity === f.entity)
@@ -850,6 +982,7 @@ export function registerMore(
               id: f.id,
               field: f.field,
               source: f.en,
+              ...where(f.entity, f.id),
               value: draft ? obj(draft.data).text : (human ?? row?.text ?? ''),
               state: draft
                 ? 'draft'
@@ -916,6 +1049,8 @@ function registerBulkAndRestore(
     tripIds: z.array(z.uuid()).min(1).max(200).optional(),
     mode: z.enum(['percent', 'amount']),
     value: z.number().min(-10000).max(10000),
+    /** Round results to the nearest €1 (default) or €5. */
+    round: z.union([z.literal(1), z.literal(5)]).default(1),
   });
   const payloadSchema = z.strictObject({
     user: z.uuid(),
@@ -961,10 +1096,10 @@ function registerBulkAndRestore(
               after: Math.max(
                 0,
                 Math.round(
-                  b.mode === 'percent'
+                  (b.mode === 'percent'
                     ? Number(row.amount) * (1 + b.value / 100)
-                    : Number(row.amount) + b.value,
-                ),
+                    : Number(row.amount) + b.value) / b.round,
+                ) * b.round,
               ),
             },
           ],
@@ -1548,6 +1683,9 @@ function registerBulkAndRestore(
             a: localizedSchema.parse(value.a),
             sort: z.number().int().parse(value.sort),
             status,
+            archivedAt: value.archivedAt
+              ? new Date(String(value.archivedAt))
+              : null,
           })
           .where(eq(s.faqs.id, id));
       } else if (revision.entity === 'page_blocks') {

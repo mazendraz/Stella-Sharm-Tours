@@ -419,6 +419,7 @@ export const faqs = pgTable('faqs', {
   status: text('status', { enum: ['draft', 'published'] })
     .notNull()
     .default('published'),
+  archivedAt: archived(),
 });
 export const reviews = pgTable('reviews', {
   id: id(),

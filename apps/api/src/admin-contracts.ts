@@ -41,7 +41,17 @@ export type AdminContract = {
 };
 const empty = z.strictObject({}),
   page = z.coerce.number().int().min(1).max(10000).default(1),
-  q = z.string().max(80).optional();
+  q = z.string().max(80).optional(),
+  archived = z.enum(['0', '1']).optional();
+// Request list filters (admin inbox).
+const requestFilters = {
+  q,
+  from: z.iso.date().optional(),
+  to: z.iso.date().optional(),
+  tripFrom: z.iso.date().optional(),
+  tripTo: z.iso.date().optional(),
+  assigned: z.union([z.uuid(), z.literal('none')]).optional(),
+};
 const mediaRows = z.strictObject({
   rows: z
     .array(
@@ -242,11 +252,17 @@ export const adminContracts: AdminContract[] = [
   { method: 'get', path: '/requests/export.csv', permission: 'export' },
   {
     method: 'get',
+    path: '/requests/counts',
+    permission: 'requests',
+    query: z.strictObject(requestFilters),
+  },
+  {
+    method: 'get',
     path: '/requests',
     permission: 'requests',
     query: z.strictObject({
       page,
-      q,
+      ...requestFilters,
       status: z
         .enum([
           'new',
@@ -270,7 +286,12 @@ export const adminContracts: AdminContract[] = [
     method: 'get',
     path: '/trips',
     permission: 'content',
-    query: z.strictObject({ page, q, collection: slugSchema.optional() }),
+    query: z.strictObject({
+      page,
+      q,
+      collection: slugSchema.optional(),
+      archived,
+    }),
   },
   {
     method: 'post',
@@ -304,17 +325,19 @@ export const adminContracts: AdminContract[] = [
     permission,
     body,
   })),
-  ...(['publish', 'unpublish'] as const).map((action) => ({
-    method: 'post' as const,
-    path: '/trips/:id/' + action,
-    permission: 'publish' as const,
-    body: empty,
-  })),
+  ...(['publish', 'unpublish', 'archive', 'unarchive'] as const).map(
+    (action) => ({
+      method: 'post' as const,
+      path: '/trips/:id/' + action,
+      permission: 'publish' as const,
+      body: empty,
+    }),
+  ),
   {
     method: 'post',
     path: '/trips/:id/duplicate',
     permission: 'content',
-    body: z.strictObject({ slug: slugSchema }),
+    body: z.strictObject({ slug: slugSchema.optional() }),
   },
   {
     method: 'post',
@@ -331,6 +354,7 @@ export const adminContracts: AdminContract[] = [
       tripIds: z.array(z.uuid()).min(1).max(200).optional(),
       mode: z.enum(['percent', 'amount']),
       value: z.number().min(-10000).max(10000),
+      round: z.union([z.literal(1), z.literal(5)]).optional(),
     }),
   },
   {
@@ -342,7 +366,18 @@ export const adminContracts: AdminContract[] = [
       confirmLargeChange: z.boolean().optional(),
     }),
   },
-  { method: 'get', path: '/collections', permission: 'content' },
+  {
+    method: 'get',
+    path: '/collections',
+    permission: 'content',
+    query: z.strictObject({ archived }),
+  },
+  ...(['unpublish', 'archive', 'unarchive'] as const).map((action) => ({
+    method: 'post' as const,
+    path: '/collections/:id/' + action,
+    permission: 'publish' as const,
+    body: empty,
+  })),
   {
     method: 'post',
     path: '/collections',
@@ -370,7 +405,12 @@ export const adminContracts: AdminContract[] = [
     permission: 'publish',
     body: reorderSchema,
   },
-  { method: 'get', path: '/packages', permission: 'content' },
+  {
+    method: 'get',
+    path: '/packages',
+    permission: 'content',
+    query: z.strictObject({ archived }),
+  },
   {
     method: 'post',
     path: '/packages',
@@ -408,12 +448,14 @@ export const adminContracts: AdminContract[] = [
     permission: 'heroLive',
     body: reorderSchema,
   },
-  ...(['publish', 'unpublish'] as const).map((action) => ({
-    method: 'post' as const,
-    path: '/hero-slides/:id/' + action,
-    permission: 'heroLive' as const,
-    body: empty,
-  })),
+  ...(['publish', 'unpublish', 'archive', 'unarchive'] as const).map(
+    (action) => ({
+      method: 'post' as const,
+      path: '/hero-slides/:id/' + action,
+      permission: 'heroLive' as const,
+      body: empty,
+    }),
+  ),
   {
     method: 'get',
     path: '/media',
@@ -463,7 +505,18 @@ export const adminContracts: AdminContract[] = [
       })
       .refine((b) => b.end > b.start && b.end - b.start <= 20),
   },
-  { method: 'get', path: '/faqs', permission: 'content' },
+  {
+    method: 'get',
+    path: '/faqs',
+    permission: 'content',
+    query: z.strictObject({ archived }),
+  },
+  ...(['archive', 'unarchive'] as const).map((action) => ({
+    method: 'post' as const,
+    path: '/faqs/:id/' + action,
+    permission: 'publish' as const,
+    body: empty,
+  })),
   { method: 'post', path: '/faqs', permission: 'content', body: faq },
   { method: 'patch', path: '/faqs/:id', permission: 'content', body: faq },
   { method: 'delete', path: '/faqs/:id', permission: 'publish', body: empty },
@@ -510,6 +563,7 @@ export const adminContracts: AdminContract[] = [
     permission: 'audit',
     query: z.strictObject({
       entity: z.string().max(80).optional(),
+      entityId: z.string().max(120).optional(),
       user: z.uuid().optional(),
       from: z.iso.date().optional(),
       to: z.iso.date().optional(),

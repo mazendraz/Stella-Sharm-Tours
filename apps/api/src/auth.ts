@@ -428,7 +428,7 @@ export function authService(db: Database, cfg: Config) {
       if (p.mfaPassed) recent(c);
       if (!(await consume(db, 'mfa-setup:' + p.id, 5, 900)))
         fail(429, 'RATE_LIMITED');
-      const secret = generateSecret();
+      let secret = generateSecret();
       await db.transaction(async (tx) => {
         const [user] = await tx
           .select()
@@ -439,6 +439,15 @@ export function authService(db: Database, cfg: Config) {
         if (session.mfaPassed) recent(c);
         if (!user || user.disabledAt) fail(401, 'UNAUTHENTICATED');
         if (user.totpEnabled) fail(409, 'MFA_ALREADY_ENABLED');
+        // Idempotent: a repeated setup call returns the pending secret.
+        if (user.totpSecretEnc) {
+          try {
+            secret = unseal(user.totpSecretEnc, cfg.TOTP_ENC_KEY, p.id);
+            return;
+          } catch {
+            // Unreadable pending secret: replace it below.
+          }
+        }
         await tx
           .update(s.adminUsers)
           .set({
@@ -734,6 +743,8 @@ export function authService(db: Database, cfg: Config) {
             created_at: s.sessions.createdAt,
             last_seen_at: s.sessions.lastSeenAt,
             expires_at: s.sessions.expiresAt,
+            user_agent: s.sessions.userAgent,
+            current: sql<boolean>`${s.sessions.id} = ${c.get('principal').sessionId}`,
           })
           .from(s.sessions)
           .where(eq(s.sessions.userId, c.get('principal').id)),

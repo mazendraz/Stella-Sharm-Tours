@@ -29,6 +29,13 @@
       "when": 1794499158579,
       "tag": "0003_absurd_jackpot",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794683102341,
+      "tag": "0004_tired_zombie",
+      "breakpoints": true
     }
   ]
 }

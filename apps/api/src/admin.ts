@@ -1,5 +1,16 @@
 import { randomUUID, createHmac } from 'node:crypto';
-import { and, eq, inArray, isNull, ilike, or, desc, sql } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  inArray,
+  isNull,
+  isNotNull,
+  ilike,
+  or,
+  desc,
+  sql,
+  getTableColumns,
+} from 'drizzle-orm';
 import { z } from 'zod';
 import type { Hono, Context } from 'hono';
 import type { Database } from '@stella/db';
@@ -33,10 +44,28 @@ import { fail } from './errors';
 import { upload } from './media';
 import { readSettings } from './catalog';
 import { registerMore } from './admin-more';
+import { registerArchive } from './admin-archive';
 import { recordHumanFields } from './translation-records';
 import { serveProcessed } from './serve-media';
 import { inside } from './media';
 type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
+/** List extras for admin tables: cover thumbnail, main price, package parts. */
+export const tripListExtras = {
+  coverMediaId: sql<
+    string | null
+  >`(select tm.media_id from trip_media tm where tm.trip_id=trips.id and tm.role='cover' order by tm.sort limit 1)`,
+  primaryAmountEur: sql<
+    string | null
+  >`(select tp.amount_eur from trip_prices tp where tp.trip_id=trips.id and tp.is_primary limit 1)`,
+  primaryUnit: sql<
+    string | null
+  >`(select tp.unit from trip_prices tp where tp.trip_id=trips.id and tp.is_primary limit 1)`,
+  partsCount: sql<number>`(select count(*)::int from package_items pi where pi.package_id=trips.id)`,
+  partsSum: sql<
+    string | null
+  >`(select sum(p.amount_eur) from package_items pi join trip_prices p on p.trip_id=pi.trip_id and p.is_primary where pi.package_id=trips.id)`,
+  partsOnRequest: sql<boolean>`exists(select 1 from package_items pi left join trip_prices p on p.trip_id=pi.trip_id and p.is_primary where pi.package_id=trips.id and p.amount_eur is null)`,
+};
 type Auth = ReturnType<typeof authService>;
 const uuid = (value: string | undefined) => {
   if (!z.uuid().safeParse(value).success) fail(422, 'INVALID_ID');
@@ -85,6 +114,22 @@ export async function recordChange(
   action = 'update',
   tags: string[] = ['site', 'collections'],
 ) {
+  // A save that changes nothing must not create revisions or audit rows.
+  const prior = dataObject(before),
+    comparable =
+      prior.section && prior.values && dataObject(after)
+        ? Object.fromEntries(
+            Object.keys(dataObject(after)).map((key) => [
+              key,
+              dataObject(prior.values)[key],
+            ]),
+          )
+        : before;
+  const norm = (v: unknown) =>
+    JSON.stringify(serialize(v), (_, x) =>
+      typeof x === 'string' && /^-?\d+(\.\d+)?$/.test(x) ? Number(x) : x,
+    );
+  if (action === 'update' && norm(comparable) === norm(after)) return;
   const [revision] = await tx
     .insert(s.revisions)
     .values({
@@ -325,6 +370,12 @@ export function registerAdmin(
           .string()
           .regex(/^[a-z0-9-]{1,120}$/)
           .optional(),
+        from: z.iso.date().optional(),
+        to: z.iso.date().optional(),
+        tripFrom: z.iso.date().optional(),
+        tripTo: z.iso.date().optional(),
+        assigned: z.union([z.uuid(), z.literal('none')]).optional(),
+        archived: z.enum(['0', '1']).optional(),
       })
       .safeParse(c.req.query());
     if (!parsed.success) fail(422, 'INVALID_QUERY');
@@ -495,6 +546,60 @@ export function registerAdmin(
       return c.json({ erased });
     },
   );
+  // Trip dates are startDate + (dayIndex - 1): day_index is 1-based (public "My trip" builder).
+  const requestFilters = (p: ReturnType<typeof paging>) => {
+    const like = p.q ? '%' + p.q + '%' : null;
+    return and(
+      like
+        ? or(
+            ilike(s.bookingRequests.name, like),
+            ilike(s.bookingRequests.phone, like),
+            ilike(s.bookingRequests.email, like),
+            ilike(s.bookingRequests.ref, like),
+            sql`exists(select 1 from booking_request_items i join trips t on t.id=i.trip_id where i.request_id=booking_requests.id and exists(select 1 from jsonb_each_text(t.title) v where v.value ilike ${like}))`,
+          )
+        : undefined,
+      p.from
+        ? sql`${s.bookingRequests.createdAt}>=(${p.from}::date::timestamp at time zone 'Africa/Cairo')`
+        : undefined,
+      p.to
+        ? sql`${s.bookingRequests.createdAt}<((${p.to}::date+1)::timestamp at time zone 'Africa/Cairo')`
+        : undefined,
+      p.tripFrom
+        ? sql`exists(select 1 from booking_request_items i where i.request_id=booking_requests.id and booking_requests.start_date+(i.day_index-1)>=${p.tripFrom}::date)`
+        : undefined,
+      p.tripTo
+        ? sql`exists(select 1 from booking_request_items i where i.request_id=booking_requests.id and booking_requests.start_date+(i.day_index-1)<=${p.tripTo}::date)`
+        : undefined,
+      p.assigned === 'none'
+        ? isNull(s.bookingRequests.assignedTo)
+        : p.assigned
+          ? eq(s.bookingRequests.assignedTo, p.assigned)
+          : undefined,
+    );
+  };
+  app.get('/v1/admin/requests/counts', auth.guard('requests'), async (c) => {
+    const p = paging(c);
+    const rows = await db
+      .select({
+        status: s.bookingRequests.status,
+        n: sql<number>`count(*)::int`,
+      })
+      .from(s.bookingRequests)
+      .where(requestFilters(p))
+      .groupBy(s.bookingRequests.status);
+    const counts: Record<string, number> = {
+      new: 0,
+      contacted: 0,
+      confirmed: 0,
+      completed: 0,
+      cancelled: 0,
+      spam: 0,
+    };
+    for (const row of rows) counts[row.status] = Number(row.n);
+    counts.all = Object.values(counts).reduce((a, b) => a + b, 0);
+    return c.json(counts);
+  });
   app.get('/v1/admin/requests', auth.guard('requests'), async (c) => {
     const p = paging(c);
     return c.json(
@@ -503,19 +608,16 @@ export function registerAdmin(
           ...requestFields,
           tripTitles: sql<
             unknown[]
-          >`coalesce((select jsonb_agg(t.title order by i.day_index) from booking_request_items i join trips t on t.id=i.trip_id where i.request_id=${s.bookingRequests.id}), '[]'::jsonb)`,
+          >`coalesce((select jsonb_agg(t.title order by i.day_index) from booking_request_items i join trips t on t.id=i.trip_id where i.request_id=booking_requests.id), '[]'::jsonb)`,
+          tripItems: sql<
+            unknown[]
+          >`coalesce((select jsonb_agg(jsonb_build_object('title', t.title, 'dayIndex', i.day_index) order by i.day_index) from booking_request_items i join trips t on t.id=i.trip_id where i.request_id=booking_requests.id), '[]'::jsonb)`,
         })
         .from(s.bookingRequests)
         .where(
           and(
             p.status ? eq(s.bookingRequests.status, p.status) : undefined,
-            p.q
-              ? or(
-                  ilike(s.bookingRequests.name, '%' + p.q + '%'),
-                  ilike(s.bookingRequests.phone, '%' + p.q + '%'),
-                  ilike(s.bookingRequests.ref, '%' + p.q + '%'),
-                )
-              : undefined,
+            requestFilters(p),
           ),
         )
         .orderBy(desc(s.bookingRequests.createdAt))
@@ -542,7 +644,8 @@ export function registerAdmin(
         })
         .from(s.bookingRequestItems)
         .innerJoin(s.trips, eq(s.bookingRequestItems.tripId, s.trips.id))
-        .where(eq(s.bookingRequestItems.requestId, id)),
+        .where(eq(s.bookingRequestItems.requestId, id))
+        .orderBy(s.bookingRequestItems.dayIndex),
     });
   });
   app.patch('/v1/admin/requests/:id', auth.guard('requests'), async (c) => {
@@ -603,11 +706,16 @@ export function registerAdmin(
     const p = paging(c);
     return c.json(
       await db
-        .select()
+        .select({
+          ...getTableColumns(s.trips),
+          ...tripListExtras,
+        })
         .from(s.trips)
         .where(
           and(
-            isNull(s.trips.archivedAt),
+            p.archived === '1'
+              ? isNotNull(s.trips.archivedAt)
+              : isNull(s.trips.archivedAt),
             p.q
               ? sql`${s.trips.title}->>'en' ilike ${'%' + p.q + '%'}`
               : undefined,
@@ -616,9 +724,9 @@ export function registerAdmin(
               : undefined,
           ),
         )
-        .orderBy(s.trips.sort)
-        .limit(100)
-        .offset((p.page - 1) * 100),
+        .orderBy(s.trips.sort, sql`${s.trips.title}->>'en'`)
+        .limit(200)
+        .offset((p.page - 1) * 200),
     );
   });
   app.post('/v1/admin/trips', auth.guard('content'), async (c) => {
@@ -1152,7 +1260,17 @@ export function registerAdmin(
     return c.json({ ok: true });
   });
   app.get('/v1/admin/collections', auth.guard('content'), async (c) =>
-    c.json(await db.select().from(s.collections).orderBy(s.collections.sort)),
+    c.json(
+      await db
+        .select()
+        .from(s.collections)
+        .where(
+          c.req.query('archived') === '1'
+            ? isNotNull(s.collections.archivedAt)
+            : isNull(s.collections.archivedAt),
+        )
+        .orderBy(s.collections.sort),
+    ),
   );
   app.patch('/v1/admin/collections/:id', auth.guard('content'), async (c) => {
     const id = uuid(c.req.param('id')),
@@ -1443,6 +1561,7 @@ export function registerAdmin(
           rightsStatus: s.media.rightsStatus,
           status: s.media.status,
           createdAt: s.media.createdAt,
+          used: sql<boolean>`(exists(select 1 from trip_media tm where tm.media_id=media.id) or exists(select 1 from collections c where c.cover_media_id=media.id or c.hero_video_id=media.id) or exists(select 1 from hero_slides h where (h.image_media_id=media.id or h.video_media_id=media.id) and h.archived_at is null))`,
         })
         .from(s.media)
         .where(
@@ -1524,12 +1643,19 @@ export function registerAdmin(
         ),
       );
     const slides = await db
-      .select({ id: s.heroSlides.id, headline: s.heroSlides.headline })
+      .select({
+        id: s.heroSlides.id,
+        headline: s.heroSlides.headline,
+        name: sql<unknown>`coalesce(hero_slides.headline, (select c.name from collections c where c.id=hero_slides.collection_id))`,
+      })
       .from(s.heroSlides)
       .where(
-        or(
-          eq(s.heroSlides.imageMediaId, id),
-          eq(s.heroSlides.videoMediaId, id),
+        and(
+          isNull(s.heroSlides.archivedAt),
+          or(
+            eq(s.heroSlides.imageMediaId, id),
+            eq(s.heroSlides.videoMediaId, id),
+          ),
         ),
       );
     return c.json({
@@ -1758,6 +1884,7 @@ export function registerAdmin(
     const p = z
       .strictObject({
         entity: z.string().max(80).optional(),
+        entityId: z.string().max(120).optional(),
         user: z.uuid().optional(),
         from: z.iso.date().optional(),
         to: z.iso.date().optional(),
@@ -1774,7 +1901,7 @@ export function registerAdmin(
           userName: sql<
             string | null
           >`(select name from admin_users where id=${s.auditLog.userId})`,
-          entityTitle: sql<unknown>`case when ${s.auditLog.entity} in ('trip','trip_prices','trip_itinerary','trip_items','trip_media','package') then (select title from trips where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='collection' then (select name from collections where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='hero_slide' then (select headline from hero_slides where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='media' then (select alt from media where id::text=${s.auditLog.entityId}) else null end`,
+          entityTitle: sql<unknown>`case when ${s.auditLog.entity} in ('trip','trip_prices','trip_itinerary','trip_items','trip_media','package') then (select title from trips where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='collection' then (select name from collections where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='hero_slide' then (select headline from hero_slides where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='media' then (select alt from media where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='faq' then (select q from faqs where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='request' then (select to_jsonb(ref) from booking_requests where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='user' then (select to_jsonb(name) from admin_users where id::text=${s.auditLog.entityId}) when ${s.auditLog.entity}='settings' then ${s.auditLog.after}->'key' when ${s.auditLog.entity}='page_blocks' then ${s.auditLog.after}->'key' else null end`,
           action: s.auditLog.action,
           entity: s.auditLog.entity,
           entityId: s.auditLog.entityId,
@@ -1784,7 +1911,20 @@ export function registerAdmin(
         .from(s.auditLog)
         .where(
           and(
-            p.data.entity ? eq(s.auditLog.entity, p.data.entity) : undefined,
+            p.data.entity
+              ? p.data.entity === 'trip'
+                ? inArray(s.auditLog.entity, [
+                    'trip',
+                    'trip_prices',
+                    'trip_itinerary',
+                    'trip_items',
+                    'trip_media',
+                  ])
+                : eq(s.auditLog.entity, p.data.entity)
+              : undefined,
+            p.data.entityId
+              ? eq(s.auditLog.entityId, p.data.entityId)
+              : undefined,
             p.data.user ? eq(s.auditLog.userId, p.data.user) : undefined,
             p.data.from
               ? sql`${s.auditLog.at}>=(${p.data.from}::date::timestamp at time zone 'Africa/Cairo')`
@@ -1842,4 +1982,5 @@ export function registerAdmin(
     });
   });
   registerMore(app, db, cfg, auth);
+  registerArchive(app, db, cfg, auth);
 }

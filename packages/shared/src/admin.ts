@@ -50,6 +50,10 @@ export const reauthSchema = loginSchema
   .strict();
 export const basicsSchema = z.strictObject({
   title: localizedSchema.optional(),
+  slug: z
+    .string()
+    .regex(/^[a-z0-9-]{1,120}$/)
+    .optional(),
   summary: localizedSchema.nullable().optional(),
   description: localizedSchema.nullable().optional(),
   collectionId: z.uuid().optional(),

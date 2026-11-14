@@ -75,6 +75,7 @@ export function registerAdminUi(
           createdAt: s.sessions.createdAt,
           lastSeenAt: s.sessions.lastSeenAt,
           expiresAt: s.sessions.expiresAt,
+          userAgent: s.sessions.userAgent,
         })
         .from(s.sessions)
         .where(eq(s.sessions.userId, id.data)),
@@ -116,7 +117,7 @@ export function registerAdminUi(
           sort: s.packageItems.sort,
           primaryAmountEur: sql<
             string | null
-          >`(select amount_eur from trip_prices where trip_id=${s.packageItems.tripId} and is_primary limit 1)`,
+          >`(select tp.amount_eur from trip_prices tp where tp.trip_id=package_items.trip_id and tp.is_primary limit 1)`,
         })
         .from(s.packageItems)
         .where(eq(s.packageItems.packageId, id.data))
@@ -276,7 +277,7 @@ export function registerAdminUi(
       })
       .from(s.trips)
       .where(isNull(s.trips.archivedAt))
-      .orderBy(s.trips.sort);
+      .orderBy(s.trips.sort, sql`${s.trips.title}->>'en'`);
     const prices = await db
       .select()
       .from(s.tripPrices)
