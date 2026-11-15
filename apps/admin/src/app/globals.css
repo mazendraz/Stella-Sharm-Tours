@@ -3401,3 +3401,13 @@ a.activity-link:hover .activity-text {
     display: grid;
   }
 }
+/* Inbox placeholder: fill the right column and centre its message
+   instead of a short box floating at the top. */
+@media (min-width: 1024px) {
+  .inbox-detail > .empty-state {
+    position: sticky;
+    top: 28px;
+    min-height: calc(100dvh - 56px);
+    align-content: center;
+  }
+}
