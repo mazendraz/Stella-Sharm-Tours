@@ -210,7 +210,7 @@ test('seven-language login and authenticated navigation, accessibility and priva
         animations: 'disabled',
       });
     const cached = await page.evaluate(async () => {
-      const cache = await caches.open('stella-admin-shell-v1');
+      const cache = await caches.open('stella-admin-shell-v2');
       return (await cache.keys()).map(
         (request) => new URL(request.url).pathname,
       );
