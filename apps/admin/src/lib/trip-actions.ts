@@ -57,7 +57,14 @@ export function useTripActions(kind: 'trip' | 'package') {
         await client.invalidateQueries();
         await navigate(base + value.id);
         // Undo restores the duplicate's "archived" snapshot → the copy is archived.
-        notify(t('duplicatedEditing'), { undo: revisions });
+        notify(t('duplicatedEditing'), {
+          undo: revisions,
+          // Undo archives the copy: go back to the original.
+          afterUndo: {
+            message: t('copyRemoved'),
+            run: () => navigate(base + id, { replace: true }),
+          },
+        });
       } catch (error) {
         report(error);
       }

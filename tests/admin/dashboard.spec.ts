@@ -224,7 +224,7 @@ test('seven-language login and authenticated navigation, accessibility and priva
     checkingOffline = false;
     expect(errors).toEqual([]);
   } finally {
-    await context.setOffline(false);
+    await context.setOffline(false).catch(() => {});
     await pool.query('delete from audit_log where user_id=$1', [id]);
     await pool.query('delete from revisions where created_by=$1', [id]);
     await pool.query("delete from outbox where data->>'userId'=$1", [id]);

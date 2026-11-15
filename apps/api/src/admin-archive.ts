@@ -1,4 +1,6 @@
 import { and, eq, isNull } from 'drizzle-orm';
+import { hashPrivate } from './requests';
+import { clientIp } from './auth';
 import { z } from 'zod';
 import type { Hono } from 'hono';
 import type { Database } from '@stella/db';
@@ -25,6 +27,60 @@ export function registerArchive(
   cfg: Config,
   auth: ReturnType<typeof authService>,
 ) {
+  // Owners can end one session of a teammate (the list already exists).
+  app.delete(
+    '/v1/admin/users/:id/sessions/:sid',
+    auth.guard('users'),
+    async (c) => {
+      auth.recent(c);
+      const id = uuid(c.req.param('id')),
+        sessionId = c.req.param('sid');
+      if (!/^[a-f0-9]{64}$/.test(sessionId)) fail(422, 'INVALID_ID');
+      await db.transaction(async (tx) => {
+        await tx
+          .delete(s.sessions)
+          .where(and(eq(s.sessions.id, sessionId), eq(s.sessions.userId, id)));
+        await tx.insert(s.auditLog).values({
+          userId: c.get('principal').id,
+          action: 'logout_session',
+          entity: 'user',
+          entityId: id,
+          ipHash: hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT),
+        });
+      });
+      return c.json({ ok: true });
+    },
+  );
+  // Anyone can change their own display name.
+  app.patch('/v1/admin/me', auth.guard(), async (c) => {
+    const b = await auth.parse(
+      c,
+      z.strictObject({ name: z.string().trim().min(1).max(80) }),
+    );
+    const id = c.get('principal').id;
+    await db.transaction(async (tx) => {
+      const [before] = await tx
+        .select({ name: s.adminUsers.name })
+        .from(s.adminUsers)
+        .where(eq(s.adminUsers.id, id))
+        .for('update');
+      if (!before) fail(404, 'NOT_FOUND');
+      if (before.name === b.name) return;
+      await tx
+        .update(s.adminUsers)
+        .set({ name: b.name })
+        .where(eq(s.adminUsers.id, id));
+      await tx.insert(s.auditLog).values({
+        userId: id,
+        action: 'update',
+        entity: 'user',
+        entityId: id,
+        before: { name: before.name },
+        after: { name: b.name },
+      });
+    });
+    return c.json({ ok: true });
+  });
   // Collections had publish only; unpublish returns a collection to draft.
   app.post(
     '/v1/admin/collections/:id/unpublish',

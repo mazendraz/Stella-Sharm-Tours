@@ -21,6 +21,7 @@ import {
 } from './admin-context';
 
 const TOAST_ID = 'stella-admin-toast';
+export type UndoAfter = { message?: string; run?: () => unknown };
 const errorKeys: Record<string, string> = {
   OFFLINE: 'offline',
   RATE_LIMITED: 'rate',
@@ -185,12 +186,18 @@ export function Session({
     },
     [t],
   );
-  const undoRef = useRef<(ids: string[]) => Promise<void>>(async () => {}),
+  const undoRef = useRef<(ids: string[], after?: UndoAfter) => Promise<void>>(
+      async () => {},
+    ),
     toastSeq = useRef(0);
   const notify = useCallback(
     (
       message: string,
-      options?: { tone?: 'success' | 'error' | 'info'; undo?: string[] },
+      options?: {
+        tone?: 'success' | 'error' | 'info';
+        undo?: string[];
+        afterUndo?: UndoAfter;
+      },
     ) => {
       const tone = options?.tone ?? 'success',
         undoIds = options?.undo ?? [];
@@ -208,7 +215,7 @@ export function Session({
         action: undoIds.length
           ? {
               label: t('undo'),
-              onClick: () => void undoRef.current(undoIds),
+              onClick: () => void undoRef.current(undoIds, options?.afterUndo),
             }
           : undefined,
       });
@@ -221,12 +228,13 @@ export function Session({
     [notify, errorText],
   );
   const undoRevisions = useCallback(
-    async (ids: string[]) => {
+    async (ids: string[], after?: UndoAfter) => {
       try {
         for (const id of [...ids].reverse())
           await request('/v1/admin/revisions/' + id + '/restore', 'POST', {});
+        await after?.run?.();
         await client.invalidateQueries();
-        notify(t('undone'));
+        notify(after?.message ?? t('undone'));
       } catch (error) {
         report(error);
       }

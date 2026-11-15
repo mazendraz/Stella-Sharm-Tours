@@ -19,33 +19,30 @@ import {
 import { usePageTitle } from '../components/ui/editor';
 import { AppLink } from '../components/ui/link';
 
-/** "Chrome on Windows" from a user-agent string (best effort). */
+/** "Chrome · Windows" from a user-agent string (best effort). */
 export function deviceName(ua: unknown, t: (k: string) => string) {
   const s = String(ua ?? '');
-  if (!s) return t('unknownDevice');
-  const browser = /Edg\//.test(s)
-    ? 'Edge'
-    : /OPR\//.test(s)
-      ? 'Opera'
-      : /Firefox\//.test(s)
-        ? 'Firefox'
-        : /Chrome\//.test(s)
-          ? 'Chrome'
-          : /Safari\//.test(s)
-            ? 'Safari'
-            : t('browser');
-  const os = /iPhone|iPad/.test(s)
-    ? 'iOS'
-    : /Android/.test(s)
-      ? 'Android'
-      : /Windows/.test(s)
-        ? 'Windows'
-        : /Mac OS X/.test(s)
-          ? 'macOS'
-          : /Linux/.test(s)
-            ? 'Linux'
-            : '';
-  return os ? `${browser} · ${os}` : browser;
+  const browsers: [RegExp, string][] = [
+    [/Edg(e|A|iOS)?\//, 'Edge'],
+    [/OPR\/|Opera/, 'Opera'],
+    [/SamsungBrowser\//, 'Samsung Internet'],
+    [/YaBrowser\//, 'Yandex Browser'],
+    [/Firefox\/|FxiOS\//, 'Firefox'],
+    [/CriOS\/|Chrome\/|Chromium\//, 'Chrome'],
+    [/Version\/[\d.]+.*Safari\//, 'Safari'],
+  ];
+  const oses: [RegExp, string][] = [
+    [/iPhone|iPad|iPod/, 'iOS'],
+    [/Android/, 'Android'],
+    [/Windows/, 'Windows'],
+    [/Mac OS X|Macintosh/, 'macOS'],
+    [/CrOS/, 'ChromeOS'],
+    [/Linux/, 'Linux'],
+  ];
+  const browser = browsers.find(([re]) => re.test(s))?.[1],
+    os = oses.find(([re]) => re.test(s))?.[1];
+  if (!browser && !os) return t('unknownBrowser');
+  return [browser ?? t('unknownBrowser'), os].filter(Boolean).join(' · ');
 }
 
 const roleOrder: Role[] = ['sales', 'editor', 'manager', 'owner'];
@@ -402,7 +399,14 @@ export function Member({ id }: { id: string }) {
             {sessions.data!.map((s) => (
               <li key={s.id} className="simple-row static">
                 <span className="simple-main">
-                  <span className="strong">{deviceName(s.userAgent, t)}</span>
+                  <span className="session-name">
+                    <span className="strong">{deviceName(s.userAgent, t)}</span>
+                    {s.current ? (
+                      <span className="badge-status green">
+                        {t('thisDevice')}
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="muted">
                     {t('lastActive', {
                       when: relative(String(s.lastSeenAt), locale),
@@ -413,6 +417,27 @@ export function Member({ id }: { id: string }) {
                     })}
                   </span>
                 </span>
+                {!s.current && (
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    onClick={async () => {
+                      try {
+                        await request(
+                          '/v1/admin/users/' + id + '/sessions/' + s.id,
+                          'DELETE',
+                          {},
+                        );
+                        await sessions.refetch();
+                        notify(t('sessionSignedOut'));
+                      } catch (error) {
+                        report(error);
+                      }
+                    }}
+                  >
+                    {t('logout')}
+                  </button>
+                )}
               </li>
             ))}
           </ul>

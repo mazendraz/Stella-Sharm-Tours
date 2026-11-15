@@ -584,6 +584,7 @@ export function TripEditor({ id }: { id: string }) {
               set={(next) => editor.set('format', next)}
               canPrices={canPrices}
               published={status === 'published'}
+              loadedShowOnHome={!!editor.base?.format.showOnHome}
             />
           ),
         },
@@ -844,11 +845,13 @@ function FormatSection({
   set,
   canPrices,
   published,
+  loadedShowOnHome,
 }: {
   v: TripState['format'];
   set: (v: TripState['format']) => void;
   canPrices: boolean;
   published: boolean;
+  loadedShowOnHome: boolean;
 }) {
   const { t } = useAdmin();
   return (
@@ -861,7 +864,8 @@ function FormatSection({
             set({
               ...v,
               format,
-              ...(format === 'group' ? { showOnHome: false } : {}),
+              // Group-only trips can't be in the Private section; switching back restores it.
+              showOnHome: format === 'group' ? false : loadedShowOnHome,
             })
           }
           options={[

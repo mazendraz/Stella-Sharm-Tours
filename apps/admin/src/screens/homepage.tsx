@@ -161,6 +161,17 @@ export function Homepage() {
     );
   const v = editor.values;
   const differs = !!draft && !!live && !same(build(draft), build(live));
+  // Which sections the saved draft changes compared with the live homepage.
+  const changedSections =
+    draft && live
+      ? (() => {
+          const a = build(draft),
+            b = build(live);
+          return (Object.keys(labels) as (keyof typeof labels)[])
+            .filter((key) => !same(a[key], b[key]))
+            .map((key) => labels[key]);
+        })()
+      : [];
   const run = async (publish: boolean) => {
     publishing.current = publish;
     setBusy(true);
@@ -207,6 +218,13 @@ export function Homepage() {
         draft && differs ? (
           <Callout tone="info">
             {canPublish ? t('draftPendingPublish') : t('draftPendingManager')}
+            {changedSections.length > 0 && (
+              <>
+                {' '}
+                <strong>{t('whatChanged')}</strong> {changedSections.join(', ')}
+                .
+              </>
+            )}
           </Callout>
         ) : undefined
       }

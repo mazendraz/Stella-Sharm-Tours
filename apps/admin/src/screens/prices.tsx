@@ -1,19 +1,20 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pencil } from 'lucide-react';
 import { useAdmin, useData, ApiError } from '../lib/admin-context';
 import { content, rows, type Row } from '../lib/content';
 import { dayLabel, money } from '../lib/format';
+import { usePriceText } from '../lib/catalog';
 import { PageHeader } from '../components/ui/page-header';
 import { DataTable, SearchBox, type Column } from '../components/ui/data-table';
 import { Modal, useConfirm } from '../components/ui/dialog';
 import { FieldGroup, FormField, Segmented } from '../components/ui/field';
 import { Callout } from '../components/ui/states';
-import { AppLink } from '../components/ui/link';
 import { Sliders } from 'lucide-react';
 
 export function Prices() {
   const { t, tp, locale, write, notify, report } = useAdmin(),
+    priceText = usePriceText(),
     list = useData<Row[]>('/v1/admin/price-list'),
     collections = useData<Row[]>('/v1/admin/collections'),
     confirm = useConfirm(),
@@ -21,12 +22,15 @@ export function Prices() {
     [editing, setEditing] = useState<string | null>(null),
     [draft, setDraft] = useState(''),
     [busy, setBusy] = useState(false),
-    [bulk, setBulk] = useState(false);
+    [bulk, setBulk] = useState(false),
+    [kind, setKind] = useState(''),
+    inFlight = useRef(false);
   const needle = q.trim().toLocaleLowerCase(locale);
   const visible = (list.data ?? []).filter(
     (row) =>
-      !needle ||
-      content(row.title, locale).toLocaleLowerCase(locale).includes(needle),
+      (!kind || row.kind === kind) &&
+      (!needle ||
+        content(row.title, locale).toLocaleLowerCase(locale).includes(needle)),
   );
   // Stable order: collection order, then trip order (as on the Trips page); packages last.
   const groups = useMemo(() => {
@@ -52,7 +56,8 @@ export function Prices() {
   const primary = (row: Row) => rows(row.rows).find((p) => p.isPrimary);
   const saveAmount = async (row: Row) => {
     const main = primary(row);
-    if (!main || busy) return;
+    // One request per edit, even if Enter repeats or blur follows.
+    if (!main || inFlight.current) return;
     const value = draft.trim();
     if (value !== '' && !(Number(value) >= 0)) {
       notify(t('pricesInvalidAmount'), { tone: 'error' });
@@ -81,6 +86,7 @@ export function Prices() {
         validTo: p.validTo ?? null,
       })),
     };
+    inFlight.current = true;
     setBusy(true);
     const send = async (extra: object) => {
       const { revisions } = await write(
@@ -109,6 +115,7 @@ export function Prices() {
           await send({ confirmLargeChange: true }).catch(report);
       } else report(error);
     } finally {
+      inFlight.current = false;
       setBusy(false);
     }
   };
@@ -117,16 +124,7 @@ export function Prices() {
       key: 'title',
       header: t('tripOrPackage'),
       cell: (row) => (
-        <AppLink
-          href={
-            (row.kind === 'package' ? '/packages/' : '/trips/') +
-            row.id +
-            '#section-prices'
-          }
-          className="strong"
-        >
-          {content(row.title, locale)}
-        </AppLink>
+        <span className="strong">{content(row.title, locale)}</span>
       ),
     },
     {
@@ -240,29 +238,47 @@ export function Prices() {
         columns={columns}
         groups={groups}
         getKey={(row) => row.id}
+        href={(row) =>
+          (row.kind === 'package' ? '/packages/' : '/trips/') +
+          row.id +
+          '#section-' +
+          (row.kind === 'package' ? 'price' : 'prices')
+        }
         mobile={{
           title: (row) => content(row.title, locale),
           meta: (row) =>
-            (primary(row)
-              ? (money(primary(row)!.amountEur as string, locale) ??
-                t('onRequest'))
-              : t('sumOfTrips')) +
-            (primary(row)
-              ? ' · ' + t('unitName_' + String(primary(row)!.unit))
-              : ''),
+            primary(row) ? priceText(primary(row), false) : t('sumOfTrips'),
         }}
         loading={list.isPending || collections.isPending}
         error={list.isError}
         onRetry={() => void list.refetch()}
         empty={{ title: t('noTripsYet') }}
         filtered={{
-          active: !!needle,
+          active: !!needle || !!kind,
           title: t('noTripsMatch', { q }),
-          onClear: () => setQ(''),
+          onClear: () => {
+            setQ('');
+            setKind('');
+          },
         }}
         count={tp('itemsCount', visible.length)}
         toolbar={
-          <SearchBox value={q} onChange={setQ} placeholder={t('searchTrips')} />
+          <div className="filters">
+            <SearchBox
+              value={q}
+              onChange={setQ}
+              placeholder={t('searchTrips')}
+            />
+            <select
+              aria-label={t('type')}
+              value={kind}
+              onChange={(e) => setKind(e.target.value)}
+            >
+              <option value="">{t('tripsAndPackages')}</option>
+              <option value="trip">{t('trips')}</option>
+              <option value="package">{t('packages')}</option>
+            </select>
+          </div>
         }
       />
       {bulk && (
@@ -293,7 +309,7 @@ function BulkDialog({
     [mode, setMode] = useState<'percent' | 'amount'>('percent'),
     [direction, setDirection] = useState<'up' | 'down'>('up'),
     [value, setValue] = useState(''),
-    [round, setRound] = useState<'1' | '5'>('1'),
+    [round, setRound] = useState<'0' | '1' | '5'>('1'),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [preview, setPreview] = useState<Row | null>(null);
@@ -388,8 +404,9 @@ function BulkDialog({
               <select
                 {...p}
                 value={round}
-                onChange={(e) => setRound(e.target.value as '1' | '5')}
+                onChange={(e) => setRound(e.target.value as '0' | '1' | '5')}
               >
+                <option value="0">{t('noRounding')}</option>
                 <option value="1">{t('roundTo', { n: '€1' })}</option>
                 <option value="5">{t('roundTo', { n: '€5' })}</option>
               </select>

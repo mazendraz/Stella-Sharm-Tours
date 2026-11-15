@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { useUrlState } from '../lib/url-state';
 import { can } from '@stella/shared/admin';
 import { useAdmin, useData } from '../lib/admin-context';
 import { content, obj, type Row } from '../lib/content';
@@ -22,26 +23,48 @@ import { useConfirm } from '../components/ui/dialog';
 import type { MenuItem } from '../components/ui/menu';
 import { CreateDialog } from '../components/create-dialog';
 
-export function TranslationMeter({ value }: { value: number }) {
+/** Reviewed (green) · AI draft (amber) · missing (grey) across the 7 languages. */
+export function TranslationMeter({ row }: { row: Row }) {
   const { t } = useAdmin();
+  const reviewed = translationProgress(row),
+    machine = Math.min(
+      7 - reviewed,
+      Array.isArray(row.machineLocales) ? row.machineLocales.length : 0,
+    ),
+    missing = Math.max(0, 7 - reviewed - machine);
+  const tip = t('langSummary', { reviewed, machine, missing });
   return (
-    <span className="meter" title={t('langsReady', { n: value })}>
+    <span className="meter" title={tip}>
       <span className="meter-bar" aria-hidden>
-        <span style={{ width: (value / 7) * 100 + '%' }} />
+        <span
+          className="seg ok"
+          style={{ width: (reviewed / 7) * 100 + '%' }}
+        />
+        <span className="seg ai" style={{ width: (machine / 7) * 100 + '%' }} />
       </span>
-      <span className="meter-text">{value}/7</span>
-      <span className="sr-only">{t('langsReady', { n: value })}</span>
+      <span className="meter-text">{reviewed}/7</span>
+      <span className="sr-only">{tip}</span>
     </span>
   );
 }
 
 export function TripsList() {
   const { t, tp, locale, me, save } = useAdmin(),
-    [q, setQ] = useState(''),
-    [collection, setCollection] = useState(''),
-    [status, setStatus] = useState(''),
-    [format, setFormat] = useState(''),
-    [grouped, setGrouped] = useState(true),
+    [filters, setFilters] = useUrlState({
+      q: '',
+      collection: '',
+      status: '',
+      format: '',
+      group: '1',
+      missing: '',
+    }),
+    { q, collection, status, format, missing } = filters,
+    grouped = filters.group === '1',
+    setQ = (v: string) => setFilters({ q: v }),
+    setCollection = (v: string) => setFilters({ collection: v }),
+    setStatus = (v: string) => setFilters({ status: v }),
+    setFormat = (v: string) => setFilters({ format: v }),
+    setGrouped = (v: boolean) => setFilters({ group: v ? '1' : '0' }),
     [creating, setCreating] = useState(false),
     [localOrder, setLocalOrder] = useState<string[] | null>(null),
     archivedView = status === 'archived',
@@ -82,13 +105,17 @@ export function TripsList() {
           ? privateSlugs.has(String(row.slug))
           : row.collectionId === collection)) &&
       (!status || archivedView || contentStatus(row) === status) &&
-      (!format || row.format === format),
+      (!format || row.format === format) &&
+      (!missing ||
+        (missing === 'price' && row.primaryUnit == null && !row.onRequest) ||
+        (missing === 'cover' && !row.coverMediaId)),
   );
   const filtering = !!(
     needle ||
     collection ||
     (status && !archivedView) ||
-    format
+    format ||
+    missing
   );
   const canReorder = grouped && !filtering && !archivedView;
   const collectionName = (id: unknown) =>
@@ -131,21 +158,26 @@ export function TripsList() {
         </span>
       ),
     },
-    {
-      key: 'collection',
-      header: t('collection'),
-      className: 'hide-md',
-      cell: (row) => collectionName(row.collectionId),
-    },
+    ...(grouped
+      ? []
+      : [
+          {
+            key: 'collection',
+            header: t('collection'),
+            className: 'hide-md nowrap',
+            cell: (row: Row) => collectionName(row.collectionId),
+          },
+        ]),
     {
       key: 'format',
       header: t('format'),
-      className: 'hide-md',
+      className: 'hide-md nowrap',
       cell: (row) => t(formatLabelKey(row.format)),
     },
     {
       key: 'price',
       header: t('mainPrice'),
+      className: 'nowrap',
       cell: (row) =>
         priceText(
           row.primaryUnit
@@ -158,7 +190,7 @@ export function TripsList() {
       key: 'i18n',
       header: t('translationsShort'),
       className: 'hide-lg',
-      cell: (row) => <TranslationMeter value={translationProgress(row)} />,
+      cell: (row) => <TranslationMeter row={row} />,
     },
     {
       key: 'status',
@@ -281,12 +313,14 @@ export function TripsList() {
         filtered={{
           active: filtering,
           title: needle ? t('noTripsMatch', { q }) : t('noTripsFiltered'),
-          onClear: () => {
-            setQ('');
-            setCollection('');
-            setStatus('');
-            setFormat('');
-          },
+          onClear: () =>
+            setFilters({
+              q: '',
+              collection: '',
+              status: '',
+              format: '',
+              missing: '',
+            }),
         }}
         count={tp('tripsCount', filtered.length)}
         reorder={{
@@ -343,6 +377,21 @@ export function TripsList() {
               <option value="private">{t('fmtPrivate')}</option>
               <option value="both">{t('fmtBoth')}</option>
             </select>
+            {missing && (
+              <button
+                type="button"
+                className="chip removable filter-chip"
+                onClick={() => setFilters({ missing: '' })}
+              >
+                {t(
+                  missing === 'price'
+                    ? 'filterMissingPrice'
+                    : 'filterMissingCover',
+                )}
+                <span aria-hidden> ✕</span>
+                <span className="sr-only"> — {t('clearFilters')}</span>
+              </button>
+            )}
             <Toggle
               checked={grouped}
               onChange={setGrouped}

@@ -64,6 +64,7 @@ export type ConfirmOptions = {
   title: string;
   body?: ReactNode | undefined;
   confirmLabel: string;
+  cancelLabel?: string | undefined;
   tone?: 'default' | 'danger' | undefined;
   details?: ReactNode[] | undefined;
   requireText?: string | undefined;
@@ -101,6 +102,7 @@ function ConfirmDialog({
   title,
   body,
   confirmLabel,
+  cancelLabel,
   tone = 'default',
   details,
   requireText,
@@ -165,7 +167,7 @@ function ConfirmDialog({
                 className="btn"
                 onClick={() => onDone(false)}
               >
-                {t('cancel')}
+                {cancelLabel ?? t('cancel')}
               </button>
               <button
                 type={danger ? 'button' : 'submit'}

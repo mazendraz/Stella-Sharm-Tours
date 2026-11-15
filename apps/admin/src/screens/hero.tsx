@@ -332,13 +332,15 @@ function HeroPreview({
           setIndex(0);
         }}
         options={[
-          { value: 'mobile', label: t('show_mobile') },
-          { value: 'desktop', label: t('show_desktop') },
+          { value: 'mobile', label: t('deviceMobile') },
+          { value: 'desktop', label: t('deviceDesktop') },
         ]}
       />
       {!slide ? (
         <EmptyState
-          title={t('noLiveSlidesFor', { device: t('show_' + device) })}
+          title={t('noLiveSlidesFor', {
+            device: t(device === 'mobile' ? 'deviceMobile' : 'deviceDesktop'),
+          })}
         />
       ) : (
         <div className={'hero-preview ' + device}>
@@ -689,12 +691,18 @@ export function HeroEditor({ id }: { id: string }) {
                         <select
                           {...p}
                           value={v.button.ctaType}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const ctaType = e.target.value,
+                              loaded = editor.base?.button;
+                            // Switching back restores the saved destination (so it's not "unsaved").
                             editor.set('button', {
-                              ctaType: e.target.value,
-                              ctaTarget: '',
-                            })
-                          }
+                              ctaType,
+                              ctaTarget:
+                                loaded && loaded.ctaType === ctaType
+                                  ? loaded.ctaTarget
+                                  : '',
+                            });
+                          }}
                         >
                           {[
                             'collection',

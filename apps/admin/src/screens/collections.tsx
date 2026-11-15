@@ -87,7 +87,11 @@ export function CollectionsList() {
     {
       key: 'count',
       header: t('trips'),
-      cell: (row) => tp('tripsCount', count(row)),
+      cell: (row) =>
+        tp(
+          row.kind === 'packages' ? 'packagesCount' : 'tripsCount',
+          count(row),
+        ),
     },
     {
       key: 'status',
@@ -211,7 +215,12 @@ export function CollectionsList() {
         mobile={{
           title: (row) => content(row.name, locale),
           meta: (row) =>
-            t(typeKey(row.kind)) + ' · ' + tp('tripsCount', count(row)),
+            t(typeKey(row.kind)) +
+            ' · ' +
+            tp(
+              row.kind === 'packages' ? 'packagesCount' : 'tripsCount',
+              count(row),
+            ),
           badge: (row) => <StatusBadge status={contentStatus(row)} />,
         }}
         menu={menu}

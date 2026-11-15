@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useUrlState } from '../lib/url-state';
 import { Upload } from 'lucide-react';
 import { useAdmin, useData } from '../lib/admin-context';
 import { content, obj, rows, type Row } from '../lib/content';
@@ -40,11 +41,19 @@ export function MediaLibrary() {
   const { t, tp, locale } = useAdmin(),
     media = useMediaOptions(),
     collections = useData<Row[]>('/v1/admin/collections'),
-    [q, setQ] = useState(''),
-    [type, setType] = useState(''),
-    [rights, setRights] = useState(''),
-    [usage, setUsage] = useState(''),
-    [collection, setCollection] = useState(''),
+    [filters, setFilters] = useUrlState({
+      q: '',
+      type: '',
+      rights: '',
+      usage: '',
+      collection: '',
+    }),
+    { q, type, rights, usage, collection } = filters,
+    setQ = (v: string) => setFilters({ q: v }),
+    setType = (v: string) => setFilters({ type: v }),
+    setRights = (v: string) => setFilters({ rights: v }),
+    setUsage = (v: string) => setFilters({ usage: v }),
+    setCollection = (v: string) => setFilters({ collection: v }),
     [dragging, setDragging] = useState(false),
     upload = useUploader(),
     depth = useRef(0),
@@ -121,48 +130,47 @@ export function MediaLibrary() {
       <div className="table-toolbar">
         <div className="filters">
           <SearchBox value={q} onChange={setQ} placeholder={t('searchMedia')} />
-          <select
-            aria-label={t('type')}
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          >
-            <option value="">{t('allTypes')}</option>
-            <option value="image">{t('images')}</option>
-            <option value="video">{t('videos')}</option>
-          </select>
-          <select
-            aria-label={t('rights')}
-            value={rights}
-            onChange={(e) => setRights(e.target.value)}
-          >
-            <option value="">{t('allRights')}</option>
-            {rightsOptions.map((r) => (
-              <option key={r} value={r}>
-                {t('rights_' + r)}
-              </option>
-            ))}
-          </select>
-          <select
-            aria-label={t('usage')}
-            value={usage}
-            onChange={(e) => setUsage(e.target.value)}
-          >
-            <option value="">{t('allUsage')}</option>
-            <option value="used">{t('used')}</option>
-            <option value="unused">{t('unused')}</option>
-          </select>
-          <select
-            aria-label={t('collection')}
-            value={collection}
-            onChange={(e) => setCollection(e.target.value)}
-          >
-            <option value="">{t('allCollections')}</option>
-            {(collections.data ?? []).map((c) => (
-              <option key={c.id} value={c.id}>
-                {content(c.name, locale)}
-              </option>
-            ))}
-          </select>
+          <label className="mini-field">
+            <span>{t('type')}</span>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="">{t('allTypes')}</option>
+              <option value="image">{t('images')}</option>
+              <option value="video">{t('videos')}</option>
+            </select>
+          </label>
+          <label className="mini-field">
+            <span>{t('rights')}</span>
+            <select value={rights} onChange={(e) => setRights(e.target.value)}>
+              <option value="">{t('allRights')}</option>
+              {rightsOptions.map((r) => (
+                <option key={r} value={r}>
+                  {t('rights_' + r)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="mini-field">
+            <span>{t('usage')}</span>
+            <select value={usage} onChange={(e) => setUsage(e.target.value)}>
+              <option value="">{t('allUsage')}</option>
+              <option value="used">{t('used')}</option>
+              <option value="unused">{t('unused')}</option>
+            </select>
+          </label>
+          <label className="mini-field">
+            <span>{t('collection')}</span>
+            <select
+              value={collection}
+              onChange={(e) => setCollection(e.target.value)}
+            >
+              <option value="">{t('allCollections')}</option>
+              {(collections.data ?? []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {content(c.name, locale)}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         {!media.isPending && (
           <span className="result-count" role="status">
@@ -185,11 +193,13 @@ export function MediaLibrary() {
                 type="button"
                 className="btn"
                 onClick={() => {
-                  setQ('');
-                  setType('');
-                  setRights('');
-                  setUsage('');
-                  setCollection('');
+                  setFilters({
+                    q: '',
+                    type: '',
+                    rights: '',
+                    usage: '',
+                    collection: '',
+                  });
                 }}
               >
                 {t('clearFilters')}
@@ -327,18 +337,18 @@ export function MediaDetail({ id }: { id: string }) {
   const whereUsed = [
     ...rows(used.trips).map((r) => ({
       key: 't' + r.id,
-      label: t('ent_trip') + ' · ' + content(r.title, locale),
+      label: t('entCap_trip') + ' · ' + content(r.title, locale),
       href: '/trips/' + r.id,
     })),
     ...rows(used.collections).map((r) => ({
       key: 'c' + r.id,
-      label: t('ent_collection') + ' · ' + content(r.name, locale),
+      label: t('entCap_collection') + ' · ' + content(r.name, locale),
       href: '/collections/' + r.id,
     })),
     ...rows(used.slides).map((r) => ({
       key: 's' + r.id,
       label:
-        t('ent_hero_slide') +
+        t('entCap_hero_slide') +
         ' · ' +
         (content(r.name ?? r.headline, locale) || t('untitled')),
       href: '/hero/' + r.id,
@@ -552,11 +562,11 @@ function FocalEditor({
       y: Math.min(1, Math.max(0, (clientY - rect.top) / rect.height)),
     });
   };
-  const nudge = (dx: number, dy: number) =>
-    onChange({
-      x: Math.min(1, Math.max(0, value.x + dx)),
-      y: Math.min(1, Math.max(0, value.y + dy)),
-    });
+  const nudge = (dx: number, dy: number) => {
+    const snap = (v: number) =>
+      Math.min(1, Math.max(0, Math.round(v * 100) / 100));
+    onChange({ x: snap(value.x + dx), y: snap(value.y + dy) });
+  };
   return (
     <div className="focal">
       <p className="muted">{t('focalHint')}</p>
@@ -581,7 +591,7 @@ function FocalEditor({
         onPointerMove={(e) => dragging.current && place(e.clientX, e.clientY)}
         onPointerUp={() => (dragging.current = false)}
         onKeyDown={(e) => {
-          const step = e.shiftKey ? 0.1 : 0.02;
+          const step = e.shiftKey ? 0.1 : 0.01;
           const map: Record<string, [number, number]> = {
             ArrowLeft: [-step, 0],
             ArrowRight: [step, 0],

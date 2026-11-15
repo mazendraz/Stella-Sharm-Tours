@@ -31,7 +31,13 @@ type EditorLike = {
 
 export function usePageTitle(title: string) {
   useEffect(() => {
-    document.title = title + ' · Stella Admin';
+    const value = title + ' · Stella Admin';
+    document.title = value;
+    // Next applies route metadata after navigation; re-apply detail titles.
+    const timer = setTimeout(() => {
+      if (document.title !== value) document.title = value;
+    }, 150);
+    return () => clearTimeout(timer);
   }, [title]);
 }
 

@@ -36,21 +36,16 @@ const replies: Record<string, string> = {
   ru: 'Здравствуйте, {name}! Это Stella Sharm Tours по вашей заявке {ref}.\n{trips}\nМесто трансфера: {pickup}\nВремя трансфера: [уточняется]',
   tr: 'Merhaba {name}, {ref} talebiniz için Stella Sharm Tours olarak yazıyoruz.\n{trips}\nAlınış yeri: {pickup}\nAlınış saati: [teyit edilecek]',
 };
-const tabs = [
-  'new',
-  'contacted',
-  'confirmed',
-  'cancelled',
-  'spam',
-  'all',
-] as const;
+const mainTabs = ['new', 'contacted', 'confirmed'] as const;
+const moreTabs = ['completed', 'cancelled', 'spam', 'all'] as const;
+const tabs = [...mainTabs, ...moreTabs] as const;
 
 /** Trip date = request start date + (dayIndex − 1); dayIndex is 1-based. */
 const tripDate = (start: unknown, dayIndex: unknown) =>
   start ? addDays(String(start), Number(dayIndex ?? 1) - 1) : null;
 
 export function Requests({ id }: { id?: string }) {
-  const { t, tp, locale, me, request, report } = useAdmin(),
+  const { t, tp, locale, me, request, report, notify } = useAdmin(),
     params = useSearchParams(),
     router = useRouter(),
     status = (tabs as readonly string[]).includes(params.get('status') ?? '')
@@ -94,12 +89,18 @@ export function Requests({ id }: { id?: string }) {
   const exportCsv = async () => {
     try {
       const file = await request<Blob>('/v1/admin/requests/export.csv');
+      const rowsCount = Math.max(
+        0,
+        (await file.text()).split('\n').filter((line) => line.trim()).length -
+          1,
+      );
       const url = URL.createObjectURL(file),
         link = document.createElement('a');
       link.href = url;
       link.download = 'requests.csv';
       link.click();
       URL.revokeObjectURL(url);
+      notify(tp('requestsExported', rowsCount));
     } catch (error) {
       report(error);
     }
@@ -120,26 +121,56 @@ export function Requests({ id }: { id?: string }) {
             />
           )}
         </header>
-        <div className="tabs" role="tablist" aria-label={t('requestStatus')}>
-          {tabs.map((value) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={status === value}
-              className="tab"
-              onClick={() => setStatus(value)}
-            >
-              {t(value === 'all' ? 'all' : 'req_' + value)}
-              <span className="tab-count">
-                {counts.data
-                  ? new Intl.NumberFormat(locale).format(
-                      counts.data[value] ?? 0,
-                    )
-                  : ''}
-              </span>
-            </button>
-          ))}
+        <div className="tabs-row">
+          <div className="tabs" role="tablist" aria-label={t('requestStatus')}>
+            {[
+              ...mainTabs,
+              ...((moreTabs as readonly string[]).includes(status)
+                ? [status]
+                : []),
+            ].map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={status === value}
+                className="tab"
+                onClick={() => setStatus(value)}
+              >
+                {t(value === 'all' ? 'all' : 'req_' + value)}
+                <span className="tab-count">
+                  {counts.data
+                    ? new Intl.NumberFormat(locale).format(
+                        counts.data[value] ?? 0,
+                      )
+                    : ''}
+                </span>
+              </button>
+            ))}
+          </div>
+          <Menu
+            label={t('moreStatuses')}
+            triggerClass="tab tab-more"
+            trigger={
+              <>
+                {t('moreTab')}
+                <ChevronDown size={16} aria-hidden />
+              </>
+            }
+            items={moreTabs
+              .filter((value) => value !== status)
+              .map((value) => ({
+                label:
+                  t(value === 'all' ? 'all' : 'req_' + value) +
+                  (counts.data
+                    ? ' · ' +
+                      new Intl.NumberFormat(locale).format(
+                        counts.data[value] ?? 0,
+                      )
+                    : ''),
+                onSelect: () => setStatus(value),
+              }))}
+          />
         </div>
         <div className="inbox-tools">
           <SearchBox
@@ -328,16 +359,19 @@ export function Requests({ id }: { id?: string }) {
                       </span>
                       {titles.length > 0 && (
                         <span className="request-line3 muted truncate">
-                          {titles.join(' · ')}
+                          {titles.slice(0, 2).join(' · ')}
+                          {titles.length > 2
+                            ? ' ' + tp('plusMore', titles.length - 2)
+                            : ''}
                         </span>
                       )}
                       <span className="request-aside">
+                        <span className="muted">
+                          {relative(String(row.createdAt), locale)}
+                        </span>
                         <span className="strong">
                           {money(row.estimateEur as string | null, locale) ??
                             t('onRequest')}
-                        </span>
-                        <span className="muted">
-                          {relative(String(row.createdAt), locale)}
                         </span>
                       </span>
                     </AppLink>
@@ -358,7 +392,15 @@ export function Requests({ id }: { id?: string }) {
       </div>
       <div className="inbox-detail">
         {id ? (
-          <RequestDetail key={id} id={id} backHref={'/requests' + query} />
+          <RequestDetail
+            key={id}
+            id={id}
+            backHref={'/requests' + query}
+            onMoved={(next) => {
+              // Follow the request to its new tab so it doesn't vanish.
+              if (status !== 'all' && next !== status) setStatus(next);
+            }}
+          />
         ) : (
           <EmptyState title={t('pickRequest')} body={t('pickRequestBody')} />
         )}
@@ -367,7 +409,7 @@ export function Requests({ id }: { id?: string }) {
   );
 }
 
-function useRequestStatus(row: Row) {
+function useRequestStatus(row: Row, onMoved?: (status: string) => void) {
   const { t, save } = useAdmin(),
     confirm = useConfirm(),
     ref = String(row.ref);
@@ -378,6 +420,7 @@ function useRequestStatus(row: Row) {
         title: t('cancelRequestTitle', { ref }),
         body: t('cancelRequestBody'),
         confirmLabel: t('markCancelled'),
+        cancelLabel: t('keepRequest'),
         tone: 'danger',
       });
       if (!ok) return;
@@ -401,11 +444,20 @@ function useRequestStatus(row: Row) {
         }),
       },
     );
+    onMoved?.(next);
   };
 }
 
-function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
-  const { t, tp, locale, me, save, report, online } = useAdmin(),
+function RequestDetail({
+  id,
+  backHref,
+  onMoved,
+}: {
+  id: string;
+  backHref: string;
+  onMoved?: (status: string) => void;
+}) {
+  const { t, tp, locale, me, save, report, online, notify } = useAdmin(),
     query = useData<Row>('/v1/admin/requests/' + id),
     assignees = useData<Row[]>('/v1/admin/request-assignees'),
     history = useData<Row[]>(
@@ -419,7 +471,7 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
     [busy, setBusy] = useState(false),
     { navigate } = useGuard();
   const row = query.data;
-  const setStatus = useRequestStatus(row ?? { id });
+  const setStatus = useRequestStatus(row ?? { id }, onMoved);
   usePageTitle(row ? String(row.name) + ' · ' + t('requests') : t('requests'));
   const items = useMemo(
     () =>
@@ -459,6 +511,7 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
   const forward: Record<string, string | undefined> = {
     new: 'contacted',
     contacted: 'confirmed',
+    confirmed: 'completed',
   };
   const statusItems: MenuItem[] = [
     ...(['new', 'contacted', 'confirmed', 'completed'] as const).map(
@@ -517,7 +570,9 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
               className="icon-btn sm"
               aria-label={t('copyRef')}
               onClick={() => {
-                void navigator.clipboard?.writeText(String(row.ref));
+                void navigator.clipboard
+                  ?.writeText(String(row.ref))
+                  .then(() => notify(t('refCopied')));
               }}
             >
               <Copy size={14} aria-hidden />
@@ -621,7 +676,7 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
           <p className="muted">{t('noTripsInRequest')}</p>
         ) : (
           <div className="table-scroll">
-            <table className="plain-table">
+            <table className="plain-table plan-table">
               <thead>
                 <tr>
                   <th scope="col">{t('date')}</th>
@@ -648,7 +703,7 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
                     : null;
                   return (
                     <tr key={index}>
-                      <td className="nowrap">
+                      <td className="nowrap" data-label={t('date')}>
                         {dates[index] ? dayLabel(dates[index]!, locale) : '—'}
                         {dates[index] && dupes.has(dates[index]) && (
                           <span className="warn-chip">
@@ -657,7 +712,7 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
                           </span>
                         )}
                       </td>
-                      <td>
+                      <td data-label={t('trip')}>
                         {can(me!.role, 'content') ? (
                           <AppLink
                             href={'/trips/' + String(item.tripId)}
@@ -669,10 +724,10 @@ function RequestDetail({ id, backHref }: { id: string; backHref: string }) {
                           content(item.title, locale)
                         )}
                       </td>
-                      <td>
+                      <td data-label={t('format')}>
                         {t(formatLabelKey(snapshot.format ?? row.format))}
                       </td>
-                      <td className="num">
+                      <td className="num" data-label={t('price')}>
                         {priceText(priceRow, snapshot.on_request === true)}
                       </td>
                     </tr>

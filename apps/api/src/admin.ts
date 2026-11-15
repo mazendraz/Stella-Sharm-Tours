@@ -64,6 +64,9 @@ export const tripListExtras = {
   partsSum: sql<
     string | null
   >`(select sum(p.amount_eur) from package_items pi join trip_prices p on p.trip_id=pi.trip_id and p.is_primary where pi.package_id=trips.id)`,
+  machineLocales: sql<
+    string[]
+  >`(select coalesce(jsonb_agg(distinct ct.locale), '[]'::jsonb) from content_translations ct where ct.entity='trip' and ct.entity_id=trips.id::text and ct.field in ('title','summary','description'))`,
   partsOnRequest: sql<boolean>`exists(select 1 from package_items pi left join trip_prices p on p.trip_id=pi.trip_id and p.is_primary where pi.package_id=trips.id and p.amount_eur is null)`,
 };
 type Auth = ReturnType<typeof authService>;

@@ -1050,7 +1050,7 @@ function registerBulkAndRestore(
     mode: z.enum(['percent', 'amount']),
     value: z.number().min(-10000).max(10000),
     /** Round results to the nearest €1 (default) or €5. */
-    round: z.union([z.literal(1), z.literal(5)]).default(1),
+    round: z.union([z.literal(0), z.literal(1), z.literal(5)]).default(1),
   });
   const payloadSchema = z.strictObject({
     user: z.uuid(),
@@ -1093,14 +1093,18 @@ function registerBulkAndRestore(
               id: row.id,
               tripId: row.tripId,
               before: Number(row.amount),
-              after: Math.max(
-                0,
-                Math.round(
-                  (b.mode === 'percent'
+              after: (() => {
+                const raw =
+                  b.mode === 'percent'
                     ? Number(row.amount) * (1 + b.value / 100)
-                    : Number(row.amount) + b.value) / b.round,
-                ) * b.round,
-              ),
+                    : Number(row.amount) + b.value;
+                // round 0 = keep cents (no rounding beyond 2 decimals)
+                const step = b.round || 0.01;
+                return Math.max(
+                  0,
+                  Number((Math.round(raw / step) * step).toFixed(2)),
+                );
+              })(),
             },
           ],
     );

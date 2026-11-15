@@ -65,13 +65,21 @@ const isLocalized = (v: unknown) =>
   !Array.isArray(v) &&
   typeof (v as Row).en === 'string';
 
+const numeric = (v: unknown) =>
+  typeof v === 'number' || (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v));
 function value(v: unknown, t: T, locale: Locale): string {
-  if (v === null || v === undefined || v === '') return t('emptyValue');
+  if (v === null || v === undefined || v === '') return '—';
   if (typeof v === 'boolean') return t(v ? 'yes' : 'no');
   if (isLocalized(v)) return content(v, locale);
   if (Array.isArray(v)) return v.join(', ');
+  if (numeric(v))
+    return new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(
+      Number(v),
+    );
   return String(v);
 }
+const pct = (v: unknown) =>
+  v === null || v === undefined ? '—' : Math.round(Number(v) * 100) + '%';
 
 /** Human sentences for one audit entry ("Price €40 → €35", "Title (FR) changed"). */
 export function describeChange(entry: Row, t: T, locale: Locale): string[] {
@@ -82,7 +90,13 @@ export function describeChange(entry: Row, t: T, locale: Locale): string[] {
     return [t('diffUnpublished')];
   if (action === 'archive') return [t('diffArchived')];
   if (action === 'unarchive') return [t('diffUnarchived')];
-  if (action === 'restore') return [t('diffRestored')];
+  if (action === 'restore')
+    return [
+      obj(entry.after).section === 'archive' &&
+      obj(obj(entry.after).values).archivedAt
+        ? t('diffUndoCreate')
+        : t('diffRestored'),
+    ];
   if (action === 'duplicate') return [t('diffDuplicated')];
   if (action === 'create') return [t('diffCreated')];
   if (action === 'reorder') return [t('diffReordered')];
@@ -107,11 +121,23 @@ export function describeChange(entry: Row, t: T, locale: Locale): string[] {
   const before = obj(obj(entry.before).values ?? entry.before),
     after = obj(entry.after),
     lines: string[] = [];
+  // Focal point: one line "50%, 50% → 19%, 62%".
+  if ('focalX' in after || 'focalY' in after) {
+    const from = pct(before.focalX ?? 0.5) + ', ' + pct(before.focalY ?? 0.5),
+      to =
+        pct(after.focalX ?? before.focalX) +
+        ', ' +
+        pct(after.focalY ?? before.focalY);
+    if (from !== to)
+      lines.push(t('diffFromTo', { field: t('focalPoint'), from, to }));
+  }
   for (const key of Object.keys(after)) {
+    if (key === 'focalX' || key === 'focalY') continue;
     if (!(key in before) && !fieldKeys[key]) continue;
     const a = before[key],
       b = after[key];
     if (JSON.stringify(a ?? null) === JSON.stringify(b ?? null)) continue;
+    if (numeric(a) && numeric(b) && Number(a) === Number(b)) continue;
     const label = t(fieldKeys[key] ?? key);
     if (isLocalized(a) || isLocalized(b)) {
       const changed = locales.filter(
@@ -127,9 +153,10 @@ export function describeChange(entry: Row, t: T, locale: Locale): string[] {
             }),
       );
     } else if (
-      typeof b === 'object' ||
-      typeof a === 'object' ||
-      String(value(a, t, locale)).length > 40
+      (b !== null && typeof b === 'object') ||
+      (a !== null && typeof a === 'object') ||
+      String(value(a, t, locale)).length > 40 ||
+      String(value(b, t, locale)).length > 40
     )
       lines.push(t('diffFieldChanged', { field: label }));
     else

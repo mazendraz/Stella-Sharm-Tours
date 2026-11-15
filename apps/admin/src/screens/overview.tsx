@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 import { AlertCircle, ChevronRight } from 'lucide-react';
 import { can } from '@stella/shared/admin';
@@ -33,7 +34,9 @@ export function Overview() {
     latest = useData<Row[]>('/v1/admin/requests?page=1', sales),
     trips = useData<Row[]>('/v1/admin/trips', contentRole),
     packages = useData<Row[]>('/v1/admin/packages', contentRole),
-    settings = useData<Row>('/v1/admin/settings', can(role, 'settings'));
+    settings = useData<Row>('/v1/admin/settings', can(role, 'settings')),
+    faqs = useData<Row[]>('/v1/admin/faqs', contentRole),
+    [showAll, setShowAll] = useState(false);
   const pages = useQueries({
     queries: ['contact', 'terms', 'privacy', 'cancellation'].map((key) => ({
       queryKey: ['/v1/admin/pages/' + key + '/blocks'],
@@ -86,15 +89,34 @@ export function Overview() {
       text: t('attnDraftPackage', { name: content(row.title, locale) }),
       href: '/packages/' + row.id,
     });
+  // Footer pages: empty first, then pages whose changes aren't live yet.
   ['contact', 'terms', 'privacy', 'cancellation'].forEach((key, index) => {
     const data = pages[index]?.data;
     if (data && !data.length)
-      attention.push({
+      attention.unshift({
         key: 'page' + key,
         text: t('attnEmptyPage', { name: t('page_' + key) }),
         href: '/pages/' + key,
       });
+    else if (data?.some((b) => b.status === 'draft'))
+      attention.unshift({
+        key: 'pagedraft' + key,
+        text: t('attnPageDraft', { name: t('page_' + key) }),
+        href: '/pages/' + key,
+      });
   });
+  if (faqs.data && !faqs.data.some((f) => f.status === 'published'))
+    attention.unshift({
+      key: 'faq',
+      text: t('attnFaqEmpty'),
+      href: '/pages/faq',
+    });
+  for (const row of tripRows.filter((r) => !obj(r.summary).en))
+    attention.push({
+      key: 'summary' + row.id,
+      text: t('attnNoSummary', { name: content(row.title, locale) }),
+      href: '/trips/' + row.id,
+    });
   if (settings.data) {
     const contacts = obj(settings.data.contacts);
     if (!contacts.phone || !contacts.email)
@@ -127,7 +149,8 @@ export function Overview() {
       key: 'price',
       label: t('statNoPrice'),
       value: trips.data ? missingPrice.length : undefined,
-      href: '/trips',
+      href: '/trips?missing=price',
+      done: t('allSet'),
     },
     can(role, 'translations') && {
       key: 'i18n',
@@ -140,6 +163,7 @@ export function Overview() {
     label: string;
     value?: number;
     href: string;
+    done?: string;
   }[];
   return (
     <div className="page">
@@ -158,6 +182,8 @@ export function Overview() {
                       className="skeleton inline"
                       aria-label={t('loading')}
                     />
+                  ) : stat.done && stat.value === 0 ? (
+                    <span className="stat-done">{stat.done}</span>
                   ) : (
                     new Intl.NumberFormat(locale).format(stat.value)
                   )}
@@ -236,7 +262,7 @@ export function Overview() {
               <EmptyState title={t('allGood')} body={t('allGoodBody')} />
             ) : (
               <ul className="simple-list">
-                {attention.slice(0, 12).map((item) => (
+                {attention.slice(0, showAll ? undefined : 12).map((item) => (
                   <li key={item.key}>
                     <AppLink href={item.href} className="simple-row">
                       <AlertCircle
@@ -250,8 +276,17 @@ export function Overview() {
                   </li>
                 ))}
                 {attention.length > 12 && (
-                  <li className="muted more-note">
-                    {tp('moreItems', attention.length - 12)}
+                  <li className="more-note">
+                    <button
+                      type="button"
+                      className="btn btn-sm"
+                      aria-expanded={showAll}
+                      onClick={() => setShowAll((v) => !v)}
+                    >
+                      {showAll
+                        ? t('showFewer')
+                        : tp('moreItems', attention.length - 12)}
+                    </button>
                   </li>
                 )}
               </ul>

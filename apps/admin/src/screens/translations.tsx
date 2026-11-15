@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useUrlState } from '../lib/url-state';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
 import { Check } from 'lucide-react';
 import { can } from '@stella/shared/admin';
@@ -50,11 +51,16 @@ export function Translations() {
       '/v1/admin/i18n/settings',
       can(me!.role, 'languages'),
     ),
-    auto = (obj(settings.data?.i18n).auto as string[] | undefined) ?? [],
-    choices = [
-      ...locales.filter((c) => c !== 'en'),
-      ...auto.filter((c) => !(locales as readonly string[]).includes(c)),
-    ],
+    // Extra languages only make sense when machine translation runs;
+    // otherwise they just show English.
+    providers = obj(settings.data?.i18n_runtime).providers_available === true,
+    auto = providers
+      ? ((obj(settings.data?.i18n).auto as string[] | undefined) ?? []).filter(
+          (c) => !(locales as readonly string[]).includes(c),
+        )
+      : [],
+    core = locales.filter((c) => c !== 'en') as string[],
+    choices = [...core, ...auto],
     [lang, setLang] = useState<string>(() => {
       try {
         return localStorage.getItem(STORAGE) ?? '';
@@ -62,10 +68,18 @@ export function Translations() {
         return '';
       }
     }),
-    [group, setGroup] = useState(''),
-    [state, setState] = useState(''),
-    [showTrivial, setShowTrivial] = useState(false),
-    [q, setQ] = useState(''),
+    [filters, setFilters] = useUrlState({
+      group: '',
+      state: '',
+      q: '',
+      times: '',
+    }),
+    { group, state, q } = filters,
+    showTrivial = filters.times === '1',
+    setGroup = (v: string) => setFilters({ group: v }),
+    setState = (v: string) => setFilters({ state: v }),
+    setQ = (v: string) => setFilters({ q: v }),
+    setShowTrivial = (v: boolean) => setFilters({ times: v ? '1' : '' }),
     [page, setPage] = useState(1),
     [drafts, setDrafts] = useState<Record<string, string>>({}),
     [selected, setSelected] = useState<Set<string>>(new Set()),
@@ -156,13 +170,13 @@ export function Translations() {
         entity === 'itinerary' ||
         entity === 'trip_price'
         ? row.parentKind === 'package'
-          ? 'ent_package'
-          : 'ent_trip'
+          ? 'entCap_package'
+          : 'entCap_trip'
         : entity === 'page_block'
-          ? 'ent_page'
+          ? 'entCap_page'
           : entity === 'ui'
             ? 'websiteText'
-            : 'ent_' + entity,
+            : 'entCap_' + entity,
     );
     const title =
       entity === 'page_block'
@@ -250,14 +264,25 @@ export function Translations() {
               onChange={(e) => setLang(e.target.value)}
               aria-label={t('language')}
             >
-              {choices.map((code) => (
-                <option key={code} value={code}>
-                  {languageName(code, locale)}
-                  {counts[code] !== undefined
-                    ? ' · ' + tp('toReview', counts[code]!)
-                    : ''}
-                </option>
-              ))}
+              {(
+                [
+                  [t('coreLanguages'), core],
+                  [t('extraLanguagesMachine'), auto],
+                ] as const
+              )
+                .filter(([, list]) => list.length)
+                .map(([label, list]) => (
+                  <optgroup key={label} label={label}>
+                    {list.map((code) => (
+                      <option key={code} value={code}>
+                        {languageName(code, locale)}
+                        {counts[code] !== undefined
+                          ? ' · ' + tp('toReview', counts[code]!)
+                          : ''}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
             </select>
           </label>
           <select
@@ -328,11 +353,7 @@ export function Translations() {
               <button
                 type="button"
                 className="btn"
-                onClick={() => {
-                  setGroup('');
-                  setState('');
-                  setQ('');
-                }}
+                onClick={() => setFilters({ group: '', state: '', q: '' })}
               >
                 {t('clearFilters')}
               </button>

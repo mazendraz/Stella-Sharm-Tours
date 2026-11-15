@@ -76,6 +76,7 @@ export function registerAdminUi(
           lastSeenAt: s.sessions.lastSeenAt,
           expiresAt: s.sessions.expiresAt,
           userAgent: s.sessions.userAgent,
+          current: sql<boolean>`${s.sessions.id} = ${c.get('principal').sessionId}`,
         })
         .from(s.sessions)
         .where(eq(s.sessions.userId, id.data)),

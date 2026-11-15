@@ -80,9 +80,16 @@ type ContextValue = {
   ) => Promise<{ value: T; revisions: string[] }>;
   notify: (
     message: string,
-    options?: { tone?: 'success' | 'error' | 'info'; undo?: string[] },
+    options?: {
+      tone?: 'success' | 'error' | 'info';
+      undo?: string[];
+      afterUndo?: { message?: string; run?: () => unknown };
+    },
   ) => void;
-  undoRevisions: (ids: string[]) => Promise<void>;
+  undoRevisions: (
+    ids: string[],
+    after?: { message?: string; run?: () => unknown },
+  ) => Promise<void>;
   refresh: () => Promise<void>;
   clear: () => void;
   report: (error: unknown, fallback?: string) => void;

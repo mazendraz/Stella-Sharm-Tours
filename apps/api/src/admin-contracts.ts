@@ -248,6 +248,17 @@ export const adminContracts: AdminContract[] = [
   },
   { method: 'get', path: '/me', pending: true },
   { method: 'get', path: '/me/sessions' },
+  {
+    method: 'patch',
+    path: '/me',
+    body: z.strictObject({ name: z.string().trim().min(1).max(80) }),
+  },
+  {
+    method: 'delete',
+    path: '/users/:id/sessions/:sid',
+    permission: 'users',
+    body: empty,
+  },
   { method: 'delete', path: '/me/sessions/:id', body: empty },
   { method: 'get', path: '/requests/export.csv', permission: 'export' },
   {
@@ -354,7 +365,7 @@ export const adminContracts: AdminContract[] = [
       tripIds: z.array(z.uuid()).min(1).max(200).optional(),
       mode: z.enum(['percent', 'amount']),
       value: z.number().min(-10000).max(10000),
-      round: z.union([z.literal(1), z.literal(5)]).optional(),
+      round: z.union([z.literal(0), z.literal(1), z.literal(5)]).optional(),
     }),
   },
   {

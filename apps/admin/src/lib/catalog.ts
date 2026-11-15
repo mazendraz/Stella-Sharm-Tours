@@ -24,10 +24,7 @@ export const primaryPrice = (prices: unknown) =>
 export function usePriceText() {
   const { t, locale } = useAdmin();
   return useCallback(
-    (
-      price: { amountEur?: unknown; unit?: unknown } | null | undefined,
-      onRequest = false,
-    ) => {
+    (price: Record<string, unknown> | null | undefined, onRequest = false) => {
       if (!price || onRequest || price.amountEur == null) return t('onRequest');
       return t('pricePer', {
         amount: money(price.amountEur as string, locale) ?? '',

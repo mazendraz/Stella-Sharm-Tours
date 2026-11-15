@@ -5688,13 +5688,13 @@
 "Kırpma uygulandı, işleniyor…"
 ],
 "heroDesc": [
-"The videos at the top of the homepage, in this order.",
-"I video in cima alla home, in quest’ordine.",
-"Los vídeos de la parte superior de inicio, en este orden.",
-"Les vidéos en haut de l’accueil, dans cet ordre.",
-"Die Videos oben auf der Startseite, in dieser Reihenfolge.",
-"Видео вверху главной, в этом порядке.",
-"Ana sayfanın üstündeki videolar, bu sırayla."
+"The slides at the top of the homepage, in this order.",
+"Le slide in cima alla home, in quest’ordine.",
+"Las diapositivas de la parte superior de inicio, en este orden.",
+"Les diapositives en haut de l’accueil, dans cet ordre.",
+"Die Folien oben auf der Startseite, in dieser Reihenfolge.",
+"Слайды вверху главной, в этом порядке.",
+"Ana sayfanın üstündeki slaytlar, bu sırayla."
 ],
 "newSlide": [
 "New slide",
@@ -8847,13 +8847,13 @@
 "fiyatlar"
 ],
 "ent_trip_order": [
-"trip order",
-"ordine delle escursioni",
-"orden de excursiones",
-"ordre des excursions",
-"Ausflugsreihenfolge",
-"порядок экскурсий",
-"tur sırası"
+"trips",
+"escursioni",
+"excursiones",
+"excursions",
+"Ausflüge",
+"экскурсии",
+"turlar"
 ],
 "ent_package": [
 "package",
@@ -8874,13 +8874,13 @@
 "koleksiyon"
 ],
 "ent_collection_order": [
-"collection order",
-"ordine delle collezioni",
-"orden de colecciones",
-"ordre des collections",
-"Kollektionsreihenfolge",
-"порядок подборок",
-"koleksiyon sırası"
+"collections",
+"collezioni",
+"colecciones",
+"collections",
+"Kollektionen",
+"подборки",
+"koleksiyonlar"
 ],
 "ent_hero_slide": [
 "hero slide",
@@ -8892,13 +8892,13 @@
 "hero slaytı"
 ],
 "ent_hero_order": [
-"hero order",
-"ordine delle slide",
-"orden de diapositivas",
-"ordre des diapositives",
-"Folienreihenfolge",
-"порядок слайдов",
-"slayt sırası"
+"hero slides",
+"slide hero",
+"diapositivas hero",
+"diapositives hero",
+"Hero-Folien",
+"слайды баннера",
+"hero slaytları"
 ],
 "ent_media": [
 "file",
@@ -9475,5 +9475,500 @@
 "Geschützte Namen",
 "Защищённые названия",
 "Korunan adlar"
+],
+"moreTab": [
+"More",
+"Altro",
+"Más",
+"Plus",
+"Mehr",
+"Ещё",
+"Diğer"
+],
+"moreStatuses": [
+"More statuses",
+"Altri stati",
+"Más estados",
+"Autres statuts",
+"Weitere Status",
+"Другие статусы",
+"Diğer durumlar"
+],
+"requestsExported.one": [
+"Requests exported ({n} row)",
+"Richieste esportate ({n} riga)",
+"Solicitudes exportadas ({n} fila)",
+"Demandes exportées ({n} ligne)",
+"Anfragen exportiert ({n} Zeile)",
+"Заявки выгружены ({n} строка)",
+"Talepler dışa aktarıldı ({n} satır)"
+],
+"requestsExported.other": [
+"Requests exported ({n} rows)",
+"Richieste esportate ({n} righe)",
+"Solicitudes exportadas ({n} filas)",
+"Demandes exportées ({n} lignes)",
+"Anfragen exportiert ({n} Zeilen)",
+"Заявки выгружены ({n} строк)",
+"Talepler dışa aktarıldı ({n} satır)"
+],
+"requestsExported.few": [
+"Requests exported ({n} rows)",
+"Richieste esportate ({n} righe)",
+"Solicitudes exportadas ({n} filas)",
+"Demandes exportées ({n} lignes)",
+"Anfragen exportiert ({n} Zeilen)",
+"Заявки выгружены ({n} строки)",
+"Talepler dışa aktarıldı ({n} satır)"
+],
+"requestsExported.many": [
+"Requests exported ({n} rows)",
+"Richieste esportate ({n} righe)",
+"Solicitudes exportadas ({n} filas)",
+"Demandes exportées ({n} lignes)",
+"Anfragen exportiert ({n} Zeilen)",
+"Заявки выгружены ({n} строк)",
+"Talepler dışa aktarıldı ({n} satır)"
+],
+"refCopied": [
+"Reference copied",
+"Riferimento copiato",
+"Referencia copiada",
+"Référence copiée",
+"Referenz kopiert",
+"Номер скопирован",
+"Referans kopyalandı"
+],
+"keepRequest": [
+"Keep request",
+"Mantieni la richiesta",
+"Mantener la solicitud",
+"Garder la demande",
+"Anfrage behalten",
+"Оставить заявку",
+"Talebi koru"
+],
+"plusMore.one": [
+"+{n} more",
+"+{n} altra",
+"+{n} más",
+"+{n} autre",
+"+{n} weitere",
+"ещё +{n}",
+"+{n} tane daha"
+],
+"plusMore.other": [
+"+{n} more",
+"+{n} altre",
+"+{n} más",
+"+{n} autres",
+"+{n} weitere",
+"ещё +{n}",
+"+{n} tane daha"
+],
+"plusMore.few": [
+"+{n} more",
+"+{n} altre",
+"+{n} más",
+"+{n} autres",
+"+{n} weitere",
+"ещё +{n}",
+"+{n} tane daha"
+],
+"plusMore.many": [
+"+{n} more",
+"+{n} altre",
+"+{n} más",
+"+{n} autres",
+"+{n} weitere",
+"ещё +{n}",
+"+{n} tane daha"
+],
+"attnPageDraft": [
+"The “{name}” page has unpublished changes",
+"La pagina “{name}” ha modifiche non pubblicate",
+"La página «{name}» tiene cambios sin publicar",
+"La page « {name} » a des modifications non publiées",
+"Die Seite „{name}“ hat unveröffentlichte Änderungen",
+"На странице «{name}» есть неопубликованные изменения",
+"“{name}” sayfasında yayınlanmamış değişiklikler var"
+],
+"attnFaqEmpty": [
+"The FAQ has no published questions",
+"Le FAQ non hanno domande pubblicate",
+"Las preguntas frecuentes no tienen preguntas publicadas",
+"La FAQ n’a aucune question publiée",
+"Die FAQ hat keine veröffentlichten Fragen",
+"В FAQ нет опубликованных вопросов",
+"SSS’de yayınlanmış soru yok"
+],
+"attnNoSummary": [
+"“{name}” has no summary",
+"“{name}” non ha un riassunto",
+"«{name}» no tiene resumen",
+"« {name} » n’a pas de résumé",
+"„{name}“ hat keine Kurzbeschreibung",
+"У «{name}» нет краткого описания",
+"“{name}” için özet yok"
+],
+"allSet": [
+"All set ✓",
+"Tutto ok ✓",
+"Todo listo ✓",
+"Tout est prêt ✓",
+"Alles erledigt ✓",
+"Всё готово ✓",
+"Hepsi tamam ✓"
+],
+"showFewer": [
+"Show fewer",
+"Mostra meno",
+"Mostrar menos",
+"Afficher moins",
+"Weniger anzeigen",
+"Свернуть",
+"Daha az göster"
+],
+"langSummary": [
+"{reviewed} reviewed · {machine} AI drafts · {missing} missing",
+"{reviewed} riviste · {machine} bozze AI · {missing} mancanti",
+"{reviewed} revisados · {machine} borradores IA · {missing} faltan",
+"{reviewed} relues · {machine} brouillons IA · {missing} manquantes",
+"{reviewed} geprüft · {machine} KI-Entwürfe · {missing} fehlen",
+"проверено: {reviewed} · черновики ИИ: {machine} · нет: {missing}",
+"{reviewed} kontrol edildi · {machine} YZ taslağı · {missing} eksik"
+],
+"filterMissingPrice": [
+"Missing a price",
+"Senza prezzo",
+"Sin precio",
+"Sans prix",
+"Ohne Preis",
+"Без цены",
+"Fiyatı yok"
+],
+"filterMissingCover": [
+"Missing a cover",
+"Senza copertina",
+"Sin portada",
+"Sans couverture",
+"Ohne Titelbild",
+"Без обложки",
+"Kapağı yok"
+],
+"tripsAndPackages": [
+"Trips and packages",
+"Escursioni e pacchetti",
+"Excursiones y paquetes",
+"Excursions et forfaits",
+"Ausflüge und Pakete",
+"Экскурсии и пакеты",
+"Turlar ve paketler"
+],
+"noRounding": [
+"No rounding (keep cents)",
+"Nessun arrotondamento (con centesimi)",
+"Sin redondeo (con céntimos)",
+"Pas d’arrondi (garder les centimes)",
+"Keine Rundung (Cent behalten)",
+"Без округления (с центами)",
+"Yuvarlama yok (kuruşları koru)"
+],
+"copyRemoved": [
+"Copy removed",
+"Copia rimossa",
+"Copia eliminada",
+"Copie retirée",
+"Kopie entfernt",
+"Копия удалена",
+"Kopya kaldırıldı"
+],
+"act_undoCreate": [
+"{who} undid creating {type} “{name}”",
+"{who} ha annullato la creazione di {type} “{name}”",
+"{who} deshizo la creación de {type} «{name}»",
+"{who} a annulé la création de {type} « {name} »",
+"{who} hat das Anlegen von {type} „{name}“ rückgängig gemacht",
+"{who} отменил(а) создание: {type} «{name}»",
+"{who}, {type} “{name}” oluşturmayı geri aldı"
+],
+"diffUndoCreate": [
+"Removed (undo)",
+"Rimosso (annullato)",
+"Eliminado (deshacer)",
+"Retiré (annulation)",
+"Entfernt (rückgängig)",
+"Удалено (отмена)",
+"Kaldırıldı (geri alma)"
+],
+"act_logout_session": [
+"{who} signed out a session of “{name}”",
+"{who} ha chiuso una sessione di “{name}”",
+"{who} cerró una sesión de «{name}»",
+"{who} a fermé une session de « {name} »",
+"{who} hat eine Sitzung von „{name}“ beendet",
+"{who} завершил(а) сеанс пользователя «{name}»",
+"{who}, “{name}” için bir oturumu kapattı"
+],
+"unknownBrowser": [
+"Unknown browser",
+"Browser sconosciuto",
+"Navegador desconocido",
+"Navigateur inconnu",
+"Unbekannter Browser",
+"Неизвестный браузер",
+"Bilinmeyen tarayıcı"
+],
+"typeLbl_trip": [
+"Trips",
+"Escursioni",
+"Excursiones",
+"Excursions",
+"Ausflüge",
+"Экскурсии",
+"Turlar"
+],
+"typeLbl_trip_prices": [
+"Prices",
+"Prezzi",
+"Precios",
+"Prix",
+"Preise",
+"Цены",
+"Fiyatlar"
+],
+"typeLbl_package": [
+"Packages",
+"Pacchetti",
+"Paquetes",
+"Forfaits",
+"Pakete",
+"Пакеты",
+"Paketler"
+],
+"typeLbl_collection": [
+"Collections",
+"Collezioni",
+"Colecciones",
+"Collections",
+"Kollektionen",
+"Подборки",
+"Koleksiyonlar"
+],
+"typeLbl_hero_slide": [
+"Hero slides",
+"Slide hero",
+"Diapositivas hero",
+"Diapositives hero",
+"Hero-Folien",
+"Слайды баннера",
+"Hero slaytları"
+],
+"typeLbl_media": [
+"Media",
+"Media",
+"Archivos",
+"Médias",
+"Medien",
+"Медиа",
+"Medya"
+],
+"typeLbl_request": [
+"Requests",
+"Richieste",
+"Solicitudes",
+"Demandes",
+"Anfragen",
+"Заявки",
+"Talepler"
+],
+"typeLbl_faq": [
+"FAQ",
+"FAQ",
+"Preguntas frecuentes",
+"FAQ",
+"FAQ",
+"FAQ",
+"SSS"
+],
+"typeLbl_page_blocks": [
+"Pages",
+"Pagine",
+"Páginas",
+"Pages",
+"Seiten",
+"Страницы",
+"Sayfalar"
+],
+"typeLbl_settings": [
+"Settings",
+"Impostazioni",
+"Ajustes",
+"Paramètres",
+"Einstellungen",
+"Настройки",
+"Ayarlar"
+],
+"typeLbl_user": [
+"Team members",
+"Membri del team",
+"Miembros del equipo",
+"Membres de l’équipe",
+"Teammitglieder",
+"Сотрудники",
+"Ekip üyeleri"
+],
+"typeLbl_translation": [
+"Translations",
+"Traduzioni",
+"Traducciones",
+"Traductions",
+"Übersetzungen",
+"Переводы",
+"Çeviriler"
+],
+"entCap_trip": [
+"Trip",
+"Escursione",
+"Excursión",
+"Excursion",
+"Ausflug",
+"Экскурсия",
+"Tur"
+],
+"entCap_package": [
+"Package",
+"Pacchetto",
+"Paquete",
+"Forfait",
+"Paket",
+"Пакет",
+"Paket"
+],
+"entCap_collection": [
+"Collection",
+"Collezione",
+"Colección",
+"Collection",
+"Kollektion",
+"Подборка",
+"Koleksiyon"
+],
+"entCap_hero_slide": [
+"Hero slide",
+"Slide hero",
+"Diapositiva hero",
+"Diapositive hero",
+"Hero-Folie",
+"Слайд баннера",
+"Hero slaytı"
+],
+"entCap_page": [
+"Page",
+"Pagina",
+"Página",
+"Page",
+"Seite",
+"Страница",
+"Sayfa"
+],
+"entCap_media": [
+"Media",
+"Media",
+"Archivo",
+"Média",
+"Medium",
+"Медиа",
+"Medya"
+],
+"entCap_faq": [
+"FAQ",
+"FAQ",
+"Pregunta frecuente",
+"FAQ",
+"FAQ",
+"FAQ",
+"SSS"
+],
+"entCap_settings": [
+"Settings",
+"Impostazioni",
+"Ajustes",
+"Paramètres",
+"Einstellungen",
+"Настройки",
+"Ayarlar"
+],
+"extraLanguagesMachine": [
+"Extra languages (machine)",
+"Lingue aggiuntive (automatiche)",
+"Idiomas adicionales (automáticos)",
+"Langues supplémentaires (automatiques)",
+"Zusätzliche Sprachen (maschinell)",
+"Дополнительные языки (машинные)",
+"Ek diller (makine)"
+],
+"deviceMobile": [
+"Mobile",
+"Mobile",
+"Móvil",
+"Mobile",
+"Mobil",
+"Телефон",
+"Mobil"
+],
+"deviceDesktop": [
+"Desktop",
+"Desktop",
+"Ordenador",
+"Ordinateur",
+"Desktop",
+"Компьютер",
+"Masaüstü"
+],
+"displayName": [
+"Display name",
+"Nome visualizzato",
+"Nombre visible",
+"Nom affiché",
+"Anzeigename",
+"Отображаемое имя",
+"Görünen ad"
+],
+"displayNameHint": [
+"Shown to your team in requests, history and Activity.",
+"Visibile al team in richieste, cronologia e Attività.",
+"Lo ve tu equipo en solicitudes, historial y Actividad.",
+"Visible par l’équipe dans les demandes, l’historique et l’activité.",
+"Für dein Team in Anfragen, Verlauf und Aktivität sichtbar.",
+"Видно команде в заявках, истории и действиях.",
+"Ekibiniz taleplerde, geçmişte ve Etkinlik’te görür."
+],
+"saveName": [
+"Save name",
+"Salva nome",
+"Guardar nombre",
+"Enregistrer le nom",
+"Namen speichern",
+"Сохранить имя",
+"Adı kaydet"
+],
+"nameSaved": [
+"Name saved",
+"Nome salvato",
+"Nombre guardado",
+"Nom enregistré",
+"Name gespeichert",
+"Имя сохранено",
+"Ad kaydedildi"
+],
+"whatChanged": [
+"Changed:",
+"Modificato:",
+"Cambios:",
+"Modifié :",
+"Geändert:",
+"Изменено:",
+"Değişenler:"
 ]
 }

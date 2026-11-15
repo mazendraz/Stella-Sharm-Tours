@@ -17,7 +17,7 @@ const requestTones: Record<string, string> = {
   new: 'blue',
   contacted: 'amber',
   confirmed: 'green',
-  completed: 'green',
+  completed: 'slate',
   cancelled: 'grey',
   spam: 'red',
 };

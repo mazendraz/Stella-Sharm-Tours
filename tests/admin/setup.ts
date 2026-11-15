@@ -23,6 +23,20 @@ export default async function setup() {
         keys,
       ]);
     }
+    // QA specs create throwaway staff (<uuid>@example.test). If a run crashed
+    // before its cleanup, never leave those accounts behind in this database.
+    const stale = `select id from admin_users where email ~ '^[0-9a-f-]{36}@example[.]test$'`;
+    await pool.query(
+      `update booking_requests set assigned_to=null where assigned_to in (${stale})`,
+    );
+    for (const sql of [
+      `delete from sessions where user_id in (${stale})`,
+      `delete from audit_log where user_id in (${stale})`,
+      `delete from revisions where created_by in (${stale})`,
+      `delete from push_subscriptions where user_id in (${stale})`,
+      `delete from admin_users where id in (${stale})`,
+    ])
+      await pool.query(sql);
   } finally {
     await pool.end();
   }

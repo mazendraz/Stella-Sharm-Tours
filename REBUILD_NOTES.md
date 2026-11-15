@@ -63,3 +63,18 @@ Other checks the spec asked for:
 - e2e (`playwright.admin.config.ts`): `dashboard.spec.ts` updated — 7 languages × all pages, axe WCAG 2.2 AA, no horizontal scroll — **passes on phone, tablet and desktop**. New `editor.spec.ts` (duplicate → unsaved guard → 7-language save → Ctrl+S → Undo → no-op save) passes. `setup.spec.ts` updated but needs mandatory MFA, which the dev env disables (`DEV_SIMPLE_ADMIN_LOGIN=true`). The “production HTML nonce” test needs a production build (dev CSP allows `unsafe-eval`).
 - **Still to rewrite** (marked `test.fixme`): `writes.spec.ts`, `publication.spec.ts`, `media.spec.ts` — they drive the old sheet UI; they also need the worker and the public site running.
 - Data cleanup (§8): `family-days-ui-test` archived; the original “Family Days” untouched.
+
+## 5. Review #2 (2026-11-15)
+
+Done:
+
+- **P0-1** The two “Admin browser QA” owners came from `tests/admin/dashboard.spec.ts`: a timed-out run crashed in cleanup (`setOffline`) before deleting its user. Both accounts, sessions and audit rows removed. Guard: `tests/admin/setup.ts` (global setup) now purges any leftover throwaway QA staff (`<uuid>@example.test`) before every run, and the spec’s cleanup can’t crash.
+- **P0-2** Overview lists every empty footer page, pages with unpublished changes, an FAQ with no published questions, and trips without a summary; the list expands in place.
+- **P1** Sidebar fits 1366×720 (compact items; only the nav list may scroll, logo and account stay pinned). Request tabs: New / Contacted / Confirmed + **More** (Completed, Cancelled, Spam, All); Completed has its own colour; next-step button after Confirmed is “Mark as completed”; after a status change the list follows the request to its new tab. “Trips missing a price” → `/trips?missing=price` and “All set ✓” at 0. Inline price edit: one request per edit (in-flight guard). Undo of Duplicate returns to the original with “Copy removed”; Activity says “undid creating …”. Revert-to-original no longer leaves a dirty section (hero button target, trip format/Private toggle). Route titles come from `generateMetadata`. Session names parse browser + OS (“Unknown browser” otherwise), “This device” badge, per-session Sign out on member pages (`DELETE /users/:id/sessions/:sid`). Activity: plural type labels, before → after for every simple field, rounded numbers, focal point as percentages, “reordered trips”. Capitalised type labels in Where used and Translations. Translations lists extra languages only when machine translation is set up, in their own group. Packages collection says “N packages”.
+- **P2** Trips: Collection column hidden while grouped, no-wrap price/format, 2-line titles, language bar split into reviewed / AI draft / missing with tooltip. Requests list 430 px, time above price, titles “+N more”, single page scroll. Prices: Kind filter, rows open the editor, “No rounding”. Hero preview says Mobile/Desktop; hero description says “slides”. Cancel dialog: “Keep request”. My account: editable display name (`PATCH /me`). Media filters have visible labels. Homepage draft banner lists the changed sections. Filters in the URL: Trips, Media, Translations. Focal point arrows move exactly 1 % (Shift 10 %). Export and copy-reference toasts. Phone: request trip plan becomes stacked cards.
+
+Not done / by design:
+
+- **Preview of homepage draft and static pages** (P2-16/17): the public site only renders signed previews for trips and collections; adding more needs a public-site change, which the spec forbids.
+- **`amountEur` as "56.00"** (P1-5): the prices `PUT` schema accepts numbers, not strings, so the admin keeps sending numbers (2 decimals).
+- **Package address prefix** (P1-14): packages really are under `/{locale}/t/{slug}`; unchanged.

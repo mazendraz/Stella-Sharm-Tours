@@ -34,7 +34,6 @@ import {
   type TripState,
 } from './trip-editor';
 import { TranslationMeter } from './trips';
-import { translationProgress } from '../lib/catalog';
 
 const packagePriceText = (
   row: Row,
@@ -117,7 +116,7 @@ export function PackagesList() {
       key: 'i18n',
       header: t('translationsShort'),
       className: 'hide-lg',
-      cell: (row) => <TranslationMeter value={translationProgress(row)} />,
+      cell: (row) => <TranslationMeter row={row} />,
     },
     {
       key: 'status',

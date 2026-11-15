@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { useAdmin, useData } from '../lib/admin-context';
-import { content, type Row } from '../lib/content';
+import { content, obj, type Row } from '../lib/content';
 import { dateTime } from '../lib/format';
 import { describeChange, entityHref, entityKeys } from '../lib/diff';
 import { PageHeader } from '../components/ui/page-header';
@@ -78,7 +78,13 @@ export function Activity() {
             : content(row.entityTitle, locale) ||
               content(lookup.get(String(row.entityId)), locale) ||
               '',
-      key = 'act_' + String(row.action);
+      after = obj(row.after),
+      key =
+        row.action === 'restore' &&
+        after.section === 'archive' &&
+        obj(after.values).archivedAt
+          ? 'act_undoCreate'
+          : 'act_' + String(row.action);
     const text = t(key, { who, type, name: name || type });
     const base =
       text === key ? t('act_update', { who, type, name: name || type }) : text;
@@ -121,7 +127,7 @@ export function Activity() {
               <option value="">{t('allTypes')}</option>
               {types.map((v) => (
                 <option key={v} value={v}>
-                  {t(entityKeys[v] ?? v)}
+                  {t('typeLbl_' + v)}
                 </option>
               ))}
             </select>

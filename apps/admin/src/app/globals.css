@@ -1648,9 +1648,8 @@ a.simple-row:hover {
 }
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
-  overflow-x: auto;
-  scrollbar-width: none;
   border-bottom: 1px solid var(--line);
   margin-block-end: 12px;
 }
@@ -2933,8 +2932,6 @@ a.activity-link:hover .activity-text {
     position: sticky;
     top: 0;
     height: 100dvh;
-    overflow-y: auto;
-    scrollbar-width: none;
   }
   .sidebar .brand-word,
   .sidebar .nav-text,
@@ -3033,9 +3030,6 @@ a.activity-link:hover .activity-text {
   }
   .sidebar {
     padding: 18px 12px 12px;
-    position: static;
-    height: auto;
-    min-height: 100dvh;
   }
   .sidebar .brand-word,
   .sidebar .nav-text,
@@ -3105,35 +3099,75 @@ a.activity-link:hover .activity-text {
     align-items: start;
   }
   .inbox {
-    grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+    grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
     align-items: start;
   }
+  /* One scroll only: the page scrolls, the detail is not a scroll box. */
   .inbox-detail {
     display: block;
-    position: sticky;
-    top: 16px;
-    max-height: calc(100dvh - 32px);
-    overflow-y: auto;
   }
 }
-/* Sticky sidebar; if long labels don't fit it scrolls without a visible scrollbar. */
-@media (min-width: 1024px) {
+/* Sticky sidebar: logo and account stay pinned; only the nav list may scroll
+   (no visible scrollbar) when the window is very short. */
+@media (min-width: 640px) {
   .sidebar {
     position: sticky;
     top: 0;
     height: 100dvh;
     min-height: 0;
+    overflow: hidden;
+  }
+  .sidebar-nav {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
     scrollbar-width: none;
   }
-  .sidebar::-webkit-scrollbar {
+  .sidebar-nav::-webkit-scrollbar {
     display: none;
   }
+  .sidebar-account {
+    flex: none;
+  }
+}
+@media (min-width: 1024px) {
+  .sidebar {
+    padding: 12px 12px 8px;
+  }
+  .sidebar-logo {
+    padding: 2px 10px 8px;
+  }
+  .sidebar-logo .brand-mark {
+    height: 34px;
+  }
+  .sidebar-logo .brand-word {
+    height: 24px;
+  }
   .sidebar .nav-link {
-    min-height: 38px;
+    min-height: 32px;
+    padding-block: 4px;
+    font-size: 14px;
+  }
+  .sidebar .nav-link svg {
+    width: 18px;
+    height: 18px;
   }
   .sidebar .nav-group {
-    margin-block-end: 8px;
+    margin-block-end: 4px;
+  }
+  .sidebar .nav-group-label {
+    font-size: 10px;
+    padding: 4px 12px 2px;
+  }
+  .sidebar-account {
+    padding-block-start: 6px;
+  }
+  .sidebar .account-trigger {
+    padding: 4px 8px;
+  }
+  .sidebar .avatar {
+    width: 32px;
+    height: 32px;
   }
 }
 @media (max-width: 1279px) {
@@ -3239,4 +3273,131 @@ a.activity-link:hover .activity-text {
 }
 .list-badge {
   flex: none;
+}
+
+.badge-status.slate {
+  background: #e3e8f0;
+  color: #34465c;
+}
+.tab-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.tabs .menu-root {
+  flex: none;
+}
+.stat-done {
+  color: var(--green);
+  font-size: 22px;
+}
+.meter-bar {
+  display: flex;
+}
+.meter-bar .seg {
+  display: block;
+  height: 100%;
+}
+.meter-bar .seg.ok {
+  background: var(--green);
+}
+.meter-bar .seg.ai {
+  background: #e3a316;
+}
+.filter-chip {
+  min-height: 36px;
+  cursor: pointer;
+  margin: 0;
+}
+.data-table .cell-title .strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.session-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.mini-field {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.mini-field select {
+  font-weight: 500;
+  color: var(--ink);
+}
+.filters .mini-field {
+  flex: 0 1 180px;
+}
+.tabs-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-block-end: 12px;
+}
+.tabs-row .tabs {
+  border-bottom: 0;
+  margin: 0;
+}
+.tabs-row .tab-more {
+  border: 0;
+  background: transparent;
+  min-height: 44px;
+  padding: 6px 10px;
+  font-weight: 650;
+  color: var(--muted);
+}
+/* Request trip plan: stacked cards on phones. */
+@media (max-width: 639px) {
+  .plan-table thead {
+    display: none;
+  }
+  .plan-table,
+  .plan-table tbody,
+  .plan-table tfoot,
+  .plan-table tr,
+  .plan-table td,
+  .plan-table th {
+    display: block;
+    width: 100%;
+  }
+  .plan-table tbody tr {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    margin-block-end: 8px;
+  }
+  .plan-table tbody td {
+    border: 0;
+    padding: 2px 0;
+    text-align: start !important;
+    white-space: normal;
+  }
+  .plan-table tbody td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .plan-table tfoot tr {
+    display: flex;
+    justify-content: space-between;
+  }
+  .plan-table tfoot th,
+  .plan-table tfoot td {
+    width: auto;
+  }
+}
+@media (min-width: 1024px) {
+  .sidebar .account-text {
+    display: grid;
+  }
 }

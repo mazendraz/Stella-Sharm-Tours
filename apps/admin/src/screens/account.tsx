@@ -19,11 +19,8 @@ export function Account() {
       <PageHeader title={t('account')} />
       <section className="panel" aria-labelledby="profile-h">
         <h2 id="profile-h">{t('profile')}</h2>
+        <NameForm />
         <dl className="kv">
-          <div>
-            <dt>{t('name')}</dt>
-            <dd>{me!.name}</dd>
-          </div>
           <div>
             <dt>{t('email')}</dt>
             <dd>{me!.email}</dd>
@@ -334,10 +331,12 @@ function SessionsSection() {
           {(sessions.data ?? []).map((s) => (
             <li key={s.id} className="simple-row static">
               <span className="simple-main">
-                <span className="strong">
-                  {deviceName(s.user_agent, t)}
+                <span className="session-name">
+                  <span className="strong">{deviceName(s.user_agent, t)}</span>
                   {s.current ? (
-                    <span className="chip">{t('thisDevice')}</span>
+                    <span className="badge-status green">
+                      {t('thisDevice')}
+                    </span>
                   ) : null}
                 </span>
                 <span className="muted">
@@ -463,5 +462,58 @@ function PushSection() {
         </>
       )}
     </section>
+  );
+}
+
+function NameForm() {
+  const { t, me, request, refresh, notify, report } = useAdmin(),
+    [name, setName] = useState(me!.name),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false),
+    changed = name.trim() !== me!.name;
+  return (
+    <form
+      noValidate
+      className="inline-add"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        if (!name.trim()) {
+          setError(t('requiredField'));
+          return;
+        }
+        if (!changed || busy) return;
+        setBusy(true);
+        try {
+          await request('/v1/admin/me', 'PATCH', { name: name.trim() });
+          await refresh();
+          setError('');
+          notify(t('nameSaved'));
+        } catch (err) {
+          report(err);
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <FormField
+        label={t('displayName')}
+        hint={t('displayNameHint')}
+        error={error}
+      >
+        {(p) => (
+          <input
+            {...p}
+            value={name}
+            maxLength={80}
+            autoComplete="name"
+            onChange={(e) => setName(e.target.value)}
+          />
+        )}
+      </FormField>
+      <button className="btn btn-primary" disabled={!changed || busy}>
+        {busy && <span className="spinner" aria-hidden />}
+        {t('saveName')}
+      </button>
+    </form>
   );
 }
