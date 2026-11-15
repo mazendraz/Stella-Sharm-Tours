@@ -46,23 +46,23 @@ test('one-use setup link, mandatory MFA enrollment, recovery sign-in and reset f
     await page
       .getByRole('button', { name: en.savedCodes, exact: true })
       .click();
-    await expect(page.locator('main h1')).toHaveText(en.requests);
-    await page.goto('/account');
+    await expect(page.locator('main h1')).toHaveText(en.overview);
     await page
-      .getByRole('button', { name: en.logout, exact: true })
+      .locator('.avatar-btn:visible, .account-trigger:visible')
       .first()
       .click();
+    await page.getByRole('menuitem', { name: en.logout, exact: true }).click();
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
     await page.getByLabel(en.code).fill(recovery);
     await page.getByRole('button', { name: en.verify, exact: true }).click();
-    await expect(page.locator('main h1')).toHaveText(en.requests);
-    await page.goto('/account');
+    await expect(page.locator('main h1')).toHaveText(en.overview);
     await page
-      .getByRole('button', { name: en.logout, exact: true })
+      .locator('.avatar-btn:visible, .account-trigger:visible')
       .first()
       .click();
+    await page.getByRole('menuitem', { name: en.logout, exact: true }).click();
     await page.getByRole('button', { name: en.forgot, exact: true }).click();
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByRole('button', { name: en.reset, exact: true }).click();

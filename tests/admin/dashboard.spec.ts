@@ -22,6 +22,7 @@ test('seven-language login and authenticated navigation, accessibility and priva
   page,
   context,
 }, info) => {
+  test.setTimeout(300000);
   const { pool, env } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
@@ -93,9 +94,28 @@ test('seven-language login and authenticated navigation, accessibility and priva
     await page.getByRole('button', { name: en.login, exact: true }).click();
     await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
     await page.getByRole('button', { name: en.verify, exact: true }).click();
-    await expect(page.locator('main h1')).toHaveText(en.requests);
+    await expect(page.locator('main h1')).toHaveText(en.overview);
+    const native = {
+      en: 'English',
+      it: 'Italiano',
+      es: 'Español',
+      fr: 'Français',
+      de: 'Deutsch',
+      ru: 'Русский',
+      tr: 'Türkçe',
+    } as const;
+    const switchTo = async (locale: keyof typeof native) => {
+      await page
+        .locator('.avatar-btn:visible, .account-trigger:visible')
+        .first()
+        .click();
+      await page
+        .getByRole('menuitemradio', { name: native[locale], exact: true })
+        .click();
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+    };
     for (const locale of locales) {
-      await page.locator('.language-select select').selectOption(locale);
+      await switchTo(locale);
       await page.goto('/more');
       await expect(page.locator('main h1')).toHaveText(messages[locale].more);
       expect(
@@ -111,28 +131,33 @@ test('seven-language login and authenticated navigation, accessibility and priva
         ),
       ).toBe(true);
     }
-    await page.locator('.language-select select').selectOption('en');
-    for (const path of [
-      'requests',
-      'trips',
-      'prices',
-      'media',
-      'hero',
-      'collections',
-      'packages',
-      'homepage',
-      'pages',
-      'languages',
-      'queue',
-      'settings',
-      'users',
-      'activity',
-      'account',
-    ]) {
+    await switchTo('en');
+    for (const [path, heading] of [
+      ['', 'overview'],
+      ['requests', 'requests'],
+      ['trips', 'trips'],
+      ['packages', 'packages'],
+      ['collections', 'collections'],
+      ['prices', 'prices'],
+      ['homepage', 'homepage'],
+      ['hero', 'hero'],
+      ['media', 'media'],
+      ['pages', 'pages'],
+      ['pages/faq', 'faq'],
+      ['translations', 'translations'],
+      ['settings/languages', 'languageSettings'],
+      ['settings', 'settings'],
+      ['team', 'team'],
+      ['activity', 'activity'],
+      ['account', 'account'],
+    ] as const) {
       await page.goto('/' + path);
-      await expect(page.locator('main h1')).toHaveText(
-        en[path as keyof typeof en],
-      );
+      await expect(page.locator('main h1').first()).toHaveText(en[heading]);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
       await expect(page.locator('.skeleton')).toHaveCount(0, {
         timeout: 20000,
       });
@@ -145,7 +170,7 @@ test('seven-language login and authenticated navigation, accessibility and priva
       ).toEqual([]);
       if (process.env.STELLA_INTEGRATION_VERIFY === '1')
         await page.screenshot({
-          path: `${handoffDirectory}/${path}.jpg`,
+          path: `${handoffDirectory}/${path.replace(/\//g, '-') || 'overview'}.jpg`,
           type: 'jpeg',
           quality: 80,
           scale: 'css',

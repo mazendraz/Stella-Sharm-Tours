@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+- **Admin rebuilt** to `docs/stella-admin-rebuild-spec.md` (details and every
+  deviation in `REBUILD_NOTES.md`):
+  - New shell: grouped sidebar (Sales, Catalog, Website, Languages, Admin),
+    icon rail on tablets, bottom nav + grouped “More” on phones, account menu
+    with the language switcher, new **Overview** page (stats + “needs
+    attention” links).
+  - Lists are tables (phone: compact rows) with search, filters, counts,
+    filtered-empty states and drag/keyboard reordering that saves once with
+    Undo. Editors are full pages with section nav, **one language bar** with
+    per-language status, **one Save** (Ctrl/Cmd+S), and an unsaved-changes
+    guard for links, back button and tab close. No `window.confirm` anywhere:
+    every publish/unpublish/archive/cancel/spam/erase uses a real confirm text.
+  - Requests inbox: tabs with counts (incl. Cancelled/Spam), search by trip
+    name, date/assignee filters, split view on desktop, **each trip on its own
+    date**, “Same day” warning, WhatsApp prefill with per-trip dates.
+  - Trip editor: Format & audience without contradictory controls, weekday
+    chips (labels generated in all 7 languages), price table with one main
+    price (no ±€5 buttons), sortable day plan, “What’s included” sub-lists,
+    media picker with thumbnails, Google preview, human-readable history with
+    Restore. Package day-by-day builder. Prices page with inline edit and a
+    fixed bulk dialog (scope, %/€, rounding, before/after preview).
+  - Media library (drop to upload, rights/usage filters) and media page with a
+    focal point that only saves on Save and a trim timeline. Hero editor with
+    Cairo-time schedule and a phone/desktop preview. Homepage draft/publish,
+    Pages & FAQ, Translations table (Ctrl+Enter approve, bulk approve),
+    language toggles, Settings with privacy tools, Team, Activity sentences,
+    My account (2FA setup can no longer fire 4 requests).
+  - ~1,050 new admin strings in EN/IT/ES/FR/DE/RU/TR (`data/i18n/admin-rebuild.json`).
+- API (additive): archive/unarchive (trips, packages, collections, hero, FAQ),
+  collection unpublish, request counts + trip-title search + filters,
+  idempotent 2FA setup, self-change/last-owner guards, stable sorting,
+  no-op saves no longer write audit rows, migration `faqs.archived_at`.
+  Fixed correlated subqueries that made request trip titles always empty.
 - Admin password fields (sign in, reset, re-auth) have a show/hide button
   (44 px, translated label in all seven languages, `aria-pressed`).
 - `DEV_SIMPLE_ADMIN_LOGIN` (API env, default `false`): on a developer machine the
