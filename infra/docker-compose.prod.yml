@@ -27,6 +27,7 @@ x-api: &api
     WEB_REVALIDATE_URL: http://web:3000/api/revalidate
     TRUSTED_PROXY_IPS: ${CADDY_IP:?Set fixed proxy address}
     BREACHED_PASSWORDS_FILE: /run/security/common-passwords-100k.txt
+    MALLOC_ARENA_MAX: 2
   volumes:
     - ${DATA_DIR:?Set environment-specific data directory}/media:/srv/stella/media
     - ${DATA_DIR}/originals:/srv/stella/originals
@@ -80,6 +81,7 @@ services:
       WEB_REVALIDATE_URL: http://web:3000/api/revalidate
       BREACHED_PASSWORDS_FILE: /run/security/common-passwords-100k.txt
       WORKER_HEARTBEAT_FILE: /tmp/worker-heartbeat
+      MALLOC_ARENA_MAX: 2
     command: [node, --import, tsx, apps/api/src/worker-main.ts]
     depends_on: { api: { condition: service_healthy } }
     healthcheck:
@@ -126,6 +128,26 @@ services:
       - path: ${ENV_DIR}/migration.env
         format: raw
     command: [node, --import, tsx, scripts/migrate.ts]
+    networks: [internal]
+  seed:
+    <<: *api
+    profiles: [operations]
+    restart: 'no'
+    mem_limit: 2048m
+    tmpfs: ['/tmp:size=512m,mode=1777']
+    env_file:
+      - path: ${ENV_DIR}/migration.env
+        format: raw
+    environment:
+      NODE_ENV: production
+      MALLOC_ARENA_MAX: 2
+      SEED_SETUP_FILE: /run/seed-output/admin-setup-link
+    command: [node, --import, tsx, scripts/seed.ts]
+    volumes:
+      - ${DATA_DIR}/media:/srv/stella/media
+      - ${DATA_DIR}/originals:/srv/stella/originals
+      - ../assets:/app/assets:ro
+      - ${DATA_DIR}/seed-output:/run/seed-output
     networks: [internal]
   caddy:
     <<: *runtime
