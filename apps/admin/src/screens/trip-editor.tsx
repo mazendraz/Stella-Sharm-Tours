@@ -1,5 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
+import { TripStoryEditor } from './trip-story-editor';
+import { storyPatch, type Story } from '@stella/shared/story';
 import { Plus, X } from 'lucide-react';
 import { can } from '@stella/shared/admin';
 import { locales, type Locale } from '@stella/shared';
@@ -75,6 +77,7 @@ type ItemRow = {
   extra: string;
 };
 export type TripState = {
+  story: { story: Story | null };
   basics: {
     title: Loc;
     summary: Loc;
@@ -178,7 +181,10 @@ function build(
   const media = rows(data.media).sort(
     (a, b) => Number(a.sort) - Number(b.sort),
   );
+  const draft = rows(data.drafts).find((d) => d.section === 'story');
+  const story = storyPatch.parse(draft?.data ?? { story: trip.story ?? null });
   return {
+    story,
     basics: {
       title: tl('title', 'title'),
       summary: tl('summary', 'summary'),
@@ -311,6 +317,7 @@ export function TripEditor({ id }: { id: string }) {
   );
   const trip = obj(query.data?.trip);
   const labels = {
+    story: t('tripStory'),
     basics: t('basics'),
     format: t('formatAudience'),
     schedule: t('schedule'),
@@ -338,6 +345,7 @@ export function TripEditor({ id }: { id: string }) {
       'schedule',
       'prices',
       'plan',
+      'story',
       'included',
       'media',
       'seo',
@@ -382,6 +390,7 @@ export function TripEditor({ id }: { id: string }) {
               : null,
     },
     savers: {
+      story: (value) => patch('story', value),
       basics: (v) =>
         patch('basics', {
           title: locOut(v.title),
@@ -634,6 +643,16 @@ export function TripEditor({ id }: { id: string }) {
           ),
         },
         {
+          id: 'story',
+          label: labels.story,
+          content: (
+            <TripStoryEditor
+              value={v.story.story}
+              onChange={(story) => editor.set('story', { story })}
+            />
+          ),
+        },
+        {
           id: 'media',
           label: labels.media,
           content: (
@@ -746,6 +765,9 @@ export function TripEditor({ id }: { id: string }) {
               '/' + locale + '/t/' + String(trip.slug),
             ),
         },
+        ...(can(role, 'publish')
+          ? actions.archiveMenu(id, name, status === 'archived')
+          : []),
       ]}
     />
   );

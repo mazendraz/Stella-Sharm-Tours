@@ -6,7 +6,6 @@ import { relative, resolve, isAbsolute } from 'node:path';
 import { connectDatabase } from '@stella/db';
 import { createApp } from './app';
 import { loadConfig } from './config';
-import { serveProcessed } from './serve-media';
 const cfg = loadConfig();
 const contains = (a: string, b: string) => {
   const rel = relative(resolve(a), resolve(b));
@@ -25,15 +24,6 @@ const logger = pino({ level: cfg.LOG_LEVEL }),
     logger.error({ code: 'unexpected_api_error' }, 'API operation failed');
     void reportOperationalError('api', 'unexpected_api_error');
   });
-app.get('/media/*', (c) =>
-  serveProcessed(
-    cfg.MEDIA_ROOT,
-    c.req.path.slice('/media/'.length),
-    c.req.header('range'),
-    c.req.header('accept') ?? '',
-    true,
-  ),
-);
 const server = serve(
   { fetch: app.fetch, port: cfg.PORT, hostname: cfg.HOST },
   () => logger.info({ port: cfg.PORT }, 'API ready'),

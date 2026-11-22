@@ -1,0 +1,90 @@
+[
+  {
+    "key": "intro-private",
+    "title": "Private · تجربة الجيزة من العربة",
+    "source": "7660022",
+    "start": 0.2,
+    "duration": 10,
+    "focus": 0.44
+  },
+  {
+    "key": "intro-history",
+    "title": "History · الجيزة من الجو",
+    "source": "10719349",
+    "start": 32,
+    "duration": 12,
+    "focus": 0.44
+  },
+  {
+    "key": "intro-sea",
+    "title": "Red Sea · الشعاب",
+    "source": "12105563",
+    "start": 6,
+    "duration": 12,
+    "focus": 0.62
+  },
+  {
+    "key": "intro-desert",
+    "title": "Desert · سفاري",
+    "source": "14945991",
+    "start": 7,
+    "duration": 12,
+    "focus": 0.53
+  },
+  {
+    "key": "intro-beyond",
+    "title": "Beyond Egypt · البتراء",
+    "source": "pexels-4253642",
+    "start": 2,
+    "duration": 12,
+    "focus": 0.26
+  },
+  {
+    "key": "intro-relax",
+    "title": "Relax · غروب شرم",
+    "source": "14627754",
+    "start": 0.3,
+    "duration": 11,
+    "focus": 0.28
+  },
+  {
+    "key": "intro-all",
+    "title": "All of Egypt · سيناء",
+    "source": "9424565",
+    "start": 4,
+    "duration": 12,
+    "focus": 0.55
+  },
+  {
+    "key": "cairo-plane",
+    "title": "Cairo by Plane · الجمال والأهرامات",
+    "source": "12747111",
+    "start": 2,
+    "duration": 12,
+    "focus": 0.56
+  },
+  {
+    "key": "sinai-sunrise",
+    "title": "Mount Sinai · الشروق",
+    "source": "14026741",
+    "start": 26,
+    "duration": 12,
+    "focus": 0.5
+  },
+  {
+    "key": "saint-catherine",
+    "title": "Saint Catherine · الجبال",
+    "source": "4174093",
+    "start": 4,
+    "duration": 12,
+    "focus": 0.54
+  },
+  {
+    "key": "cairo-private",
+    "title": "Cairo Private · مسجد القلعة",
+    "source": "@assets/video/cairo-citadel-mosque-v.mp4",
+    "start": 1,
+    "duration": 11,
+    "focus": 0.52
+  }
+]

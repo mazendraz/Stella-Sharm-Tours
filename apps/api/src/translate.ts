@@ -33,6 +33,56 @@ export type Provider = {
   remaining?: () => Promise<number>;
 };
 const sha = (v: string) => createHash('sha256').update(v).digest('hex');
+const extraLocales = (value: unknown) =>
+  Array.isArray(value)
+    ? [
+        ...new Set(
+          value.filter(
+            (code): code is string =>
+              typeof code === 'string' &&
+              /^[a-z]{2,3}$/.test(code) &&
+              !isCoreLocale(code),
+          ),
+        ),
+      ]
+    : [];
+const fieldKey = (entity: string, id: string, field: string, locale: string) =>
+  JSON.stringify([entity, id, field, locale]);
+
+export function providerTargets(codes: string[]) {
+  const targets = new Map<string, string>();
+  for (const code of [...codes].sort()) {
+    if (!/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(code)) continue;
+    const locale = code.split('-')[0]!.toLowerCase();
+    const preferred = ['zh-cn', 'zh-hans', 'pt-pt'];
+    if (
+      !targets.has(locale) ||
+      code.toLowerCase() === locale ||
+      (preferred.includes(code.toLowerCase()) &&
+        targets.get(locale)?.includes('-'))
+    )
+      targets.set(locale, code);
+  }
+  return targets;
+}
+
+function providerLanguageMap(load: () => Promise<string[]>) {
+  let cached: { targets: Map<string, string>; expires: number } | undefined;
+  const get = async () => {
+    if (cached && cached.expires > Date.now()) return cached.targets;
+    const targets = providerTargets(await load());
+    cached = { targets, expires: Date.now() + 60_000 };
+    return targets;
+  };
+  return {
+    languages: async () => [...(await get()).keys()],
+    target: async (locale: string) => {
+      const target = (await get()).get(locale);
+      if (!target) throw new Error('Provider does not support the locale');
+      return target;
+    },
+  };
+}
 const obj = (v: unknown): Record<string, unknown> =>
   v && typeof v === 'object' && !Array.isArray(v)
     ? (v as Record<string, unknown>)
@@ -81,6 +131,10 @@ export async function publicTranslationFields(
     ] as const)
       add('trip', t.id, field, value);
     (t.notes ?? []).forEach((v, i) => add('trip', t.id, `notes[${i}]`, v));
+    for (const scene of t.story?.scenes ?? []) {
+      add('trip', t.id, 'story.' + scene.id + '.title', scene.title);
+      add('trip', t.id, 'story.' + scene.id + '.caption', scene.caption);
+    }
     if (t.departureLabel)
       add('trip', t.id, 'departure_label', { en: t.departureLabel });
     if (t.returnLabel) add('trip', t.id, 'return_label', { en: t.returnLabel });
@@ -142,7 +196,7 @@ export async function publicTranslationFields(
       ] as const)
         add('hero_slide', row.id, field, value);
   const usedMedia = await db.execute<{ id: string }>(
-    sql`select distinct m.id from media m where m.status='ready' and m.archived_at is null and m.rights_status<>'unknown' and (exists(select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=m.id and t.status='published' and t.archived_at is null) or exists(select 1 from collections c where c.status='published' and c.archived_at is null and (c.cover_media_id=m.id or c.hero_video_id=m.id)) or exists(select 1 from hero_slides h where h.status='published' and h.archived_at is null and (h.image_media_id=m.id or h.video_media_id=m.id)))`,
+    sql`select distinct m.id from media m where m.status='ready' and m.archived_at is null and m.rights_status<>'unknown' and (exists(select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=m.id and t.status='published' and t.archived_at is null) or exists(select 1 from trips st where st.status='published' and st.archived_at is null and st.story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',m.id::text))) or exists(select 1 from collections c where c.status='published' and c.archived_at is null and (c.cover_media_id=m.id or c.hero_video_id=m.id)) or exists(select 1 from hero_slides h where h.status='published' and h.archived_at is null and (h.image_media_id=m.id or h.video_media_id=m.id)))`,
   );
   if (usedMedia.rows.length)
     for (const row of await db
@@ -356,18 +410,19 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
       Authorization: 'DeepL-Auth-Key ' + cfg.DEEPL_API_KEY,
       'Content-Type': 'application/json',
     };
+    const languageMap = providerLanguageMap(async () => {
+      const data = await jsonRequest(
+        'https://api-free.deepl.com/v2/languages?type=target',
+        { headers },
+      );
+      if (!Array.isArray(data)) throw new Error('Invalid provider languages');
+      return data.flatMap((d) =>
+        typeof obj(d).language === 'string' ? [String(obj(d).language)] : [],
+      );
+    });
     result.push({
       name: 'deepl',
-      languages: async () => {
-        const data = await jsonRequest(
-          'https://api-free.deepl.com/v2/languages?type=target',
-          { headers },
-        );
-        if (!Array.isArray(data)) throw new Error('Invalid provider languages');
-        return data.map((d) =>
-          String(obj(d).language).split('-')[0]!.toLowerCase(),
-        );
-      },
+      languages: languageMap.languages,
       remaining: async () => {
         const data = obj(
           await jsonRequest('https://api-free.deepl.com/v2/usage', { headers }),
@@ -386,7 +441,7 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
             body: JSON.stringify({
               text: texts,
               source_lang: 'EN',
-              target_lang: locale.toUpperCase(),
+              target_lang: await languageMap.target(locale),
             }),
           }),
         );
@@ -401,21 +456,24 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
       'X-Goog-Api-Key': cfg.GOOGLE_TRANSLATE_KEY,
       'Content-Type': 'application/json',
     };
+    const languageMap = providerLanguageMap(async () => {
+      const data = obj(
+        obj(
+          await jsonRequest(
+            'https://translation.googleapis.com/language/translate/v2/languages?target=en',
+            { headers },
+          ),
+        ).data,
+      );
+      if (!Array.isArray(data.languages))
+        throw new Error('Invalid provider languages');
+      return data.languages.flatMap((l) =>
+        typeof obj(l).language === 'string' ? [String(obj(l).language)] : [],
+      );
+    });
     result.push({
       name: 'google',
-      languages: async () => {
-        const data = obj(
-          obj(
-            await jsonRequest(
-              'https://translation.googleapis.com/language/translate/v2/languages?target=en',
-              { headers },
-            ),
-          ).data,
-        );
-        if (!Array.isArray(data.languages))
-          throw new Error('Invalid provider languages');
-        return data.languages.map((l) => String(obj(l).language));
-      },
+      languages: languageMap.languages,
       translate: async (texts, locale) => {
         const data = obj(
           obj(
@@ -427,7 +485,7 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
                 body: JSON.stringify({
                   q: texts,
                   source: 'en',
-                  target: locale,
+                  target: await languageMap.target(locale),
                   format: 'text',
                   model: 'nmt',
                 }),
@@ -449,13 +507,16 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
   }
   if (cfg.LIBRETRANSLATE_URL) {
     const base = cfg.LIBRETRANSLATE_URL.replace(/\/$/, '');
+    const languageMap = providerLanguageMap(async () => {
+      const data = await jsonRequest(base + '/languages');
+      if (!Array.isArray(data)) throw new Error('Invalid provider languages');
+      return data.flatMap((l) =>
+        typeof obj(l).code === 'string' ? [String(obj(l).code)] : [],
+      );
+    });
     result.push({
       name: 'libre',
-      languages: async () => {
-        const data = await jsonRequest(base + '/languages');
-        if (!Array.isArray(data)) throw new Error('Invalid provider languages');
-        return data.map((l) => String(obj(l).code));
-      },
+      languages: languageMap.languages,
       translate: async (texts, locale) => {
         const data = obj(
           await jsonRequest(base + '/translate', {
@@ -464,7 +525,7 @@ export function configuredProviders(cfg: WorkerConfig): Provider[] {
             body: JSON.stringify({
               q: texts,
               source: 'en',
-              target: locale,
+              target: await languageMap.target(locale),
               format: 'text',
             }),
           }),
@@ -526,74 +587,77 @@ export async function refreshCoverage(
     setting = (
       await db.select().from(s.settings).where(eq(s.settings.key, 'i18n'))
     )[0],
-    auto = obj(setting?.value).auto;
+    options = obj(setting?.value);
+  const eligible = providers.filter(
+    (p) =>
+      options.free_tier_only === false ||
+      p.name !== 'google' ||
+      cfg.GOOGLE_FREE_TIER_CONFIRMED === 'true',
+  );
   const supported = await Promise.allSettled(
-    providers.map((p) => p.languages()),
+    eligible.map((p) => p.languages()),
   );
   const results = supported.flatMap((result) =>
     result.status === 'fulfilled' ? result.value : [],
   );
   const [previous] =
-    results.length || !providers.length
+    supported.some((result) => result.status === 'fulfilled') ||
+    !eligible.length
       ? []
       : await db
           .select()
           .from(s.settings)
           .where(eq(s.settings.key, 'i18n_runtime'));
   const saved = obj(previous?.value).supported;
-  const languages = [
-    ...new Set(
-      results.length
-        ? results
-        : Array.isArray(saved)
-          ? saved.filter((v): v is string => typeof v === 'string')
-          : [],
-    ),
-  ];
+  const languages = extraLocales(
+    supported.some((result) => result.status === 'fulfilled') ? results : saved,
+  );
+  const translated = new Map(
+    all.map((row) => [
+      fieldKey(row.entity, row.entityId, row.field, row.locale),
+      row,
+    ]),
+  );
   const coverage = Object.fromEntries(
-    (Array.isArray(auto) ? auto : [])
-      .filter(
-        (locale): locale is string =>
-          typeof locale === 'string' && languages.includes(locale),
-      )
+    extraLocales(options.auto)
+      .filter((locale) => languages.includes(locale))
       .map((locale) => [
         locale,
         fields.length
-          ? fields.filter((f) =>
-              all.some(
-                (t) =>
-                  t.entity === f.entity &&
-                  t.entityId === f.id &&
-                  t.field === f.field &&
-                  t.locale === locale &&
-                  t.text.trim(),
-              ),
-            ).length / fields.length
+          ? fields.filter((f) => {
+              const row = translated.get(
+                fieldKey(f.entity, f.id, f.field, locale),
+              );
+              return row?.text.trim() && row.sourceHash === sha(f.en);
+            }).length / fields.length
           : 0,
       ]),
   );
   const value = {
-    providers_available: providers.length > 0,
+    providers_available: eligible.length > 0,
     supported: languages,
     coverage,
-    warning: providers.length
+    warning: eligible.length
       ? supported.every((result) => result.status === 'rejected')
         ? 'Translation providers temporarily unavailable; saved translations retained'
         : null
       : 'No translation provider configured',
     updated_at: new Date().toISOString(),
   };
-  await db
-    .insert(s.settings)
-    .values({ key: 'i18n_runtime', value })
-    .onConflictDoUpdate({
-      target: s.settings.key,
-      set: { value, updatedAt: new Date() },
-    });
+  await writeTranslationStatus(db, 'i18n_runtime', value);
   await db
     .insert(s.outbox)
     .values({ name: 'revalidate.web', data: { tags: ['site', 'locales'] } });
   return value;
+}
+async function writeTranslationStatus(
+  db: Pick<Database, 'execute'>,
+  key: 'i18n_runtime' | 'i18n_warning' | 'i18n_budget_alert',
+  value: Record<string, unknown>,
+) {
+  await db.execute(
+    sql`select public.worker_set_translation_status(${key}, ${JSON.stringify(value)}::jsonb)`,
+  );
 }
 export async function translatePublic(
   db: Database,
@@ -606,12 +670,17 @@ export async function translatePublic(
   },
   providers = configuredProviders(cfg),
 ) {
+  if (job.locale && isCoreLocale(job.locale)) return;
   const settings = await db
     .select()
     .from(s.settings)
     .where(inArray(s.settings.key, ['i18n', 'i18n_glossary']));
   const options = obj(settings.find((r) => r.key === 'i18n')?.value),
     glossary = settings.find((r) => r.key === 'i18n_glossary')?.value;
+  const targets = extraLocales(options.auto).filter(
+    (locale) => !job.locale || locale === job.locale,
+  );
+  if (!targets.length) return;
   const all = await publicTranslationFields(db, cfg),
     source = all.filter(
       (f) =>
@@ -619,30 +688,26 @@ export async function translatePublic(
         (!job.id || f.id === job.id) &&
         (!job.fields || job.fields.includes(f.field)),
     );
-  const targets = job.locale
-    ? [job.locale]
-    : [
-        ...locales.filter((l) => l !== 'en'),
-        ...(Array.isArray(options.auto)
-          ? options.auto.filter((l): l is string => typeof l === 'string')
-          : []),
-      ];
-  const existing = await db.select().from(s.contentTranslations);
+  const existing = new Map(
+    (
+      await db
+        .select()
+        .from(s.contentTranslations)
+        .where(inArray(s.contentTranslations.locale, targets))
+    ).map((row) => [
+      fieldKey(row.entity, row.entityId, row.field, row.locale),
+      row,
+    ]),
+  );
   for (const locale of targets) {
-    if (locale === 'en') continue;
-    const pending = source.filter(
-      (f) =>
-        !(f.entity === 'ui' && isCoreLocale(locale)) &&
-        !(isCoreLocale(locale) && f.human[locale]?.trim()) &&
-        !existing.some(
-          (t) =>
-            t.entity === f.entity &&
-            t.entityId === f.id &&
-            t.field === f.field &&
-            t.locale === locale &&
-            (t.origin === 'human' || t.sourceHash === sha(f.en)),
-        ),
-    );
+    const pending = source.filter((f) => {
+      const row = existing.get(fieldKey(f.entity, f.id, f.field, locale));
+      return (
+        !row ||
+        (row.origin === 'machine' &&
+          (!row.text.trim() || row.sourceHash !== sha(f.en)))
+      );
+    });
     for (let i = 0; i < pending.length;) {
       const batch: PublicField[] = [],
         protectedBatch: ReturnType<typeof protectText>[] = [];
@@ -716,39 +781,17 @@ export async function translatePublic(
                   f.entity === field.entity &&
                   f.id === field.id &&
                   f.field === field.field &&
-                  f.en === field.en &&
-                  !(isCoreLocale(locale) && f.human[locale]?.trim()),
+                  f.en === field.en,
               )
             )
               continue;
             const text = protectedBatch[j]!.restore(output[j]!);
-            await db
-              .insert(s.contentTranslations)
-              .values({
-                entity: field.entity,
-                entityId: field.id,
-                field: field.field,
-                locale,
-                text,
-                sourceHash: sha(field.en),
-                origin: 'machine',
-                provider: provider.name,
-              })
-              .onConflictDoUpdate({
-                target: [
-                  s.contentTranslations.entity,
-                  s.contentTranslations.entityId,
-                  s.contentTranslations.field,
-                  s.contentTranslations.locale,
-                ],
-                set: {
-                  text,
-                  sourceHash: sha(field.en),
-                  provider: provider.name,
-                  updatedAt: new Date(),
-                },
-                setWhere: eq(s.contentTranslations.origin, 'machine'),
-              });
+            await db.execute(sql`
+              select public.worker_save_machine_translation(
+                ${field.entity}, ${field.id}, ${field.field}, ${locale},
+                ${text}, ${sha(field.en)}, ${provider.name}
+              )
+            `);
           }
           done = true;
           break;
@@ -758,22 +801,10 @@ export async function translatePublic(
         }
       }
       if (!done && providers.length)
-        await db
-          .insert(s.settings)
-          .values({
-            key: 'i18n_warning',
-            value: { code: 'TRANSLATION_PAUSED', at: new Date().toISOString() },
-          })
-          .onConflictDoUpdate({
-            target: s.settings.key,
-            set: {
-              value: {
-                code: 'TRANSLATION_PAUSED',
-                at: new Date().toISOString(),
-              },
-              updatedAt: new Date(),
-            },
-          });
+        await writeTranslationStatus(db, 'i18n_warning', {
+          code: 'TRANSLATION_PAUSED',
+          at: new Date().toISOString(),
+        });
       if (!done && budgetBlocked) {
         const month = new Date().toISOString().slice(0, 7);
         await db.transaction(async (tx) => {
@@ -785,13 +816,7 @@ export async function translatePublic(
             .from(s.settings)
             .where(eq(s.settings.key, 'i18n_budget_alert'));
           if (obj(row?.value).month !== month) {
-            await tx
-              .insert(s.settings)
-              .values({ key: 'i18n_budget_alert', value: { month } })
-              .onConflictDoUpdate({
-                target: s.settings.key,
-                set: { value: { month }, updatedAt: new Date() },
-              });
+            await writeTranslationStatus(tx, 'i18n_budget_alert', { month });
             await tx
               .insert(s.outbox)
               .values({ name: 'notify.translation.budget', data: {} });

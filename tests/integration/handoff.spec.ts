@@ -157,9 +157,15 @@ test('public handoff inventory uses real API content and matching image candidat
         .getAttribute('srcset');
       expect(source).toBeTruthy();
       for (const candidate of source!.split(',')) {
-        const match = candidate.trim().match(/\/(\d+)\.jpg\s+(\d+)w$/);
+        const match = candidate.trim().match(/^(\S+)\s+(\d+)w$/);
         expect(match, candidate).not.toBeNull();
-        expect(match![1]).toBe(match![2]);
+        const actual = await page.evaluate(async (url) => {
+          const image = new Image();
+          image.src = url;
+          await image.decode();
+          return image.naturalWidth;
+        }, match![1]!);
+        expect(actual, candidate).toBe(Number(match![2]));
       }
     }
     await capture(

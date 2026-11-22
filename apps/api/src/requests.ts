@@ -1,14 +1,28 @@
-import { createHmac, randomBytes } from 'node:crypto';
-import { inArray } from 'drizzle-orm';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { eq, inArray } from 'drizzle-orm';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
 import type { Config } from './config';
-import { bookingSchema, cairoDate, stayDays } from '@stella/shared/booking';
-import { estimateTrip } from '@stella/shared/price';
-import { planDays } from '@stella/shared/days';
+import {
+  bookingPayloadSchema,
+  bookingStartDateIsValid,
+  submissionDetails,
+  type Booking,
+} from '@stella/shared/booking';
+import { normalizeBookingPhone } from '@stella/shared/phone';
+import {
+  bookingStay,
+  scheduleNotice,
+  staffBookingCopy,
+  storedScheduleNotice,
+} from '@stella/shared/i18n/booking-messages';
 import { isCoreLocale } from '@stella/shared';
-import { bookingGuests, bookingArea } from '@stella/shared/i18n/guests';
-import { loadCatalog } from './catalog';
+import {
+  bookingGuests,
+  bookingArea,
+  bookingEstimate,
+} from '@stella/shared/i18n/guests';
+import { calculateBookingQuote } from './booking-quote';
 import { consume } from './rate';
 import { fail } from './errors';
 export const hashPrivate = (value: string, salt: string) =>
@@ -17,6 +31,33 @@ export function requestRef() {
   const alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
   return 'STL-' + [...randomBytes(10)].map((n) => alphabet[n & 31]).join('');
 }
+type Submission = { id: string; hash: string };
+
+async function replayRequest(
+  db: Database,
+  submission: Submission,
+  ipHash: string,
+) {
+  const [receipt] = await db
+    .select()
+    .from(s.bookingRequestReceipts)
+    .where(eq(s.bookingRequestReceipts.submissionId, submission.id));
+  if (!receipt) return;
+  if (!(await consume(db, 'request-replay:' + ipHash, 40, 60)))
+    fail(429, 'RATE_LIMITED');
+  if (
+    !/^[a-f0-9]{64}$/.test(receipt.payloadHash) ||
+    !timingSafeEqual(
+      Buffer.from(receipt.payloadHash, 'hex'),
+      Buffer.from(submission.hash, 'hex'),
+    )
+  )
+    fail(409, 'SUBMISSION_CONFLICT');
+  if (!receipt.confirmation || receipt.expiresAt.getTime() <= Date.now())
+    fail(409, 'SUBMISSION_EXPIRED');
+  return receipt.confirmation;
+}
+
 export async function createRequest(
   db: Database,
   cfg: Config,
@@ -25,14 +66,30 @@ export async function createRequest(
   userAgent: string,
 ) {
   const ipHash = hashPrivate(ip, cfg.IP_HASH_SALT);
+  const parsed = bookingPayloadSchema.safeParse(body);
+  const submission =
+    parsed.success && parsed.data.submission_id
+      ? {
+          id: parsed.data.submission_id,
+          hash: hashPrivate(
+            'booking:' + JSON.stringify(submissionDetails(parsed.data)),
+            cfg.IP_HASH_SALT,
+          ),
+        }
+      : null;
+  if (submission) {
+    const replay = await replayRequest(db, submission, ipHash);
+    if (replay) return replay;
+  }
   if (!(await consume(db, 'request-ip:' + ipHash, 5, 600)))
     fail(429, 'RATE_LIMITED');
-  const parsed = bookingSchema.safeParse(body);
   if (!parsed.success) fail(422, 'INVALID_REQUEST');
   const b = parsed.data;
   if (
+    !bookingStartDateIsValid(b.start_date) ||
     Date.now() - b.t < 3000 ||
     Date.now() - b.t > 86400000 ||
+    normalizeBookingPhone(b.phone) !== b.phone ||
     (b.mode === 'single' && b.items.length !== 1) ||
     new Set(b.items.map((i) => i.trip_slug)).size !== b.items.length
   )
@@ -46,74 +103,57 @@ export async function createRequest(
     ))
   )
     fail(429, 'RATE_LIMITED');
+  try {
+    return await persistRequest(db, cfg, b, ipHash, userAgent, submission);
+  } catch (error) {
+    const cause =
+      error instanceof Error
+        ? (error.cause as { code?: string; constraint?: string } | undefined)
+        : undefined;
+    if (
+      submission &&
+      cause?.code === '23505' &&
+      cause.constraint === 'booking_request_receipts_pkey'
+    ) {
+      // A concurrent attempt committed first. The failed transaction rolled
+      // back its request and outbox rows before this fresh read.
+      const replay = await replayRequest(db, submission, ipHash);
+      if (replay) return replay;
+    }
+    throw error;
+  }
+}
+
+function persistRequest(
+  db: Database,
+  cfg: Config,
+  b: Booking,
+  ipHash: string,
+  userAgent: string,
+  submission: Submission | null,
+) {
   return db.transaction(
     async (tx) => {
-      const catalog = await loadCatalog(tx, b.locale, cfg.MEDIA_PUBLIC_URL, {
-        pricingDate: b.start_date,
-        sequential: true,
-      });
-      if (!catalog.site.locales.some((l) => l.code === b.locale))
-        fail(422, 'INVALID_LOCALE');
-      const rules = catalog.settings.request_rules as
-        | {
-            min_days_ahead?: number;
-            max_adults?: number;
-            max_children?: number;
-          }
-        | undefined;
-      const minimum = new Date(cairoDate() + 'T12:00:00Z');
-      minimum.setUTCDate(minimum.getUTCDate() + (rules?.min_days_ahead ?? 0));
+      const { quote, selected, settings, bookedTripIds } =
+        await calculateBookingQuote(tx, b);
       if (
-        b.adults > (rules?.max_adults ?? 60) ||
-        b.children > (rules?.max_children ?? 40) ||
-        b.start_date < minimum.toISOString().slice(0, 10) ||
-        !catalog.site.pickup_areas.includes(b.pickup_area)
+        !Array.isArray(settings.pickup_areas) ||
+        !settings.pickup_areas.includes(b.pickup_area)
       )
         fail(422, 'REQUEST_RULES');
-      const selected = b.items.map((item) => {
-        const trip = catalog.trips.find((t) => t.slug === item.trip_slug);
-        if (!trip) fail(422, 'TRIP_UNAVAILABLE');
-        if (
-          item.price_id &&
-          !trip.prices.some((p) => p.id === item.price_id && p.unit !== 'child')
-        )
-          fail(422, 'INVALID_PRICE');
-        if (b.format === 'group' && trip.format === 'private')
-          fail(422, 'PRIVATE_ONLY');
-        return {
-          trip,
-          item,
-          estimate: estimateTrip(
-            trip,
-            b.adults,
-            b.children,
-            b.format,
-            item.price_id,
-            item.hours ?? 1,
-          ),
-        };
+      if (b.quote_id && b.quote_id !== quote.quote_id) return { quote };
+      if (selected.some(({ invalidPrice }) => invalidPrice))
+        fail(422, 'INVALID_PRICE');
+      const estimate = quote.estimate_eur;
+      const scheduleReview = selected.some(({ trip, details }) => {
+        if (!trip.runDays?.length) return false;
+        const date = new Date(details.service_date + 'T12:00:00Z');
+        return !trip.runDays.includes(date.getUTCDay());
       });
-      const amount = selected.reduce((sum, s) => sum + s.estimate.amount, 0),
-        onRequest = selected.some((s) => s.estimate.onRequest),
-        estimate = onRequest ? null : amount;
-      const days = planDays(
-        selected.map((s) => s.trip),
-        b.rest_days ?? true,
-      );
-      const planned = new Map(
-        days.flatMap((d) => (d.trip ? [[d.trip.slug, d.day] as const] : [])),
-      );
-      const scheduleReview = selected.some(({ trip }) => {
-        if (!trip.run_days?.length) return false;
-        const date = new Date(b.start_date + 'T12:00:00Z');
-        date.setUTCDate(date.getUTCDate() + (planned.get(trip.slug) ?? 1) - 1);
-        return !trip.run_days.includes(date.getUTCDay());
-      });
-      if (estimate !== null && estimate > 99999999.99)
-        fail(422, 'ESTIMATE_EXCEEDS_RANGE');
-      const contacts = catalog.site.contacts;
+      const contacts = settings.contacts as
+        { whatsapp_primary?: string } | undefined;
       if (
-        !contacts.whatsapp_primary ||
+        !contacts?.whatsapp_primary ||
         !/^\+[1-9]\d{6,14}$/.test(contacts.whatsapp_primary)
       )
         fail(503, 'CONTACT_UNAVAILABLE');
@@ -127,34 +167,23 @@ export async function createRequest(
         tr: 'Rezervasyon talebi',
       };
       const ref = requestRef();
-      // e.g. "2026-11-14 → 2026-11-17 (4 days / 3 nights)"
-      const stay = b.end_date
-        ? `${b.start_date} → ${b.end_date} (${stayDays(b.start_date, b.end_date)} days / ${stayDays(b.start_date, b.end_date) - 1} nights)`
-        : b.start_date;
-      const staffTitles = isCoreLocale(b.locale)
-        ? null
-        : await tx
-            .select({ slug: s.trips.slug, title: s.trips.title })
-            .from(s.trips)
-            .where(
-              inArray(
-                s.trips.slug,
-                b.items.map((i) => i.trip_slug),
-              ),
-            );
+      const messageLocale = isCoreLocale(b.locale) ? b.locale : 'en';
       const message = [
         prefix[b.locale] ?? prefix.en,
         ref,
         b.name,
-        stay,
+        bookingStay(b.start_date, b.end_date, messageLocale),
         bookingGuests(b.adults, b.children, b.locale),
-        ...selected.map(
-          (s) =>
-            staffTitles?.find((t) => t.slug === s.trip.slug)?.title.en ??
-            s.trip.title.text,
-        ),
+        ...selected.map(({ staffTitle, details }) => {
+          const { service_date: start, service_end_date: end } = details;
+          return (
+            staffTitle + ' · ' + (start === end ? start : start + ' → ' + end)
+          );
+        }),
+        bookingEstimate(quote.estimate_eur, quote.known_eur, messageLocale),
         bookingArea(b.pickup_area, b.locale),
         b.hotel ?? '',
+        scheduleReview ? scheduleNotice[messageLocale] : '',
       ]
         .filter(Boolean)
         .join('\n');
@@ -163,15 +192,10 @@ export async function createRequest(
       const locked = await tx
         .select()
         .from(s.trips)
-        .where(
-          inArray(
-            s.trips.slug,
-            b.items.map((i) => i.trip_slug),
-          ),
-        )
+        .where(inArray(s.trips.id, bookedTripIds))
         .for('share');
       if (
-        locked.length !== selected.length ||
+        locked.length !== bookedTripIds.length ||
         locked.some((t) => t.status !== 'published' || t.archivedAt)
       )
         fail(409, 'CATALOG_CHANGED');
@@ -192,31 +216,28 @@ export async function createRequest(
           phone: b.phone,
           email: b.email || null,
           notes:
-            [b.end_date ? 'Stay: ' + stay : '', b.notes ?? '']
+            [
+              b.end_date
+                ? staffBookingCopy(cfg.OWNER_REPORT_LOCALE).stay +
+                  ': ' +
+                  bookingStay(b.start_date, b.end_date, cfg.OWNER_REPORT_LOCALE)
+                : '',
+              b.notes ?? '',
+            ]
               .filter(Boolean)
               .join('\n') || null,
           estimateEur: estimate === null ? null : String(estimate),
           ipHash,
           userAgent: userAgent.slice(0, 300),
-          internalNote: scheduleReview
-            ? 'Schedule needs staff review: requested weekday differs from published run days.'
-            : null,
+          internalNote: scheduleReview ? storedScheduleNotice : null,
         })
         .returning();
       await tx.insert(s.bookingRequestItems).values(
-        selected.map(({ trip, item, estimate }) => ({
+        selected.map(({ trip, details, snapshot }) => ({
           requestId: request!.id,
-          tripId: locked.find((t) => t.slug === trip.slug)!.id,
-          dayIndex: planned.get(trip.slug) ?? 1,
-          priceSnapshot: {
-            prices: trip.prices,
-            format: b.format,
-            private_surcharge_pct: trip.private_surcharge_pct,
-            selected_price_id: item.price_id ?? null,
-            hours: item.hours ?? 1,
-            amount: estimate.amount,
-            on_request: estimate.onRequest,
-          },
+          tripId: trip.id,
+          dayIndex: details.day_index,
+          priceSnapshot: snapshot,
         })),
       );
       await tx.insert(s.outbox).values({
@@ -228,7 +249,7 @@ export async function createRequest(
           name: 'notify.request.push',
           data: { requestId: request!.id },
         });
-      return {
+      const confirmation = {
         ref,
         estimate_eur: estimate,
         whatsapp_url:
@@ -238,6 +259,14 @@ export async function createRequest(
           encodeURIComponent(message),
         message,
       };
+      if (submission)
+        await tx.insert(s.bookingRequestReceipts).values({
+          submissionId: submission.id,
+          payloadHash: submission.hash,
+          requestId: request!.id,
+          confirmation,
+        });
+      return confirmation;
     },
     { isolationLevel: 'repeatable read' },
   );

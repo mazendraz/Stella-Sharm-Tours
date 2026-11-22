@@ -59,6 +59,7 @@ export function Overview() {
       (row) => row.primaryUnit == null && !row.onRequest,
     ),
     noCover = tripRows.filter((row) => !row.coverMediaId),
+    packagesNoCover = (packages.data ?? []).filter((row) => !row.coverMediaId),
     draftPackages = (packages.data ?? []).filter(
       (row) => row.status !== 'published',
     ),
@@ -71,11 +72,20 @@ export function Overview() {
         )
       : null;
   const attention: { key: string; text: string; href: string }[] = [];
+  // No photos at all is a bigger gap than photos without a chosen cover.
   for (const row of noCover)
     attention.push({
       key: 'cover' + row.id,
-      text: t('attnNoCover', { name: content(row.title, locale) }),
+      text: t(Number(row.photoCount) ? 'attnNoCover' : 'attnNoPhotos', {
+        name: content(row.title, locale),
+      }),
       href: '/trips/' + row.id + '#section-media',
+    });
+  for (const row of packagesNoCover)
+    attention.push({
+      key: 'pkgcover' + row.id,
+      text: t('attnPackageNoCover', { name: content(row.title, locale) }),
+      href: '/packages/' + row.id,
     });
   for (const row of missingPrice)
     attention.push({

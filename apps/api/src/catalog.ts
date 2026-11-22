@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { and, asc, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -8,6 +9,7 @@ import { estimateTrip } from '@stella/shared/price';
 import { applyPreviewDrafts } from './preview-drafts';
 import {
   siteSchema,
+  slideSchema,
   tripSchema,
   collectionSchema,
   type Trip,
@@ -17,19 +19,6 @@ type RecordValue = Record<string, unknown>;
 const object = (v: unknown): RecordValue =>
   v && typeof v === 'object' && !Array.isArray(v) ? (v as RecordValue) : {};
 type Reader = Pick<Database, 'select'>;
-type ReadResults<T extends readonly (() => PromiseLike<unknown>)[]> = {
-  [K in keyof T]: T[K] extends () => infer R ? Awaited<R> : never;
-};
-async function runReads<T extends readonly (() => PromiseLike<unknown>)[]>(
-  tasks: T,
-  sequential: boolean,
-): Promise<ReadResults<T>> {
-  if (!sequential)
-    return (await Promise.all(tasks.map((task) => task()))) as ReadResults<T>;
-  const results: unknown[] = [];
-  for (const task of tasks) results.push(await task());
-  return results as ReadResults<T>;
-}
 /** Live public locales: the seven core locales plus enabled, covered auto locales. */
 export function liveLocales(settings: RecordValue) {
   const i18n = object(settings.i18n),
@@ -82,13 +71,35 @@ export async function loadCatalog(
   locale: string,
   mediaOrigin: string,
   options: {
-    pricingDate?: string;
-    sequential?: boolean;
     previewTrip?: string;
     previewCollection?: string;
+    requestedTrips?: string[];
   } = {},
 ) {
-  const pricingDate = options.pricingDate ?? cairoDate();
+  const today = cairoDate();
+  const selected = options.requestedTrips
+    ? db
+        .select({ id: s.trips.id })
+        .from(s.trips)
+        .where(inArray(s.trips.slug, options.requestedTrips))
+    : undefined;
+  const requested = selected
+    ? db
+        .select({ id: s.trips.id })
+        .from(s.trips)
+        .where(
+          or(
+            inArray(s.trips.id, selected),
+            inArray(
+              s.trips.id,
+              db
+                .select({ id: s.packageItems.tripId })
+                .from(s.packageItems)
+                .where(inArray(s.packageItems.packageId, selected)),
+            ),
+          ),
+        )
+    : undefined;
   const [
     cs,
     ts,
@@ -101,77 +112,119 @@ export async function loadCatalog(
     slides,
     translations,
     settings,
-  ] = await runReads(
-    [
-      () =>
-        db
-          .select()
-          .from(s.collections)
-          .where(
-            and(
-              or(
-                eq(s.collections.status, 'published'),
-                options.previewCollection
-                  ? eq(s.collections.slug, options.previewCollection)
-                  : undefined,
-                options.previewTrip
-                  ? sql`${s.collections.id} in (select collection_id from trips where slug=${options.previewTrip})`
-                  : undefined,
-              ),
-              isNull(s.collections.archivedAt),
-            ),
-          )
-          .orderBy(asc(s.collections.sort)),
-      () =>
-        db
-          .select()
-          .from(s.trips)
-          .where(
-            and(
-              or(
-                eq(s.trips.status, 'published'),
-                options.previewTrip
-                  ? eq(s.trips.slug, options.previewTrip)
-                  : undefined,
-                options.previewCollection
-                  ? sql`${s.trips.collectionId} in (select id from collections where slug=${options.previewCollection})`
-                  : undefined,
-              ),
-              isNull(s.trips.archivedAt),
-            ),
-          )
-          .orderBy(asc(s.trips.sort)),
-      () => db.select().from(s.tripPrices).orderBy(asc(s.tripPrices.sort)),
-      () =>
-        db.select().from(s.tripItinerary).orderBy(asc(s.tripItinerary.sort)),
-      () => db.select().from(s.tripItems).orderBy(asc(s.tripItems.sort)),
-      () =>
-        db
-          .select()
-          .from(s.media)
-          .where(and(eq(s.media.status, 'ready'), isNull(s.media.archivedAt))),
-      () => db.select().from(s.tripMedia).orderBy(asc(s.tripMedia.sort)),
-      () => db.select().from(s.packageItems).orderBy(asc(s.packageItems.sort)),
-      () =>
-        db
-          .select()
-          .from(s.heroSlides)
-          .where(
-            and(
-              eq(s.heroSlides.status, 'published'),
-              isNull(s.heroSlides.archivedAt),
-            ),
-          )
-          .orderBy(asc(s.heroSlides.sort)),
-      () =>
-        db
-          .select()
-          .from(s.contentTranslations)
-          .where(eq(s.contentTranslations.locale, locale)),
-      () => readSettings(db),
-    ] as const,
-    options.sequential === true,
-  );
+  ] = await Promise.all([
+    db
+      .select()
+      .from(s.collections)
+      .where(
+        and(
+          or(
+            eq(s.collections.status, 'published'),
+            options.previewCollection
+              ? eq(s.collections.slug, options.previewCollection)
+              : undefined,
+            options.previewTrip
+              ? sql`${s.collections.id} in (select collection_id from trips where slug=${options.previewTrip})`
+              : undefined,
+          ),
+          isNull(s.collections.archivedAt),
+        ),
+      )
+      .orderBy(asc(s.collections.sort)),
+
+    db
+      .select()
+      .from(s.trips)
+      .where(
+        and(
+          or(
+            eq(s.trips.status, 'published'),
+            options.previewTrip
+              ? eq(s.trips.slug, options.previewTrip)
+              : undefined,
+            options.previewCollection
+              ? sql`${s.trips.collectionId} in (select id from collections where slug=${options.previewCollection})`
+              : undefined,
+          ),
+          isNull(s.trips.archivedAt),
+          requested ? inArray(s.trips.id, requested) : undefined,
+        ),
+      )
+      .orderBy(asc(s.trips.sort)),
+    db
+      .select()
+      .from(s.tripPrices)
+      .where(requested ? inArray(s.tripPrices.tripId, requested) : undefined)
+      .orderBy(asc(s.tripPrices.sort), asc(s.tripPrices.id)),
+
+    db
+      .select()
+      .from(s.tripItinerary)
+      .where(requested ? inArray(s.tripItinerary.tripId, requested) : undefined)
+      .orderBy(asc(s.tripItinerary.sort), asc(s.tripItinerary.id)),
+    db
+      .select()
+      .from(s.tripItems)
+      .where(requested ? inArray(s.tripItems.tripId, requested) : undefined)
+      .orderBy(
+        asc(s.tripItems.sort),
+        asc(s.tripItems.type),
+        asc(s.tripItems.id),
+      ),
+
+    db
+      .select()
+      .from(s.media)
+      .where(
+        and(
+          eq(s.media.status, 'ready'),
+          isNull(s.media.archivedAt),
+          requested
+            ? or(
+                inArray(
+                  s.media.id,
+                  db
+                    .select({ id: s.tripMedia.mediaId })
+                    .from(s.tripMedia)
+                    .where(inArray(s.tripMedia.tripId, requested)),
+                ),
+                sql`exists(select 1 from trips st where ${inArray(sql`st.id`, requested)} and st.story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',${s.media.id}::text)))`,
+              )
+            : undefined,
+        ),
+      ),
+    db
+      .select()
+      .from(s.tripMedia)
+      .where(requested ? inArray(s.tripMedia.tripId, requested) : undefined)
+      .orderBy(
+        asc(s.tripMedia.sort),
+        asc(s.tripMedia.role),
+        asc(s.tripMedia.mediaId),
+      ),
+    db
+      .select()
+      .from(s.packageItems)
+      .where(selected ? inArray(s.packageItems.packageId, selected) : undefined)
+      .orderBy(asc(s.packageItems.sort), asc(s.packageItems.tripId)),
+
+    db
+      .select()
+      .from(s.heroSlides)
+      .where(
+        and(
+          eq(s.heroSlides.status, 'published'),
+          isNull(s.heroSlides.archivedAt),
+        ),
+      )
+      .orderBy(asc(s.heroSlides.sort)),
+
+    db
+      .select()
+      .from(s.contentTranslations)
+      .where(eq(s.contentTranslations.locale, locale)),
+    readSettings(db),
+  ] as const);
   await applyPreviewDrafts(db, options, {
     collections: cs,
     trips: ts,
@@ -179,21 +232,20 @@ export async function loadCatalog(
     items,
     media: tms,
   });
+  const byTranslation = new Map(
+    translations.map((row) => [
+      JSON.stringify([row.entity, row.entityId, row.field]),
+      row,
+    ]),
+  );
   const text = (
     entity: string,
     id: string,
     field: string,
     value: s.Localized | null | undefined,
   ) => {
-    const result = resolveText(
-      value,
-      locale,
-      translations
-        .filter(
-          (t) => t.entity === entity && t.entityId === id && t.field === field,
-        )
-        .map((t) => ({ ...t, sourceHash: t.sourceHash })),
-    );
+    const row = byTranslation.get(JSON.stringify([entity, id, field]));
+    const result = resolveText(value, locale, row ? [row] : []);
     return result ? { text: result.text, lang: result.lang } : null;
   };
   const url = (path: unknown) =>
@@ -227,6 +279,33 @@ export async function loadCatalog(
         : {}),
     };
   };
+  function storyFor(trip: (typeof ts)[number]) {
+    if (!trip.story) return null;
+    const scenes = [];
+    const sceneText = (key: string, value: s.Localized) => {
+      const row = byTranslation.get(JSON.stringify(['trip', trip.id, key]));
+      const current =
+        row &&
+        row.sourceHash === createHash('sha256').update(value.en).digest('hex');
+      const resolved = resolveText(value, locale, current ? [row] : []);
+      return resolved && { text: resolved.text, lang: resolved.lang };
+    };
+    for (const { title, caption, mediaId, ...scene } of trip.story.scenes) {
+      const heading = sceneText('story.' + scene.id + '.title', title);
+      const body = sceneText('story.' + scene.id + '.caption', caption);
+      const asset = media(mediaId);
+      if (
+        !asset ||
+        !heading ||
+        !body ||
+        heading.lang !== locale ||
+        body.lang !== locale
+      )
+        return null;
+      scenes.push({ ...scene, title: heading, caption: body, media: asset });
+    }
+    return { scenes };
+  }
   const available = ts.filter((t) => cs.some((c) => c.id === t.collectionId));
   // Packages may contain published trips only; never leak a draft's title or price.
   const publicTrips = available.filter(
@@ -239,7 +318,6 @@ export async function loadCatalog(
         ),
   );
   const toTrip = (t: (typeof ts)[number]): Trip => {
-    const today = pricingDate;
     const rows = ps.filter(
       (p) =>
         p.tripId === t.id &&
@@ -247,7 +325,10 @@ export async function loadCatalog(
         (!p.validTo || p.validTo >= today),
     );
     const mediaRows = tms.filter((m) => m.tripId === t.id);
+    const availableStory=t.story ? storyFor(t) : null;
     const result = {
+      story_available: t.story ? !!availableStory : undefined,
+      story_cover: availableStory?.scenes[0]?.media,
       slug: t.slug,
       collection: cs.find((c) => c.id === t.collectionId)!.slug,
       kind: t.kind,
@@ -269,6 +350,9 @@ export async function loadCatalog(
       departure_label: t.departureLabel
         ? (text('trip', t.id, 'departure_label', { en: t.departureLabel })
             ?.text ?? null)
+        : null,
+      return_label: t.returnLabel
+        ? text('trip', t.id, 'return_label', { en: t.returnLabel })
         : null,
       days_count: t.daysCount,
       flight: t.flight,
@@ -430,7 +514,7 @@ export async function loadCatalog(
         if (!cover) return [];
         let href = slide.ctaTarget ?? '';
         if (slide.ctaType === 'collection')
-          href = '/c/' + (slide.ctaTarget ?? collection?.slug ?? '');
+          href = '/c/' + (slide.ctaTarget || collection?.slug || '');
         if (slide.ctaType === 'trip' || slide.ctaType === 'package')
           href = '/t/' + (slide.ctaTarget ?? '');
         if (slide.ctaType === 'my_trip') href = '/my-trip';
@@ -438,48 +522,42 @@ export async function loadCatalog(
           href =
             'https://wa.me/' +
             String(contacts.whatsapp_primary ?? '').replace(/\D/g, '');
-        return [
-          {
-            id: slide.id,
-            title: (slide.headline
-              ? text('hero_slide', slide.id, 'headline', slide.headline)
-              : collection
-                ? text(
-                    'collection',
-                    collection.id,
-                    collection.headline ? 'headline' : 'name',
-                    collection.headline ?? collection.name,
-                  )
-                : null)!,
-            kicker: slide.kicker
-              ? text('hero_slide', slide.id, 'kicker', slide.kicker)
-              : collection
-                ? text('collection', collection.id, 'name', collection.name)
-                : null,
-            subline: slide.subline
-              ? text('hero_slide', slide.id, 'subline', slide.subline)
-              : collection
-                ? text(
-                    'collection',
-                    collection.id,
-                    'subline',
-                    collection.subline,
-                  )
-                : null,
-            cta_label: text(
-              'hero_slide',
-              slide.id,
-              'cta_label',
-              slide.ctaLabel ?? { en: 'See trips' },
-            ),
-            href,
-            cover,
-            duration_s: slide.durationS,
-            device: slide.showOn,
-            starts_at: slide.startsAt?.toISOString() ?? null,
-            ends_at: slide.endsAt?.toISOString() ?? null,
-          },
-        ];
+        const dto = slideSchema.safeParse({
+          id: slide.id,
+          title: slide.headline
+            ? text('hero_slide', slide.id, 'headline', slide.headline)
+            : collection
+              ? text(
+                  'collection',
+                  collection.id,
+                  collection.headline ? 'headline' : 'name',
+                  collection.headline ?? collection.name,
+                )
+              : null,
+          kicker: slide.kicker
+            ? text('hero_slide', slide.id, 'kicker', slide.kicker)
+            : collection
+              ? text('collection', collection.id, 'name', collection.name)
+              : null,
+          subline: slide.subline
+            ? text('hero_slide', slide.id, 'subline', slide.subline)
+            : collection
+              ? text('collection', collection.id, 'subline', collection.subline)
+              : null,
+          cta_label: text(
+            'hero_slide',
+            slide.id,
+            'cta_label',
+            slide.ctaLabel ?? { en: 'See trips' },
+          ),
+          href,
+          cover,
+          duration_s: slide.durationS,
+          device: slide.showOn,
+          starts_at: slide.startsAt?.toISOString() ?? null,
+          ends_at: slide.endsAt?.toISOString() ?? null,
+        });
+        return dto.success && dto.data.title.text.trim() ? [dto.data] : [];
       }),
     featured_trips: Array.isArray(home.featured_trip_slugs)
       ? home.featured_trip_slugs.flatMap((slug) =>
@@ -534,6 +612,10 @@ export async function loadCatalog(
     site,
     collections,
     trips: dtos,
+    story: (slug: string) => {
+      const trip = publicTrips.find((t) => t.slug === slug);
+      return trip ? storyFor(trip) : null;
+    },
     text,
     settings,
     collection: (slug: string) => {

@@ -10,6 +10,7 @@ import { content, obj, type Row } from '../lib/content';
 import { languageName } from '../lib/format';
 import { PageHeader } from '../components/ui/page-header';
 import { Pagination, SearchBox } from '../components/ui/data-table';
+import { FilterBar } from '../components/ui/filter-bar';
 import { AutoTextarea, Toggle } from '../components/ui/field';
 import { useConfirm } from '../components/ui/dialog';
 import { EmptyState, LoadError, Skeleton } from '../components/ui/states';
@@ -38,6 +39,8 @@ function fieldLabel(
     return t('perkN', { n: Number(perk[1]) + 1 }) + ' · ' + t('fld_' + perk[2]);
   const note = field.match(/^notes\[(\d+)\]$/);
   if (note) return t('noteN', { n: Number(note[1]) + 1 });
+  if (field === 'departure_label') return t('departureTime');
+  if (field === 'return_label') return t('returnTime');
   const k = 'fld_' + field;
   const label = t(k);
   return label === k ? field : label;
@@ -94,7 +97,10 @@ export function Translations() {
     })),
   });
   const counts = Object.fromEntries(
-    choices.map((code, i) => [code, queues[i]?.data?.length]),
+    choices.map((code, i) => [
+      code,
+      queues[i]?.data?.filter((row) => row.state !== 'repository').length,
+    ]),
   );
   // Default: last used, else the language with the most pending items.
   useEffect(() => {
@@ -125,12 +131,17 @@ export function Translations() {
       (query?.data ?? []).filter(
         (row) =>
           !done.has(key(row)) &&
+          (row.state !== 'repository' ||
+            group === 'ui' ||
+            state === 'repository') &&
           (!group || groups[group]!.includes(String(row.entity))) &&
           (!state ||
             (state === 'missing'
               ? row.state === 'empty'
               : state === 'machine'
-                ? !['empty', 'stale', 'draft'].includes(String(row.state))
+                ? !['empty', 'stale', 'draft', 'repository'].includes(
+                    String(row.state),
+                  )
                 : row.state === state)) &&
           (showTrivial || !isTrivial(String(row.source))) &&
           (!needle ||
@@ -188,7 +199,7 @@ export function Translations() {
       entity === 'trip_item'
         ? t('whatsIncluded')
         : entity === 'itinerary'
-          ? t('dayPlan')
+          ? t(row.field === 'time_label' ? 'time' : 'dayPlan')
           : entity === 'trip_price'
             ? t('priceLabel')
             : entity === 'ui' || entity === 'settings'
@@ -197,6 +208,7 @@ export function Translations() {
     return [type, title, field].filter(Boolean).join(' · ');
   };
   const approve = async (row: Row, next?: boolean) => {
+    if (row.state === 'repository') return;
     const k = key(row),
       text = drafts[k] ?? String(row.value ?? '');
     if (!text.trim()) {
@@ -232,7 +244,10 @@ export function Translations() {
     }
   };
   const approveSelected = async () => {
-    const rowsToApprove = list.filter((r) => selected.has(key(r)));
+    const rowsToApprove = list.filter(
+      (r) => r.state !== 'repository' && selected.has(key(r)),
+    );
+    if (!rowsToApprove.length) return;
     if (
       !(await confirm({
         title: tp('approveNTitle', rowsToApprove.length),
@@ -247,8 +262,9 @@ export function Translations() {
       queryKey: ['/v1/admin/i18n/queue?locale=' + lang],
     });
   };
+  const reviewable = pageRows.filter((row) => row.state !== 'repository');
   const allOnPage =
-    pageRows.length > 0 && pageRows.every((r) => selected.has(key(r)));
+    reviewable.length > 0 && reviewable.every((r) => selected.has(key(r)));
   return (
     <div className="page">
       <PageHeader
@@ -256,35 +272,39 @@ export function Translations() {
         description={t('translationsDesc')}
       />
       <div className="table-toolbar">
-        <div className="filters">
-          <label className="inline-label">
-            <span className="sr-only">{t('language')}</span>
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value)}
-              aria-label={t('language')}
-            >
-              {(
-                [
-                  [t('coreLanguages'), core],
-                  [t('extraLanguagesMachine'), auto],
-                ] as const
-              )
-                .filter(([, list]) => list.length)
-                .map(([label, list]) => (
-                  <optgroup key={label} label={label}>
-                    {list.map((code) => (
-                      <option key={code} value={code}>
-                        {languageName(code, locale)}
-                        {counts[code] !== undefined
-                          ? ' · ' + tp('toReview', counts[code]!)
-                          : ''}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-            </select>
-          </label>
+        <FilterBar
+          search={
+            <label className="inline-label">
+              <span className="sr-only">{t('language')}</span>
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                aria-label={t('language')}
+              >
+                {(
+                  [
+                    [t('coreLanguages'), core],
+                    [t('extraLanguagesMachine'), auto],
+                  ] as const
+                )
+                  .filter(([, list]) => list.length)
+                  .map(([label, list]) => (
+                    <optgroup key={label} label={label}>
+                      {list.map((code) => (
+                        <option key={code} value={code}>
+                          {languageName(code, locale)}
+                          {counts[code] !== undefined
+                            ? ' · ' + tp('toReview', counts[code]!)
+                            : ''}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+              </select>
+            </label>
+          }
+          active={[group, state, q, showTrivial].filter(Boolean).length}
+        >
           <select
             aria-label={t('contentType')}
             value={group}
@@ -307,6 +327,7 @@ export function Translations() {
             <option value="missing">{t('stateMissing')}</option>
             <option value="stale">{t('stateStale')}</option>
             <option value="draft">{t('stateDraft')}</option>
+            <option value="repository">{t('repositoryManaged')}</option>
           </select>
           <SearchBox value={q} onChange={setQ} placeholder={t('searchText')} />
           <Toggle
@@ -314,7 +335,7 @@ export function Translations() {
             onChange={setShowTrivial}
             label={t('showTimesNumbers')}
           />
-        </div>
+        </FilterBar>
         {query?.data && (
           <span className="result-count" role="status">
             {tp('itemsCount', list.length)}
@@ -367,26 +388,32 @@ export function Translations() {
         )
       ) : (
         <>
-          <p className="muted small">{t('approveShortcut')}</p>
+          <p className="muted small keyboard-tip">{t('approveShortcut')}</p>
           <div className="table-scroll">
             <table className="data-table translations-table">
               <thead>
                 <tr>
                   <th className="col-check">
                     <input
+                      id="select-page"
                       type="checkbox"
                       aria-label={t('selectPage')}
                       checked={allOnPage}
+                      disabled={!reviewable.length}
                       onChange={() =>
                         setSelected((s) => {
                           const next = new Set(s);
-                          pageRows.forEach((r) =>
+                          reviewable.forEach((r) =>
                             allOnPage ? next.delete(key(r)) : next.add(key(r)),
                           );
                           return next;
                         })
                       }
                     />
+                    {/* Phones: the header row becomes a "select all" bar. */}
+                    <label htmlFor="select-page" className="select-page-label">
+                      {t('selectPage')}
+                    </label>
                   </th>
                   <th scope="col">{t('where')}</th>
                   <th scope="col">{t('english')}</th>
@@ -401,7 +428,8 @@ export function Translations() {
                 {pageRows.map((row) => {
                   const k = key(row),
                     link = href(row),
-                    label = where(row);
+                    label = where(row),
+                    readOnly = row.state === 'repository';
                   return (
                     <tr key={k}>
                       <td className="col-check">
@@ -409,6 +437,7 @@ export function Translations() {
                           type="checkbox"
                           aria-label={t('selectItem', { name: label })}
                           checked={selected.has(k)}
+                          disabled={readOnly}
                           onChange={() =>
                             setSelected((s) => {
                               const next = new Set(s);
@@ -428,27 +457,37 @@ export function Translations() {
                           label
                         )}
                       </td>
-                      <td lang="en" className="cell-source">
+                      <td
+                        lang="en"
+                        className="cell-source"
+                        data-label={t('english')}
+                      >
                         {String(row.source)}
                       </td>
-                      <td className="cell-translation">
+                      <td
+                        className="cell-translation"
+                        data-label={languageName(lang, locale)}
+                      >
                         <AutoTextarea
                           lang={lang}
                           minRows={2}
                           aria-label={t('translationOf', { name: label })}
                           value={drafts[k] ?? String(row.value ?? '')}
+                          readOnly={readOnly}
                           onChange={(e) =>
                             setDrafts((d) => ({ ...d, [k]: e.target.value }))
                           }
                           onKeyDown={(e) => {
                             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                              e.preventDefault();
-                              void approve(row, true);
+                              if (!readOnly) {
+                                e.preventDefault();
+                                void approve(row, true);
+                              }
                             }
                           }}
                         />
                       </td>
-                      <td>
+                      <td className="cell-state">
                         <span
                           className={
                             'loc-state ' +
@@ -460,23 +499,25 @@ export function Translations() {
                           }
                         >
                           {t(
-                            row.state === 'empty'
-                              ? 'stateMissing'
-                              : row.state === 'stale'
-                                ? 'stateStale'
-                                : row.state === 'draft'
-                                  ? 'stateDraft'
-                                  : 'stateMachine',
+                            readOnly
+                              ? 'repositoryManaged'
+                              : row.state === 'empty'
+                                ? 'stateMissing'
+                                : row.state === 'stale'
+                                  ? 'stateStale'
+                                  : row.state === 'draft'
+                                    ? 'stateDraft'
+                                    : 'stateMachine',
                           )}
                         </span>
                       </td>
-                      <td>
+                      <td className="cell-approve">
                         <button
                           type="button"
                           className="icon-btn approve"
                           aria-label={t('approveItem', { name: label })}
                           title={t('approve')}
-                          disabled={busy === k}
+                          disabled={readOnly || busy === k}
                           onClick={() => void approve(row)}
                         >
                           {busy === k ? (

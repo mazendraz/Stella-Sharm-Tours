@@ -47,7 +47,7 @@ test('seven-language Private discovery persists an on-request quote and local st
       await expect(
         sheet.getByRole('button', { name: messages.private, exact: true }),
       ).toHaveAttribute('aria-pressed', 'true');
-      await sheet.locator('.date-chip').first().click();
+      await sheet.locator('.range-day:enabled').first().click();
       await sheet
         .getByRole('button', { name: 'Nabq Bay', exact: true })
         .click();
@@ -56,7 +56,9 @@ test('seven-language Private discovery persists an on-request quote and local st
         .fill(
           `Synthetic integration QA Private ${info.project.name} ${locale}`,
         );
-      await sheet.getByLabel(messages.countryCode!).selectOption('+20');
+      await sheet
+        .getByLabel(messages.country!, { exact: true })
+        .selectOption('EG');
       const project =
         ['mobile', 'tablet', 'desktop'].indexOf(info.project.name) + 1;
       await sheet

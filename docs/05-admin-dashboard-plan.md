@@ -85,6 +85,8 @@ Bottom tab bar (mobile) / left sidebar (desktop):
 
 #### Hero videos (the first thing visitors see) — also a shortcut under More
 
+- [x] Apply the same headline, media, target and schedule checks to publishing and edits to a live slide. An incomplete legacy slide is omitted from the public homepage while catalog reads and requests continue.
+
 The owner decides which videos play at the top of the home page and in which order (1st, 2nd, 3rd, 4th…).
 
 - **List in display order**: big position number (1, 2, 3…), poster thumbnail (tap = play preview), headline, where the button goes, status (Live / Draft / Off / Scheduled), device badge (All / Mobile / Desktop), duration.
@@ -176,6 +178,9 @@ POST   /preview-link {path}
 
 ## 7. Acceptance checks
 
+- Editor saves acknowledge only the submitted revision and keep newer edits available for retry. Verified in an authenticated browser at 390, 768 and 1440 pixels.
+- Inline price changes require Save and support Cancel. The shared bulk limit is 5,000 prices and apply rejects stale previews.
+- The requests list, count and filtered CSV use the same filters. Date bounds apply to a single excursion, and a full CSV traverses all results in batches.
 - The owner can move any hero video to position 1 on his phone in two taps, and undo it.
 - A French-speaking staff member can open the Translation queue filtered to FR and fix texts without touching other languages.
 - A staff member who has never seen the admin can change a price and reply to a request on their phone without help.

@@ -8,7 +8,8 @@ import './globals.css';
 const manrope = localFont({
   src: '../../../web/src/fonts/manrope-full.woff2',
   weight: '400 800',
-  display: 'swap',
+  // Preloaded + 'optional': no visible swap to a different font mid-load.
+  display: 'optional',
 });
 export const metadata = {
   title: 'Stella Sharm Tours',

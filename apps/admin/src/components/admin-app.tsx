@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, type ReactNode } from 'react';
+import { Suspense, useEffect, type ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import { can, type Permission } from '@stella/shared/admin';
 import { useAdmin } from '../lib/admin-context';
@@ -9,23 +10,73 @@ import { ConfirmProvider } from './ui/dialog';
 import { AppShell, MorePage, activeNav } from './ui/app-shell';
 import { EmptyState, Skeleton } from './ui/states';
 import { AppLink } from './ui/link';
-import { Overview } from '../screens/overview';
-import { Requests } from '../screens/requests';
-import { TripsList } from '../screens/trips';
-import { TripEditor } from '../screens/trip-editor';
-import { PackagesList, PackageEditor } from '../screens/packages';
-import { CollectionsList, CollectionEditor } from '../screens/collections';
-import { Prices } from '../screens/prices';
-import { MediaLibrary, MediaDetail } from '../screens/media';
-import { HeroList, HeroEditor } from '../screens/hero';
-import { Homepage } from '../screens/homepage';
-import { PagesIndex, FaqEditor, StaticPageEditor } from '../screens/pages';
-import { Translations } from '../screens/translations';
-import { LanguageSettings } from '../screens/languages';
-import { SettingsScreen } from '../screens/settings';
-import { Team, Member } from '../screens/team';
-import { Activity } from '../screens/activity';
-import { Account } from '../screens/account';
+
+const Overview = dynamic(() =>
+  import('../screens/overview').then((m) => m.Overview),
+);
+const Requests = dynamic(() =>
+  import('../screens/requests').then((m) => m.Requests),
+);
+const TripsList = dynamic(() =>
+  import('../screens/trips').then((m) => m.TripsList),
+);
+const TripEditor = dynamic(() =>
+  import('../screens/trip-editor').then((m) => m.TripEditor),
+);
+const PackagesList = dynamic(() =>
+  import('../screens/packages').then((m) => m.PackagesList),
+);
+const PackageEditor = dynamic(() =>
+  import('../screens/packages').then((m) => m.PackageEditor),
+);
+const CollectionsList = dynamic(() =>
+  import('../screens/collections').then((m) => m.CollectionsList),
+);
+const CollectionEditor = dynamic(() =>
+  import('../screens/collections').then((m) => m.CollectionEditor),
+);
+const Prices = dynamic(() => import('../screens/prices').then((m) => m.Prices));
+const MediaLibrary = dynamic(() =>
+  import('../screens/media').then((m) => m.MediaLibrary),
+);
+const MediaDetail = dynamic(() =>
+  import('../screens/media').then((m) => m.MediaDetail),
+);
+const HeroList = dynamic(() =>
+  import('../screens/hero').then((m) => m.HeroList),
+);
+const HeroEditor = dynamic(() =>
+  import('../screens/hero').then((m) => m.HeroEditor),
+);
+const Homepage = dynamic(() =>
+  import('../screens/homepage').then((m) => m.Homepage),
+);
+const PagesIndex = dynamic(() =>
+  import('../screens/pages').then((m) => m.PagesIndex),
+);
+const FaqEditor = dynamic(() =>
+  import('../screens/pages').then((m) => m.FaqEditor),
+);
+const StaticPageEditor = dynamic(() =>
+  import('../screens/pages').then((m) => m.StaticPageEditor),
+);
+const Translations = dynamic(() =>
+  import('../screens/translations').then((m) => m.Translations),
+);
+const LanguageSettings = dynamic(() =>
+  import('../screens/languages').then((m) => m.LanguageSettings),
+);
+const SettingsScreen = dynamic(() =>
+  import('../screens/settings').then((m) => m.SettingsScreen),
+);
+const Team = dynamic(() => import('../screens/team').then((m) => m.Team));
+const Member = dynamic(() => import('../screens/team').then((m) => m.Member));
+const Activity = dynamic(() =>
+  import('../screens/activity').then((m) => m.Activity),
+);
+const Account = dynamic(() =>
+  import('../screens/account').then((m) => m.Account),
+);
 
 export function AdminApp() {
   const { me, loading } = useAdmin();
@@ -155,7 +206,9 @@ function Routes() {
   const current = activeNav(path);
   return (
     <AppShell path={path} title={t(current === 'more' ? 'more' : current)}>
-      {screen}
+      <Suspense key={path} fallback={<Skeleton rows={3} />}>
+        {screen}
+      </Suspense>
     </AppShell>
   );
 }

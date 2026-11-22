@@ -5,7 +5,16 @@ import { TabBar } from './tab-bar';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Compass, House, Map, MessageCircle, X } from 'lucide-react';
+import {
+  Compass,
+  House,
+  Mail,
+  Map,
+  MessageCircle,
+  Phone,
+  X,
+} from 'lucide-react';
+import { SocialIcon, isMapLink } from './social-icon';
 import { useEffect, useState } from 'react';
 import type { ReactNode, MouseEvent } from 'react';
 import type { Collection } from '@stella/shared/public-contract';
@@ -13,7 +22,8 @@ import type { ShellSite } from '@stella/shared/card-trip';
 
 import dynamic from 'next/dynamic';
 import { useTripStore } from './store';
-import { track, whatsapp } from '@/lib/links';
+import { officeMap, track, whatsapp } from '@/lib/links';
+import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
 import { coreLocaleOptions, isCoreLocale } from '@stella/shared';
 import { BuilderLink } from './home-widgets';
@@ -39,22 +49,45 @@ export function Shell({
   }, [router]);
   const enhanced = useTripStore((s) => s.ready);
   const ids = useTripStore((s) => s.ids);
+  const attempt = useTripStore((s) => s.lookupAttempt);
 
   useEffect(() => {
     if (!ids.length) return;
     const ctrl = new AbortController();
-    fetch(
+    function resolve(results: SavedTrip[]) {
+      if (!ctrl.signal.aborted)
+        useTripStore
+          .getState()
+          .resolveLookup({ ids, locale, attempt, results });
+    }
+    const response = fetch(
       '/api/trips?locale=' +
-        locale +
+        encodeURIComponent(locale) +
         '&slugs=' +
         ids.map(encodeURIComponent).join(','),
       { signal: ctrl.signal, cache: 'no-store' },
-    )
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data) => useTripStore.getState().sync(data))
-      .catch(() => {});
+    );
+    Promise.all([response, import('@/lib/saved-trips')])
+      .then(async ([r, { savedTripsSchema }]) => {
+        if (!r.ok) throw new Error('Saved tours could not be loaded');
+        const results = savedTripsSchema.parse(await r.json());
+        if (
+          results.length !== ids.length ||
+          results.some(
+            (result, index) =>
+              result.slug !== ids[index] ||
+              (result.status === 'available' &&
+                result.trip.slug !== result.slug),
+          )
+        )
+          throw new Error('Saved tours did not match the lookup');
+        resolve(results);
+      })
+      .catch(() =>
+        resolve(ids.map((slug) => ({ slug, status: 'unavailable' }))),
+      );
     return () => ctrl.abort();
-  }, [ids, locale]);
+  }, [ids, locale, attempt]);
   const toast = useTripStore((s) => s.toast);
   const request = useTripStore((s) => s.request);
   const [scrolled, setScrolled] = useState(false);
@@ -127,36 +160,8 @@ export function Shell({
               className="wordmark"
               aria-label={t('brand')}
             >
-              {/* Brand lockup: compass mark + wordmark. The *-light files have
-                  the navy parts in white, shown over the hero video. */}
-              <img
-                className="brand-mark on-light"
-                src="/brand/mark.webp"
-                alt=""
-                width={117}
-                height={112}
-              />
-              <img
-                className="brand-mark on-dark"
-                src="/brand/mark-light.webp"
-                alt=""
-                width={117}
-                height={112}
-              />
-              <img
-                className="brand-word on-light"
-                src="/brand/wordmark.webp"
-                alt=""
-                width={283}
-                height={96}
-              />
-              <img
-                className="brand-word on-dark"
-                src="/brand/wordmark-light.webp"
-                alt=""
-                width={283}
-                height={96}
-              />
+              <span className="brand-mark" aria-hidden="true" />
+              <span className="brand-word" aria-hidden="true" />
             </Link>
             <nav className="desktop-nav" aria-label={t('journeys')}>
               {items.map((i) => (
@@ -286,6 +291,25 @@ export function Shell({
                   <Content value={site.address} />
                 </Link>
               )}
+              {!!site?.social.length && (
+                <ul className="footer-social" aria-label={t('followUs')}>
+                  {site.social
+                    .filter((s) => /^https:\/\//.test(s.url))
+                    .map((s) => (
+                      <li key={s.url}>
+                        <a
+                          href={isMapLink(s.label) ? officeMap.url : s.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={s.label}
+                          title={s.label}
+                        >
+                          <SocialIcon label={s.label} size={20} />
+                        </a>
+                      </li>
+                    ))}
+                </ul>
+              )}
             </div>
             <nav
               className="footer-collections"
@@ -312,6 +336,18 @@ export function Shell({
                 >
                   <WhatsAppIcon size={17} />
                   {t('whatsapp')}
+                </a>
+              )}
+              {site?.contacts.phone && (
+                <a href={'tel:' + site.contacts.phone.replace(/[^\d+]/g, '')}>
+                  <Phone size={17} aria-hidden="true" />
+                  {t('contactCall')}
+                </a>
+              )}
+              {site?.contacts.email && (
+                <a href={'mailto:' + site.contacts.email}>
+                  <Mail size={17} aria-hidden="true" />
+                  {t('contactEmail')}
                 </a>
               )}
               <Link href={'/' + locale + '/faq'}>{t('faq')}</Link>

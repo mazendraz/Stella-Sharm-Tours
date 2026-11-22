@@ -14,6 +14,8 @@ if (
     'Usage: node infra/configure.mjs production|staging domain ghcr.io/org [/absolute/root]',
   );
 }
+// First owner login — password reset links are sent to this address.
+const OWNER_EMAIL = 'stellasharmtour@gmail.com';
 const base = resolve(root, target);
 for (const path of [
   'compose.env',
@@ -104,7 +106,7 @@ await write(
   raw({
     MIGRATION_DATABASE_URL: connection('stella_migrate', migration),
     DATABASE_URL: connection('stella_migrate', migration),
-    SEED_OWNER_EMAIL: `owner@${domain}`,
+    SEED_OWNER_EMAIL: OWNER_EMAIL,
     ADMIN_ORIGIN: `https://${admin}`,
     MEDIA_ROOT: '/srv/stella/media',
     ORIGINALS_ROOT: '/srv/stella/originals',
@@ -127,7 +129,7 @@ await write(
     SMTP_SECURE: 'false',
     SMTP_FROM: `website@${domain}`,
     STAFF_NOTIFY_EMAIL: `staff@${domain}`,
-    SEED_OWNER_EMAIL: `owner@${domain}`,
+    SEED_OWNER_EMAIL: OWNER_EMAIL,
   }),
 );
 await write(

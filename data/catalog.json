@@ -22,7 +22,7 @@
         "en": "Your own car, your own guide, your start time. Any trip can be private — some are private only.",
         "it": "La tua auto, la tua guida, il tuo orario. Ogni gita può essere privata."
       },
-      "hero_video": "assets/video-stock/hero6-private-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-7492809-h.mp4",
       "cover": "assets/images/stock/yacht.jpg",
       "perks": [
         [
@@ -43,7 +43,7 @@
         ]
       ],
       "kind": "private_virtual",
-      "hero_video_mobile": "assets/video-stock/hero6-private-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-7492809-v.mp4"
     },
     {
       "id": "history",
@@ -65,10 +65,10 @@
         "en": "Cairo, Luxor, Alexandria and Mount Sinai — by bus, by plane or overnight from Sharm.",
         "it": "Il Cairo, Luxor, Alessandria e il Monte Sinai — in bus, in aereo o di notte da Sharm."
       },
-      "hero_video": "assets/video-stock/hero6-history-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-16194346-h.mp4",
       "cover": "assets/images/stock/pyr-andreea.jpg",
       "kind": "normal",
-      "hero_video_mobile": "assets/video-stock/hero6-history-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-16194346-v.mp4"
     },
     {
       "id": "sea",
@@ -90,10 +90,10 @@
         "en": "Ras Mohammed, Tiran, boats, submarines and water sports — minutes from your hotel.",
         "it": "Ras Mohammed, Tiran, barche, sottomarino e sport acquatici — a pochi minuti dall’hotel."
       },
-      "hero_video": "assets/video-stock/hero6-sea-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-20271097-h.mp4",
       "cover": "assets/images/stock/sea-Eitg.jpg",
       "kind": "normal",
-      "hero_video_mobile": "assets/video-stock/hero6-sea-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-20271097-v.mp4"
     },
     {
       "id": "desert",
@@ -115,10 +115,10 @@
         "en": "Quads, buggies, canyons, Bedouin nights and Nabq National Park.",
         "it": "Quad, buggy, canyon, notti beduine e il Parco Nazionale di Nabq."
       },
-      "hero_video": "assets/video-stock/hero6-desert-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-5977492-h.mp4",
       "cover": "assets/images/stock/quad.jpg",
       "kind": "normal",
-      "hero_video_mobile": "assets/video/hero6-desert-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-5977492-v.mp4"
     },
     {
       "id": "beyond",
@@ -140,10 +140,10 @@
         "en": "Petra by bus and ferry, Jerusalem & Bethlehem by bus.",
         "it": "Petra in bus e traghetto, Gerusalemme e Betlemme in bus."
       },
-      "hero_video": "assets/video-stock/hero6-beyond-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-14923757-h.mp4",
       "cover": "assets/images/stock/sinai-mountains.jpg",
       "kind": "normal",
-      "hero_video_mobile": "assets/video-stock/hero6-beyond-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-14923757-v.mp4"
     },
     {
       "id": "relax",
@@ -165,10 +165,10 @@
         "en": "Dolphin show, dinner cruise, aqua park, horse riding, spa and the city tour.",
         "it": "Delfini, cena in crociera, aqua park, equitazione, spa e tour della città."
       },
-      "hero_video": "assets/video-stock/hero6-relax-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-4185235-h.mp4",
       "cover": "assets/images/stock/sharm-bay.jpg",
       "kind": "normal",
-      "hero_video_mobile": "assets/video-stock/hero6-relax-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-4185235-v.mp4"
     },
     {
       "id": "all",
@@ -190,10 +190,10 @@
         "en": "Ready-made journeys that join history, sea and desert — or build your own.",
         "it": "Viaggi pronti che uniscono storia, mare e deserto — oppure crea il tuo."
       },
-      "hero_video": "assets/video-stock/hero6-all-h.mp4",
+      "hero_video": "assets/video-stock/hero-pexels-15216597-h.mp4",
       "cover": "assets/images/stock/pyr-camels.jpg",
       "kind": "packages",
-      "hero_video_mobile": "assets/video-stock/hero6-all-v.mp4"
+      "hero_video_mobile": "assets/video-stock/hero-pexels-15216597-v.mp4"
     }
   ],
   "trips": [
@@ -231,7 +231,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/sphinx.jpg",
-        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+        "gallery": [
+          "assets/images/stock/pyramids-aerial.jpg",
+          "assets/images/stock/camels-pyramids.jpg"
+        ]
       },
       "source": [
         "flyer-five-cairo-journeys",
@@ -281,7 +285,12 @@
       ],
       "media": {
         "cover": "assets/images/stock/pyramids.jpg",
-        "video": "assets/video-stock/stock-giza-camels.mp4"
+        "video": "assets/video-stock/stock-giza-camels.mp4",
+        "gallery": [
+          "assets/images/stock/sphinx.jpg",
+          "assets/images/stock/pyramids-aerial.jpg",
+          "assets/images/stock/camels-saddles.jpg"
+        ]
       },
       "source": [
         "flyer-five-cairo-journeys",
@@ -335,7 +344,12 @@
       ],
       "media": {
         "cover": "assets/images/stock/pyr-artfox.jpg",
-        "video": "assets/video-stock/stock-giza-camels.mp4"
+        "video": "assets/video-stock/stock-giza-camels.mp4",
+        "gallery": [
+          "assets/images/stock/camels-pyramids.jpg",
+          "assets/images/stock/sphinx.jpg",
+          "assets/images/stock/pyramids-aerial.jpg"
+        ]
       },
       "source": [
         "flyer-cairo-plane-1day",
@@ -395,7 +409,12 @@
       ],
       "media": {
         "cover": "assets/images/stock/pyr-camels.jpg",
-        "video": "assets/video/coptic-cairo-v.mp4"
+        "video": "assets/video/coptic-cairo-v.mp4",
+        "gallery": [
+          "assets/images/stock/sphinx.jpg",
+          "assets/images/stock/pyramids-aerial.jpg",
+          "assets/images/stock/camels-saddles.jpg"
+        ]
       },
       "source": [
         "flyer-five-cairo-journeys",
@@ -409,7 +428,12 @@
       ],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Grand Egyptian Museum",
+        "Giza Pyramids",
+        "Great Sphinx"
+      ]
     },
     {
       "slug": "cairo-alexandria-bus-2-days",
@@ -450,7 +474,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/sphinx.jpg",
-        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+        "video": "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+        "gallery": [
+          "assets/images/stock/pyramids-aerial.jpg",
+          "assets/images/stock/camels-pyramids.jpg"
+        ]
       },
       "notes": [
         "No Alexandria photos yet — need one (Qaitbay citadel)"
@@ -467,7 +495,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Grand Egyptian Museum",
+        "Giza Pyramids",
+        "Citadel of Qaitbay"
+      ]
     },
     {
       "slug": "cairo-plane-2-days-private",
@@ -515,8 +548,13 @@
         "Nile cruise"
       ],
       "media": {
-        "cover": "assets/images/stock/pyr-kai.jpg",
-        "video": "assets/video/cairo-citadel-mosque-v.mp4"
+        "cover": "assets/images/stock/pyr-artfox.jpg",
+        "video": "assets/video/cairo-citadel-mosque-v.mp4",
+        "gallery": [
+          "assets/images/stock/camels-pyramids.jpg",
+          "assets/images/stock/pyramids-aerial.jpg",
+          "assets/images/stock/sphinx.jpg"
+        ]
       },
       "source": [
         "flyer-cairo-plane-2days-private"
@@ -526,7 +564,12 @@
       "notes": [],
       "conflicts": [],
       "family": false,
-      "private_on_request": false
+      "private_on_request": false,
+      "highlights": [
+        "Giza Pyramids",
+        "Grand Egyptian Museum",
+        "Khan El Khalili"
+      ]
     },
     {
       "slug": "luxor-plane-1-day",
@@ -611,7 +654,12 @@
       "notes": [],
       "conflicts": [],
       "family": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Karnak Temple",
+        "Hatshepsut Temple",
+        "Colossi of Memnon"
+      ]
     },
     {
       "slug": "mount-sinai-st-catherine",
@@ -678,7 +726,8 @@
         "cover": "assets/images/stock/sinai-mountains.jpg",
         "video": "assets/video-stock/stock-mount-sinai-sunrise.mp4",
         "gallery": [
-          "assets/images/stock/stcath.jpg"
+          "assets/images/stock/stcath.jpg",
+          "assets/images/stock/sinai-sunrise.jpg"
         ]
       },
       "source": [
@@ -690,7 +739,12 @@
       "optional": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Sunrise on Mount Sinai",
+        "Local Bedouin guide for the hike",
+        "Visit St Catherine Monastery"
+      ]
     },
     {
       "slug": "st-catherine-monastery-dahab",
@@ -721,7 +775,12 @@
       ],
       "media": {
         "cover": "assets/images/stock/stcath.jpg",
-        "video": "assets/video-stock/stock-saint-catherine.mp4"
+        "video": "assets/video-stock/stock-saint-catherine.mp4",
+        "gallery": [
+          "assets/images/stock/stcath-monastery.jpg",
+          "assets/images/stock/sinai-trek.jpg",
+          "assets/images/stock/dahab.jpg"
+        ]
       },
       "source": [
         "pricelist-excursions-programs-a #10"
@@ -826,7 +885,10 @@
       ],
       "media": {
         "video": "assets/video-stock/stock-petra-treasury.mp4",
-        "cover": "assets/images/stock/petra.jpg"
+        "cover": "assets/images/stock/petra.jpg",
+        "gallery": [
+          "assets/images/stock/petra-2.jpg"
+        ]
       },
       "source": [
         "flyer-petra",
@@ -838,7 +900,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Cruise ship to Jordan",
+        "The Siq and the Treasury (Al-Khazneh)",
+        "Lunch in a restaurant in Petra (open buffet)"
+      ]
     },
     {
       "slug": "jerusalem-bethlehem",
@@ -878,7 +945,8 @@
         "Resolved: client said pick one; staff can change it in the admin. Was: Flyer: departure 21:00, ~28 h. Price list: 19:30–24:00. Confirm."
       ],
       "media": {
-        "video": "assets/video/jerusalem-dome-v.mp4"
+        "video": "assets/video/jerusalem-dome-v.mp4",
+        "cover": "assets/images/stock/jerusalem-dome.jpg"
       },
       "source": [
         "flyer-jerusalem-bethlehem",
@@ -887,7 +955,36 @@
       "status": "published",
       "format": "both",
       "optional": [],
-      "itinerary": [],
+      "itinerary": [
+        [
+          "21:00",
+          "Pickup in Sharm El Sheikh"
+        ],
+        [
+          null,
+          "Dead Sea"
+        ],
+        [
+          null,
+          "Jordan River"
+        ],
+        [
+          null,
+          "Lunch at a local restaurant in Bethlehem"
+        ],
+        [
+          null,
+          "Bethlehem — Church of the Nativity"
+        ],
+        [
+          null,
+          "Western Wall"
+        ],
+        [
+          null,
+          "Via Dolorosa & Church of the Holy Sepulchre"
+        ]
+      ],
       "family": false,
       "flight": false,
       "private_on_request": true
@@ -934,7 +1031,36 @@
       "format": "both",
       "excludes": [],
       "optional": [],
-      "itinerary": [],
+      "itinerary": [
+        [
+          "08:30",
+          "Pickup (round-trip transfer included)"
+        ],
+        [
+          null,
+          "Gate of Allah"
+        ],
+        [
+          null,
+          "Mangrove trees"
+        ],
+        [
+          null,
+          "Earthquake crack"
+        ],
+        [
+          null,
+          "Magic Lake swim"
+        ],
+        [
+          null,
+          "Snorkelling"
+        ],
+        [
+          "13:30",
+          "Return"
+        ]
+      ],
       "notes": [],
       "conflicts": [],
       "family": false,
@@ -977,7 +1103,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/sea-BkRr.jpg",
-        "video": "assets/video-stock/stock-red-sea-reef.mp4"
+        "video": "assets/video-stock/stock-red-sea-reef.mp4",
+        "gallery": [
+          "assets/images/stock/reef-wall.jpg",
+          "assets/images/stock/reef.jpg"
+        ]
       },
       "notes": [
         "Price not on any flyer — ask Stella"
@@ -987,7 +1117,36 @@
       ],
       "status": "published",
       "optional": [],
-      "itinerary": [],
+      "itinerary": [
+        [
+          "~08:00",
+          "Pickup by private air-conditioned car"
+        ],
+        [
+          null,
+          "Gate of Allah"
+        ],
+        [
+          null,
+          "Mangrove forest"
+        ],
+        [
+          null,
+          "Earthquake crack"
+        ],
+        [
+          null,
+          "Magic Lake (salt water)"
+        ],
+        [
+          null,
+          "Snorkelling at the Aqaba Gulf"
+        ],
+        [
+          "13:30",
+          "Drop-off at your hotel"
+        ]
+      ],
       "conflicts": [],
       "family": false,
       "flight": false,
@@ -1068,7 +1227,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Yacht cruise",
+        "2 snorkelling stops",
+        "White Island visit"
+      ]
     },
     {
       "slug": "tiran-island-boat",
@@ -1113,7 +1277,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "2 snorkelling stops",
+        "Lunch & soft drinks",
+        "Life jackets"
+      ]
     },
     {
       "slug": "sea-scope-submarine",
@@ -1140,7 +1309,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/fish.jpg",
-        "video": "assets/video/reef-snorkel-v.mp4"
+        "video": "assets/video/reef-snorkel-v.mp4",
+        "gallery": [
+          "assets/images/stock/reef-wall.jpg",
+          "assets/images/stock/reef.jpg"
+        ]
       },
       "notes": [
         "Need a real Sea Scope photo"
@@ -1179,14 +1352,21 @@
       ],
       "media": {
         "cover": "assets/images/stock/fish.jpg",
-        "video": "assets/video/reef-snorkel-v.mp4"
+        "video": "assets/video/reef-snorkel-v.mp4",
+        "gallery": [
+          "assets/images/stock/reef.jpg",
+          "assets/images/stock/reef-wall.jpg"
+        ]
       },
       "source": [
         "pricelist-sea-desert-extras"
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Air-conditioned transportation"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
@@ -1219,7 +1399,8 @@
       "media": {
         "cover": "assets/images/stock/yacht.jpg",
         "gallery": [
-          "assets/images/stock/boat-guest.jpg"
+          "assets/images/stock/boat-guest.jpg",
+          "assets/images/stock/boat-reef.jpg"
         ],
         "video": "assets/video-stock/stock-sea-boat.mp4"
       },
@@ -1227,7 +1408,11 @@
         "pricelist-sea-desert-extras"
       ],
       "status": "published",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Private boat",
+        "Snorkelling stops"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
@@ -1259,7 +1444,11 @@
         "Private transfer"
       ],
       "media": {
-        "cover": "assets/images/stock/beach-family.jpg"
+        "cover": "assets/images/stock/beach-family.jpg",
+        "gallery": [
+          "assets/images/stock/sharm-bay.jpg",
+          "assets/images/stock/boat-reef.jpg"
+        ]
       },
       "notes": [
         "Need real parasailing photo/video"
@@ -1275,7 +1464,12 @@
       "itinerary": [],
       "conflicts": [],
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Parasailing",
+        "Banana boat",
+        "Sofa boat"
+      ]
     },
     {
       "slug": "quad-bike-safari",
@@ -1304,7 +1498,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/quad.jpg",
-        "video": "assets/video/bedouin-quad-v.mp4"
+        "video": "assets/video/bedouin-quad-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/sinai-valley.jpg"
+        ]
       },
       "notes": [
         "Confirm whether Double €20 is per quad or per person"
@@ -1314,7 +1512,10 @@
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Bedouin tea"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
@@ -1345,7 +1546,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/desert-palms.jpg",
-        "video": "assets/video/desert-jeep-v.mp4"
+        "video": "assets/video/desert-jeep-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/sinai-valley.jpg"
+        ]
       },
       "notes": [
         "Confirm unit (per buggy or per person)",
@@ -1356,7 +1561,10 @@
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Bedouin tea"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
@@ -1395,7 +1603,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/camel.jpg",
-        "video": "assets/video/bedouin-quad-v.mp4"
+        "video": "assets/video/bedouin-quad-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/quad.jpg"
+        ]
       },
       "source": [
         "pricelist-sea-desert-extras"
@@ -1409,7 +1621,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Quad bike",
+        "Camel ride",
+        "Evening show & party"
+      ]
     },
     {
       "slug": "stella-sharm-7in1",
@@ -1438,7 +1655,12 @@
       ],
       "media": {
         "cover": "assets/images/stock/quad.jpg",
-        "video": "assets/video/hero-desert-v.mp4"
+        "video": "assets/video/hero-desert-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/camel.jpg",
+          "assets/images/stock/beach-family.jpg"
+        ]
       },
       "source": [
         "pricelist-sea-desert-extras"
@@ -1452,7 +1674,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Quad bike safari",
+        "Buggy car safari",
+        "Parasailing"
+      ]
     },
     {
       "slug": "arabian-night-safari",
@@ -1511,7 +1738,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/camel.jpg",
-        "video": "assets/video/bedouin-quad-v.mp4"
+        "video": "assets/video/bedouin-quad-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/sinai-valley.jpg"
+        ]
       },
       "notes": [
         "Price not on flyer — ask Stella"
@@ -1520,13 +1751,26 @@
         "flyer-arabian-night-safari"
       ],
       "status": "published",
-      "includes": [],
+      "includes": [
+        "Pickup by private air-conditioned car",
+        "Private safari with a private guide",
+        "Bedouin village: tea and photos",
+        "Camel riding",
+        "BBQ dinner & live show",
+        "Telescope and stargazing",
+        "Drop-off at your hotel"
+      ],
       "excludes": [],
       "optional": [],
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": false
+      "private_on_request": false,
+      "highlights": [
+        "Choose buggy or quad",
+        "BBQ dinner & live show",
+        "Telescope and stargazing"
+      ]
     },
     {
       "slug": "nabq-private-morning",
@@ -1556,7 +1800,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/desert-palms.jpg",
-        "video": "assets/video/desert-jeep-v.mp4"
+        "video": "assets/video/desert-jeep-v.mp4",
+        "gallery": [
+          "assets/images/stock/sinai-valley.jpg",
+          "assets/images/stock/camel.jpg"
+        ]
       },
       "source": [
         "flyer-nabq-private-tours",
@@ -1570,7 +1818,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": false
+      "private_on_request": false,
+      "highlights": [
+        "Jeep safari",
+        "Sandboarding",
+        "Kayaking in the mangrove forest"
+      ]
     },
     {
       "slug": "nabq-private-afternoon",
@@ -1601,7 +1854,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/sinai-mountains.jpg",
-        "video": "assets/video/desert-jeep-v.mp4"
+        "video": "assets/video/desert-jeep-v.mp4",
+        "gallery": [
+          "assets/images/stock/quads-sunset.jpg",
+          "assets/images/stock/desert-palms.jpg"
+        ]
       },
       "source": [
         "flyer-nabq-private-tours",
@@ -1615,7 +1872,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": false
+      "private_on_request": false,
+      "highlights": [
+        "Jeep safari",
+        "Stargazing with telescope",
+        "Dinner and Bedouin night show"
+      ]
     },
     {
       "slug": "camping-nabq",
@@ -1634,8 +1896,11 @@
         }
       ],
       "media": {
-        "cover": null,
-        "video": "assets/video/desert-jeep-v.mp4"
+        "cover": "assets/images/stock/sinai-valley.jpg",
+        "video": "assets/video/desert-jeep-v.mp4",
+        "gallery": [
+          "assets/images/stock/desert-palms.jpg"
+        ]
       },
       "notes": [
         "Use Stella’s own cabin photos (flyer shows cabins)"
@@ -1645,14 +1910,33 @@
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off"
+      ],
       "excludes": [],
       "optional": [],
-      "itinerary": [],
+      "itinerary": [
+        [
+          "12:00",
+          "Pickup in Sharm El Sheikh"
+        ],
+        [
+          "Night",
+          "Nabq National Park"
+        ],
+        [
+          "12:00",
+          "Drop-off at your hotel"
+        ]
+      ],
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Nabq National Park",
+        "Overnight"
+      ]
     },
     {
       "slug": "red-canyon-three-pools",
@@ -1680,7 +1964,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/desert-palms.jpg",
-        "video": "assets/video/coloured-canyon-v.mp4"
+        "video": "assets/video/coloured-canyon-v.mp4",
+        "gallery": [
+          "assets/images/stock/sinai-valley.jpg",
+          "assets/images/stock/reef.jpg"
+        ]
       },
       "source": [
         "pricelist-excursions-programs-a #13"
@@ -1694,7 +1982,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Red Canyon (Salama)",
+        "Snorkelling in the Three Pools",
+        "Jeep safari"
+      ]
     },
     {
       "slug": "red-canyon-blue-hole",
@@ -1722,7 +2015,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/dahab.jpg",
-        "video": "assets/video/coloured-canyon-v.mp4"
+        "video": "assets/video/coloured-canyon-v.mp4",
+        "gallery": [
+          "assets/images/stock/reef-wall.jpg",
+          "assets/images/stock/sinai-valley.jpg"
+        ]
       },
       "source": [
         "pricelist-excursions-programs-a #12"
@@ -1736,7 +2033,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Red Canyon (Salama)",
+        "Snorkelling at the Blue Hole",
+        "Jeep safari"
+      ]
     },
     {
       "slug": "dahab-day-trip",
@@ -1804,7 +2106,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/dahab.jpg",
-        "video": "assets/video/desert-camel-v.mp4"
+        "video": "assets/video/desert-camel-v.mp4",
+        "gallery": [
+          "assets/images/stock/camel.jpg",
+          "assets/images/stock/reef.jpg"
+        ]
       },
       "source": [
         "flyer-dahab-day-trip"
@@ -1815,7 +2121,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Jeep safari",
+        "Camel ride on the beach",
+        "Free time for shopping"
+      ]
     },
     {
       "slug": "wishwash-lake-canyon",
@@ -1842,7 +2153,11 @@
         "Shopping"
       ],
       "media": {
-        "video": "assets/video/coloured-canyon-v.mp4"
+        "video": "assets/video/coloured-canyon-v.mp4",
+        "cover": "assets/images/stock/wishwash.jpg",
+        "gallery": [
+          "assets/images/stock/sinai-valley.jpg"
+        ]
       },
       "source": [
         "pricelist-excursions-programs-a #11"
@@ -1855,7 +2170,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": false
+      "private_on_request": false,
+      "highlights": [
+        "Wishwash Lake",
+        "Canyon",
+        "Swimming"
+      ]
     },
     {
       "slug": "desert-horse-riding",
@@ -1877,7 +2197,12 @@
         "Bedouin tea",
         "Desert landscape"
       ],
-      "media": {},
+      "media": {
+        "cover": "assets/images/stock/horse-desert.jpg",
+        "gallery": [
+          "assets/images/stock/sinai-valley.jpg"
+        ]
+      },
       "source": [
         "pricelist-sea-desert-extras"
       ],
@@ -1890,7 +2215,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "1 hour horseback riding",
+        "Bedouin tea",
+        "Desert landscape"
+      ]
     },
     {
       "slug": "horse-riding-by-sea-nabq",
@@ -1912,7 +2242,12 @@
         "Sea views",
         "Nabq National Park"
       ],
-      "media": {},
+      "media": {
+        "cover": "assets/images/stock/horse-beach.jpg",
+        "gallery": [
+          "assets/images/stock/sharm-sunset.jpg"
+        ]
+      },
       "source": [
         "pricelist-sea-desert-extras"
       ],
@@ -1925,7 +2260,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "1 hour horseback",
+        "Sea views",
+        "Nabq National Park"
+      ]
     },
     {
       "slug": "dolphin-show",
@@ -1953,7 +2293,9 @@
         }
       ],
       "family": true,
-      "media": {},
+      "media": {
+        "cover": "assets/images/stock/dolphin-show.jpg"
+      },
       "source": [
         "pricelist-sea-desert-extras"
       ],
@@ -1962,13 +2304,21 @@
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Air-conditioned transportation"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
       "conflicts": [],
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Show",
+        "+ 15 min swim with dolphins",
+        "+ 30 min swim with dolphins"
+      ]
     },
     {
       "slug": "romantic-dinner-cruise",
@@ -1994,7 +2344,11 @@
       ],
       "media": {
         "cover": "assets/images/stock/sunset-coast.jpg",
-        "video": "assets/video-stock/stock-sharm-sunset.mp4"
+        "video": "assets/video-stock/stock-sharm-sunset.mp4",
+        "gallery": [
+          "assets/images/stock/yacht.jpg",
+          "assets/images/stock/sharm-sunset.jpg"
+        ]
       },
       "source": [
         "pricelist-sea-desert-extras"
@@ -2008,7 +2362,12 @@
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Seafood dinner",
+        "Belly dance",
+        "Oriental show"
+      ]
     },
     {
       "slug": "aqua-park",
@@ -2046,7 +2405,12 @@
       "notes": [],
       "conflicts": [],
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "48 water slides",
+        "Lunch",
+        "Drinks"
+      ]
     },
     {
       "slug": "spa-turkish-bath",
@@ -2095,7 +2459,9 @@
           "50-min massage, face mask with chocolate or milk"
         ]
       ],
-      "media": {},
+      "media": {
+        "cover": "assets/images/stock/spa-hammam.jpg"
+      },
       "notes": [
         "Price list says Turkish bath 'from €35' — matches the 50-min massage program"
       ],
@@ -2105,13 +2471,20 @@
       ],
       "status": "published",
       "format": "both",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off"
+      ],
       "excludes": [],
       "optional": [],
       "conflicts": [],
       "family": false,
       "flight": false,
-      "private_on_request": true
+      "private_on_request": true,
+      "highlights": [
+        "Turkish bath",
+        "Sauna, steam room & jacuzzi",
+        "Massage & scrubs"
+      ]
     },
     {
       "slug": "sharm-city-tour",
@@ -2142,13 +2515,19 @@
       ],
       "media": {
         "cover": "assets/images/stock/sharm-bay.jpg",
-        "video": "assets/video-stock/stock-sharm-sunset.mp4"
+        "video": "assets/video-stock/stock-sharm-sunset.mp4",
+        "gallery": [
+          "assets/images/stock/sharm-sunset.jpg"
+        ]
       },
       "source": [
         "pricelist-excursions-programs-a #14"
       ],
       "status": "published",
-      "includes": [],
+      "includes": [
+        "Hotel pickup & drop-off",
+        "Private air-conditioned vehicle"
+      ],
       "excludes": [],
       "optional": [],
       "itinerary": [],
@@ -2173,7 +2552,9 @@
       "sum_of_parts_eur": 340,
       "price_eur": null,
       "status": "draft",
-      "collection": "all"
+      "collection": "all",
+      "cover": "assets/images/stock/camels-pyramids.jpg",
+      "summary": "Ras Mohammed & White Island by Boat · Cairo by Plane — One Day · Quad Bike Safari"
     },
     {
       "slug": "history-in-3-days",
@@ -2187,7 +2568,9 @@
       "sum_of_parts_eur": 550,
       "price_eur": null,
       "status": "draft",
-      "collection": "all"
+      "collection": "all",
+      "summary": "Cairo by Plane — One Day · Luxor by Plane — One Day · Mount Sinai Sunrise & St Catherine",
+      "cover": "assets/images/stock/pyramids-aerial.jpg"
     },
     {
       "slug": "sea-week",
@@ -2201,7 +2584,9 @@
       "sum_of_parts_eur": 105,
       "price_eur": null,
       "status": "draft",
-      "collection": "all"
+      "collection": "all",
+      "summary": "Ras Mohammed & White Island by Boat · Tiran Island by Boat · Dahab Day Trip",
+      "cover": "assets/images/stock/boat-reef.jpg"
     },
     {
       "slug": "family-days",
@@ -2216,7 +2601,9 @@
       "sum_of_parts_eur": 140,
       "price_eur": null,
       "status": "draft",
-      "collection": "all"
+      "collection": "all",
+      "cover": "assets/images/stock/dolphin-show.jpg",
+      "summary": "Glass Bottom Boat · Ras Mohammed & White Island by Boat · Aqua Park"
     }
   ],
   "business": {

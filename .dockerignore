@@ -10,7 +10,15 @@
 **/.env.*
 **/*.log
 reference
-assets
+assets/**
+!assets/journeys/
+!assets/journeys/**
+!assets/images/
+!assets/images/stock/
+!assets/images/stock/sphinx.jpg
+!assets/images/stock/sharm-bay.jpg
+!assets/video-stock/
+!assets/video-stock/stock-giza-pyramids-aerial.mp4
 docs/screens
 test-results
 playwright-report

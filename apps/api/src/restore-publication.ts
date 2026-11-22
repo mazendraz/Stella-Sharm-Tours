@@ -1,3 +1,4 @@
+import { storyPatch } from '@stella/shared/story';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Database } from '@stella/db';
@@ -74,6 +75,7 @@ export async function restorePublication(
     .update(s.trips)
     .set({
       ...basics,
+      ...storyPatch.parse({ story: row.story ?? null }),
       ...schedule,
       ...seo,
       privateSurchargePct:

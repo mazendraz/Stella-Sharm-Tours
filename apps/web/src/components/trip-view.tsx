@@ -1,6 +1,7 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -19,16 +20,19 @@ import { AddButton } from './add-button';
 import { useTripStore } from './store';
 import { estimateTrip } from '@stella/shared/price';
 import { money, track } from '@/lib/links';
+const TripStory = dynamic(() => import('./trip-story'));
 export function TripView({
   trip,
   whatsappUrl,
   preview = false,
   requestedPrivate = false,
+  previewStory,
 }: {
   trip: Trip;
   whatsappUrl: string | null;
   preview?: boolean;
   requestedPrivate?: boolean;
+  previewStory?: import('@stella/shared/story').PublicStory | undefined;
 }) {
   const locale = useLocale(),
     t = useTranslations();
@@ -70,6 +74,11 @@ export function TripView({
       value: trip.departure_label
         ? { text: trip.departure_label, lang: locale }
         : null,
+    },
+    {
+      icon: Clock,
+      k: 'returnTime',
+      value: trip.return_label,
     },
     {
       icon: UsersRound,
@@ -184,6 +193,14 @@ export function TripView({
           <p className="body-copy">
             <Content value={trip.description} />
           </p>
+        )}
+        {trip.story_available && (!preview || previewStory) && (
+          <TripStory
+            previewStory={previewStory}
+            key={trip.slug}
+            trip={trip}
+            privateMode={privateMode}
+          />
         )}
         {trip.itinerary.length > 0 && (
           <section>

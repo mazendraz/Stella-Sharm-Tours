@@ -6,6 +6,13 @@ import { resolve } from 'node:path';
 import { passwordHash, seal } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
+import it from '../../apps/admin/messages/it.json' with { type: 'json' };
+import es from '../../apps/admin/messages/es.json' with { type: 'json' };
+import fr from '../../apps/admin/messages/fr.json' with { type: 'json' };
+import de from '../../apps/admin/messages/de.json' with { type: 'json' };
+import ru from '../../apps/admin/messages/ru.json' with { type: 'json' };
+import tr from '../../apps/admin/messages/tr.json' with { type: 'json' };
+import { coreLocaleOptions } from '../../packages/shared/src/index';
 const otp = createRequire(resolve('apps/api/package.json'))(
   'otplib',
 ) as typeof import('../../apps/api/node_modules/otplib');
@@ -17,6 +24,7 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
   page,
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'one viewport is enough');
+  test.setTimeout(60_000);
   const { pool, env } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
@@ -41,7 +49,7 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
     );
     const source = (
       await pool.query(
-        "select id, slug from trips where kind='trip' and archived_at is null order by sort limit 1",
+        "select id, slug from trips where slug='quad-bike-safari' and archived_at is null",
       )
     ).rows[0];
     await page.goto('/');
@@ -56,7 +64,14 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
       .locator('.editor-actions')
       .getByRole('button', { name: en.moreActions })
       .click();
+    const duplication = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.url().endsWith('/' + source.id + '/duplicate'),
+    );
     await page.getByRole('menuitem', { name: en.duplicate }).click();
+    const duplicateResponse = await duplication;
+    expect(duplicateResponse.ok(), await duplicateResponse.text()).toBe(true);
     await page.waitForURL(
       (u) =>
         u.pathname.startsWith('/trips/') && !u.pathname.endsWith(source.id),
@@ -95,23 +110,75 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
       await page.locator('.language-bar .lang-chip', { hasText: lang }).click();
       await page.getByLabel(en.summary, { exact: true }).fill('QA ' + lang);
     }
-    await page.keyboard.press('Control+s');
-    await expect(page.getByText(en.tripSaved)).toBeVisible();
-    await expect(page.locator('.save-bar')).toHaveCount(0);
+    await page.setViewportSize({ width: 390, height: 844 });
+    const path = '**/v1/admin/trips/' + copyId + '/basics';
+    const sent = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    await page.route(
+      path,
+      async (route) => {
+        sent.resolve();
+        await release.promise;
+        await route.continue();
+      },
+      { times: 1 },
+    );
+    const saveBar = page.locator('.save-bar');
+    const save = saveBar.getByRole('button', { name: en.save, exact: true });
+    const summary = page.getByLabel(en.summary, { exact: true });
+    await save.click();
+    await sent.promise;
+    try {
+      await summary.fill('QA TR after the first save');
+    } finally {
+      release.resolve();
+    }
+    await expect(summary).toHaveValue('QA TR after the first save');
+    await expect(save).toBeEnabled();
     const saved = (
       await pool.query('select summary from trips where id=$1', [copyId])
     ).rows[0].summary;
     expect(saved.en).toBe('QA summary');
     expect(saved.ru).toBe('QA RU');
-    await page.getByRole('button', { name: en.undo, exact: true }).click();
+    expect(saved.tr).toBe('QA TR');
+    await page.setViewportSize({ width: 768, height: 1024 });
+    await page.route(
+      path,
+      (route) =>
+        route.fulfill({
+          status: 503,
+          json: {
+            error: {
+              code: 'CATALOG_UNAVAILABLE',
+              message: 'Synthetic QA failure',
+            },
+          },
+        }),
+      { times: 1 },
+    );
+    await save.click();
+    await expect(page.locator('#section-basics .section-error')).toBeVisible();
+    await expect(summary).toHaveValue('QA TR after the first save');
+    await expect(save).toBeEnabled();
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await save.click();
+    await expect(saveBar).toHaveCount(0);
+    const final = (
+      await pool.query('select summary from trips where id=$1', [copyId])
+    ).rows[0].summary;
+    expect(final.tr).toBe('QA TR after the first save');
+    await page
+      .getByRole('button', { name: en.undo, exact: true })
+      .last()
+      .click();
     await expect(page.getByText(en.undone)).toBeVisible();
     await expect
       .poll(
         async () =>
           (await pool.query('select summary from trips where id=$1', [copyId]))
-            .rows[0].summary?.en,
+            .rows[0].summary?.tr,
       )
-      .not.toBe('QA summary');
+      .toBe('QA TR');
     const audit = async () =>
       (
         await pool.query(
@@ -123,6 +190,51 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
     await page.keyboard.press('Control+s');
     await page.waitForTimeout(800);
     expect(await audit()).toBe(before);
+
+    const price = async () =>
+      Number(
+        (
+          await pool.query(
+            'select amount_eur from trip_prices where trip_id=$1 and is_primary',
+            [copyId],
+          )
+        ).rows[0].amount_eur,
+      );
+    const original = await price();
+    await page.goto('/prices');
+    const row = page
+      .locator('.data-table tr')
+      .filter({ hasText: 'Quad Bike Safari (copy)' });
+    const editPrice = row.getByRole('button', { name: /Edit price/ });
+    await editPrice.click();
+    const amount = row.getByRole('spinbutton');
+    await amount.fill(String(original + 1));
+    await amount.press('Tab');
+    await expect(amount).toHaveValue(String(original + 1));
+    expect(await price()).toBe(original);
+    await row.getByRole('button', { name: en.cancel, exact: true }).click();
+    await expect(amount).toHaveCount(0);
+    expect(await price()).toBe(original);
+    await editPrice.click();
+    await amount.fill(String(original + 1));
+    await row.getByRole('button', { name: en.save, exact: true }).click();
+    await expect(amount).toHaveCount(0);
+    expect(await price()).toBe(original + 1);
+    await page.goto('/trips/' + copyId);
+    const dictionaries = { en, it, es, fr, de, ru, tr };
+    let current = en;
+    for (const { code, name } of coreLocaleOptions) {
+      await page
+        .locator('.sidebar')
+        .getByRole('button', { name: current.accountMenu })
+        .click();
+      await page.getByRole('menuitemradio', { name, exact: true }).click();
+      current = dictionaries[code];
+      await expect(page.locator('html')).toHaveAttribute('lang', code);
+      await expect(
+        page.getByRole('textbox', { name: current.summary, exact: true }),
+      ).toBeVisible();
+    }
   } finally {
     if (copyId) {
       for (const table of [

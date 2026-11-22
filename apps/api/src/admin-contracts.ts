@@ -1,3 +1,4 @@
+import { storyPatch } from '@stella/shared/story';
 import { z } from 'zod';
 import {
   roles,
@@ -52,6 +53,14 @@ const requestFilters = {
   tripTo: z.iso.date().optional(),
   assigned: z.union([z.uuid(), z.literal('none')]).optional(),
 };
+const requestStatus = z
+  .enum(['new', 'contacted', 'confirmed', 'completed', 'cancelled', 'spam'])
+  .optional();
+export const requestExportQuery = z.strictObject({
+  ...requestFilters,
+  status: requestStatus,
+  scope: z.enum(['filtered', 'all']).default('filtered'),
+});
 const mediaRows = z.strictObject({
   rows: z
     .array(
@@ -260,7 +269,12 @@ export const adminContracts: AdminContract[] = [
     body: empty,
   },
   { method: 'delete', path: '/me/sessions/:id', body: empty },
-  { method: 'get', path: '/requests/export.csv', permission: 'export' },
+  {
+    method: 'get',
+    path: '/requests/export.csv',
+    permission: 'export',
+    query: requestExportQuery,
+  },
   {
     method: 'get',
     path: '/requests/counts',
@@ -274,16 +288,7 @@ export const adminContracts: AdminContract[] = [
     query: z.strictObject({
       page,
       ...requestFilters,
-      status: z
-        .enum([
-          'new',
-          'contacted',
-          'confirmed',
-          'completed',
-          'cancelled',
-          'spam',
-        ])
-        .optional(),
+      status: requestStatus,
     }),
   },
   { method: 'get', path: '/requests/:id', permission: 'requests' },
@@ -313,6 +318,7 @@ export const adminContracts: AdminContract[] = [
   { method: 'get', path: '/trips/:id', permission: 'content' },
   ...(
     [
+      ['story', storyPatch],
       ['basics', basicsSchema],
       ['schedule', scheduleSchema],
       ['seo', seoSchema],

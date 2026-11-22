@@ -1,5 +1,5 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState, type Ref } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { stayDays } from '@stella/shared/booking';
@@ -10,6 +10,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const at = (v: string) => new Date(v + 'T12:00:00Z');
 
 export function DateRange({
+  ref,
   start,
   end,
   min,
@@ -18,6 +19,7 @@ export function DateRange({
   error,
   onChange,
 }: {
+  ref?: Ref<HTMLFieldSetElement>;
   start: string;
   end: string;
   min: string;
@@ -29,6 +31,8 @@ export function DateRange({
 }) {
   const t = useTranslations(),
     locale = useLocale();
+  const id = useId();
+  const errorId = id + '-error';
   const [month, setMonth] = useState(() => (start || min).slice(0, 7));
   const fmt = useMemo(
     () => ({
@@ -87,9 +91,23 @@ export function DateRange({
     fmt.weekday.format(at('2024-01-0' + (i + 1))),
   );
   return (
-    <fieldset className="range-field" aria-describedby="range-summary">
+    <fieldset
+      ref={ref}
+      className="range-field"
+      aria-describedby={
+        id +
+        '-hint ' +
+        id +
+        '-summary ' +
+        id +
+        '-warning' +
+        (error ? ' ' + errorId : '')
+      }
+    >
       <legend>{t('date')}</legend>
-      <p className="range-hint">{t('pickDates')}</p>
+      <p className="range-hint" id={id + '-hint'}>
+        {t('pickDates')}
+      </p>
       <div className="range-cal">
         <div className="range-head">
           <button
@@ -101,7 +119,9 @@ export function DateRange({
           >
             <ChevronLeft size={20} className="flip-rtl" />
           </button>
-          <strong aria-live="polite">{fmt.month.format(first)}</strong>
+          <strong id={id + '-month'} aria-live="polite">
+            {fmt.month.format(first)}
+          </strong>
           <button
             type="button"
             className="icon-button"
@@ -112,7 +132,11 @@ export function DateRange({
             <ChevronRight size={20} className="flip-rtl" />
           </button>
         </div>
-        <div className="range-grid" role="grid">
+        <div
+          className="range-grid"
+          role="group"
+          aria-labelledby={id + '-month'}
+        >
           {weekdays.map((w, i) => (
             <span className="range-wd" key={'w' + i} aria-hidden="true">
               {w}
@@ -135,6 +159,7 @@ export function DateRange({
                 }
                 aria-pressed={d === start || d === end}
                 aria-label={fmt.full.format(at(d))}
+                aria-describedby={error ? errorId : undefined}
                 onClick={() => pick(d)}
               >
                 {Number(d.slice(-2))}
@@ -143,7 +168,7 @@ export function DateRange({
           )}
         </div>
       </div>
-      <div className="range-summary" id="range-summary" aria-live="polite">
+      <div className="range-summary" id={id + '-summary'} aria-live="polite">
         {start ? (
           <>
             <span>
@@ -168,11 +193,16 @@ export function DateRange({
           <span>{t('noDates')}</span>
         )}
       </div>
-      {start && end && needed > days && (
-        <p className="range-warn">{t('planNeeds', { days: needed })}</p>
+      <div id={id + '-warning'} aria-live="polite">
+        {start && end && needed > days && (
+          <p className="range-warn">{t('planNeeds', { days: needed })}</p>
+        )}
+      </div>
+      {error && (
+        <p id={errorId} className="field-error">
+          {error}
+        </p>
       )}
-      {error && <p className="field-error">{error}</p>}
-      <input type="hidden" name="start_date" value={start} />
     </fieldset>
   );
 }

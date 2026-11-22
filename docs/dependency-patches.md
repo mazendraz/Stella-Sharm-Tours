@@ -1,5 +1,26 @@
 # Dependency maintenance patches
 
+## next-intl 4.15.0 and the picomatch advisory
+
+The production audit flagged
+[GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf)
+on the `next-intl → @parcel/watcher → picomatch` path. The workspace uses
+checked-in message dictionaries. The public app resolves the next-intl request
+config with its Webpack and Turbopack aliases, and the version-scoped pnpm
+override removes the extraction watcher. Revisit the override when upgrading
+next-intl or adopting its extraction feature.
+
+Docker release stages install the frozen production dependency tree separately
+from the build. The runtime still includes `tsx` for the API, worker, and
+database commands. The two Next configs use JavaScript with JSDoc types so
+Next can start with a read-only filesystem and without the TypeScript
+compiler. Developer tools retain their own picomatch dependency on the host.
+Next.js also embeds a separate compiled matcher. In the reviewed runtime
+matcher calls, the glob pattern comes from Next configuration.
+
+Verify with `pnpm audit --prod --audit-level moderate`, a production image
+inventory check, and a localized route smoke test from the web image.
+
 ## Next.js 15.5.29 — repeat tag invalidation
 
 `patches/next@15.5.29.patch` updates the tag's invalidation timestamp on **every**

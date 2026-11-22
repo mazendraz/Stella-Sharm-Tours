@@ -29,7 +29,7 @@ export async function seedCoreTranslations(db: Writer) {
         locale,
         text: translated,
         sourceHash: createHash('sha256').update(text.en).digest('hex'),
-        origin: 'machine',
+        origin: 'human',
         provider: 'codex-authored',
       });
     }
@@ -125,6 +125,7 @@ export async function seedCoreTranslations(db: Writer) {
         set: {
           text: sql`excluded.text`,
           sourceHash: sql`excluded.source_hash`,
+          origin: 'human',
           provider: 'codex-authored',
           updatedAt: new Date(),
         },

@@ -13,7 +13,15 @@ export async function generateMetadata({
   const { locale, key } = await params;
   if (!['terms', 'privacy', 'cancellation'].includes(key)) notFound();
   const t = await getTranslations();
-  return metadataFor(locale, '/legal/' + key, t(key));
+  try {
+    const page = await getPage(key, locale);
+    return metadataFor(locale, '/legal/' + key, page.title.text);
+  } catch {
+    return {
+      title: t(key) + ' | Stella Sharm Tours',
+      robots: { index: false, follow: true },
+    };
+  }
 }
 export default async function LegalPage({
   params,

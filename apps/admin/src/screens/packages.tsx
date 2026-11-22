@@ -13,6 +13,7 @@ import { useTripActions, useDebouncedReorder } from '../lib/trip-actions';
 import { useGuard } from '../lib/guard';
 import { PageHeader } from '../components/ui/page-header';
 import { DataTable, SearchBox, type Column } from '../components/ui/data-table';
+import { FilterBar } from '../components/ui/filter-bar';
 import {
   StatusBadge,
   StatusMenu,
@@ -254,12 +255,16 @@ export function PackagesList() {
           },
         }}
         toolbar={
-          <div className="filters">
-            <SearchBox
-              value={q}
-              onChange={setQ}
-              placeholder={t('searchPackages')}
-            />
+          <FilterBar
+            search={
+              <SearchBox
+                value={q}
+                onChange={setQ}
+                placeholder={t('searchPackages')}
+              />
+            }
+            active={status ? 1 : 0}
+          >
             <select
               aria-label={t('status')}
               value={status}
@@ -270,7 +275,7 @@ export function PackagesList() {
               <option value="draft">{t('draft')}</option>
               <option value="archived">{t('archived')}</option>
             </select>
-          </div>
+          </FilterBar>
         }
       />
       {creating && (
@@ -553,6 +558,9 @@ export function PackageEditor({ id }: { id: string }) {
       }
       menu={[
         { label: t('duplicate'), onSelect: () => void actions.duplicate(id) },
+        ...(can(role, 'publish')
+          ? actions.archiveMenu(id, name, status === 'archived')
+          : []),
       ]}
       sections={
         v

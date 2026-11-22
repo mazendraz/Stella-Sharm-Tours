@@ -1,0 +1,358 @@
+{
+  "programs": [
+    "luxor-plane-1-day"
+  ],
+  "cover": "photo-20987972.jpg",
+  "scenes": [
+    {
+      "id": "departure",
+      "kind": "passage",
+      "referenceTitle": "شرم الشيخ",
+      "referenceCaption": "من مطار شرم نطير مباشرة للأقصر.",
+      "referenceMode": "بالطائرة",
+      "media": "airport.jpg",
+      "frame": "cover",
+      "route": [
+        [34.395, 27.977]
+      ],
+      "titleKey": "departure",
+      "captionKey": "fly",
+      "transport": "road"
+    },
+    {
+      "id": "flight",
+      "kind": "passage",
+      "referenceTitle": "الأقصر",
+      "referenceCaption": "رحلة جوية مباشرة من مطار شرم الشيخ لمطار الأقصر.",
+      "referenceMode": "طيران",
+      "media": "luxor-air.jpg",
+      "frame": "cover",
+      "route": [
+        [34.395, 27.977],
+        [34.36643, 27.95289],
+        [34.33787, 27.92877],
+        [34.30933, 27.90463],
+        [34.28083, 27.88047],
+        [34.25237, 27.85629],
+        [34.22397, 27.83206],
+        [34.19564, 27.8078],
+        [34.16739, 27.78348],
+        [34.13923, 27.75911],
+        [34.11117, 27.73467],
+        [34.08322, 27.71016],
+        [34.05539, 27.68558],
+        [34.0277, 27.66091],
+        [34.00015, 27.63615],
+        [33.97275, 27.61129],
+        [33.94552, 27.58633],
+        [33.91846, 27.56127],
+        [33.89158, 27.53608],
+        [33.86489, 27.51078],
+        [33.8384, 27.48535],
+        [33.81212, 27.45979],
+        [33.78605, 27.4341],
+        [33.7602, 27.40826],
+        [33.73459, 27.38228],
+        [33.70921, 27.35615],
+        [33.68407, 27.32987],
+        [33.65919, 27.30342],
+        [33.63456, 27.27682],
+        [33.61019, 27.25005],
+        [33.58609, 27.22312],
+        [33.56226, 27.19601],
+        [33.5387, 27.16873],
+        [33.51542, 27.14127],
+        [33.49242, 27.11363],
+        [33.46971, 27.08582],
+        [33.44729, 27.05782],
+        [33.42515, 27.02964],
+        [33.40331, 27.00128],
+        [33.38176, 26.97273],
+        [33.3605, 26.944],
+        [33.33953, 26.91508],
+        [33.31886, 26.88598],
+        [33.29848, 26.85669],
+        [33.27839, 26.82722],
+        [33.25859, 26.79757],
+        [33.23907, 26.76773],
+        [33.21985, 26.73772],
+        [33.2009, 26.70753],
+        [33.18223, 26.67716],
+        [33.16384, 26.64662],
+        [33.14572, 26.6159],
+        [33.12786, 26.58502],
+        [33.11026, 26.55397],
+        [33.09292, 26.52277],
+        [33.07583, 26.4914],
+        [33.05899, 26.45988],
+        [33.04238, 26.42821],
+        [33.026, 26.3964],
+        [33.00984, 26.36444],
+        [32.9939, 26.33235],
+        [32.97817, 26.30013],
+        [32.96263, 26.26778],
+        [32.94728, 26.23532],
+        [32.93212, 26.20273],
+        [32.91713, 26.17004],
+        [32.9023, 26.13725],
+        [32.88762, 26.10436],
+        [32.87309, 26.07138],
+        [32.85869, 26.03831],
+        [32.84442, 26.00517],
+        [32.83025, 25.97196],
+        [32.81619, 25.93868],
+        [32.80221, 25.90535],
+        [32.78832, 25.87196],
+        [32.7745, 25.83854],
+        [32.76073, 25.80507],
+        [32.74701, 25.77158],
+        [32.73332, 25.73807],
+        [32.71965, 25.70454],
+        [32.706, 25.671]
+      ],
+      "titleKey": "flight",
+      "captionKey": "fly",
+      "transport": "flight"
+    },
+    {
+      "id": "karnak",
+      "kind": "included",
+      "referenceTitle": "الكرنك",
+      "referenceCaption": "هنا تقدر تشوف حجم الأعمدة والنقوش عن قرب.",
+      "referenceMode": "عند الوصول",
+      "media": "photo-20987972.jpg",
+      "frame": "cover",
+      "route": [
+        [32.657, 25.719]
+      ],
+      "titleKey": "karnak",
+      "captionKey": "temple",
+      "transport": "arrival"
+    },
+    {
+      "id": "hatshepsut",
+      "kind": "included",
+      "referenceTitle": "معبد حتشبسوت",
+      "referenceCaption": "الممر الصاعد بيقود عينك لشرفات المعبد المنحوتة عند سفح الجبل.",
+      "referenceMode": "عند الوصول",
+      "media": "v2-terraces-full.jpg",
+      "frame": "cover",
+      "route": [
+        [32.607, 25.738]
+      ],
+      "titleKey": "hatshepsut",
+      "captionKey": "terraces",
+      "transport": "arrival"
+    },
+    {
+      "id": "statue",
+      "kind": "illustrative",
+      "referenceTitle": "تمثال حتشبسوت",
+      "referenceCaption": "من الشرفات نقرّب على ملامح التمثال وتفاصيل التاج.",
+      "referenceMode": "داخل المعبد",
+      "media": "v2-14212466.jpg",
+      "frame": "cover",
+      "route": [
+        [32.607, 25.738]
+      ],
+      "titleKey": "statue",
+      "captionKey": "terraces",
+      "transport": "arrival"
+    },
+    {
+      "id": "memnon",
+      "kind": "included",
+      "referenceTitle": "تمثالا ممنون",
+      "referenceCaption": "تمثالان جالسان أمام الجبل، كانا عند مدخل معبد أمنحتب الثالث.",
+      "referenceMode": "برنامج اليوم",
+      "media": "v3-memnon.jpg",
+      "frame": "cover",
+      "route": [
+        [32.61056, 25.72056]
+      ],
+      "titleKey": "memnon",
+      "captionKey": "memnon",
+      "transport": "arrival"
+    },
+    {
+      "id": "luxor-temple",
+      "kind": "illustrative",
+      "referenceTitle": "معبد الأقصر",
+      "referenceCaption": "الأعمدة والتماثيل عند الصرح الأول، في لقطة بعد الغروب.",
+      "referenceMode": "البر الشرقي · حسب البرنامج",
+      "media": "v3-luxor-temple.jpg",
+      "frame": "cover",
+      "route": [
+        [32.63917, 25.7]
+      ],
+      "titleKey": "luxor-temple",
+      "captionKey": "luxor-temple",
+      "transport": "arrival"
+    },
+    {
+      "id": "sphinx-avenue",
+      "kind": "illustrative",
+      "referenceTitle": "طريق الكباش",
+      "referenceCaption": "صفوف التماثيل بترسم الطريق القديم بين معبد الأقصر والكرنك.",
+      "referenceMode": "البر الشرقي · حسب البرنامج",
+      "media": "v3-avenue.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6405, 25.7025]
+      ],
+      "titleKey": "sphinx-avenue",
+      "captionKey": "sphinx-avenue",
+      "transport": "arrival"
+    },
+    {
+      "id": "museum",
+      "kind": "illustrative",
+      "referenceTitle": "متحف الأقصر",
+      "referenceCaption": "على كورنيش النيل، متحف بيجمع قطع من آثار طيبة.",
+      "referenceMode": "البر الشرقي · حسب البرنامج",
+      "media": "v3-museum.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6451, 25.7073]
+      ],
+      "titleKey": "museum",
+      "captionKey": "museum",
+      "transport": "arrival"
+    },
+    {
+      "id": "kings",
+      "kind": "illustrative",
+      "referenceTitle": "وادي الملوك",
+      "referenceCaption": "بين الجبال الجافة تختفي مداخل المقابر الملكية.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-kings.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6014, 25.7401]
+      ],
+      "titleKey": "kings",
+      "captionKey": "kings",
+      "transport": "arrival"
+    },
+    {
+      "id": "kv9",
+      "kind": "illustrative",
+      "referenceTitle": "مقبرة رمسيس الخامس والسادس",
+      "referenceCaption": "من الوادي لداخل المقبرة: ألوان ونقوش السقف فوق الممر.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-kv9.jpg",
+      "frame": "cover",
+      "route": [
+        [32.60131, 25.74017]
+      ],
+      "titleKey": "kv9",
+      "captionKey": "kv9",
+      "transport": "arrival"
+    },
+    {
+      "id": "queens",
+      "kind": "illustrative",
+      "referenceTitle": "وادي الملكات",
+      "referenceCaption": "في الوادي ده اتنحتت مقابر لملكات وأفراد من الأسرة الملكية.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-queens.jpg",
+      "frame": "cover",
+      "route": [
+        [32.59306, 25.7275]
+      ],
+      "titleKey": "queens",
+      "captionKey": "queens",
+      "transport": "arrival"
+    },
+    {
+      "id": "nefertari",
+      "kind": "illustrative",
+      "referenceTitle": "مقبرة نفرتاري",
+      "referenceCaption": "تفصيلة من رسوم المقبرة، تقدر تقرّب منها في الصورة.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-nefertari.jpg",
+      "frame": "cover",
+      "route": [
+        [32.5928, 25.7284]
+      ],
+      "titleKey": "nefertari",
+      "captionKey": "nefertari",
+      "transport": "arrival"
+    },
+    {
+      "id": "workers",
+      "kind": "illustrative",
+      "referenceTitle": "دير المدينة",
+      "referenceCaption": "آثار بيوت الحرفيين اللي اشتغلوا في المقابر الملكية.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-workers.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6014, 25.7283]
+      ],
+      "titleKey": "workers",
+      "captionKey": "workers",
+      "transport": "arrival"
+    },
+    {
+      "id": "nobles",
+      "kind": "illustrative",
+      "referenceTitle": "مقابر النبلاء · مقبرة راموزا",
+      "referenceCaption": "مشهد موكب منقوش على جدار مقبرة راموزا.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-nobles.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6083, 25.732]
+      ],
+      "titleKey": "nobles",
+      "captionKey": "nobles",
+      "transport": "arrival"
+    },
+    {
+      "id": "habu",
+      "kind": "illustrative",
+      "referenceTitle": "مدينة هابو",
+      "referenceCaption": "من فوق، بتبان الأفنية والبوابات المتتابعة لمعبد رمسيس الثالث.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-habu.jpg",
+      "frame": "cover",
+      "route": [
+        [32.60083, 25.71972]
+      ],
+      "titleKey": "habu",
+      "captionKey": "habu",
+      "transport": "arrival"
+    },
+    {
+      "id": "ramesseum",
+      "kind": "illustrative",
+      "referenceTitle": "الرامسيوم",
+      "referenceCaption": "بقايا معبد رمسيس الثاني على البر الغربي.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-ramesseum.jpg",
+      "frame": "cover",
+      "route": [
+        [32.61056, 25.72778]
+      ],
+      "titleKey": "ramesseum",
+      "captionKey": "ramesseum",
+      "transport": "arrival"
+    },
+    {
+      "id": "seti",
+      "kind": "illustrative",
+      "referenceTitle": "معبد سيتي الأول بالقرنة",
+      "referenceCaption": "آخر مشهد عند معبد سيتي الأول في القرنة.",
+      "referenceMode": "البر الغربي · حسب البرنامج",
+      "media": "v3-seti.jpg",
+      "frame": "cover",
+      "route": [
+        [32.6236, 25.7516]
+      ],
+      "titleKey": "seti",
+      "captionKey": "seti",
+      "transport": "arrival"
+    }
+  ]
+}

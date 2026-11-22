@@ -1,3 +1,4 @@
+import { storyPatch } from '@stella/shared/story';
 import { and, eq, inArray } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -71,7 +72,9 @@ export async function applyPreviewDrafts(
             }
           : {}),
       });
-    } else if (row.section === 'schedule')
+    } else if (row.section === 'story')
+      Object.assign(trip, storyPatch.parse(row.data));
+    else if (row.section === 'schedule')
       Object.assign(trip, scheduleSchema.parse(row.data));
     else if (row.section === 'seo')
       Object.assign(trip, seoSchema.parse(row.data));

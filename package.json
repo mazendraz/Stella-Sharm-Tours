@@ -39,6 +39,7 @@
     "dev:worker": "pnpm --filter @stella/api worker",
     "db:generate": "pnpm --filter @stella/db generate",
     "db:migrate": "tsx --env-file-if-exists=.env scripts/migrate.ts",
+    "db:seed-stories": "tsx --env-file-if-exists=.env scripts/seed-trip-stories.ts",
     "db:seed": "tsx --env-file-if-exists=.env scripts/seed.ts",
     "db:sync-media": "tsx --env-file-if-exists=.env scripts/sync-catalog-media.ts",
     "privacy:prepare": "tsx --env-file-if-exists=.env scripts/prepare-privacy-draft.ts",
@@ -47,6 +48,9 @@
     "test:integration:native": "tsx scripts/test-native-postgres.ts",
     "test:e2e": "playwright test",
     "preview:fixture": "node tests/fixtures/server.mjs"
+  },
+  "dependencies": {
+    "tsx": "4.23.15"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
@@ -65,7 +69,6 @@
     "lighthouse": "13.6.0",
     "lint-staged": "16.4.0",
     "prettier": "3.9.10",
-    "tsx": "4.23.15",
     "turbo": "2.11.10",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.2",
@@ -73,6 +76,7 @@
   },
   "pnpm": {
     "overrides": {
+      "next-intl@4.15.0>@parcel/watcher": "-",
       "postcss": "8.5.32"
     },
     "patchedDependencies": {

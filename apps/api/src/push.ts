@@ -123,14 +123,11 @@ export function registerPush(
   );
 }
 type Send = typeof webpush.sendNotification;
-export async function notifyPush(
+export async function eligiblePushSubscriptions(
   db: Database,
-  cfg: WorkerConfig,
   requestId: string,
-  send: Send = webpush.sendNotification,
+  subscriptionId?: string,
 ) {
-  if (!cfg.VAPID_PUBLIC_KEY || !cfg.VAPID_PRIVATE_KEY || !cfg.VAPID_SUBJECT)
-    return;
   const [request] = await db
     .select({ id: s.bookingRequests.id })
     .from(s.bookingRequests)
@@ -142,8 +139,8 @@ export async function notifyPush(
         gt(s.bookingRequests.createdAt, new Date(Date.now() - 90 * 86400000)),
       ),
     );
-  if (!request) return;
-  const subscriptions = await db
+  if (!request) return [];
+  return db
     .select({ subscription: s.pushSubscriptions })
     .from(s.pushSubscriptions)
     .innerJoin(s.adminUsers, eq(s.adminUsers.id, s.pushSubscriptions.userId))
@@ -151,8 +148,24 @@ export async function notifyPush(
       and(
         isNull(s.adminUsers.disabledAt),
         inArray(s.adminUsers.role, ['owner', 'manager', 'sales']),
+        subscriptionId ? eq(s.pushSubscriptions.id, subscriptionId) : undefined,
       ),
     );
+}
+export async function notifyPush(
+  db: Database,
+  cfg: WorkerConfig,
+  requestId: string,
+  send: Send = webpush.sendNotification,
+  subscriptionId?: string,
+) {
+  if (!cfg.VAPID_PUBLIC_KEY || !cfg.VAPID_PRIVATE_KEY || !cfg.VAPID_SUBJECT)
+    return;
+  const subscriptions = await eligiblePushSubscriptions(
+    db,
+    requestId,
+    subscriptionId,
+  );
   for (const { subscription } of subscriptions) {
     if (!isPushEndpoint(subscription.endpoint)) continue;
     try {

@@ -20,6 +20,14 @@ case "$*" in
     [[ "${FAKE_SCRUB_FAIL:-0}" != 1 ]]; exit ;;
   *' run --rm --no-deps migrate') [[ "${FAKE_MIGRATE_FAIL:-0}" != 1 ]]; exit ;;
   *' up -d --wait --wait-timeout 180 api worker web admin caddy')
+    if [[ "${RELEASE:-}" == "${FAKE_BLOCK_RELEASE:-disabled}" ]]; then
+      touch "$STELLA_ROOT/deploy-started"
+      for _ in $(seq 1 100); do
+        [[ ! -f "$STELLA_ROOT/allow-deploy" ]] || break
+        sleep 0.05
+      done
+      [[ -f "$STELLA_ROOT/allow-deploy" ]] || exit 1
+    fi
     if [[ "${RELEASE:-}" == "${FAKE_FAIL_RELEASE:-disabled}" && ! -f "$FAKE_ONCE" ]]; then touch "$FAKE_ONCE"; exit 1; fi
     exit 0 ;;
   *' ps -q '*) echo test-container; exit 0 ;;
@@ -122,4 +130,54 @@ touch "$STELLA_ROOT/production/backups/last-success"
 echo synthetic > "$STELLA_ROOT/production/backups/20261112T023000Z.dump"
 bash "$repo/infra/backup/refresh-staging.sh" > "$STELLA_ROOT/result" 2>&1
 echo 'PASS: nightly refresh retains the staging deploy lock through scrub and public-media copy.'
-echo '8 operational safety scenarios passed (simulated Docker; no real deployment).'
+
+new_case overlapping-deploys
+export STELLA_GIT_REPO="$STELLA_ROOT/repo"
+mkdir -p "$STELLA_GIT_REPO"
+git -C "$STELLA_GIT_REPO" init -q
+cp -r "$repo/infra" "$STELLA_GIT_REPO/infra"
+printf 'first\n' > "$STELLA_GIT_REPO/infra/release-test"
+git -C "$STELLA_GIT_REPO" add infra
+git -C "$STELLA_GIT_REPO" -c user.name=QA -c user.email=qa@example.test commit -qm first
+first=$(git -C "$STELLA_GIT_REPO" rev-parse HEAD)
+printf 'second\n' > "$STELLA_GIT_REPO/infra/release-test"
+git -C "$STELLA_GIT_REPO" -c user.name=QA -c user.email=qa@example.test commit -qam second
+second=$(git -C "$STELLA_GIT_REPO" rev-parse HEAD)
+export FAKE_BLOCK_RELEASE="$first"
+bash "$repo/infra/deploy-release.sh" staging "$first" > "$STELLA_ROOT/first-result" 2>&1 &
+running=$!
+for _ in $(seq 1 100); do
+  [[ ! -f "$STELLA_ROOT/deploy-started" ]] || break
+  sleep 0.05
+done
+[[ -f "$STELLA_ROOT/deploy-started" ]]
+if bash "$repo/infra/deploy-release.sh" staging "$second" > "$STELLA_ROOT/second-result" 2>&1; then exit 1; fi
+grep -Fq 'already running' "$STELLA_ROOT/second-result"
+[[ $(cat "$STELLA_ROOT/release-checkouts/$first/infra/release-test") == first ]]
+[[ $(cat "$STELLA_ROOT/release-checkouts/$second/infra/release-test") == second ]]
+[[ $(git -C "$STELLA_GIT_REPO" rev-parse HEAD) == "$second" ]]
+touch "$STELLA_ROOT/allow-deploy"
+wait "$running"
+[[ $(cat "$STELLA_ROOT/staging/releases/current") == "$first" ]]
+echo 'PASS: concurrent revisions keep isolated release files and the environment lock prevents overlap.'
+
+new_case alert
+export STELLA_ALERT_WEBHOOK_FILE="$STELLA_ROOT/webhook-url"
+printf 'https://alerts.example.test/hooks/synthetic-token\n' > "$STELLA_ALERT_WEBHOOK_FILE"
+cat > "$suite/bin/logger" <<'FAKE'
+#!/usr/bin/env bash
+printf '%s\n' "$*" >> "$STELLA_ROOT/alert-journal"
+FAKE
+cat > "$suite/bin/curl" <<'FAKE'
+#!/usr/bin/env bash
+printf '%s\n' "$*" > "$STELLA_ROOT/alert-argv"
+cat > "$STELLA_ROOT/alert-config"
+FAKE
+chmod +x "$suite/bin/logger" "$suite/bin/curl"
+bash "$repo/infra/monitoring/alert.sh" stella-monitor@staging.service
+grep -Fq 'stella_unit_failed' "$STELLA_ROOT/alert-argv"
+grep -Fq 'stella-monitor@staging.service' "$STELLA_ROOT/alert-journal"
+grep -Fq 'https://alerts.example.test/hooks/synthetic-token' "$STELLA_ROOT/alert-config"
+if grep -Fq 'synthetic-token' "$STELLA_ROOT/alert-argv" "$STELLA_ROOT/alert-journal"; then exit 1; fi
+echo 'PASS: the alert sends only the unit event and keeps the webhook credential out of argv and logs.'
+echo '10 operational safety scenarios passed (simulated Docker and alert transport).'

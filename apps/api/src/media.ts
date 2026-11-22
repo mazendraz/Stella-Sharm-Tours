@@ -9,10 +9,15 @@ import { fileTypeFromFile } from 'file-type';
 import Busboy from 'busboy';
 import sharp from 'sharp';
 import { z } from 'zod';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { Context } from 'hono';
 import type { Database } from '@stella/db';
-import { media, outbox, type Localized } from '@stella/db/schema';
+import {
+  media,
+  outbox,
+  publicMediaRenditions,
+  type Localized,
+} from '@stella/db/schema';
 import type { Config } from './config';
 import type { ApiEnv } from './types';
 import { fail } from './errors';
@@ -289,35 +294,51 @@ export async function upload(c: Context<ApiEnv>, db: Database, cfg: Config) {
     if (count !== 1) fail(422, 'FILE_REQUIRED');
     const validated = await validateFile(path, cfg),
       sha256 = await digestFile(path);
-    const existing = (
-      await db.select().from(media).where(eq(media.sha256, sha256))
-    )[0];
-    if (existing) {
-      await rm(path, { force: true });
-      return { id: existing.id, status: existing.status };
-    }
-    const target = inside(cfg.ORIGINALS_ROOT, 'originals', sha256);
-    await mkdir(resolve(target, '..'), { recursive: true });
-    await rename(path, target);
     const row = await db.transaction(async (tx) => {
-      const [row] = await tx
-        .insert(media)
-        .values({
-          kind: validated.kind,
-          originalPath: target,
-          width: validated.width,
-          height: validated.height,
-          durationS:
-            validated.duration === null ? null : String(validated.duration),
-          bytes: validated.bytes,
-          sha256,
-          uploadedBy: c.get('principal').id,
-        })
-        .returning();
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${sha256}, 0))`,
+      );
+      const [existing] = await tx
+        .select()
+        .from(media)
+        .where(eq(media.sha256, sha256))
+        .for('update');
+      if (existing && !existing.archivedAt && existing.status !== 'failed') {
+        await rm(path, { force: true });
+        return existing;
+      }
+      const target = inside(cfg.ORIGINALS_ROOT, 'originals', sha256);
+      await mkdir(resolve(target, '..'), { recursive: true });
+      await rename(path, target);
+      const [saved] = existing
+        ? await tx
+            .update(media)
+            .set({
+              originalPath: target,
+              status: 'processing',
+              archivedAt: null,
+              ...(existing.archivedAt ? { rightsStatus: 'unknown' } : {}),
+            })
+            .where(eq(media.id, existing.id))
+            .returning()
+        : await tx
+            .insert(media)
+            .values({
+              kind: validated.kind,
+              originalPath: target,
+              width: validated.width,
+              height: validated.height,
+              durationS:
+                validated.duration === null ? null : String(validated.duration),
+              bytes: validated.bytes,
+              sha256,
+              uploadedBy: c.get('principal').id,
+            })
+            .returning();
       await tx
         .insert(outbox)
-        .values({ name: 'media.process', data: { mediaId: row!.id } });
-      return row!;
+        .values({ name: 'media.process', data: { mediaId: saved!.id } });
+      return saved!;
     });
     return { id: row.id, status: row.status };
   } catch (error) {
@@ -326,19 +347,78 @@ export async function upload(c: Context<ApiEnv>, db: Database, cfg: Config) {
     throw error;
   }
 }
+type MediaProcessingConfig = Pick<
+  Config,
+  'MEDIA_ROOT' | 'ORIGINALS_ROOT' | 'FFMPEG_PATH' | 'FFPROBE_PATH'
+>;
+const processingInputs = [
+  'kind',
+  'originalPath',
+  'sha256',
+  'rightsStatus',
+  'focalX',
+  'focalY',
+  'autoEnhance',
+  'sourceAlreadyGraded',
+  'trimStart',
+  'trimEnd',
+  'posterTime',
+] as const satisfies readonly (keyof typeof media.$inferSelect)[];
+
 export async function processMedia(
   db: Database,
-  cfg: Pick<
-    Config,
-    'MEDIA_ROOT' | 'ORIGINALS_ROOT' | 'FFMPEG_PATH' | 'FFPROBE_PATH'
-  >,
+  cfg: MediaProcessingConfig,
   id: string,
 ) {
-  const [m] = await db
-    .select()
-    .from(media)
-    .where(and(eq(media.id, id), isNull(media.archivedAt)));
-  if (!m || !m.sha256) return;
+  const failure = await db.transaction(async (tx) => {
+    // Serialize encoders without holding the media row lock while they run.
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtextextended(${id}, 1))`,
+    );
+    const [original] = await tx
+      .select()
+      .from(media)
+      .where(and(eq(media.id, id), isNull(media.archivedAt)));
+    if (!original || !original.sha256) return;
+    const result = await renderMedia(cfg, original).then(
+      (rendered) => ({ rendered }) as const,
+      (error: unknown) => ({ error }) as const,
+    );
+
+    const [current] = await tx
+      .select()
+      .from(media)
+      .where(eq(media.id, id))
+      .for('update');
+    if (
+      !current ||
+      current.archivedAt ||
+      processingInputs.some((key) => current[key] !== original[key])
+    )
+      return;
+    if ('error' in result) {
+      await tx.update(media).set({ status: 'failed' }).where(eq(media.id, id));
+      return result;
+    }
+    const { relativePath, ...values } = result.rendered;
+    if (current.rightsStatus !== 'unknown')
+      await tx
+        .insert(publicMediaRenditions)
+        .values({ storageKey: relativePath, mediaId: id })
+        .onConflictDoNothing();
+    await tx
+      .update(media)
+      .set({ ...values, status: 'ready' })
+      .where(eq(media.id, id));
+  });
+  if (failure) throw failure.error;
+}
+
+async function renderMedia(
+  cfg: MediaProcessingConfig,
+  m: typeof media.$inferSelect,
+) {
+  if (!m.sha256) throw new Error('Missing media digest');
   if (!/^[a-f0-9]{64}$/.test(m.sha256)) throw new Error('Invalid media digest');
   let decodedPath: string | null = null;
   try {
@@ -396,16 +476,12 @@ export async function processMedia(
         )
       ).every(Boolean);
       if (complete) {
-        await db
-          .update(media)
-          .set({
-            width: validated.width,
-            height: validated.height,
-            variants,
-            status: 'ready',
-          })
-          .where(eq(media.id, id));
-        return;
+        return {
+          relativePath,
+          width: validated.width,
+          height: validated.height,
+          variants,
+        };
       }
       let sourcePath = m.originalPath;
       if (validated.kind === 'image' && validated.heif) {
@@ -473,15 +549,12 @@ export async function processMedia(
         }
         variants[format] = sizes;
       }
-      await db
-        .update(media)
-        .set({
-          width: normalized.info.width,
-          height: normalized.info.height,
-          variants,
-          status: 'ready',
-        })
-        .where(eq(media.id, id));
+      return {
+        relativePath,
+        width: normalized.info.width,
+        height: normalized.info.height,
+        variants,
+      };
     } else {
       const start = Number(m.trimStart ?? 0),
         end = Math.min(
@@ -566,21 +639,15 @@ export async function processMedia(
         .avif({ quality: 50 })
         .toFile(inside(dest, 'poster.avif'));
       variants.poster = relativePath + '/poster.jpg';
-      await db
-        .update(media)
-        .set({
-          variants,
-          status: 'ready',
-          width: validated.width,
-          height: validated.height,
-          durationS:
-            validated.duration === null ? null : String(validated.duration),
-        })
-        .where(eq(media.id, id));
+      return {
+        relativePath,
+        variants,
+        width: validated.width,
+        height: validated.height,
+        durationS:
+          validated.duration === null ? null : String(validated.duration),
+      };
     }
-  } catch (error) {
-    await db.update(media).set({ status: 'failed' }).where(eq(media.id, id));
-    throw error;
   } finally {
     if (decodedPath) await rm(decodedPath, { force: true });
   }
@@ -592,7 +659,13 @@ export function createMediaImporter(
     'MEDIA_ROOT' | 'ORIGINALS_ROOT' | 'FFMPEG_PATH' | 'FFPROBE_PATH'
   >,
   repoRoot: string,
-  options: { processVideos?: boolean; processImages?: boolean } = {},
+  options: {
+    processVideos?: boolean;
+    processImages?: boolean;
+    journeyAssets?: Readonly<
+      Record<string, { sha256: string; license: string; credit: string }>
+    >;
+  } = {},
 ) {
   const permission = new Set([
     'giza-camel-pov-h.mp4',
@@ -611,17 +684,23 @@ export function createMediaImporter(
     'hero6-desert-v.mp4',
   ]);
   return async (path: string, alt: Localized) => {
+    const journey = /^assets\/journeys\/[a-z0-9-]+\.(?:mp4|jpg)$/.test(path)
+      ? options.journeyAssets?.[path]
+      : undefined;
     if (
+      !journey &&
       !/^assets\/(?:images\/stock\/[a-zA-Z0-9-]+\.jpg|(?:video|video-stock)\/[a-zA-Z0-9-]+\.mp4)$/.test(
         path,
       )
     )
       throw new Error('Unapproved catalog media path');
     const source = inside(repoRoot, path),
-      sha256 = await digestFile(source),
-      existing = (
-        await db.select().from(media).where(eq(media.sha256, sha256))
-      )[0];
+      sha256 = await digestFile(source);
+    if (journey && journey.sha256 !== sha256)
+      throw new Error('Journey media checksum mismatch');
+    const existing = (
+      await db.select().from(media).where(eq(media.sha256, sha256))
+    )[0];
     if (existing) {
       if (options.processImages && existing.kind === 'image')
         await processMedia(db, cfg, existing.id);
@@ -634,13 +713,14 @@ export function createMediaImporter(
         await processMedia(db, cfg, existing.id);
       return existing.id;
     }
-    const image = path.includes('/images/'),
+    const image = path.endsWith('.jpg'),
       stock = path.includes('/stock/') || path.includes('/video-stock/'),
-      rightsStatus = stock
-        ? 'licensed'
-        : permission.has(path.split('/').at(-1)!)
-          ? 'permission'
-          : 'unknown';
+      rightsStatus =
+        stock || journey
+          ? 'licensed'
+          : permission.has(path.split('/').at(-1)!)
+            ? 'permission'
+            : 'unknown';
     const target = inside(cfg.ORIGINALS_ROOT, 'originals', sha256);
     await mkdir(resolve(target, '..'), { recursive: true });
     await copyFile(source, target);
@@ -659,9 +739,12 @@ export function createMediaImporter(
         sourceAlreadyGraded: true,
         width: meta?.width ?? null,
         height: meta?.height ?? null,
-        license: stock
-          ? 'Pexels / Unsplash per assets/ASSETS.md; individual source record pending'
-          : null,
+        credit: journey?.credit ?? null,
+        license: journey
+          ? journey.license
+          : stock
+            ? 'Pexels / Unsplash per assets/ASSETS.md; individual source record pending'
+            : null,
       })
       .returning();
     if (image || (options.processVideos && rightsStatus !== 'unknown'))

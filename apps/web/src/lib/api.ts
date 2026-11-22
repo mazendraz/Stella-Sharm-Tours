@@ -1,5 +1,7 @@
 import 'server-only';
+import { publicStorySchema } from '@stella/shared/story';
 import { cache } from 'react';
+import { createHmac } from 'node:crypto';
 import { z } from 'zod';
 import {
   siteSchema,
@@ -8,6 +10,7 @@ import {
   tripSchema,
   faqSchema,
   pageSchema,
+  savedTripsSchema,
 } from '@stella/shared/public-contract';
 import { env } from './env';
 export class ApiError extends Error {
@@ -22,9 +25,22 @@ async function read<T>(
 ): Promise<T> {
   let response: Response;
   try {
+    const secret = process.env.WEB_REVALIDATE_SECRET;
     response = await fetch(
       new URL('/v1/public/' + path, env.API_INTERNAL_URL),
-      { next: { revalidate: 60, tags }, signal: AbortSignal.timeout(5000) },
+      {
+        next: { revalidate: 60, tags: ['catalog', ...tags] },
+        signal: AbortSignal.timeout(5000),
+        ...(secret
+          ? {
+              headers: {
+                'X-Stella-Catalog-Reader': createHmac('sha256', secret)
+                  .update('stella:public-catalog-reader:v1')
+                  .digest('hex'),
+              },
+            }
+          : {}),
+      },
     );
   } catch {
     throw new ApiError(503);
@@ -34,6 +50,12 @@ async function read<T>(
   if (!result.success) throw new ApiError(502);
   return result.data;
 }
+export const getSavedTrips = (slugs: string[], locale: string) =>
+  read(
+    'saved-trips?' + new URLSearchParams({ slugs: slugs.join(','), locale }),
+    savedTripsSchema,
+    ['locales', ...slugs.map((slug) => 'trip:' + slug)],
+  );
 export const getSite = cache((locale: string) =>
   read('site?locale=' + encodeURIComponent(locale), siteSchema, [
     'site',
@@ -57,6 +79,15 @@ export const getCollection = cache((slug: string, locale: string) =>
     ['collection:' + slug],
   ),
 );
+export const getStory = (slug: string, locale: string) =>
+  read(
+    'trips/' +
+      encodeURIComponent(slug) +
+      '/story?' +
+      new URLSearchParams({ locale }),
+    publicStorySchema,
+    ['trip:' + slug, 'locales'],
+  );
 export const getTrip = cache((slug: string, locale: string) =>
   read(
     'trips/' +

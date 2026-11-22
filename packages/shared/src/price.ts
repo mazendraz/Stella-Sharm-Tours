@@ -2,13 +2,19 @@ import type { Price, Trip } from './public-contract';
 export type Estimate = { amount: number; onRequest: boolean };
 export function primaryPrice(trip: Pick<Trip, 'prices'>): Price | undefined {
   return (
-    trip.prices.find((p) => p.is_primary) ??
+    trip.prices.find((p) => p.is_primary && p.unit !== 'child') ??
     trip.prices.find((p) => p.unit !== 'child')
   );
 }
+type PricedTrip = Pick<Trip, 'prices' | 'format' | 'private_surcharge_pct'> & {
+  kind?: Trip['kind'];
+  parts?: readonly Pick<
+    Trip['parts'][number],
+    'prices' | 'format' | 'private_surcharge_pct'
+  >[];
+};
 export function estimateTrip(
-  trip: Pick<Trip, 'prices' | 'format' | 'private_surcharge_pct'> &
-    Partial<Pick<Trip, 'kind' | 'parts'>>,
+  trip: PricedTrip,
   adults: number,
   children = 0,
   format: 'group' | 'private' = 'group',

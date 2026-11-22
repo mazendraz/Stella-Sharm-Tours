@@ -5,6 +5,7 @@ import { z } from 'zod';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
 import { can, type Permission } from '@stella/shared/admin';
+import { isCoreLocale } from '@stella/shared';
 import type { ApiEnv } from './types';
 import type { authService } from './auth';
 import { fail } from './errors';
@@ -126,13 +127,15 @@ export function registerAdminUi(
     );
   });
   app.post('/v1/admin/i18n/review', auth.guard('translations'), async (c) => {
-    const input = await auth.parse(c, translationReviewSchema),
-      field = (await publicTranslationFields(db, cfg)).find(
-        (field) =>
-          field.entity === input.entity &&
-          field.id === input.id &&
-          field.field === input.field,
-      );
+    const input = await auth.parse(c, translationReviewSchema);
+    if (input.entity === 'ui' && isCoreLocale(input.locale))
+      fail(422, 'REPOSITORY_MANAGED_TRANSLATION');
+    const field = (await publicTranslationFields(db, cfg)).find(
+      (field) =>
+        field.entity === input.entity &&
+        field.id === input.id &&
+        field.field === input.field,
+    );
     if (!field) fail(422, 'INVALID_TRANSLATION_FIELD');
     if (field.en !== input.source) fail(409, 'TRANSLATION_STALE');
     const draftId = translationDraftId(input);
@@ -192,7 +195,7 @@ export function registerAdminUi(
         .for('update');
       const target = translationTarget(input);
       let previous: string | null = null;
-      if (target) {
+      if (target && !target.scalar) {
         const result = await tx.execute<{ value: string | null }>(
           sql`select ${sql.identifier(target.column)} #>> ${jsonPathSql([...target.path, input.locale])} as value from ${sql.identifier(target.table)} where ${sql.identifier(target.key)}::text=${input.id} for update`,
         );

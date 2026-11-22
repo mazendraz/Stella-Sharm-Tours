@@ -233,11 +233,12 @@ Run migrations with `drizzle-kit generate` → review SQL → `drizzle-kit migra
 ## 3. Seed (`pnpm db:seed`)
 
 - Reads `data/catalog.json`.
+- [x] Import itinerary stops with unknown times as null and preserve their descriptions and order. Import supplied return times on fresh installs and fill missing return times on repeat seeds. Preserve existing staff-entered return times.
 - Creates the 7 collections (`private` as `kind='private_virtual'`, `all` as `kind='packages'`), 38 trips (`format='private'` where the catalog says private, else `format='both'` with `private_on_request=true`), their prices, itinerary, includes/excludes/optional/notes, and 4 **draft** packages.
 - Imports media listed in each trip's `media` from `assets/` through the same pipeline as uploads (so variants are generated).
 - Trips whose price is `null` get `on_request = true`.
 - Leaves missing `it`, `es`, `fr`, `de`, `ru`, `tr` values empty (collection names/headlines have `it` in the catalog). A configured worker backfills missing core content as machine fallbacks flagged for staff review, and every enabled supported auto locale; without a key the site falls back to EN. Core UI dictionaries stay in the repo and are never machine-overwritten.
-- Creates **hero slides**: one per collection in catalog order, **Private first**, `duration_s = 6`. A slide whose video has `rights_status='unknown'` uses the collection cover image instead. If neither a publishable video nor a supplied cover exists (currently Beyond), retain the slide as a **draft**, never invent a cover or publish unknown-rights footage. Current source data yields 6 published slides + 1 draft.
+- Creates **hero slides**: one per collection in catalog order, **Private first**, `duration_s = 6`. A slide whose video has `rights_status='unknown'` uses the collection cover image instead. Retain the slide as a draft when it has neither a publishable video nor a supplied cover. The current catalog includes a cover for all seven collections.
 - Settings `i18n` and `i18n_glossary` with the defaults from `docs/08-i18n-plan.md`.
 - Creates the first **owner** user from env `SEED_OWNER_EMAIL` with a one-time setup link printed in the console (no default password).
 - Idempotent: upsert by slug.
@@ -246,14 +247,18 @@ Run migrations with `drizzle-kit generate` → review SQL → `drizzle-kit migra
 
 ## 4. Booking request flow (`POST /v1/requests`)
 
-Body (zod): `{ mode, items:[{ trip_slug, day_index? }], start_date, adults, children, child_ages?, format?, pickup_area, hotel?, name, phone, email?, notes?, locale, hp, t }` where `hp` is the honeypot (must be empty) and `t` the form-open timestamp (reject if submitted < 3s after open).
+Body (zod): `{ mode, items:[{ trip_slug, price_id?, hours?, day_index? }], start_date, adults, children, child_ages?, format, pickup_area, hotel?, name, phone, email?, notes?, locale, quote_id?, hp, t }` where `hp` is the honeypot (must be empty) and `t` the form-open timestamp (reject if submitted < 3s after open).
 
-1. Rate limit: 5 requests / 10 min / IP and 20 / day / phone number.
+1. Rate limit: 5 requests / 10 min / IP and 20 / day / phone number. Require the canonical international phone format (E.164) before applying the phone quota and saving the request. The saved number is the one sent in the staff email.
 2. Validate dates: not in the past, ≤ 18 months ahead; for trips with `run_days`, warn (not reject) if the day doesn't match — staff can still propose.
-3. Load trips (published only), **recompute the estimate** with `packages/shared/price.ts`, snapshot prices.
+3. Plan dates using published trips, then resolve each trip’s eligible rates for its own start date. Rate windows are inclusive. Among eligible options, use the primary row or the first non-child row in display order, unless the guest chooses a specific eligible price ID. Derive package rates from component service dates when the package has no fixed price. Recompute with `packages/shared/price.ts` and save the price IDs, service dates and amounts in the item snapshots.
 4. Insert request + items in one transaction; generate `ref`.
 5. Enqueue notifications (pg-boss): email to the staff inbox, optional Telegram/WhatsApp Business API later.
 6. Return `{ ref, estimate_eur, whatsapp_url, message }`. The WhatsApp number comes from settings.
+
+`POST /v1/requests/quote` accepts only itinerary, guest counts and locale. It uses the same price calculation and returns the dated options, totals and a quote ID. A submission with a stale quote ID returns HTTP 409 with the revised quote before any request or notification is written. Older callers can omit the quote ID and receive the current server-calculated estimate.
+
+`POST /v1/requests` accepts an optional opaque `submission_id` for compatibility with earlier callers. The web form supplies a stable ID for the same booking details in a tab. The booking, receipt and notification commit together. A matching replay returns the original confirmation for 24 hours. Reusing the ID for changed details returns HTTP 409. Expiry clears the confirmation payload and retains the ID and fingerprint until customer-data cleanup, so a late retry cannot create a duplicate.
 
 ### Price calculator (`packages/shared/price.ts`, shared by web & API, unit-tested)
 
@@ -263,6 +268,7 @@ Body (zod): `{ mode, items:[{ trip_slug, day_index? }], start_date, adults, chil
 - `format = private` on a group trip: `× (1 + private_surcharge_pct/100)` only if the surcharge is set; otherwise "on request".
 - any `null` amount → whole estimate is "on request" for that item.
 - Package: use the package's own price if set, else sum of items.
+- Round each completed booking line to a whole euro after calculating the price and surcharge, then sum the rounded lines. Keep the original stored rate and its precision in the snapshot.
 
 ---
 
@@ -273,7 +279,7 @@ Body (zod): `{ mode, items:[{ trip_slug, day_index? }], start_date, adults, chil
 - Images (sharp): auto-rotate, strip EXIF/GPS, convert to sRGB, generate widths 480/768/1200/1920 in AVIF + WebP + JPEG (q≈72), keep the original in a private dir.
 - **Colour grade** (brand look = bright & warm): images `sharp.modulate({ brightness: 1.06, saturation: 1.18 })` + slight warm tint, toggle "Auto-enhance" (default on) per upload; videos get the ffmpeg grade from `assets/ASSETS.md` and are slowed to 0.85×.
 - Video (ffmpeg in a worker): strip audio by default, make `mp4_v` 720×1280 and `mp4_h` 1280×720 (crop around the focal point), H.264 CRF 26 preset veryfast, `+faststart`, max 20s for hero use (trim in admin), poster JPG/AVIF.
-- Files are content-addressed: `/srv/stella/media/<sha256[0:2]>/<sha256>/<variant>.<ext>`; served by Caddy with `Cache-Control: public, max-age=31536000, immutable`.
+- Files are content-addressed at `/srv/stella/media/<sha256[0:2]>/<sha256>/<variant>.<ext>`. Caddy checks the rendition registry and current media rights before serving with `Cache-Control: public, no-cache, must-revalidate`. File delivery still supports conditional requests, AVIF/WebP negotiation and video ranges.
 - Delete = soft (hide); a weekly job removes files not referenced for 30 days.
 
 ---

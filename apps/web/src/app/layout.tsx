@@ -17,14 +17,15 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  const locale = (await headers()).get('x-stella-locale') ?? 'en';
-  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  const requestHeaders = await headers();
+  const locale = requestHeaders.get('x-stella-locale') ?? 'en';
+  const nonce = requestHeaders.get('x-nonce') ?? undefined;
   const analytics = analyticsConfig(
     env.NEXT_PUBLIC_SITE_URL,
     process.env.UMAMI_SCRIPT_URL,
     process.env.UMAMI_WEBSITE_ID,
   );
-  const rtl = ['ar', 'he', 'fa', 'ur'].includes(locale);
+  const rtl = requestHeaders.get('x-stella-dir') === 'rtl';
   const body = bodyFont.style.fontFamily;
   const heading = (['ru', 'uk'].includes(locale) ? forum : display).style
     .fontFamily;

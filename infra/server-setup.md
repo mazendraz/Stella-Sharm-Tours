@@ -39,9 +39,11 @@ stella_gateway`. Production gateway is .2, staging gateway .3. Production and
    `/etc/systemd/system/`; run `systemctl daemon-reload`, then enable
    `stella-backup@production.timer` and `stella-monitor@production.timer`.
    Backup schedule explicitly uses **Africa/Cairo**, independent of server TZ.
-   The supplied alert unit writes a critical journal event; configure a real
-   operator alert destination before launch and test it. No outbound message was
-   sent during local verification.
+   The supplied alert unit writes a critical journal event. To deliver it to an
+   operator, install a root-owned HTTPS webhook URL at
+   `/etc/stella/alerts/webhook-url` with mode `0600`. The endpoint receives a JSON
+   event name and the failed unit name. Verify receipt with the named operator
+   from staging before launch.
 
 ## Staging on the same VPS
 
@@ -56,7 +58,7 @@ from `infra/caddy/staging-edge.caddy.example` to the production gateway config
 and reload Caddy. Both gateways share only `stella_gateway`; the staging gateway
 trusts forwarded client IPs only from production gateway .2. It authenticates
 requests before routing and sends `noindex` headers. The staging browser uses
-same-origin `/v1/requests` and `/media/` so basic-auth credentials work without
+same-origin `/v1/requests`, `/v1/requests/quote` and `/media/` so basic-auth credentials work without
 cross-origin prompts. The implemented admin uses its own origin `/v1/admin/*`.
 
 Staging worker SMTP is forcibly directed to its isolated Mailpit, with no real
@@ -65,7 +67,8 @@ staging. Do not run API/worker/gateway during a restore or before scrubbing.
 
 ## First deploy and seed
 
-`bash infra/deploy.sh staging COMMIT_SHA` pulls the exact images, backs up,
+`bash infra/deploy-release.sh staging COMMIT_SHA` selects a read-only archive of
+the commit under `/srv/stella/release-checkouts`, then pulls the exact images, backs up,
 migrates once, starts apps, checks dependencies and records a release only after
 health succeeds. Production deliberately refuses the current admin scaffold:
 file 05 must supply the dashboard before go-live.

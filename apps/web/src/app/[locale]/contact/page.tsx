@@ -1,9 +1,11 @@
 import { getTranslations } from 'next-intl/server';
+import { Mail, MapPin, Phone } from 'lucide-react';
+import { SocialIcon, isMapLink } from '@/components/social-icon';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { getSite } from '@/lib/api';
 import { Media } from '@/components/media';
 import { Content } from '@/components/text';
-import { whatsapp } from '@/lib/links';
+import { displayPhone, officeMap, whatsapp } from '@/lib/links';
 import { metadataFor } from '@/lib/seo';
 import { Unavailable } from '@/components/unavailable';
 export async function generateMetadata({
@@ -28,6 +30,9 @@ export default async function ContactPage({
   } catch {
     return <Unavailable />;
   }
+  const links = site.social.filter((s) => /^https:\/\//.test(s.url)),
+    map = links.find((s) => isMapLink(s.label)),
+    social = links.filter((s) => s !== map);
   return (
     <main id="main" className="wrap content-page">
       <p className="kicker">Stella Sharm Tours</p>
@@ -50,33 +55,75 @@ export default async function ContactPage({
                   href={whatsapp(phone) ?? undefined}
                 >
                   <WhatsAppIcon size={19} />
-                  {t('whatsapp')} <bdi>{phone}</bdi>
+                  {t('whatsapp')} <bdi dir="ltr">{displayPhone(phone!)}</bdi>
                 </a>
               ))}
           </div>
-          {site.contacts.email && (
-            <p>
-              <a href={'mailto:' + site.contacts.email}>
-                {site.contacts.email}
-              </a>
-            </p>
-          )}
-          {site.contacts.phone && (
-            <p>
-              <a href={'tel:' + site.contacts.phone}>
-                <bdi>{site.contacts.phone}</bdi>
-              </a>
-            </p>
+          {(site.contacts.phone || site.contacts.email) && (
+            <ul className="contact-lines">
+              {site.contacts.phone && (
+                <li>
+                  <a href={'tel:' + site.contacts.phone.replace(/[^\d+]/g, '')}>
+                    <span className="contact-icon" aria-hidden="true">
+                      <Phone size={20} />
+                    </span>
+                    <span className="contact-text">
+                      <span className="contact-label">{t('contactCall')}</span>
+                      <bdi dir="ltr">{displayPhone(site.contacts.phone)}</bdi>
+                    </span>
+                  </a>
+                </li>
+              )}
+              {site.contacts.email && (
+                <li>
+                  <a href={'mailto:' + site.contacts.email}>
+                    <span className="contact-icon" aria-hidden="true">
+                      <Mail size={20} />
+                    </span>
+                    <span className="contact-text">
+                      <span className="contact-label">{t('contactEmail')}</span>
+                      <bdi dir="ltr">{site.contacts.email}</bdi>
+                    </span>
+                  </a>
+                </li>
+              )}
+            </ul>
           )}
         </div>
         <div className="office-card">
-          {site.map_image && (
-            <div className="office-map">
-              <Media
-                media={site.map_image}
-                sizes="(max-width:767px) 100vw, 50vw"
-              />
-            </div>
+          <a
+            className="office-map-link"
+            href={officeMap.url}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="office-map">
+              {site.map_image ? (
+                <Media
+                  media={site.map_image}
+                  sizes="(max-width:767px) 100vw, 50vw"
+                />
+              ) : (
+                <img
+                  src={officeMap.image}
+                  alt=""
+                  width={1200}
+                  height={700}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <span className="office-map-pin" aria-hidden="true">
+                <MapPin size={22} strokeWidth={2.2} />
+              </span>
+              <span className="office-map-cta">
+                <SocialIcon label="Google Maps" size={16} />
+                {t('openInMaps')}
+              </span>
+            </span>
+          </a>
+          {!site.map_image && (
+            <p className="office-map-credit">© OpenStreetMap contributors</p>
           )}
           <Content value={site.address} />
           {site.hours && (
@@ -84,20 +131,21 @@ export default async function ContactPage({
               <Content value={site.hours} />
             </p>
           )}
-          <div className="button-row">
-            {site.social
-              .filter((s) => /^https:\/\//.test(s.url))
-              .map((s) => (
-                <a
-                  className="text-link"
-                  key={s.url}
-                  href={s.url}
-                  rel="noopener noreferrer"
-                >
-                  {s.label}
-                </a>
-              ))}
-          </div>
+          {social.length > 0 && (
+            <>
+              <h2 className="office-heading">{t('followUs')}</h2>
+              <ul className="social-links">
+                {social.map((s) => (
+                  <li key={s.url}>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                      <SocialIcon label={s.label} />
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
       </div>
     </main>

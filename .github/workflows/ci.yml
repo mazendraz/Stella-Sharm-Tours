@@ -11,12 +11,12 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       TURBO_TELEMETRY_DISABLED: '1'
       API_INTERNAL_URL: http://127.0.0.1:4100
-      NEXT_PUBLIC_API_URL: http://localhost:4100
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:4100
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       FFMPEG_PATH: ${{ github.workspace }}/infra/ci-ffmpeg.sh
       FFPROBE_PATH: ${{ github.workspace }}/infra/ci-ffprobe.sh
@@ -41,14 +41,20 @@ jobs:
       - run: pnpm typecheck && pnpm lint && pnpm test
       - run: pnpm test:integration
       - run: pnpm build
-      - run: pnpm audit --prod --audit-level moderate
       - run: pnpm security:scan:source && pnpm security:scan:history
       - run: shellcheck infra/*.sh infra/backup/*.sh infra/monitoring/*.sh
       - run: bash infra/tests/operations.sh
-      - run: docker run --rm --network none --entrypoint sh -v "$PWD/infra/tests/restic.sh:/verify.sh:ro" restic/restic:0.19.1 /verify.sh
+      - run: >-
+          docker run --rm --network none --entrypoint sh
+          -v "$PWD/infra/tests/restic.sh:/verify.sh:ro"
+          -v "$PWD/assets/images/stock/yacht.jpg:/fixtures/poster.jpg:ro"
+          -v "$PWD/assets/video-stock/hero6-private-h.mp4:/fixtures/clip.mp4:ro"
+          restic/restic:0.19.1 /verify.sh
       - run: pnpm exec playwright install --with-deps chromium
       - name: Isolated frontend browser suite
-        env: { PLAYWRIGHT_CHANNEL: chromium }
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          MEDIA_PUBLIC_URL: http://127.0.0.1:4100
         run: |
           pnpm preview:fixture > "$RUNNER_TEMP/fixture.log" 2>&1 & fixture_pid=$!
           pnpm --filter @stella/web start > "$RUNNER_TEMP/web.log" 2>&1 & web_pid=$!
@@ -59,6 +65,34 @@ jobs:
             sleep 1
           done
           pnpm exec playwright test
+      - name: Seeded website and admin browser checks
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          STELLA_INTEGRATION_VERIFY: '1'
+        run: |
+          set -euo pipefail
+          pnpm infra:verify:setup
+          base="$PWD/.local/integration-runtime/production"
+          compose=(docker compose --env-file "$base/compose.env" -f infra/docker-compose.prod.yml -f infra/docker-compose.verify.yml)
+          trap '"${compose[@]}" down --volumes' EXIT
+          sudo chown 1000:1000 "$base/media" "$base/originals" "$base/caddy/data" "$base/caddy/config" "$base/setup"
+          sudo chmod a+rx "$base/security"
+          sudo chmod a+r "$base/security/common-passwords-100k.txt"
+          docker tag stella-ci-media stella-local/stella-api:integration
+          docker build -f infra/Dockerfile --target web -t stella-local/stella-web:integration .
+          docker build -f infra/Dockerfile --target admin -t stella-local/stella-admin:integration .
+          "${compose[@]}" up --detach --wait postgres mailpit
+          "${compose[@]}" run --rm --no-deps migrate
+          "${compose[@]}" run --rm --no-deps \
+            --volume "$PWD/assets:/app/assets:ro" --volume "$base/setup:/private" \
+            --env SEED_SETUP_FILE=/private/owner-setup.txt \
+            migrate node --import tsx scripts/seed.ts
+          "${compose[@]}" up --detach --wait api worker web admin caddy
+          pnpm test:e2e:integration languages.spec.ts private-booking.spec.ts admin.spec.ts --project mobile
+          pnpm test:e2e:admin dashboard.spec.ts --project mobile
+      - name: Production dependency audit
+        if: ${{ !cancelled() }}
+        run: pnpm audit --prod --audit-level moderate
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

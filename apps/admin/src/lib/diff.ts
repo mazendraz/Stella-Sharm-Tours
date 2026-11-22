@@ -163,8 +163,15 @@ export function describeChange(entry: Row, t: T, locale: Locale): string[] {
       lines.push(
         t('diffFromTo', {
           field: label,
-          from: value(a, t, locale),
-          to: value(b, t, locale),
+          // Status codes ("contacted", "published") have their own labels.
+          from:
+            key === 'status' && typeof a === 'string'
+              ? t(a)
+              : value(a, t, locale),
+          to:
+            key === 'status' && typeof b === 'string'
+              ? t(b)
+              : value(b, t, locale),
         }),
       );
   }

@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { createHash, randomBytes } from 'node:crypto';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Database } from './index';
 import * as s from './schema';
@@ -20,6 +20,7 @@ const collection = z.object({
   sub: localized,
   cover: z.string().nullable().default(null),
   hero_video: z.string().nullable(),
+  hero_video_mobile: z.string().nullable().optional(),
   color: z.string(),
   perks: z.array(z.tuple([z.string(), z.string()])).optional(),
 });
@@ -29,6 +30,7 @@ const trip = z.object({
   title: z.string(),
   days: z.string(),
   departure: z.string().nullable().optional(),
+  return_time: z.string().nullable().optional(),
   duration: z.string(),
   transport: z.string(),
   format: z.enum(['group', 'private', 'both']),
@@ -58,7 +60,7 @@ const trip = z.object({
   optional: z.array(z.string()),
   bring: z.array(z.string()).optional(),
   notes: z.array(z.string()),
-  itinerary: z.array(z.tuple([z.string(), z.string()])),
+  itinerary: z.array(z.tuple([z.string().nullable(), z.string()])),
   media: z.object({
     cover: z.string().nullable().default(null),
     video: z.string().nullable().optional(),
@@ -74,6 +76,8 @@ const catalogSchema = z.object({
       title: z.string(),
       trips: z.array(z.string()),
       price_eur: z.number().nullable(),
+      summary: z.string().optional(),
+      cover: z.string().optional(),
       status: z.literal('draft'),
       collection: z.string(),
     }),
@@ -85,6 +89,20 @@ type Options = {
   ownerEmail: string;
   importMedia?: (path: string, alt: s.Localized) => Promise<string | null>;
 };
+// Official contact channels sent by the owner on 2026-11-14.
+const businessContacts = {
+  phone: '+201095989932',
+  email: 'stellasharmtour@gmail.com',
+};
+const businessSocial = [
+  { label: 'Instagram', url: 'https://www.instagram.com/stellasharmtours/' },
+  { label: 'Facebook', url: 'https://www.facebook.com/share/1MiMcbCDxF/' },
+  {
+    label: 'TripAdvisor',
+    url: 'https://www.tripadvisor.co.uk/Attraction_Review-g297555-d34091505-Reviews-Stella_Sharm_Tours_by_Heroes_travel-Sharm_El_Sheikh_South_Sinai_Red_Sea_and_Sina.html',
+  },
+  { label: 'Google Maps', url: 'https://share.google/mI9ygfvx6Khi5caqM' },
+];
 const featured = [
   'ras-mohammed-white-island-boat',
   'quad-bike-safari',
@@ -170,7 +188,16 @@ export async function seedCatalog(db: Database, options: Options) {
               .from(s.media)
               .where(eq(s.media.id, row.heroVideoId))
           : [];
-        await db.insert(s.heroSlides).values({
+        const mobileId =
+          c.hero_video_mobile && options.importMedia
+            ? await options.importMedia(c.hero_video_mobile, c.name)
+            : null;
+        const [mobile] = mobileId
+          ? await db.select().from(s.media).where(eq(s.media.id, mobileId))
+          : [];
+        const mobileReady =
+          mobile?.status === 'ready' && mobile.rightsStatus !== 'unknown';
+        const slide = {
           collectionId: row.id,
           imageMediaId: row.coverMediaId,
           videoMediaId:
@@ -179,7 +206,7 @@ export async function seedCatalog(db: Database, options: Options) {
               : row.coverMediaId
                 ? null
                 : row.heroVideoId,
-          ctaType: 'collection',
+          ctaType: 'collection' as const,
           ctaTarget: c.id,
           ctaLabel: { en: 'See trips' },
           sort: c.order,
@@ -187,9 +214,19 @@ export async function seedCatalog(db: Database, options: Options) {
           status:
             row.coverMediaId ||
             (video?.status === 'ready' && video.rightsStatus !== 'unknown')
-              ? 'published'
-              : 'draft',
-        });
+              ? ('published' as const)
+              : ('draft' as const),
+        };
+        await db.insert(s.heroSlides).values(
+          mobileReady &&
+            video?.status === 'ready' &&
+            video.rightsStatus !== 'unknown'
+            ? [
+                { ...slide, showOn: 'mobile', videoMediaId: mobile.id },
+                { ...slide, showOn: 'desktop' },
+              ]
+            : [slide],
+        );
       }
     }
     for (const [sort, t] of catalog.trips.entries()) {
@@ -209,6 +246,7 @@ export async function seedCatalog(db: Database, options: Options) {
           runDays: runDays(t.days),
           onRequest: t.prices.every((p) => p.amount_eur === null),
           departureLabel: t.departure ?? null,
+          returnLabel: t.return_time ?? null,
           durationLabel: { en: t.duration },
           ...facts,
           transport: t.transport,
@@ -230,6 +268,11 @@ export async function seedCatalog(db: Database, options: Options) {
         inserted[0] ??
         (await db.select().from(s.trips).where(eq(s.trips.slug, t.slug)))[0]!;
       tids.set(t.slug, row.id);
+      if (!inserted.length && t.return_time && row.returnLabel === null)
+        await db
+          .update(s.trips)
+          .set({ returnLabel: t.return_time })
+          .where(and(eq(s.trips.id, row.id), isNull(s.trips.returnLabel)));
       if (inserted.length)
         await db.transaction(async (tx) => {
           if (t.prices.length)
@@ -297,6 +340,7 @@ export async function seedCatalog(db: Database, options: Options) {
           kind: 'package',
           collectionId: cids.get('all')!,
           title: { en: p.title },
+          summary: p.summary ? { en: p.summary } : null,
           daysCount: p.trips.reduce(
             (sum, slug) =>
               sum +
@@ -313,6 +357,14 @@ export async function seedCatalog(db: Database, options: Options) {
       const row = (
         await db.select().from(s.trips).where(eq(s.trips.slug, p.slug))
       )[0]!;
+      if (p.cover && options.importMedia) {
+        const mediaId = await options.importMedia(p.cover, { en: p.title });
+        if (mediaId)
+          await db
+            .insert(s.tripMedia)
+            .values({ tripId: row.id, mediaId, role: 'cover', sort: 0 })
+            .onConflictDoNothing();
+      }
       for (const [i, slug] of p.trips.entries())
         await db
           .insert(s.packageItems)
@@ -331,13 +383,13 @@ export async function seedCatalog(db: Database, options: Options) {
       contacts: {
         whatsapp_primary: '+201069012881',
         whatsapp_secondary: '+201008605904',
-        phone: null,
-        email: null,
+        phone: businessContacts.phone,
+        email: businessContacts.email,
       },
       address: { en: catalog.business.address },
       hours: null,
       legal_entity: { en: catalog.business.name },
-      social: [],
+      social: businessSocial,
       pickup_areas: [
         'Naama Bay',
         'Nabq Bay',
@@ -403,6 +455,34 @@ export async function seedCatalog(db: Database, options: Options) {
       if (value === null) continue;
       await db.insert(s.settings).values({ key, value }).onConflictDoNothing();
     }
+    // Databases seeded before the owner sent these details: fill only the
+    // fields that are still empty, never overwrite what staff typed in admin.
+    const current = new Map(
+      (
+        await db
+          .select()
+          .from(s.settings)
+          .where(inArray(s.settings.key, ['contacts', 'social']))
+      ).map((row) => [row.key, row.value]),
+    );
+    const contacts = (current.get('contacts') ?? {}) as Record<string, unknown>;
+    if (!contacts.phone || !contacts.email)
+      await db
+        .update(s.settings)
+        .set({
+          value: {
+            ...contacts,
+            phone: contacts.phone || businessContacts.phone,
+            email: contacts.email || businessContacts.email,
+          },
+        })
+        .where(eq(s.settings.key, 'contacts'));
+    const social = current.get('social');
+    if (!Array.isArray(social) || social.length === 0)
+      await db
+        .update(s.settings)
+        .set({ value: businessSocial })
+        .where(eq(s.settings.key, 'social'));
     const owner = (
       await db
         .insert(s.adminUsers)

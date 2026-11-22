@@ -80,7 +80,11 @@ for (const path of new Set(inventory.stdout.split('\0').filter(Boolean))) {
     relative(output, destination).startsWith('..')
   )
     throw new Error('Source escaped inventory');
-  if (!(await lstat(source)).isFile()) continue;
+  const entry = await lstat(source).catch((error) => {
+    if (error.code === 'ENOENT') return null;
+    throw error;
+  });
+  if (!entry?.isFile()) continue;
   const bytes = await readFile(source);
   if (bytes.includes(0)) continue;
   try {

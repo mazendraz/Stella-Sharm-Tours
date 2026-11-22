@@ -5,8 +5,10 @@ import { useAdmin, useData, ApiError } from '../lib/admin-context';
 import { content, rows, type Row } from '../lib/content';
 import { dayLabel, money } from '../lib/format';
 import { usePriceText } from '../lib/catalog';
+import { useDirtySource } from '../lib/guard';
 import { PageHeader } from '../components/ui/page-header';
 import { DataTable, SearchBox, type Column } from '../components/ui/data-table';
+import { FilterBar } from '../components/ui/filter-bar';
 import { Modal, useConfirm } from '../components/ui/dialog';
 import { FieldGroup, FormField, Segmented } from '../components/ui/field';
 import { Callout } from '../components/ui/states';
@@ -54,12 +56,21 @@ export function Prices() {
       ]);
   }, [collections.data, visible, locale, t]);
   const primary = (row: Row) => rows(row.rows).find((p) => p.isPrimary);
+  const unpriced = (row: Row) =>
+    t(
+      row.kind === 'package'
+        ? 'sumOfTrips'
+        : primary(row)
+          ? 'onRequest'
+          : 'noPriceYet',
+    );
+  useDirtySource('inline-price', editing ? [t('mainPrice')] : []);
   const saveAmount = async (row: Row) => {
     const main = primary(row);
     // One request per edit, even if Enter repeats or blur follows.
     if (!main || inFlight.current) return;
     const value = draft.trim();
-    if (value !== '' && !(Number(value) >= 0)) {
+    if (value !== '' && !(Number(value) >= 0 && Number(value) <= 99999999)) {
       notify(t('pricesInvalidAmount'), { tone: 'error' });
       return;
     }
@@ -142,36 +153,57 @@ export function Prices() {
       header: t('mainPrice'),
       cell: (row) => {
         const main = primary(row);
-        if (!main)
-          return (
-            <span className="muted">
-              {row.kind === 'package' ? t('sumOfTrips') : t('noPriceYet')}
-            </span>
-          );
+        if (!main) return <span className="muted">{unpriced(row)}</span>;
         if (editing === row.id)
           return (
-            <input
-              className="inline-input"
-              autoFocus
-              type="number"
-              min={0}
-              step="0.01"
-              inputMode="decimal"
-              aria-label={t('amountFor', { name: content(row.title, locale) })}
-              value={draft}
-              disabled={busy}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') void saveAmount(row);
-                if (e.key === 'Escape') setEditing(null);
-              }}
-              onBlur={() => !busy && setEditing(null)}
-            />
+            <div
+              className="inline-price-controls"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <input
+                className="inline-input"
+                autoFocus
+                type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
+                aria-label={t('amountFor', {
+                  name: content(row.title, locale),
+                })}
+                value={draft}
+                disabled={busy}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void saveAmount(row);
+                  }
+                  if (e.key === 'Escape' && !busy) setEditing(null);
+                }}
+              />
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={busy}
+                onClick={() => void saveAmount(row)}
+              >
+                {t('save')}
+              </button>
+              <button
+                type="button"
+                className="btn"
+                disabled={busy}
+                onClick={() => setEditing(null)}
+              >
+                {t('cancel')}
+              </button>
+            </div>
           );
         return (
           <button
             type="button"
             className="inline-edit"
+            disabled={editing !== null}
             onClick={() => {
               setEditing(row.id);
               setDraft(
@@ -179,7 +211,7 @@ export function Prices() {
               );
             }}
           >
-            {money(main.amountEur as string, locale) ?? t('onRequest')}
+            {money(main.amountEur as string, locale) ?? unpriced(row)}
             <span className="sr-only">
               {' '}
               — {t('editPriceFor', { name: content(row.title, locale) })}
@@ -246,8 +278,10 @@ export function Prices() {
         }
         mobile={{
           title: (row) => content(row.title, locale),
-          meta: (row) =>
-            primary(row) ? priceText(primary(row), false) : t('sumOfTrips'),
+          meta: (row) => {
+            const main = primary(row);
+            return main?.amountEur == null ? unpriced(row) : priceText(main);
+          },
         }}
         loading={list.isPending || collections.isPending}
         error={list.isError}
@@ -263,12 +297,16 @@ export function Prices() {
         }}
         count={tp('itemsCount', visible.length)}
         toolbar={
-          <div className="filters">
-            <SearchBox
-              value={q}
-              onChange={setQ}
-              placeholder={t('searchTrips')}
-            />
+          <FilterBar
+            search={
+              <SearchBox
+                value={q}
+                onChange={setQ}
+                placeholder={t('searchTrips')}
+              />
+            }
+            active={kind ? 1 : 0}
+          >
             <select
               aria-label={t('type')}
               value={kind}
@@ -278,7 +316,7 @@ export function Prices() {
               <option value="trip">{t('trips')}</option>
               <option value="package">{t('packages')}</option>
             </select>
-          </div>
+          </FilterBar>
         }
       />
       {bulk && (

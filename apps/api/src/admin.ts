@@ -39,8 +39,11 @@ import { scrubRequestHistory } from './privacy';
 import type { ApiEnv } from './types';
 import type { Config } from './config';
 import { authService, clientIp } from './auth';
+import { requestExportQuery } from './admin-contracts';
+import { requireCoreCopy } from './publication-languages';
 import { hashPrivate } from './requests';
 import { fail } from './errors';
+import { storyPatch } from '@stella/shared/story';
 import { upload } from './media';
 import { readSettings } from './catalog';
 import { registerMore } from './admin-more';
@@ -54,6 +57,8 @@ export const tripListExtras = {
   coverMediaId: sql<
     string | null
   >`(select tm.media_id from trip_media tm where tm.trip_id=trips.id and tm.role='cover' order by tm.sort limit 1)`,
+  // Images (not videos) attached to the trip in any role.
+  photoCount: sql<number>`(select count(*)::int from trip_media tm join media m on m.id=tm.media_id where tm.trip_id=trips.id and m.kind='image')`,
   primaryAmountEur: sql<
     string | null
   >`(select tp.amount_eur from trip_prices tp where tp.trip_id=trips.id and tp.is_primary limit 1)`,
@@ -152,7 +157,11 @@ export async function recordChange(
     after: serialize(after),
     ipHash: hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT),
   });
-  await tx.insert(s.outbox).values({ name: 'revalidate.web', data: { tags } });
+  if (tags.length)
+    await tx
+      .insert(s.outbox)
+      .values({ name: 'revalidate.web', data: { tags } });
+  if (action === 'bulk_prices') return;
   let current: unknown = after,
     previous: unknown = before,
     translationId = entityId;
@@ -281,10 +290,148 @@ export async function usableMedia(
       fail(422, 'MEDIA_NOT_PUBLISHABLE');
   }
 }
+async function validateLiveHero(
+  tx: Transaction,
+  slide: typeof s.heroSlides.$inferSelect,
+) {
+  if (!slide.videoMediaId && !slide.imageMediaId) fail(422, 'MEDIA_REQUIRED');
+  await usableMedia(tx, [slide.videoMediaId, slide.imageMediaId]);
+  const [collection] = slide.collectionId
+    ? await tx
+        .select()
+        .from(s.collections)
+        .where(
+          and(
+            eq(s.collections.id, slide.collectionId),
+            eq(s.collections.status, 'published'),
+            isNull(s.collections.archivedAt),
+          ),
+        )
+    : [];
+  if (!(slide.headline ?? collection?.headline ?? collection?.name)?.en?.trim())
+    fail(422, 'HEADLINE_REQUIRED');
+  await requireCoreCopy(tx, [
+    {
+      entity: 'hero_slide',
+      id: slide.id,
+      copy: {
+        headline: slide.headline,
+        kicker: slide.kicker,
+        subline: slide.subline,
+        ctaLabel: slide.ctaLabel,
+      },
+    },
+  ]);
+  if (slide.startsAt && slide.endsAt && slide.endsAt <= slide.startsAt)
+    fail(422, 'INVALID_INPUT');
+  const target = slide.ctaTarget?.trim();
+  if (slide.ctaType === 'collection' && !target && !collection)
+    fail(422, 'INVALID_INPUT');
+  if (slide.ctaType === 'collection' && target && target !== collection?.slug) {
+    const [linked] = await tx
+      .select({ id: s.collections.id })
+      .from(s.collections)
+      .where(
+        and(
+          eq(s.collections.slug, target),
+          eq(s.collections.status, 'published'),
+          isNull(s.collections.archivedAt),
+        ),
+      );
+    if (!linked) fail(422, 'INVALID_INPUT');
+  }
+  if (slide.ctaType === 'trip' || slide.ctaType === 'package') {
+    const [linked] = target
+      ? await tx
+          .select({ id: s.trips.id })
+          .from(s.trips)
+          .where(
+            and(
+              eq(s.trips.slug, target),
+              eq(s.trips.kind, slide.ctaType),
+              eq(s.trips.status, 'published'),
+              isNull(s.trips.archivedAt),
+            ),
+          )
+      : [];
+    if (!linked) fail(422, 'INVALID_INPUT');
+  }
+  if (
+    slide.ctaType === 'page' &&
+    ![
+      '/contact',
+      '/faq',
+      '/legal/terms',
+      '/legal/privacy',
+      '/legal/cancellation',
+    ].includes(target ?? '')
+  )
+    fail(422, 'INVALID_INPUT');
+}
 export async function canPublishTrip(tx: Transaction, id: string) {
   const [trip] = await tx.select().from(s.trips).where(eq(s.trips.id, id));
   if (!trip || trip.archivedAt || !trip.title.en.trim())
     fail(422, 'TRIP_NOT_PUBLISHABLE');
+  if (trip.story) {
+    if (trip.story.scenes.some((scene) => !scene.mediaId))
+      fail(422, 'MEDIA_NOT_PUBLISHABLE');
+    await usableMedia(tx, [
+      ...new Set(trip.story.scenes.map((scene) => scene.mediaId)),
+    ]);
+    await requireCoreCopy(tx, [
+      { entity: 'trip', id, copy: { story: trip.story } },
+    ]);
+  }
+  const items = await tx
+    .select()
+    .from(s.tripItems)
+    .where(eq(s.tripItems.tripId, id));
+  const stops = await tx
+    .select()
+    .from(s.tripItinerary)
+    .where(eq(s.tripItinerary.tripId, id));
+  const prices = await tx
+    .select()
+    .from(s.tripPrices)
+    .where(eq(s.tripPrices.tripId, id));
+  await requireCoreCopy(tx, [
+    {
+      entity: 'trip',
+      id,
+      copy: {
+        title: trip.title,
+        summary: trip.summary,
+        description: trip.description,
+        daysLabel: trip.daysLabel,
+        durationLabel: trip.durationLabel,
+        departureLabel: trip.departureLabel
+          ? { en: trip.departureLabel }
+          : null,
+        returnLabel: trip.returnLabel ? { en: trip.returnLabel } : null,
+        notes: trip.notes,
+        seoTitle: trip.seoTitle,
+        seoDescription: trip.seoDescription,
+      },
+    },
+    ...items.map((row) => ({
+      entity: 'trip_item',
+      id: row.id,
+      copy: { text: row.text },
+    })),
+    ...stops.map((row) => ({
+      entity: 'itinerary',
+      id: row.id,
+      copy: {
+        text: row.text,
+        timeLabel: row.timeLabel ? { en: row.timeLabel } : null,
+      },
+    })),
+    ...prices.map((row) => ({
+      entity: 'trip_price',
+      id: row.id,
+      copy: { label: row.label },
+    })),
+  ]);
   const ms = await tx
     .select()
     .from(s.tripMedia)
@@ -384,54 +531,6 @@ export function registerAdmin(
     if (!parsed.success) fail(422, 'INVALID_QUERY');
     return parsed.data;
   };
-  app.get('/v1/admin/requests/export.csv', auth.guard('export'), async (c) => {
-    auth.recent(c);
-    const rows = await db
-      .select({
-        ref: s.bookingRequests.ref,
-        name: s.bookingRequests.name,
-        phone: s.bookingRequests.phone,
-        email: s.bookingRequests.email,
-        start_date: s.bookingRequests.startDate,
-        adults: s.bookingRequests.adults,
-        children: s.bookingRequests.children,
-        status: s.bookingRequests.status,
-      })
-      .from(s.bookingRequests)
-      .orderBy(desc(s.bookingRequests.createdAt))
-      .limit(10000);
-    const escape = csvCell;
-    const keys = [
-      'ref',
-      'name',
-      'phone',
-      'email',
-      'start_date',
-      'adults',
-      'children',
-      'status',
-    ];
-    await db.insert(s.auditLog).values({
-      userId: c.get('principal').id,
-      action: 'export',
-      entity: 'request',
-      after: { count: rows.length },
-    });
-    c.header('Content-Type', 'text/csv; charset=utf-8');
-    c.header(
-      'Content-Disposition',
-      'attachment; filename="stella-requests.csv"',
-    );
-    return c.body(
-      '\uFEFF' +
-        [
-          keys.join(','),
-          ...rows.map((row) =>
-            keys.map((k) => escape(row[k as keyof typeof row])).join(','),
-          ),
-        ].join('\r\n'),
-    );
-  });
   const requestFields = {
     id: s.bookingRequests.id,
     ref: s.bookingRequests.ref,
@@ -553,6 +652,7 @@ export function registerAdmin(
   const requestFilters = (p: ReturnType<typeof paging>) => {
     const like = p.q ? '%' + p.q + '%' : null;
     return and(
+      p.status ? eq(s.bookingRequests.status, p.status) : undefined,
       like
         ? or(
             ilike(s.bookingRequests.name, like),
@@ -568,11 +668,16 @@ export function registerAdmin(
       p.to
         ? sql`${s.bookingRequests.createdAt}<((${p.to}::date+1)::timestamp at time zone 'Africa/Cairo')`
         : undefined,
-      p.tripFrom
-        ? sql`exists(select 1 from booking_request_items i where i.request_id=booking_requests.id and booking_requests.start_date+(i.day_index-1)>=${p.tripFrom}::date)`
-        : undefined,
-      p.tripTo
-        ? sql`exists(select 1 from booking_request_items i where i.request_id=booking_requests.id and booking_requests.start_date+(i.day_index-1)<=${p.tripTo}::date)`
+      p.tripFrom || p.tripTo
+        ? sql`exists(select 1 from booking_request_items i where ${and(
+            sql`i.request_id=${s.bookingRequests.id}`,
+            p.tripFrom
+              ? sql`${s.bookingRequests.startDate}+(coalesce(i.day_index,1)-1)>=${p.tripFrom}::date`
+              : undefined,
+            p.tripTo
+              ? sql`${s.bookingRequests.startDate}+(coalesce(i.day_index,1)-1)<=${p.tripTo}::date`
+              : undefined,
+          )})`
         : undefined,
       p.assigned === 'none'
         ? isNull(s.bookingRequests.assignedTo)
@@ -581,6 +686,103 @@ export function registerAdmin(
           : undefined,
     );
   };
+  app.get('/v1/admin/requests/export.csv', auth.guard('export'), async (c) => {
+    auth.recent(c);
+    const parsed = requestExportQuery.safeParse(c.req.query());
+    if (!parsed.success) fail(422, 'INVALID_QUERY');
+    const { scope, ...filters } = parsed.data;
+    if (scope === 'all' && Object.values(filters).some(Boolean))
+      fail(422, 'INVALID_QUERY');
+    const filter = requestFilters({ page: 1, ...filters });
+    const userId = c.get('principal').id;
+    const fields = {
+      ref: s.bookingRequests.ref,
+      name: s.bookingRequests.name,
+      phone: s.bookingRequests.phone,
+      email: s.bookingRequests.email,
+      start_date: s.bookingRequests.startDate,
+      adults: s.bookingRequests.adults,
+      children: s.bookingRequests.children,
+      status: s.bookingRequests.status,
+    };
+    const columns = Object.keys(fields) as (keyof typeof fields)[];
+    const { readable, writable } = new TransformStream<
+      Uint8Array,
+      Uint8Array
+    >();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
+    async function exportRows() {
+      let count = 0;
+      let complete = false;
+      try {
+        await db.transaction(
+          async (tx) => {
+            const batch = 500;
+            let cursor: { id: string; timestamp: string } | undefined;
+            await writer.write(
+              encoder.encode('\uFEFF' + columns.join(',') + '\r\n'),
+            );
+            while (true) {
+              const rows = await tx
+                .select({
+                  ...fields,
+                  id: s.bookingRequests.id,
+                  // Preserve PostgreSQL's sub-millisecond precision in the cursor.
+                  timestamp: sql<string>`${s.bookingRequests.createdAt}::text`,
+                })
+                .from(s.bookingRequests)
+                .where(
+                  and(
+                    filter,
+                    cursor
+                      ? sql`(${s.bookingRequests.createdAt}, ${s.bookingRequests.id}) < (${cursor.timestamp}::timestamptz, ${cursor.id}::uuid)`
+                      : undefined,
+                  ),
+                )
+                .orderBy(
+                  desc(s.bookingRequests.createdAt),
+                  desc(s.bookingRequests.id),
+                )
+                .limit(batch);
+              if (rows.length) {
+                const chunk = rows
+                  .map((row) =>
+                    columns.map((column) => csvCell(row[column])).join(','),
+                  )
+                  .join('\r\n');
+                await writer.write(encoder.encode(chunk + '\r\n'));
+                count += rows.length;
+              }
+              if (rows.length < batch) break;
+              cursor = rows.at(-1);
+            }
+          },
+          { isolationLevel: 'repeatable read', accessMode: 'read only' },
+        );
+        complete = true;
+      } finally {
+        await db.insert(s.auditLog).values({
+          userId,
+          action: 'export',
+          entity: 'request',
+          after: { scope, count, complete },
+        });
+      }
+    }
+    void exportRows()
+      .then(
+        () => writer.close(),
+        () => writer.abort(),
+      )
+      .catch(() => {});
+    c.header('Content-Type', 'text/csv; charset=utf-8');
+    c.header(
+      'Content-Disposition',
+      'attachment; filename="stella-requests.csv"',
+    );
+    return c.body(readable);
+  });
   app.get('/v1/admin/requests/counts', auth.guard('requests'), async (c) => {
     const p = paging(c);
     const rows = await db
@@ -617,13 +819,8 @@ export function registerAdmin(
           >`coalesce((select jsonb_agg(jsonb_build_object('title', t.title, 'dayIndex', i.day_index) order by i.day_index) from booking_request_items i join trips t on t.id=i.trip_id where i.request_id=booking_requests.id), '[]'::jsonb)`,
         })
         .from(s.bookingRequests)
-        .where(
-          and(
-            p.status ? eq(s.bookingRequests.status, p.status) : undefined,
-            requestFilters(p),
-          ),
-        )
-        .orderBy(desc(s.bookingRequests.createdAt))
+        .where(requestFilters(p))
+        .orderBy(desc(s.bookingRequests.createdAt), desc(s.bookingRequests.id))
         .limit(50)
         .offset((p.page - 1) * 50),
     );
@@ -788,6 +985,40 @@ export function registerAdmin(
     ]);
     return c.json({ trip, prices, itinerary, items, media, drafts });
   });
+  app.patch('/v1/admin/trips/:id/story', auth.guard('content'), async (c) => {
+    const id = uuid(c.req.param('id')),
+      data = await parse(c, storyPatch);
+    await db.transaction(async (tx) => {
+      const [trip] = await tx
+        .select({ id: s.trips.id })
+        .from(s.trips)
+        .where(eq(s.trips.id, id))
+        .for('update');
+      if (!trip) fail(404, 'NOT_FOUND');
+      await tx
+        .insert(s.contentDrafts)
+        .values({
+          entity: 'trip',
+          entityId: id,
+          section: 'story',
+          data,
+          createdBy: c.get('principal').id,
+        })
+        .onConflictDoUpdate({
+          target: [
+            s.contentDrafts.entity,
+            s.contentDrafts.entityId,
+            s.contentDrafts.section,
+          ],
+          set: {
+            data,
+            createdBy: c.get('principal').id,
+            updatedAt: new Date(),
+          },
+        });
+    });
+    return c.json({ ok: true, draft: true });
+  });
   for (const [section, schema] of [
     ['basics', basicsSchema],
     ['schedule', scheduleSchema],
@@ -840,6 +1071,8 @@ export function registerAdmin(
               return { ok: true, draft: true };
             }
             const changes = tripChanges(section, b);
+            if (before.status === 'published' && section !== 'schedule')
+              await requireCoreCopy(tx, [{ entity: 'trip', id, copy: b }]);
             await tx
               .update(s.trips)
               .set({ ...changes, updatedAt: new Date() })
@@ -1159,6 +1392,11 @@ export function registerAdmin(
                   .update(s.trips)
                   .set(tripChanges(d.section, changes))
                   .where(eq(s.trips.id, id));
+              } else if (d.section === 'story') {
+                await tx
+                  .update(s.trips)
+                  .set(storyPatch.parse(d.data))
+                  .where(eq(s.trips.id, id));
               } else if (d.section === 'itinerary') {
                 const data = itinerarySchema.parse(d.data);
                 await tx
@@ -1309,13 +1547,17 @@ export function registerAdmin(
             });
           return { ok: true, draft: true };
         }
-        if (before.status === 'published')
+        if (before.status === 'published') {
           await usableMedia(tx, [b.coverMediaId, b.heroVideoId]);
+          await requireCoreCopy(tx, [{ entity: 'collection', id, copy: b }]);
+        }
         await tx
           .update(s.collections)
           .set({ ...b, updatedAt: new Date() })
           .where(eq(s.collections.id, id));
-        await recordChange(tx, c, cfg, 'collection', id, before, b);
+        await recordChange(tx, c, cfg, 'collection', id, before, b, 'update', [
+          'collection:' + before.slug,
+        ]);
         return { ok: true, draft: false };
       }),
     );
@@ -1402,27 +1644,30 @@ export function registerAdmin(
         !can(c.get('principal').role, 'heroLive')
       )
         fail(403, 'DRAFT_ONLY');
-      const merged = { ...before, ...b };
-      if (before.status === 'published')
-        await usableMedia(tx, [merged.videoMediaId, merged.imageMediaId]);
+      const changes = {
+        ...b,
+        startsAt:
+          b.startsAt === undefined
+            ? before.startsAt
+            : b.startsAt === null
+              ? null
+              : new Date(b.startsAt),
+        endsAt:
+          b.endsAt === undefined
+            ? before.endsAt
+            : b.endsAt === null
+              ? null
+              : new Date(b.endsAt),
+      };
+      if (before.status === 'published') {
+        const definedChanges = Object.fromEntries(
+          Object.entries(changes).filter(([, value]) => value !== undefined),
+        );
+        await validateLiveHero(tx, { ...before, ...definedChanges });
+      }
       await tx
         .update(s.heroSlides)
-        .set({
-          ...b,
-          startsAt:
-            b.startsAt === undefined
-              ? undefined
-              : b.startsAt
-                ? new Date(b.startsAt)
-                : null,
-          endsAt:
-            b.endsAt === undefined
-              ? undefined
-              : b.endsAt
-                ? new Date(b.endsAt)
-                : null,
-          updatedAt: new Date(),
-        })
+        .set({ ...changes, updatedAt: new Date() })
         .where(eq(s.heroSlides.id, id));
       await recordChange(tx, c, cfg, 'hero_slide', id, before, b);
     });
@@ -1456,17 +1701,7 @@ export function registerAdmin(
               );
             if (before.status !== 'published' && live.length >= 10)
               fail(409, 'HERO_LIMIT');
-            await usableMedia(tx, [before.videoMediaId, before.imageMediaId]);
-            let headline = before.headline;
-            if (!headline && before.collectionId)
-              headline =
-                (
-                  await tx
-                    .select()
-                    .from(s.collections)
-                    .where(eq(s.collections.id, before.collectionId))
-                )[0]?.headline ?? null;
-            if (!headline?.en.trim()) fail(422, 'HEADLINE_REQUIRED');
+            await validateLiveHero(tx, before);
           }
           await tx
             .update(s.heroSlides)
@@ -1564,7 +1799,7 @@ export function registerAdmin(
           rightsStatus: s.media.rightsStatus,
           status: s.media.status,
           createdAt: s.media.createdAt,
-          used: sql<boolean>`(exists(select 1 from trip_media tm where tm.media_id=media.id) or exists(select 1 from collections c where c.cover_media_id=media.id or c.hero_video_id=media.id) or exists(select 1 from hero_slides h where (h.image_media_id=media.id or h.video_media_id=media.id) and h.archived_at is null))`,
+          used: sql<boolean>`(exists(select 1 from trips where story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',media.id::text))) or exists(select 1 from trip_media tm where tm.media_id=media.id) or exists(select 1 from collections c where c.cover_media_id=media.id or c.hero_video_id=media.id) or exists(select 1 from hero_slides h where (h.image_media_id=media.id or h.video_media_id=media.id) and h.archived_at is null))`,
         })
         .from(s.media)
         .where(
@@ -1578,7 +1813,7 @@ export function registerAdmin(
               : p.data.filter === 'image' || p.data.filter === 'video'
                 ? eq(s.media.kind, p.data.filter)
                 : p.data.filter === 'unused'
-                  ? sql`not exists(select 1 from trip_media where media_id=${s.media.id}) and not exists(select 1 from collections where cover_media_id=${s.media.id} or hero_video_id=${s.media.id}) and not exists(select 1 from hero_slides where image_media_id=${s.media.id} or video_media_id=${s.media.id})`
+                  ? sql`not exists(select 1 from trips where story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',media.id::text))) and not exists(select 1 from trip_media where media_id=${s.media.id}) and not exists(select 1 from collections where cover_media_id=${s.media.id} or hero_video_id=${s.media.id}) and not exists(select 1 from hero_slides where image_media_id=${s.media.id} or video_media_id=${s.media.id})`
                   : undefined,
           ),
         )
@@ -1693,7 +1928,7 @@ export function registerAdmin(
       if (!before) fail(404, 'NOT_FOUND');
       if (b.rightsStatus === 'unknown') {
         const used = await tx.execute(
-          sql`select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=${id} and t.status='published' union all select 1 from collections where (cover_media_id=${id} or hero_video_id=${id}) and status='published' union all select 1 from hero_slides where (image_media_id=${id} or video_media_id=${id}) and status='published' limit 1`,
+          sql`select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=${id} and t.status='published' union all select 1 from trips where status='published' and story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',${id}::text)) union all select 1 from collections where (cover_media_id=${id} or hero_video_id=${id}) and status='published' union all select 1 from hero_slides where (image_media_id=${id} or video_media_id=${id}) and status='published' limit 1`,
         );
         if (used.rows.length) fail(409, 'MEDIA_IN_USE');
       }
@@ -1784,7 +2019,7 @@ export function registerAdmin(
   app.delete('/v1/admin/media/:id', auth.guard('content'), async (c) => {
     const id = uuid(c.req.param('id'));
     const used = await db.execute(
-      sql`select 1 from trip_media where media_id=${id} union all select 1 from collections where cover_media_id=${id} or hero_video_id=${id} union all select 1 from hero_slides where image_media_id=${id} or video_media_id=${id} limit 1`,
+      sql`select 1 from trip_media where media_id=${id} union all select 1 from trips where status='published' and story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',${id}::text)) union all select 1 from collections where cover_media_id=${id} or hero_video_id=${id} union all select 1 from hero_slides where image_media_id=${id} or video_media_id=${id} limit 1`,
     );
     if (used.rows.length) fail(409, 'MEDIA_IN_USE');
     await db.transaction(async (tx) => {

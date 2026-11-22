@@ -27,7 +27,7 @@ const errorKeys: Record<string, string> = {
   RATE_LIMITED: 'rate',
   FORBIDDEN: 'forbidden',
   DRAFT_ONLY: 'forbidden',
-  INVALID_CODE: 'invalidLogin',
+  INVALID_CODE: 'codeIncorrect',
   INVALID_CREDENTIALS: 'invalidLogin',
   CONFLICT: 'errConflict',
   TRIP_NOT_PUBLISHED: 'errTripNotPublished',
@@ -50,6 +50,11 @@ const errorKeys: Record<string, string> = {
   CATALOG_CHANGED: 'errCatalogChanged',
   INVALID_PACKAGE_PARTS: 'errPackageParts',
   PRICE_CONFIRMATION_REQUIRED: 'confirmLarge',
+  PREVIEW_TOO_LARGE: 'bulkScopeLimit',
+  PREVIEW_STALE: 'errCatalogChanged',
+  PREVIEW_EXPIRED: 'errCatalogChanged',
+  CORE_TRANSLATIONS_REQUIRED: 'coreTranslationsRequired',
+  REPOSITORY_MANAGED_TRANSLATION: 'repositoryManaged',
 };
 
 export function Session({

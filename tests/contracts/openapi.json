@@ -5002,6 +5002,101 @@
             "AdminSession": []
           }
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "required": false,
+            "name": "q",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false,
+            "name": "tripFrom",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "required": false,
+            "name": "tripTo",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "none"
+                  ]
+                }
+              ]
+            },
+            "required": false,
+            "name": "assigned",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "new",
+                "contacted",
+                "confirmed",
+                "completed",
+                "cancelled",
+                "spam"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "filtered",
+                "all"
+              ],
+              "default": "filtered"
+            },
+            "required": false,
+            "name": "scope",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Validated admin result; sensitive auth and IP fields are excluded",
@@ -6291,6 +6386,332 @@
             "in": "path"
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/trips/{id}/story": {
+      "patch": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "story": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "scenes": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "pattern": "^[a-z0-9-]{1,120}$"
+                            },
+                            "route": {
+                              "type": "array",
+                              "items": {
+                                "type": "array",
+                                "prefixItems": [
+                                  {
+                                    "type": "number",
+                                    "minimum": -180,
+                                    "maximum": 180
+                                  },
+                                  {
+                                    "type": "number",
+                                    "minimum": -85,
+                                    "maximum": 85
+                                  }
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 1500
+                            },
+                            "frame": {
+                              "type": "string",
+                              "enum": [
+                                "cover",
+                                "contain"
+                              ]
+                            },
+                            "focalX": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "focalY": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 100
+                            },
+                            "kind": {
+                              "type": "string",
+                              "enum": [
+                                "included",
+                                "passage",
+                                "illustrative",
+                                "optional"
+                              ]
+                            },
+                            "transport": {
+                              "type": "string",
+                              "enum": [
+                                "road",
+                                "ferry",
+                                "flight",
+                                "walk",
+                                "arrival"
+                              ]
+                            },
+                            "title": {
+                              "type": "object",
+                              "properties": {
+                                "en": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 20000
+                                },
+                                "it": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "es": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "fr": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "de": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "ru": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "tr": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                }
+                              },
+                              "required": [
+                                "en"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "caption": {
+                              "type": "object",
+                              "properties": {
+                                "en": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "maxLength": 20000
+                                },
+                                "it": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "es": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "fr": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "de": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "ru": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                },
+                                "tr": {
+                                  "type": "string",
+                                  "maxLength": 20000
+                                }
+                              },
+                              "required": [
+                                "en"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "mediaId": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "uuid"
+                            },
+                            "credit": {
+                              "type": "string",
+                              "maxLength": 2000
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "route",
+                            "frame",
+                            "kind",
+                            "transport",
+                            "title",
+                            "caption",
+                            "mediaId",
+                            "credit"
+                          ]
+                        },
+                        "minItems": 1,
+                        "maxItems": 40
+                      }
+                    },
+                    "required": [
+                      "scenes"
+                    ]
+                  }
+                },
+                "required": [
+                  "story"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Validated admin result; sensitive auth and IP fields are excluded",
@@ -19006,6 +19427,85 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "story_available": {
+                            "type": "boolean"
+                          },
+                          "story_cover": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "alt": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "width": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "height": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "variants": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "vertical": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "horizontal": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "vertical",
+                                  "horizontal"
+                                ]
+                              },
+                              "rights_status": {
+                                "type": "string",
+                                "enum": [
+                                  "owned",
+                                  "licensed",
+                                  "permission",
+                                  "unknown"
+                                ],
+                                "default": "unknown"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "alt",
+                              "width",
+                              "height"
+                            ]
+                          },
                           "slug": {
                             "type": "string"
                           },
@@ -19295,6 +19795,26 @@
                             "type": [
                               "string",
                               "null"
+                            ]
+                          },
+                          "return_label": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
                             ]
                           },
                           "days_count": {
@@ -19792,6 +20312,85 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "story_available": {
+                            "type": "boolean"
+                          },
+                          "story_cover": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "alt": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "width": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "height": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "variants": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "vertical": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "horizontal": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "vertical",
+                                  "horizontal"
+                                ]
+                              },
+                              "rights_status": {
+                                "type": "string",
+                                "enum": [
+                                  "owned",
+                                  "licensed",
+                                  "permission",
+                                  "unknown"
+                                ],
+                                "default": "unknown"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "alt",
+                              "width",
+                              "height"
+                            ]
+                          },
                           "slug": {
                             "type": "string"
                           },
@@ -20081,6 +20680,26 @@
                             "type": [
                               "string",
                               "null"
+                            ]
+                          },
+                          "return_label": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
                             ]
                           },
                           "days_count": {
@@ -21394,6 +22013,85 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "story_available": {
+                            "type": "boolean"
+                          },
+                          "story_cover": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "alt": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "width": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "height": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "variants": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "vertical": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "horizontal": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "vertical",
+                                  "horizontal"
+                                ]
+                              },
+                              "rights_status": {
+                                "type": "string",
+                                "enum": [
+                                  "owned",
+                                  "licensed",
+                                  "permission",
+                                  "unknown"
+                                ],
+                                "default": "unknown"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "alt",
+                              "width",
+                              "height"
+                            ]
+                          },
                           "slug": {
                             "type": "string"
                           },
@@ -21683,6 +22381,26 @@
                             "type": [
                               "string",
                               "null"
+                            ]
+                          },
+                          "return_label": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
                             ]
                           },
                           "days_count": {
@@ -22181,6 +22899,85 @@
                         "null"
                       ],
                       "properties": {
+                        "story_available": {
+                          "type": "boolean"
+                        },
+                        "story_cover": {
+                          "type": "object",
+                          "properties": {
+                            "url": {
+                              "type": "string"
+                            },
+                            "alt": {
+                              "type": "object",
+                              "properties": {
+                                "text": {
+                                  "type": "string"
+                                },
+                                "lang": {
+                                  "type": "string",
+                                  "minLength": 2,
+                                  "maxLength": 16
+                                }
+                              },
+                              "required": [
+                                "text",
+                                "lang"
+                              ]
+                            },
+                            "width": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "height": {
+                              "type": "number",
+                              "exclusiveMinimum": 0
+                            },
+                            "variants": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              }
+                            },
+                            "video": {
+                              "type": "object",
+                              "properties": {
+                                "vertical": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                },
+                                "horizontal": {
+                                  "type": [
+                                    "string",
+                                    "null"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "vertical",
+                                "horizontal"
+                              ]
+                            },
+                            "rights_status": {
+                              "type": "string",
+                              "enum": [
+                                "owned",
+                                "licensed",
+                                "permission",
+                                "unknown"
+                              ],
+                              "default": "unknown"
+                            }
+                          },
+                          "required": [
+                            "url",
+                            "alt",
+                            "width",
+                            "height"
+                          ]
+                        },
                         "slug": {
                           "type": "string"
                         },
@@ -22470,6 +23267,26 @@
                           "type": [
                             "string",
                             "null"
+                          ]
+                        },
+                        "return_label": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "lang": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 16
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "lang"
                           ]
                         },
                         "days_count": {
@@ -23005,6 +23822,85 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "story_available": {
+                      "type": "boolean"
+                    },
+                    "story_cover": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "alt": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "lang": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 16
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "lang"
+                          ]
+                        },
+                        "width": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "height": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "variants": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "video": {
+                          "type": "object",
+                          "properties": {
+                            "vertical": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "horizontal": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "vertical",
+                            "horizontal"
+                          ]
+                        },
+                        "rights_status": {
+                          "type": "string",
+                          "enum": [
+                            "owned",
+                            "licensed",
+                            "permission",
+                            "unknown"
+                          ],
+                          "default": "unknown"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "alt",
+                        "width",
+                        "height"
+                      ]
+                    },
                     "slug": {
                       "type": "string"
                     },
@@ -23294,6 +24190,26 @@
                       "type": [
                         "string",
                         "null"
+                      ]
+                    },
+                    "return_label": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
                       ]
                     },
                     "days_count": {
@@ -23791,6 +24707,1219 @@
         }
       }
     },
+    "/v1/public/trips/{slug}/story": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,120}$"
+            },
+            "required": true,
+            "name": "slug",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$",
+              "default": "en"
+            },
+            "required": false,
+            "name": "locale",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published localized content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "scenes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "pattern": "^[a-z0-9-]{1,120}$"
+                          },
+                          "route": {
+                            "type": "array",
+                            "items": {
+                              "type": "array",
+                              "prefixItems": [
+                                {
+                                  "type": "number",
+                                  "minimum": -180,
+                                  "maximum": 180
+                                },
+                                {
+                                  "type": "number",
+                                  "minimum": -85,
+                                  "maximum": 85
+                                }
+                              ]
+                            },
+                            "minItems": 1,
+                            "maxItems": 1500
+                          },
+                          "frame": {
+                            "type": "string",
+                            "enum": [
+                              "cover",
+                              "contain"
+                            ]
+                          },
+                          "focalX": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "focalY": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "included",
+                              "passage",
+                              "illustrative",
+                              "optional"
+                            ]
+                          },
+                          "transport": {
+                            "type": "string",
+                            "enum": [
+                              "road",
+                              "ferry",
+                              "flight",
+                              "walk",
+                              "arrival"
+                            ]
+                          },
+                          "title": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "caption": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "media": {
+                            "type": "object",
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "alt": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "width": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "height": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "variants": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "vertical": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "horizontal": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "vertical",
+                                  "horizontal"
+                                ]
+                              },
+                              "rights_status": {
+                                "type": "string",
+                                "enum": [
+                                  "owned",
+                                  "licensed",
+                                  "permission",
+                                  "unknown"
+                                ],
+                                "default": "unknown"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "alt",
+                              "width",
+                              "height"
+                            ]
+                          },
+                          "credit": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "route",
+                          "frame",
+                          "kind",
+                          "transport",
+                          "title",
+                          "caption",
+                          "media",
+                          "credit"
+                        ]
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "scenes"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/saved-trips": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$",
+              "default": "en"
+            },
+            "required": false,
+            "name": "locale",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 4598
+            },
+            "required": true,
+            "name": "slugs",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published localized content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "available"
+                            ]
+                          },
+                          "trip": {
+                            "type": "object",
+                            "properties": {
+                              "story_available": {
+                                "type": "boolean"
+                              },
+                              "story_cover": {
+                                "type": "object",
+                                "properties": {
+                                  "url": {
+                                    "type": "string"
+                                  },
+                                  "alt": {
+                                    "type": "object",
+                                    "properties": {
+                                      "text": {
+                                        "type": "string"
+                                      },
+                                      "lang": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 16
+                                      }
+                                    },
+                                    "required": [
+                                      "text",
+                                      "lang"
+                                    ]
+                                  },
+                                  "width": {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "height": {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "variants": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "video": {
+                                    "type": "object",
+                                    "properties": {
+                                      "vertical": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "horizontal": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "vertical",
+                                      "horizontal"
+                                    ]
+                                  },
+                                  "rights_status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "owned",
+                                      "licensed",
+                                      "permission",
+                                      "unknown"
+                                    ],
+                                    "default": "unknown"
+                                  }
+                                },
+                                "required": [
+                                  "url",
+                                  "alt",
+                                  "width",
+                                  "height"
+                                ]
+                              },
+                              "slug": {
+                                "type": "string"
+                              },
+                              "collection": {
+                                "type": "string"
+                              },
+                              "kind": {
+                                "type": "string",
+                                "enum": [
+                                  "trip",
+                                  "package"
+                                ]
+                              },
+                              "title": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "summary": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "description": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "cover": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "url": {
+                                    "type": "string"
+                                  },
+                                  "alt": {
+                                    "type": "object",
+                                    "properties": {
+                                      "text": {
+                                        "type": "string"
+                                      },
+                                      "lang": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 16
+                                      }
+                                    },
+                                    "required": [
+                                      "text",
+                                      "lang"
+                                    ]
+                                  },
+                                  "width": {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "height": {
+                                    "type": "number",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "variants": {
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "video": {
+                                    "type": "object",
+                                    "properties": {
+                                      "vertical": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      },
+                                      "horizontal": {
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "vertical",
+                                      "horizontal"
+                                    ]
+                                  },
+                                  "rights_status": {
+                                    "type": "string",
+                                    "enum": [
+                                      "owned",
+                                      "licensed",
+                                      "permission",
+                                      "unknown"
+                                    ],
+                                    "default": "unknown"
+                                  }
+                                },
+                                "required": [
+                                  "url",
+                                  "alt",
+                                  "width",
+                                  "height"
+                                ]
+                              },
+                              "gallery": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "url": {
+                                      "type": "string"
+                                    },
+                                    "alt": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "lang": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 16
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "lang"
+                                      ]
+                                    },
+                                    "width": {
+                                      "type": "number",
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "height": {
+                                      "type": "number",
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "variants": {
+                                      "type": "object",
+                                      "additionalProperties": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "video": {
+                                      "type": "object",
+                                      "properties": {
+                                        "vertical": {
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        },
+                                        "horizontal": {
+                                          "type": [
+                                            "string",
+                                            "null"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "vertical",
+                                        "horizontal"
+                                      ]
+                                    },
+                                    "rights_status": {
+                                      "type": "string",
+                                      "enum": [
+                                        "owned",
+                                        "licensed",
+                                        "permission",
+                                        "unknown"
+                                      ],
+                                      "default": "unknown"
+                                    }
+                                  },
+                                  "required": [
+                                    "url",
+                                    "alt",
+                                    "width",
+                                    "height"
+                                  ]
+                                }
+                              },
+                              "duration_label": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "duration_minutes": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "days_label": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "run_days": {
+                                "type": [
+                                  "array",
+                                  "null"
+                                ],
+                                "items": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 6
+                                }
+                              },
+                              "departure_label": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "return_label": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "days_count": {
+                                "type": "integer",
+                                "minimum": 1
+                              },
+                              "flight": {
+                                "type": "boolean"
+                              },
+                              "overnight": {
+                                "type": "boolean"
+                              },
+                              "family_friendly": {
+                                "type": "boolean"
+                              },
+                              "min_age": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ]
+                              },
+                              "format": {
+                                "type": "string",
+                                "enum": [
+                                  "group",
+                                  "private",
+                                  "both"
+                                ]
+                              },
+                              "private_surcharge_pct": {
+                                "type": [
+                                  "number",
+                                  "null"
+                                ],
+                                "minimum": 0
+                              },
+                              "private_on_request": {
+                                "type": "boolean"
+                              },
+                              "prices": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "type": "string"
+                                    },
+                                    "label": {
+                                      "type": [
+                                        "object",
+                                        "null"
+                                      ],
+                                      "properties": {
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "lang": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 16
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "lang"
+                                      ]
+                                    },
+                                    "amount_eur": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ],
+                                      "minimum": 0
+                                    },
+                                    "unit": {
+                                      "type": "string",
+                                      "enum": [
+                                        "person",
+                                        "child",
+                                        "quad",
+                                        "buggy",
+                                        "car",
+                                        "boat",
+                                        "group",
+                                        "hour"
+                                      ]
+                                    },
+                                    "min_qty": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ],
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "max_qty": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ],
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "is_primary": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "id",
+                                    "label",
+                                    "amount_eur",
+                                    "unit",
+                                    "min_qty",
+                                    "max_qty",
+                                    "is_primary"
+                                  ]
+                                }
+                              },
+                              "itinerary": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "time": {
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ]
+                                    },
+                                    "text": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "lang": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 16
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "lang"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "time",
+                                    "text"
+                                  ]
+                                }
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "include",
+                                        "exclude",
+                                        "optional",
+                                        "bring",
+                                        "highlight"
+                                      ]
+                                    },
+                                    "text": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "lang": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 16
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "lang"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "type",
+                                    "text"
+                                  ]
+                                }
+                              },
+                              "notes": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "lang": {
+                                      "type": "string",
+                                      "minLength": 2,
+                                      "maxLength": 16
+                                    }
+                                  },
+                                  "required": [
+                                    "text",
+                                    "lang"
+                                  ]
+                                }
+                              },
+                              "parts": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "slug": {
+                                      "type": "string"
+                                    },
+                                    "title": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "type": "string"
+                                        },
+                                        "lang": {
+                                          "type": "string",
+                                          "minLength": 2,
+                                          "maxLength": 16
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "lang"
+                                      ]
+                                    },
+                                    "cover": {
+                                      "type": [
+                                        "object",
+                                        "null"
+                                      ],
+                                      "properties": {
+                                        "url": {
+                                          "type": "string"
+                                        },
+                                        "alt": {
+                                          "type": "object",
+                                          "properties": {
+                                            "text": {
+                                              "type": "string"
+                                            },
+                                            "lang": {
+                                              "type": "string",
+                                              "minLength": 2,
+                                              "maxLength": 16
+                                            }
+                                          },
+                                          "required": [
+                                            "text",
+                                            "lang"
+                                          ]
+                                        },
+                                        "width": {
+                                          "type": "number",
+                                          "exclusiveMinimum": 0
+                                        },
+                                        "height": {
+                                          "type": "number",
+                                          "exclusiveMinimum": 0
+                                        },
+                                        "variants": {
+                                          "type": "object",
+                                          "additionalProperties": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "video": {
+                                          "type": "object",
+                                          "properties": {
+                                            "vertical": {
+                                              "type": [
+                                                "string",
+                                                "null"
+                                              ]
+                                            },
+                                            "horizontal": {
+                                              "type": [
+                                                "string",
+                                                "null"
+                                              ]
+                                            }
+                                          },
+                                          "required": [
+                                            "vertical",
+                                            "horizontal"
+                                          ]
+                                        },
+                                        "rights_status": {
+                                          "type": "string",
+                                          "enum": [
+                                            "owned",
+                                            "licensed",
+                                            "permission",
+                                            "unknown"
+                                          ],
+                                          "default": "unknown"
+                                        }
+                                      },
+                                      "required": [
+                                        "url",
+                                        "alt",
+                                        "width",
+                                        "height"
+                                      ]
+                                    },
+                                    "days_count": {
+                                      "type": "integer",
+                                      "exclusiveMinimum": 0
+                                    },
+                                    "prices": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "label": {
+                                            "type": [
+                                              "object",
+                                              "null"
+                                            ],
+                                            "properties": {
+                                              "text": {
+                                                "type": "string"
+                                              },
+                                              "lang": {
+                                                "type": "string",
+                                                "minLength": 2,
+                                                "maxLength": 16
+                                              }
+                                            },
+                                            "required": [
+                                              "text",
+                                              "lang"
+                                            ]
+                                          },
+                                          "amount_eur": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ],
+                                            "minimum": 0
+                                          },
+                                          "unit": {
+                                            "type": "string",
+                                            "enum": [
+                                              "person",
+                                              "child",
+                                              "quad",
+                                              "buggy",
+                                              "car",
+                                              "boat",
+                                              "group",
+                                              "hour"
+                                            ]
+                                          },
+                                          "min_qty": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ],
+                                            "exclusiveMinimum": 0
+                                          },
+                                          "max_qty": {
+                                            "type": [
+                                              "number",
+                                              "null"
+                                            ],
+                                            "exclusiveMinimum": 0
+                                          },
+                                          "is_primary": {
+                                            "type": "boolean"
+                                          }
+                                        },
+                                        "required": [
+                                          "id",
+                                          "label",
+                                          "amount_eur",
+                                          "unit",
+                                          "min_qty",
+                                          "max_qty",
+                                          "is_primary"
+                                        ]
+                                      }
+                                    },
+                                    "format": {
+                                      "type": "string",
+                                      "enum": [
+                                        "group",
+                                        "private",
+                                        "both"
+                                      ]
+                                    },
+                                    "private_surcharge_pct": {
+                                      "type": [
+                                        "number",
+                                        "null"
+                                      ],
+                                      "minimum": 0
+                                    }
+                                  },
+                                  "required": [
+                                    "slug",
+                                    "title",
+                                    "cover",
+                                    "days_count"
+                                  ]
+                                }
+                              },
+                              "seo_title": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "seo_description": {
+                                "type": [
+                                  "object",
+                                  "null"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "slug",
+                              "collection",
+                              "kind",
+                              "title",
+                              "summary",
+                              "description",
+                              "cover",
+                              "gallery",
+                              "duration_label",
+                              "duration_minutes",
+                              "days_label",
+                              "run_days",
+                              "departure_label",
+                              "days_count",
+                              "flight",
+                              "overnight",
+                              "family_friendly",
+                              "min_age",
+                              "format",
+                              "private_surcharge_pct",
+                              "private_on_request",
+                              "prices",
+                              "itinerary",
+                              "items",
+                              "notes",
+                              "parts",
+                              "seo_title",
+                              "seo_description"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "status",
+                          "trip"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "withdrawn"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "status"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "unavailable"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "status"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/public/packages/{slug}": {
       "get": {
         "parameters": [
@@ -23822,6 +25951,85 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "story_available": {
+                      "type": "boolean"
+                    },
+                    "story_cover": {
+                      "type": "object",
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "alt": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "lang": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 16
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "lang"
+                          ]
+                        },
+                        "width": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "height": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "variants": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "video": {
+                          "type": "object",
+                          "properties": {
+                            "vertical": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "horizontal": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "vertical",
+                            "horizontal"
+                          ]
+                        },
+                        "rights_status": {
+                          "type": "string",
+                          "enum": [
+                            "owned",
+                            "licensed",
+                            "permission",
+                            "unknown"
+                          ],
+                          "default": "unknown"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "alt",
+                        "width",
+                        "height"
+                      ]
+                    },
                     "slug": {
                       "type": "string"
                     },
@@ -24111,6 +26319,26 @@
                       "type": [
                         "string",
                         "null"
+                      ]
+                    },
+                    "return_label": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
                       ]
                     },
                     "days_count": {
@@ -24832,13 +27060,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "mode": {
-                    "type": "string",
-                    "enum": [
-                      "single",
-                      "multi"
-                    ]
-                  },
                   "items": {
                     "type": "array",
                     "items": {
@@ -24876,10 +27097,6 @@
                     "type": "string",
                     "format": "date"
                   },
-                  "end_date": {
-                    "type": "string",
-                    "format": "date"
-                  },
                   "rest_days": {
                     "type": "boolean"
                   },
@@ -24893,6 +27110,37 @@
                     "minimum": 0,
                     "maximum": 40
                   },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "group",
+                      "private"
+                    ]
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 16
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "single",
+                      "multi"
+                    ]
+                  },
+                  "quote_id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "submission_id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
                   "child_ages": {
                     "type": "array",
                     "items": {
@@ -24901,13 +27149,6 @@
                       "maximum": 17
                     },
                     "maxItems": 40
-                  },
-                  "format": {
-                    "type": "string",
-                    "enum": [
-                      "group",
-                      "private"
-                    ]
                   },
                   "pickup_area": {
                     "type": "string",
@@ -24946,11 +27187,6 @@
                     "type": "string",
                     "maxLength": 1000
                   },
-                  "locale": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 16
-                  },
                   "hp": {
                     "type": "string",
                     "enum": [
@@ -24963,16 +27199,16 @@
                   }
                 },
                 "required": [
-                  "mode",
                   "items",
                   "start_date",
                   "adults",
                   "children",
                   "format",
+                  "locale",
+                  "mode",
                   "pickup_area",
                   "name",
                   "phone",
-                  "locale",
                   "hp",
                   "t"
                 ],
@@ -25012,6 +27248,464 @@
                     "estimate_eur",
                     "whatsapp_url",
                     "message"
+                  ]
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Review the revised quote or resolve the earlier submission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "enum": [
+                                "QUOTE_CHANGED"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "code"
+                          ]
+                        },
+                        "quote": {
+                          "type": "object",
+                          "properties": {
+                            "quote_id": {
+                              "type": "string",
+                              "pattern": "^[a-f0-9]{64}$"
+                            },
+                            "estimate_eur": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "minimum": 0
+                            },
+                            "known_eur": {
+                              "type": "integer",
+                              "minimum": 0
+                            },
+                            "items": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "trip_slug": {
+                                    "type": "string"
+                                  },
+                                  "day_index": {
+                                    "type": "integer",
+                                    "exclusiveMinimum": 0
+                                  },
+                                  "service_date": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "service_end_date": {
+                                    "type": "string",
+                                    "format": "date"
+                                  },
+                                  "amount_eur": {
+                                    "type": [
+                                      "integer",
+                                      "null"
+                                    ],
+                                    "minimum": 0
+                                  },
+                                  "selected_price_id": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "price_options": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "id": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": [
+                                            "object",
+                                            "null"
+                                          ],
+                                          "properties": {
+                                            "text": {
+                                              "type": "string"
+                                            },
+                                            "lang": {
+                                              "type": "string",
+                                              "minLength": 2,
+                                              "maxLength": 16
+                                            }
+                                          },
+                                          "required": [
+                                            "text",
+                                            "lang"
+                                          ]
+                                        },
+                                        "amount_eur": {
+                                          "type": [
+                                            "number",
+                                            "null"
+                                          ],
+                                          "minimum": 0
+                                        },
+                                        "unit": {
+                                          "type": "string",
+                                          "enum": [
+                                            "person",
+                                            "child",
+                                            "quad",
+                                            "buggy",
+                                            "car",
+                                            "boat",
+                                            "group",
+                                            "hour"
+                                          ]
+                                        },
+                                        "min_qty": {
+                                          "type": [
+                                            "number",
+                                            "null"
+                                          ],
+                                          "exclusiveMinimum": 0
+                                        },
+                                        "max_qty": {
+                                          "type": [
+                                            "number",
+                                            "null"
+                                          ],
+                                          "exclusiveMinimum": 0
+                                        },
+                                        "is_primary": {
+                                          "type": "boolean"
+                                        }
+                                      },
+                                      "required": [
+                                        "id",
+                                        "label",
+                                        "amount_eur",
+                                        "unit",
+                                        "min_qty",
+                                        "max_qty",
+                                        "is_primary"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "trip_slug",
+                                  "day_index",
+                                  "service_date",
+                                  "service_end_date",
+                                  "amount_eur",
+                                  "selected_price_id",
+                                  "price_options"
+                                ]
+                              },
+                              "minItems": 1,
+                              "maxItems": 38
+                            }
+                          },
+                          "required": [
+                            "quote_id",
+                            "estimate_eur",
+                            "known_eur",
+                            "items"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error",
+                        "quote"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "type": "string",
+                              "enum": [
+                                "SUBMISSION_CONFLICT",
+                                "SUBMISSION_EXPIRED",
+                                "CATALOG_CHANGED"
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/requests/quote": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "trip_slug": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "pattern": "^[a-z0-9-]+$"
+                        },
+                        "day_index": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 120
+                        },
+                        "price_id": {
+                          "type": "string",
+                          "maxLength": 100
+                        },
+                        "hours": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 24
+                        }
+                      },
+                      "required": [
+                        "trip_slug"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 38
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "rest_days": {
+                    "type": "boolean"
+                  },
+                  "adults": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 60
+                  },
+                  "children": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 40
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "group",
+                      "private"
+                    ]
+                  },
+                  "locale": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 16
+                  }
+                },
+                "required": [
+                  "items",
+                  "start_date",
+                  "adults",
+                  "children",
+                  "format",
+                  "locale"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current estimate for the planned service dates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "quote_id": {
+                      "type": "string",
+                      "pattern": "^[a-f0-9]{64}$"
+                    },
+                    "estimate_eur": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0
+                    },
+                    "known_eur": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "trip_slug": {
+                            "type": "string"
+                          },
+                          "day_index": {
+                            "type": "integer",
+                            "exclusiveMinimum": 0
+                          },
+                          "service_date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "service_end_date": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "amount_eur": {
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "minimum": 0
+                          },
+                          "selected_price_id": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "price_options": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "type": [
+                                    "object",
+                                    "null"
+                                  ],
+                                  "properties": {
+                                    "text": {
+                                      "type": "string"
+                                    },
+                                    "lang": {
+                                      "type": "string",
+                                      "minLength": 2,
+                                      "maxLength": 16
+                                    }
+                                  },
+                                  "required": [
+                                    "text",
+                                    "lang"
+                                  ]
+                                },
+                                "amount_eur": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ],
+                                  "minimum": 0
+                                },
+                                "unit": {
+                                  "type": "string",
+                                  "enum": [
+                                    "person",
+                                    "child",
+                                    "quad",
+                                    "buggy",
+                                    "car",
+                                    "boat",
+                                    "group",
+                                    "hour"
+                                  ]
+                                },
+                                "min_qty": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ],
+                                  "exclusiveMinimum": 0
+                                },
+                                "max_qty": {
+                                  "type": [
+                                    "number",
+                                    "null"
+                                  ],
+                                  "exclusiveMinimum": 0
+                                },
+                                "is_primary": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "label",
+                                "amount_eur",
+                                "unit",
+                                "min_qty",
+                                "max_qty",
+                                "is_primary"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "trip_slug",
+                          "day_index",
+                          "service_date",
+                          "service_end_date",
+                          "amount_eur",
+                          "selected_price_id",
+                          "price_options"
+                        ]
+                      },
+                      "minItems": 1,
+                      "maxItems": 38
+                    }
+                  },
+                  "required": [
+                    "quote_id",
+                    "estimate_eur",
+                    "known_eur",
+                    "items"
                   ]
                 }
               }

@@ -11,7 +11,7 @@ import { hash, verify as verifyPassword } from '@node-rs/argon2';
 import { generateSecret, generateURI, verify as verifyOTP } from 'otplib';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
 import type { Context, MiddlewareHandler, Hono } from 'hono';
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, lte, sql } from 'drizzle-orm';
 import { z } from 'zod';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -224,12 +224,26 @@ export function authService(db: Database, cfg: Config) {
       now - row.session.lastSeenAt.getTime() > 8 * 3600000
     )
       fail(401, 'UNAUTHENTICATED');
-    const touched = await db
-      .update(s.sessions)
-      .set({ lastSeenAt: new Date() })
-      .where(eq(s.sessions.id, row.session.id))
-      .returning({ id: s.sessions.id });
-    if (!touched.length) fail(401, 'UNAUTHENTICATED');
+    const touchBefore = new Date(now - 5 * 60_000);
+    if (row.session.lastSeenAt <= touchBefore) {
+      const touched = await db
+        .update(s.sessions)
+        .set({ lastSeenAt: new Date(now) })
+        .where(
+          and(
+            eq(s.sessions.id, row.session.id),
+            lte(s.sessions.lastSeenAt, touchBefore),
+          ),
+        )
+        .returning({ id: s.sessions.id });
+      if (!touched.length) {
+        const [active] = await db
+          .select({ id: s.sessions.id })
+          .from(s.sessions)
+          .where(eq(s.sessions.id, row.session.id));
+        if (!active) fail(401, 'UNAUTHENTICATED');
+      }
+    }
     return {
       raw,
       row,
@@ -244,6 +258,10 @@ export function authService(db: Database, cfg: Config) {
       } satisfies Principal,
     };
   };
+  const principals = new WeakMap<
+    Context<ApiEnv>,
+    ReturnType<typeof readPrincipal>
+  >();
   const guard =
     (
       permission?: Permission,
@@ -255,7 +273,9 @@ export function authService(db: Database, cfg: Config) {
         c.req.header('origin') !== new URL(cfg.ADMIN_ORIGIN).origin
       )
         fail(403, 'INVALID_ORIGIN');
-      const { raw, row, principal } = await readPrincipal(c);
+      const pending = principals.get(c) ?? readPrincipal(c);
+      principals.set(c, pending);
+      const { raw, row, principal } = await pending;
       c.set('principal', principal);
       if (
         !allowPending &&

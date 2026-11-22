@@ -1,8 +1,21 @@
 import { describe, it, expect } from 'vitest';
 import { estimateTrip, estimateTrips } from './price';
-import { planDays } from './days';
+import { lastPlannedDay, planDays } from './days';
+import { normalizeBookingPhone } from './phone';
 import { bookingSchema, cairoDate, confirmationSchema } from './booking';
+import { bookingStay } from './i18n/booking-messages';
 import type { Trip } from './public-contract';
+
+describe('localized stay on booking confirmations', () => {
+  it.each([
+    ['2026-11-19', '1 день / 0 ночей'],
+    ['2026-11-20', '2 дня / 1 ночь'],
+    ['2026-11-21', '3 дня / 2 ночи'],
+    ['2026-11-24', '6 дней / 5 ночей'],
+  ])('uses the correct Russian form through %s', (end, expected) => {
+    expect(bookingStay('2026-11-19', end, 'ru')).toContain(expected);
+  });
+});
 const make = (
   unit: Trip['prices'][number]['unit'] = 'person',
   amount: number | null = 10,
@@ -139,6 +152,40 @@ describe('day planning', () => {
   });
   it('does not add rest after the last trip', () =>
     expect(planDays([{ ...make(), flight: true }])).toHaveLength(1));
+  it('includes the last occupied day of a multi-day trip and optional rest days', () => {
+    const flight = { ...make(), collection: 'history', flight: true };
+    const overnight = { ...make(), collection: 'history', days_count: 2 };
+    expect(lastPlannedDay(planDays([overnight]))).toBe(2);
+    expect(lastPlannedDay(planDays([flight, overnight]))).toBe(4);
+    expect(lastPlannedDay(planDays([flight, overnight], false))).toBe(3);
+  });
+});
+describe('booking phone normalization', () => {
+  it.each([
+    ['020 7946 0958', 'GB', '+442079460958'],
+    ['02 1234 5678', 'IT', '+390212345678'],
+    ['010 5550 0001', 'EG', '+201055500001'],
+    ['٠١٠ ٥٥٥٠ ٠٠٠١', 'EG', '+201055500001'],
+    ['۰۱۰ ۵۵۵۰ ۰۰۰۱', 'EG', '+201055500001'],
+    ['+44 (0)20 7946 0958', 'IT', '+442079460958'],
+    ['0044 20 7946 0958', 'US', '+442079460958'],
+    ['0011 44 20 7946 0958', 'AU', '+442079460958'],
+    ['0044 20 7946 0958', undefined, '+442079460958'],
+    ['+442079460958', undefined, '+442079460958'],
+  ])('normalizes %s from %s to %s', (local, country, e164) => {
+    expect(normalizeBookingPhone(local, country)).toBe(e164);
+  });
+  it('rejects incomplete, ambiguous and extension-bearing numbers', () => {
+    expect(normalizeBookingPhone('02 1234 5678')).toBeNull();
+    for (const phone of [
+      '010 555',
+      '+20+1055500001',
+      '+201055500001 ext 9',
+      'call +201055500001',
+    ]) {
+      expect(normalizeBookingPhone(phone, 'EG')).toBeNull();
+    }
+  });
 });
 describe('booking validation', () => {
   const valid = () => ({
@@ -150,7 +197,7 @@ describe('booking validation', () => {
     format: 'private',
     pickup_area: 'Nabq Bay',
     name: 'Test visitor',
-    phone: '+391234567890',
+    phone: '+390212345678',
     locale: 'it',
     hp: '',
     t: Date.now(),

@@ -1,0 +1,554 @@
+{
+  "photo-23119576.jpg": {
+    "sha256": "b4e4a83a621aa2739fd810aa131cd8085481fca2e8c93a77d005b5f4663e51e1",
+    "bytes": 215141,
+    "source": "https://www.pexels.com/photo/sig-gorge-in-petra-jordan-23119576/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v2-jetty.jpg": {
+    "sha256": "9125fc7b2761469814856787648d31fc8d8435de611f4873e5071a5c950c7947",
+    "bytes": 351482,
+    "source": "https://commons.wikimedia.org/wiki/File:Sharm_El_Sheikh_from_jetty.jpg",
+    "author": "Fjmustak",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-40122213.jpg": {
+    "sha256": "cd6ae7eca6c26623c3a50a67f491674a3d4710374eb30dadba96aab74906a5a8",
+    "bytes": 211383,
+    "source": "https://www.pexels.com/photo/40122213/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "hd-nuweiba.jpg": {
+    "sha256": "61624caf73a985de651861971c57ed6936dba3369f3f870fa6579109a7c41339",
+    "bytes": 822812,
+    "source": "https://commons.wikimedia.org/wiki/File:Rocks_and_Water.jpg",
+    "author": "AhmedMosaad",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "hd-taba.jpg": {
+    "sha256": "21d5d8c3a839e09682df5d4f5a37e9f42ece93556e8e9990839c7b1535cea08b",
+    "bytes": 925684,
+    "source": "https://commons.wikimedia.org/wiki/File:%D9%82%D9%84%D8%B9%D8%A9_%D8%B5%D9%84%D8%A7%D8%AD_%D8%A7%D9%84%D8%AF%D9%8A%D9%86_%D8%A7%D9%84%D8%A3%D9%8A%D9%88%D8%A8%D9%8A_%D8%A8%D8%B7%D8%A7%D8%A8%D8%A7.jpg",
+    "author": "Diaa Mekky",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "port.jpg": {
+    "sha256": "5a87505c4a966e2f9ca59bedd497d80b484dbf934d2d45111d5868e426262249",
+    "bytes": 441026,
+    "source": "https://www.pexels.com/photo/coastal-city-aqaba-17619968/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "petra-hd.mp4": {
+    "sha256": "37c8865228b7a988c50b1512236c1be930d0ea6b6e4d4174d06b7bb56d30d905",
+    "bytes": 4419761,
+    "source": "https://www.pexels.com/video/4253642/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "photo-28557107.jpg": {
+    "sha256": "5af7c3bdb833a8aea45dd4bd093e35087d5031702cb6f116cea480a3e60aa318",
+    "bytes": 571949,
+    "source": "https://www.pexels.com/photo/camel-in-front-of-great-pyramid-of-giza-in-egypt-28557107/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "hd-tor.jpg": {
+    "sha256": "68928287c2cf31d555244b224458d64349bceddac81e10990ae833da20c3d3fa",
+    "bytes": 769563,
+    "source": "https://commons.wikimedia.org/wiki/File:Hammam_Musa_(Moses%27_Bath),_hot_spring,_El-Tor._South_Sinai._Egypt._03.jpg",
+    "author": "Staselnik",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "review": "source-recorded"
+  },
+  "v2-sedr-seven.jpg": {
+    "sha256": "2a72bd1c48fd481dbe523217ae7437706d9b604a5ee9f78a53bcdf08a98de984",
+    "bytes": 157008,
+    "source": "https://commons.wikimedia.org/wiki/File:Ras_Sedr_(7).jpg",
+    "author": "El-Bakly",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-canal.jpg": {
+    "sha256": "072696e4af1aa927df7fe3132b89291a656d82081b95a6179de4816a7e454033",
+    "bytes": 347261,
+    "source": null,
+    "author": null,
+    "license": null,
+    "licenseUrl": null,
+    "review": "identify-source"
+  },
+  "v2-16574945.jpg": {
+    "sha256": "4cb575730bd9e8024ba15471580eb1facdf33400765c2541aa751396ba7b8193",
+    "bytes": 1178348,
+    "source": "https://www.pexels.com/photo/16574945/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "cairo-drive.mp4": {
+    "sha256": "d69cbc93115cff555cb56bbe1017fb2459d52d134d6eb5f1a6b9427cf0acd38c",
+    "bytes": 925639,
+    "source": "https://www.pexels.com/video/view-of-busy-road-from-a-moving-vehicle-4174761/",
+    "author": null,
+    "license": "Pexels License",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v2-gem.jpg": {
+    "sha256": "9035a93b4c9f6cc37463e268f7ca1c564f58b7e81cc4b7682f553d4378edf44a",
+    "bytes": 240501,
+    "source": "https://commons.wikimedia.org/wiki/File:Grand_Egyptian_Museum_Facade.jpg",
+    "author": "Slyronit",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-pyramids.mp4": {
+    "sha256": "80a1012343952af918d52d60b2defd378c2cbb36bb32c166f00da602190d315d",
+    "bytes": 2267184,
+    "source": null,
+    "author": null,
+    "license": null,
+    "licenseUrl": null,
+    "review": "permission-required"
+  },
+  "sphinx.jpg": {
+    "sha256": "7adc794aad12b45fe4f8ebdb9a804f5ad8238e67f03aad79f378d19ce1522ffe",
+    "bytes": 1374917,
+    "source": null,
+    "author": null,
+    "license": null,
+    "licenseUrl": null,
+    "review": "catalog-asset",
+    "catalogAsset": "assets/images/stock/sphinx.jpg"
+  },
+  "v2-hussein.jpg": {
+    "sha256": "0ad12d831665584b09b1ea27a9813b5e69340eb4b99d1d64a98af2d0343898df",
+    "bytes": 364334,
+    "source": "https://commons.wikimedia.org/wiki/File:%D8%B3%D8%A7%D8%AD%D8%A9_%D9%88%D9%85%D8%B3%D8%AC%D8%AF_%D8%A7%D9%84%D8%AD%D8%B3%D9%8A%D9%86_%D8%A8%D8%A7%D9%84%D9%82%D8%A7%D9%87%D8%B1%D8%A9.jpg",
+    "author": "Tarekheikal",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-khan.jpg": {
+    "sha256": "ff51689156d91a27855e9aebcad865267f6a237bdfa513baa1c1e11502f4b303",
+    "bytes": 436482,
+    "source": "https://commons.wikimedia.org/wiki/File:%D8%AE%D8%A7%D9%86_%D8%A7%D9%84%D8%AE%D9%84%D9%8A%D9%84%D9%8A_1.jpg",
+    "author": "Heba otefy",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-muizz.jpg": {
+    "sha256": "0efe0ed82fe8064cafc0e6c0cfe575c87a04fc3af6acf3c8f759cfcd44d736d2",
+    "bytes": 911783,
+    "source": "https://commons.wikimedia.org/wiki/File:Muizz_Street_-_Egypt.jpg",
+    "author": "Mohammed Moussa",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-citadel.jpg": {
+    "sha256": "86415ccfb891660714a3e5f60b93cd9cbe7362479a60206a51575828b1797958",
+    "bytes": 277928,
+    "source": "https://commons.wikimedia.org/wiki/File:%D8%AC%D8%A7%D9%85%D8%B9_%D9%85%D8%AD%D9%85%D8%AF_%D8%B9%D9%84%D9%8A.JPG",
+    "author": "Ahmed Ragheb 97",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "review": "source-recorded"
+  },
+  "v2-church.jpg": {
+    "sha256": "482e41124225456d9aa2f8e5c210ff3afd2284cad40757bf1175c887cbc19f73",
+    "bytes": 493380,
+    "source": "https://commons.wikimedia.org/wiki/File:Kairo_Hanging_Church_BW_1.jpg",
+    "author": "Berthold Werner",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "review": "source-recorded"
+  },
+  "photo-36876708.jpg": {
+    "sha256": "d79a8dcbb78e732e3b5b09fb6346a794fae20a6c4e42b7c0f7474b074d1e8064",
+    "bytes": 532959,
+    "source": "https://www.pexels.com/photo/alexandria-s-historic-fort-qaitbay-at-dusk-36876708/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "hd-corniche.jpg": {
+    "sha256": "1fb1e2763c6edd67e1600892c490420fd7de041a46f57919bf0cc46c6d69977e",
+    "bytes": 675067,
+    "source": "https://commons.wikimedia.org/wiki/File:Corniche_of_Alexandria.jpg",
+    "author": "Abdelrhman 1990",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-17408308.jpg": {
+    "sha256": "e2205560e1463e96a60f1383e94483f9e0d0c0a7ef3291aeca21f33130e80319",
+    "bytes": 503983,
+    "source": "https://www.pexels.com/photo/17408308/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v2-montaza.jpg": {
+    "sha256": "4baaf871050594a9ef4c481af7b17466e8222adea6c27a5abb20856b673a184c",
+    "bytes": 308378,
+    "source": "https://commons.wikimedia.org/wiki/File:Motazah_palace_-_Alexandria.jpg",
+    "author": "Ashraf f. bakry",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-library-wide.jpg": {
+    "sha256": "1cf02b2ba25d23bbba7a661219275270db015874e0df720df0018c15ae3a294f",
+    "bytes": 237235,
+    "source": "https://commons.wikimedia.org/wiki/File:Bibliotheca_Alexandrina_(Alexandrie_biblioth%C3%A8que).jpg",
+    "author": "René Dinkel",
+    "license": "CC0",
+    "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "review": "source-recorded"
+  },
+  "v3-reading-room.jpg": {
+    "sha256": "724802f3af4c114836b9b0e2d2ced6328f0f5276aa59e55082614b003ffa611e",
+    "bytes": 537982,
+    "source": "https://www.pexels.com/photo/interior-of-the-library-of-alexandria-alexandria-egypt-15238618/",
+    "author": "Diego F. Parra",
+    "license": "Pexels License",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v2-mursi.jpg": {
+    "sha256": "7bea2dbd009fb7e8bc4cebfad735d4927352cdf53bd257b963ca7a26931728fa",
+    "bytes": 191049,
+    "source": "https://commons.wikimedia.org/wiki/File:2007-05-043.jpg",
+    "author": "Argenberg",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "review": "source-recorded"
+  },
+  "fort.jpg": {
+    "sha256": "fa45f43b414179ef3ee42efea30b6343222e5f1531c4e9cbcce1ad7d117b707b",
+    "bytes": 166381,
+    "source": "https://www.pexels.com/photo/battlements-of-the-15th-century-qaitbay-citadel-in-alexandria-25323280/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "photo-16732778.jpg": {
+    "sha256": "fe856607313e2b5a808f3dcf8c96abcd0928b8fa88c64abcb77d806c10874d72",
+    "bytes": 651456,
+    "source": "https://www.pexels.com/photo/the-dome-of-the-rock-in-jerusalem-16732778/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "hd-eilat.jpg": {
+    "sha256": "b335eac9b947c9e200b0ebba4444e90fc7ee008aa696f666e910d1ef68fbe03f",
+    "bytes": 406829,
+    "source": "https://commons.wikimedia.org/wiki/File:Eilat_night_hotels_2016.jpg",
+    "author": "Yigal Dekel",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "salt.jpg": {
+    "sha256": "a3493c9542e8f95dd47a7d645b18656084830f965eb42cc8d2f5b3aa820bc8b8",
+    "bytes": 282848,
+    "source": "https://commons.wikimedia.org/wiki/File:Dead_Sea_beach_00.JPG",
+    "author": "لا روسا",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "dome-hd.mp4": {
+    "sha256": "c624ea42d046d8425a6c66c862c3ea5b1578ab6f054fb57f7008645495f6b87e",
+    "bytes": 5682404,
+    "source": null,
+    "author": null,
+    "license": null,
+    "licenseUrl": null,
+    "review": "permission-required"
+  },
+  "birth.jpg": {
+    "sha256": "2cde5d0096f0263f03ece1801e193276b697b32809fd790733935bacf0981a59",
+    "bytes": 240605,
+    "source": "https://commons.wikimedia.org/wiki/File:Church_of_the_Nativity_(7703592746).jpg",
+    "author": "Neil Ward",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "review": "source-recorded"
+  },
+  "v2-jordan-four.jpg": {
+    "sha256": "ded3ac37e9a43802437994a8ebeab154b050936092a509e00abcb51ca464a4e5",
+    "bytes": 507546,
+    "source": "https://commons.wikimedia.org/wiki/File:Jordan_River_at_Qasr_al-Yahud,_2019_(04).jpg",
+    "author": "Bahnfrend",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "airport.jpg": {
+    "sha256": "d2aa770359a09312d806e37c4ee0906321d36345a126b5e1c8703030d6eafe0d",
+    "bytes": 98919,
+    "source": "https://commons.wikimedia.org/wiki/File:Terminal_2_Sharm_el-Sheikh_Airport.JPG",
+    "author": "JHenryW / Justus Weiss",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "review": "source-recorded"
+  },
+  "luxor-air.jpg": {
+    "sha256": "120a09475f2767daff224b074340d1196a116d89ccaa78fa4221f062036ecac3",
+    "bytes": 184137,
+    "source": "https://commons.wikimedia.org/wiki/File:Flughafen_Luxor_01.JPG",
+    "author": "Olaf Tausch",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "review": "source-recorded"
+  },
+  "photo-20987972.jpg": {
+    "sha256": "41eb503136df8b002d82dff33417b8c0662bba1505f6c78bcdedf8a420cf6acc",
+    "bytes": 1680891,
+    "source": "https://www.pexels.com/photo/great-hypostyle-hall-at-karnak-temple-complex-20987972/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v2-terraces-full.jpg": {
+    "sha256": "d0cb7204b7e6b44bbcf284d0968ba6cf2eda36edbaeab394fc02258ddd682def",
+    "bytes": 489094,
+    "source": "https://commons.wikimedia.org/wiki/File:Mortuary_Temple_of_Hatshepsut,_Egypt.jpg",
+    "author": "Kimberlym21",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v2-14212466.jpg": {
+    "sha256": "0942e992bb402c7563c09932ea61d3df24df9adab2bff85e78d382cef8053ff3",
+    "bytes": 1055015,
+    "source": "https://www.pexels.com/photo/14212466/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "v3-memnon.jpg": {
+    "sha256": "8f5c8931bed6103cf6657577b95485e73cb1fbcd1a6a9e5aa27696a447291f59",
+    "bytes": 340103,
+    "source": "https://commons.wikimedia.org/wiki/File:Colossi_of_Memnon_May_2015_2.JPG",
+    "author": "MusikAnimal",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-luxor-temple.jpg": {
+    "sha256": "b690574b87bb8f154c28f80a673e19fec4a2348db524de4c2b165e7e67dfe143",
+    "bytes": 364886,
+    "source": "https://commons.wikimedia.org/wiki/File:1550_bis_1070_v._Chr._ca._wurde_der_Tempel_von_Luxor_erbaut._01.jpg",
+    "author": "Holger Uwe Schmitt",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-avenue.jpg": {
+    "sha256": "e468606332746bb24e5f62a17d966549954391ed8f3586cfdf551c52a41271e8",
+    "bytes": 220589,
+    "source": "https://commons.wikimedia.org/wiki/File:Nocturnal_view_of_Avenue_of_Sphinxes.jpg",
+    "author": "Basssant Meligy",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-museum.jpg": {
+    "sha256": "5a6ac32554f2a620426d394b66f07a003149cf50d6e4c1072e94f7967efa80bf",
+    "bytes": 205408,
+    "source": "https://commons.wikimedia.org/wiki/File:Luxor_Museum_1.JPG",
+    "author": "Charlesdrakew at English Wikipedia",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "review": "source-recorded"
+  },
+  "v3-kings.jpg": {
+    "sha256": "0e26514c6c1e0caeafc004d42eb1deb0fc7c0e56ec5c32f1f4961cfca3bae5f6",
+    "bytes": 362704,
+    "source": "https://commons.wikimedia.org/wiki/File:Thebes,_Luxor,_Egypt,_Panoramic_view_of_the_Valley_of_the_Kings.jpg",
+    "author": "Vyacheslav Argenberg",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "review": "source-recorded"
+  },
+  "v3-kv9.jpg": {
+    "sha256": "949d3cdee300b9c947d5e7472dd2ef371e578dfead38269e7cc7c351cca60269",
+    "bytes": 561100,
+    "source": "https://commons.wikimedia.org/wiki/File:Tumba_de_Rams%C3%A9s_V_y_de_Rams%C3%A9s_VI,_Valle_de_las_Reyes,_Luxor,_Egipto,_2022-04-03,_DD_54.jpg",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-queens.jpg": {
+    "sha256": "a6e63479021002fb32ee63770238be3419a9a7c931e187f6f09b429351f975d0",
+    "bytes": 384517,
+    "source": "https://commons.wikimedia.org/wiki/File:Valley_of_the_Queens_by_Zureks.jpg",
+    "author": "Zureks",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "review": "source-recorded"
+  },
+  "v3-nefertari.jpg": {
+    "sha256": "2d944c8b627ec5d4d2dd502f11a7c2c86afca82ae71ead756564adb97c881dda",
+    "bytes": 608277,
+    "source": "https://commons.wikimedia.org/wiki/File:Maler_der_Grabkammer_der_Nefertari_004_retouched.jpg",
+    "author": "\nMaler der Grabkammer der Nefertari",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "review": "source-recorded"
+  },
+  "v3-workers.jpg": {
+    "sha256": "3c1b2e4bd10fd64405e3b4c8d89389102816e27985274f7fe09b785fb736a16f",
+    "bytes": 399147,
+    "source": "https://commons.wikimedia.org/wiki/File:Deir_el-Medina,_Luxor,_Egipto,_2022-04-03,_DD_18.jpg",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-nobles.jpg": {
+    "sha256": "5793c2d53c26f15ebbc7854193835ac7bb4f7ab4b62a63c84fae712e9a1bf462",
+    "bytes": 199678,
+    "source": "https://commons.wikimedia.org/wiki/File:Reliefs_of_a_Procession_from_the_Tomb_of_Ramose_TT55.jpg",
+    "author": "Debborah Donnelly or  https://www.debborahdonnelly.ca/",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "review": "source-recorded"
+  },
+  "v3-habu.jpg": {
+    "sha256": "bddeb83c18f5434b259f57b317439937923060f3053975027a3a71ceae81a4bf",
+    "bytes": 341741,
+    "source": "https://commons.wikimedia.org/wiki/File:Templo_funerario_de_Rams%C3%A9s_III,_Luxor,_Egipto,_2022-04-03,_DD_22.jpg",
+    "author": "Diego Delso",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "v3-ramesseum.jpg": {
+    "sha256": "ad5e56f120b5c76bcaf4cbbaefddc7312c153a267a7a9c09189e8d5178ea543b",
+    "bytes": 440025,
+    "source": "https://commons.wikimedia.org/wiki/File:SFEC_AEH_-ThebesNecropolis-2010-RamsesII-021.jpg",
+    "author": "Steve F-E-Cameron",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "review": "source-recorded"
+  },
+  "v3-seti.jpg": {
+    "sha256": "478862cac4acfc89662748266721c37182ea0c1032761887138bd43fbba74d87",
+    "bytes": 163220,
+    "source": "https://commons.wikimedia.org/wiki/File:Seti_I_Temple_at_Qurna.jpg",
+    "author": "No machine-readable author provided. Zanaq assumed (based on copyright claims).",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "review": "source-recorded"
+  },
+  "sharm-bay.jpg": {
+    "sha256": "76eb87fb3772bbe200764235b67982ce38748e9dd143985e9b9f38f9fccba7fa",
+    "bytes": 464278,
+    "source": null,
+    "author": null,
+    "license": null,
+    "licenseUrl": null,
+    "review": "catalog-asset",
+    "catalogAsset": "assets/images/stock/sharm-bay.jpg"
+  },
+  "valley-hd.mp4": {
+    "sha256": "311aa7bf0920fb37a15f54f0a030551eeb9a7a9c0135f7d6560d43ee7aac4b64",
+    "bytes": 1737174,
+    "source": "https://www.pexels.com/video/scenery-of-desert-across-the-rocky-mountains-5977481/",
+    "author": "Tima Miroshnichenko",
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "sinai-hike-hd.mp4": {
+    "sha256": "d579886bd0a014a10b8a47d6d2d144ae103d4ba541a421d9e6ac5a6d2553702c",
+    "bytes": 5368161,
+    "source": "https://www.pexels.com/video/people-hiking-mount-sinai-9424567/",
+    "author": "Vincuk Konan",
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "photo-35997094.jpg": {
+    "sha256": "cf09e6d6099a9a8161f7e9e4b23a665cca68f3dbe64ddd71f1fcf573bcb652e9",
+    "bytes": 558366,
+    "source": "https://www.pexels.com/photo/solitary-figure-overlooking-mount-sinai-at-sunrise-35997094/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "source-recorded"
+  },
+  "journey-64536615.jpg": {
+    "sha256": "81b3984c3c22b6a0a066316e27073edc934e0bbf180f88623ce0011755a74d1a",
+    "bytes": 72749,
+    "source": "https://commons.wikimedia.org/wiki/File:Sunrise_from_the_summit_of_Mount_Sinai_or_Gabal_Musa.jpg",
+    "author": "Sara Nabih",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "review": "source-recorded"
+  },
+  "journey-157268715.jpg": {
+    "sha256": "12a511cb6133dba6398c96b634c2c1ce21b1890b5820ee75e479eadbc183fd98",
+    "bytes": 441469,
+    "source": "https://commons.wikimedia.org/wiki/File:A_full_view_of_Saint_Catherine%27s_Monastery.jpg",
+    "author": "Dr. Ondřej Havelka (cestovatel)",
+    "license": "CC BY 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "review": "source-recorded"
+  },
+  "tunnel-west.jpg": {
+    "bytes": 97804,
+    "sha256": "5fddb117d8a36757e27a70bb5f9775ece7c1d8a9245d76ed3d1db5388a34a8ea",
+    "source": "https://commons.wikimedia.org/wiki/File:Ahmed_Hamdi_Tunnel_-_West_entry.jpg",
+    "author": "Zehnfinger",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "review": "source-recorded"
+  },
+  "stock-giza-pyramids-aerial.mp4": {
+    "bytes": 33152679,
+    "sha256": "cffa250586c86395ae4bfc73c3070af00e4be244ac43621bb4851040a4a7e207",
+    "catalogAsset": "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+    "source": "https://www.pexels.com/video/10719349/",
+    "author": null,
+    "license": "Pexels",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "review": "catalog-asset"
+  }
+}

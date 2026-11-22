@@ -10,7 +10,7 @@ const schema = z
         z
           .string()
           .regex(
-            /^(site|collections|faq|locales|collection:[a-z0-9-]{1,120}|trip:[a-z0-9-]{1,120}|page:[a-z-]{1,40}|ui:[a-z-]{2,16})$/,
+            /^(catalog|site|collections|faq|locales|collection:[a-z0-9-]{1,120}|trip:[a-z0-9-]{1,120}|page:[a-z-]{1,40}|ui:[a-z-]{2,16})$/,
           ),
       )
       .min(1)

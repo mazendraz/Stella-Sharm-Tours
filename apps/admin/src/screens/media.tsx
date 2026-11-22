@@ -10,6 +10,7 @@ import { useMediaOptions } from '../lib/media-options';
 import { useGuard } from '../lib/guard';
 import { PageHeader } from '../components/ui/page-header';
 import { SearchBox } from '../components/ui/data-table';
+import { FilterBar } from '../components/ui/filter-bar';
 import { EditorLayout } from '../components/ui/editor';
 import {
   FormField,
@@ -128,8 +129,16 @@ export function MediaLibrary() {
         }
       />
       <div className="table-toolbar">
-        <div className="filters">
-          <SearchBox value={q} onChange={setQ} placeholder={t('searchMedia')} />
+        <FilterBar
+          search={
+            <SearchBox
+              value={q}
+              onChange={setQ}
+              placeholder={t('searchMedia')}
+            />
+          }
+          active={[type, rights, usage, collection].filter(Boolean).length}
+        >
           <label className="mini-field">
             <span>{t('type')}</span>
             <select value={type} onChange={(e) => setType(e.target.value)}>
@@ -171,7 +180,7 @@ export function MediaLibrary() {
               ))}
             </select>
           </label>
-        </div>
+        </FilterBar>
         {!media.isPending && (
           <span className="result-count" role="status">
             {tp('mediaCount', list.length)}

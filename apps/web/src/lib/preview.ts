@@ -1,4 +1,5 @@
 import 'server-only';
+import { publicStorySchema } from '@stella/shared/story';
 import { cache } from 'react';
 import { z } from 'zod';
 import { notFound } from 'next/navigation';
@@ -8,7 +9,12 @@ import {
 } from '@stella/shared/public-contract';
 import { env } from './env';
 const result = z.discriminatedUnion('kind', [
-  z.object({ kind: z.literal('trip'), locale: z.string(), data: tripSchema }),
+  z.object({
+    kind: z.literal('trip'),
+    locale: z.string(),
+    data: tripSchema,
+    story: publicStorySchema.nullable().optional(),
+  }),
   z.object({
     kind: z.literal('collection'),
     locale: z.string(),

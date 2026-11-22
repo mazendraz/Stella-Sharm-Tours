@@ -1,6 +1,7 @@
 import { PgBoss } from 'pg-boss';
+import { createHash } from 'node:crypto';
 import { z } from 'zod';
-import { and, eq, isNull, lt, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { readdir, stat, rm } from 'node:fs/promises';
 import type { Database, connectDatabase } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -9,9 +10,16 @@ import { unseal } from './auth';
 import { operationsCopy } from '@stella/shared/i18n/operations';
 import { newDeviceCopy } from '@stella/shared/i18n/security-notifications';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
-import { anonymizeExpiredRequests } from './privacy';
-import { requestRetentionCutoff } from '@stella/shared/retention';
-import { notifyPush } from './push';
+import {
+  authMailCopy,
+  staffBookingCopy,
+} from '@stella/shared/i18n/booking-messages';
+import {
+  bookingArea,
+  bookingEstimate,
+  bookingGuests,
+} from '@stella/shared/i18n/guests';
+import { eligiblePushSubscriptions, isPushEndpoint, notifyPush } from './push';
 import {
   translatePublic,
   refreshCoverage,
@@ -22,6 +30,7 @@ export const queueNames = [
   'media.process',
   'notify.request.created',
   'notify.request.push',
+  'notify.request.push.device',
   'auth.reset',
   'auth.invite',
   'auth.new_device',
@@ -44,6 +53,36 @@ export async function bootstrapQueues(boss: PgBoss) {
       retryBackoff: true,
       expireInSeconds: 300,
     });
+}
+export async function queueRequestPush(
+  db: Database,
+  cfg: WorkerConfig,
+  requestId: string,
+  boss: Pick<PgBoss, 'send'>,
+) {
+  if (!cfg.VAPID_PUBLIC_KEY || !cfg.VAPID_PRIVATE_KEY || !cfg.VAPID_SUBJECT)
+    return;
+  for (const { subscription } of await eligiblePushSubscriptions(
+    db,
+    requestId,
+  )) {
+    if (!isPushEndpoint(subscription.endpoint)) continue;
+    // Retrying the fan-out uses the same per-request and per-device job ID.
+    const digest = createHash('sha256')
+      .update(requestId + ':' + subscription.id)
+      .digest('hex');
+    const id = `${digest.slice(0, 8)}-${digest.slice(8, 12)}-8${digest.slice(13, 16)}-8${digest.slice(17, 20)}-${digest.slice(20, 32)}`;
+    await boss.send(
+      'notify.request.push.device',
+      { requestId, subscriptionId: subscription.id },
+      {
+        id,
+        retryLimit: 5,
+        retryDelay: 30,
+        retryBackoff: true,
+      },
+    );
+  }
 }
 export async function dispatchOutbox(
   pool: ReturnType<typeof connectDatabase>['pool'],
@@ -109,7 +148,11 @@ export async function notifyNewDevice(
   mailer: Mailer,
 ) {
   const [record] = await db
-    .select({ device: s.adminDevices, email: s.adminUsers.email })
+    .select({
+      createdAt: s.adminDevices.createdAt,
+      expiresAt: s.adminDevices.expiresAt,
+      email: s.adminUsers.email,
+    })
     .from(s.adminDevices)
     .innerJoin(s.adminUsers, eq(s.adminDevices.userId, s.adminUsers.id))
     .where(
@@ -119,13 +162,13 @@ export async function notifyNewDevice(
         isNull(s.adminUsers.disabledAt),
       ),
     );
-  if (!record || record.device.expiresAt <= new Date()) return;
+  if (!record || record.expiresAt <= new Date()) return;
   const copy = newDeviceCopy[cfg.OWNER_REPORT_LOCALE];
   const time = new Intl.DateTimeFormat(cfg.OWNER_REPORT_LOCALE, {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Africa/Cairo',
-  }).format(record.device.createdAt);
+  }).format(record.createdAt);
   await mailer.sendMail({
     from: cfg.SMTP_FROM,
     to: record.email,
@@ -191,16 +234,14 @@ export async function notifyWeeklyPrices(
   cfg: WorkerConfig,
   mailer: Mailer,
 ) {
-  const changes = await db
-    .select()
-    .from(s.auditLog)
-    .where(
-      and(
-        sql`${s.auditLog.at}>now()-interval '7 days'`,
-        sql`(${s.auditLog.entity}='trip_prices' or (${s.auditLog.entity}='trip' and (coalesce(${s.auditLog.before}->'values','{}'::jsonb) ? 'privateSurchargePct' or coalesce(${s.auditLog.after},'{}'::jsonb) ? 'privateSurchargePct')))`,
-      ),
-    )
-    .orderBy(s.auditLog.at);
+  const { rows: changes } = await db.execute<{
+    at: string;
+    entity: string;
+    action: string;
+    entity_id: string | null;
+    before: unknown;
+    after: unknown;
+  }>(sql`select * from public.worker_price_audit order by at`);
   if (!changes.length) return;
   const owners = await db
     .select({ id: s.adminUsers.id, email: s.adminUsers.email })
@@ -218,7 +259,7 @@ export async function notifyWeeklyPrices(
       text: changes
         .map(
           (row) =>
-            `${row.at.toISOString()} | ${row.entity} | ${row.action} | ${row.entityId}\nBefore: ${JSON.stringify(row.before)}\nAfter: ${JSON.stringify(row.after)}`,
+            `${new Date(row.at).toISOString()} | ${row.entity} | ${row.action} | ${row.entity_id}\nBefore: ${JSON.stringify(row.before)}\nAfter: ${JSON.stringify(row.after)}`,
         )
         .join('\n\n'),
     });
@@ -230,40 +271,58 @@ export async function notifyRequest(
   mailer: Mailer,
 ) {
   return db.transaction(async (tx) => {
-    const [r] = await tx
-      .select()
-      .from(s.bookingRequests)
-      .where(eq(s.bookingRequests.id, requestId))
-      .for('share');
-    if (
-      !r ||
-      r.anonymizedAt ||
-      r.status === 'spam' ||
-      r.createdAt < requestRetentionCutoff()
-    )
-      return;
+    const {
+      rows: [r],
+    } = await tx.execute<{
+      id: string;
+      ref: string;
+      name: string;
+      phone: string;
+      email: string | null;
+      start_date: string;
+      adults: number;
+      children: number;
+      format: string | null;
+      pickup_area: string | null;
+      hotel: string | null;
+      estimate_eur: string | null;
+      notes: string | null;
+    }>(
+      sql`select * from public.worker_request_notification(${requestId}::uuid)`,
+    );
+    if (!r) return;
     const items = await tx
       .select({ title: s.trips.title, day: s.bookingRequestItems.dayIndex })
       .from(s.bookingRequestItems)
       .innerJoin(s.trips, eq(s.bookingRequestItems.tripId, s.trips.id))
-      .where(eq(s.bookingRequestItems.requestId, requestId));
+      .where(eq(s.bookingRequestItems.requestId, requestId))
+      .orderBy(s.bookingRequestItems.dayIndex);
+    const locale = cfg.OWNER_REPORT_LOCALE;
+    const copy = staffBookingCopy(locale);
     await mailer.sendMail({
       from: cfg.SMTP_FROM,
       to: cfg.STAFF_NOTIFY_EMAIL,
       messageId: `<${r.id}@stella.local>`,
-      subject: `New request ${r.ref}`,
+      subject: `${copy.subject} ${r.ref}`,
       text: [
         r.ref,
-        `Name: ${r.name}`,
-        `Phone: ${r.phone}`,
-        `Email: ${r.email ?? ''}`,
-        `Date: ${r.startDate}`,
-        `Guests: ${r.adults} adults, ${r.children} children`,
-        `Format: ${r.format}`,
-        `Pickup: ${r.pickupArea ?? ''} ${r.hotel ?? ''}`,
-        `Estimate: ${r.estimateEur === null ? 'On request' : r.estimateEur + ' EUR'}`,
-        ...items.map((i) => `Day ${i.day}: ${i.title.en}`),
-        `Notes: ${r.notes ?? ''}`,
+        `${copy.name}: ${r.name}`,
+        `${copy.phone}: ${r.phone}`,
+        `${copy.email}: ${r.email ?? ''}`,
+        `${copy.date}: ${r.start_date}`,
+        `${copy.guests}: ${bookingGuests(r.adults, r.children, locale)}`,
+        `${copy.format}: ${r.format === 'private' ? copy.privateTour : r.format === 'group' ? copy.group : '—'}`,
+        `${copy.pickup}: ${bookingArea(r.pickup_area ?? '', locale)} ${r.hotel ?? ''}`,
+        bookingEstimate(
+          r.estimate_eur === null ? null : Number(r.estimate_eur),
+          0,
+          locale,
+        ),
+        ...items.map(
+          (i) =>
+            `${copy.day} ${i.day ?? 1}: ${i.title[locale] ?? bundledCoreText(i.title.en, locale) ?? i.title.en}`,
+        ),
+        `${copy.notes}: ${r.notes ?? ''}`,
         new URL('/requests/' + r.id, cfg.ADMIN_ORIGIN).href,
       ].join('\n'),
     });
@@ -276,24 +335,43 @@ export async function revalidateWeb(
   send: typeof fetch = fetch,
 ) {
   const values = new Set(tags);
-  if (
-    tags.includes('collections') ||
-    tags.some((t) => t.startsWith('trip:') || t.startsWith('collection:'))
-  ) {
-    for (const t of await db.select({ slug: s.trips.slug }).from(s.trips))
-      values.add('trip:' + t.slug);
-    for (const c of await db
-      .select({ slug: s.collections.slug })
-      .from(s.collections))
-      values.add('collection:' + c.slug);
+  const tripSlugs = tags
+    .filter((tag) => tag.startsWith('trip:'))
+    .map((tag) => tag.slice(5));
+  const collectionSlugs = tags
+    .filter((tag) => tag.startsWith('collection:'))
+    .map((tag) => tag.slice(11));
+  if (tripSlugs.length || collectionSlugs.length) {
+    const direct = db
+      .select({ id: s.trips.id })
+      .from(s.trips)
+      .innerJoin(s.collections, eq(s.trips.collectionId, s.collections.id))
+      .where(
+        sql`${inArray(s.trips.slug, tripSlugs)} or ${inArray(s.collections.slug, collectionSlugs)}`,
+      );
+    const parentIds = db
+      .select({ id: s.packageItems.packageId })
+      .from(s.packageItems)
+      .where(inArray(s.packageItems.tripId, direct));
+    const affected = await db
+      .select({ trip: s.trips.slug, collection: s.collections.slug })
+      .from(s.trips)
+      .innerJoin(s.collections, eq(s.collections.id, s.trips.collectionId))
+      .where(
+        sql`${inArray(s.trips.id, direct)} or ${inArray(s.trips.id, parentIds)}`,
+      );
+    for (const row of affected) {
+      values.add('trip:' + row.trip);
+      values.add('collection:' + row.collection);
+    }
+    values.add('collection:private');
     values.add('site');
     values.add('collections');
+  } else if (values.has('collections')) {
+    values.add('catalog');
   }
-  if (tags.includes('faq') || tags.includes('site'))
-    for (const key of ['terms', 'privacy', 'cancellation', 'contact'])
-      values.add('page:' + key);
   const safe = [...values].filter((t) =>
-    /^(site|collections|faq|locales|collection:[a-z0-9-]{1,120}|trip:[a-z0-9-]{1,120}|page:[a-z-]{1,40}|ui:[a-z-]{2,16})$/.test(
+    /^(catalog|site|collections|faq|locales|collection:[a-z0-9-]{1,120}|trip:[a-z0-9-]{1,120}|page:[a-z-]{1,40}|ui:[a-z-]{2,16})$/.test(
       t,
     ),
   );
@@ -311,22 +389,13 @@ export async function revalidateWeb(
   }
 }
 export async function purgeRequests(db: Database) {
-  return anonymizeExpiredRequests(db);
+  const { rows } = await db.execute<{ affected: number }>(
+    sql`select public.worker_purge_expired_requests() as affected`,
+  );
+  return rows[0]!.affected;
 }
 export async function cleanupSessions(db: Database) {
-  await db
-    .delete(s.adminDevices)
-    .where(lt(s.adminDevices.expiresAt, new Date()));
-  await db
-    .delete(s.sessions)
-    .where(
-      sql`${s.sessions.expiresAt}<now() or ${s.sessions.lastSeenAt}<now()-interval '8 hours'`,
-    );
-  await db.delete(s.authTokens).where(lt(s.authTokens.expiresAt, new Date()));
-  await db.delete(s.rateBuckets).where(lt(s.rateBuckets.expiresAt, new Date()));
-  await db
-    .delete(s.outbox)
-    .where(sql`${s.outbox.deliveredAt}<now()-interval '30 days'`);
+  await db.execute(sql`select public.worker_cleanup_expired()`);
 }
 export async function cleanupMedia(db: Database, cfg: WorkerConfig) {
   const referenced = new Set<string>();
@@ -341,11 +410,10 @@ export async function cleanupMedia(db: Database, cfg: WorkerConfig) {
     .from(s.media)
     .where(isNull(s.media.archivedAt)))
     collect(m.variants);
-  for (const r of await db
-    .select()
-    .from(s.revisions)
-    .where(sql`${s.revisions.createdAt}>now()-interval '30 days'`))
-    collect(r.snapshot);
+  const retained = await db.execute<{ storage_key: string }>(
+    sql`select storage_key from public.worker_revision_media_keys`,
+  );
+  for (const row of retained.rows) referenced.add(row.storage_key);
   for (const root of [cfg.MEDIA_ROOT, inside(cfg.ORIGINALS_ROOT, 'previews')]) {
     let prefixes;
     try {
@@ -368,17 +436,20 @@ export async function cleanupMedia(db: Database, cfg: WorkerConfig) {
       }
     }
   }
-  const archived = await db
-    .select()
-    .from(s.media)
-    .where(
-      sql`${s.media.archivedAt}<now()-interval '30 days' and not exists(select 1 from trip_media where media_id=${s.media.id}) and not exists(select 1 from collections where cover_media_id=${s.media.id} or hero_video_id=${s.media.id}) and not exists(select 1 from hero_slides where image_media_id=${s.media.id} or video_media_id=${s.media.id})`,
-    );
-  for (const m of archived) {
-    if (!m.sha256 || !/^[a-f0-9]{64}$/.test(m.sha256)) continue;
-    const path = inside(cfg.ORIGINALS_ROOT, 'originals', m.sha256);
-    if (path === m.originalPath) await rm(path, { force: true });
-  }
+  await db.transaction(async (tx) => {
+    const archived = await tx
+      .select()
+      .from(s.media)
+      .where(
+        sql`${s.media.archivedAt}<now()-interval '30 days' and not exists(select 1 from trip_media where media_id=${s.media.id}) and not exists(select 1 from collections where cover_media_id=${s.media.id} or hero_video_id=${s.media.id}) and not exists(select 1 from hero_slides where image_media_id=${s.media.id} or video_media_id=${s.media.id})`,
+      )
+      .for('update', { skipLocked: true });
+    for (const m of archived) {
+      if (!m.sha256 || !/^[a-f0-9]{64}$/.test(m.sha256)) continue;
+      const path = inside(cfg.ORIGINALS_ROOT, 'originals', m.sha256);
+      if (path === m.originalPath) await rm(path, { force: true });
+    }
+  });
 }
 export async function startWorker(
   db: Database,
@@ -420,18 +491,22 @@ export async function startWorker(
             .strictObject({ requestId: z.uuid() })
             .parse(job.data).requestId;
           await notifyRequest(db, cfg, requestId, mailer);
-        } else if (name === 'notify.request.push')
-          await notifyPush(
-            db,
-            cfg,
-            z.strictObject({ requestId: z.uuid() }).parse(job.data).requestId,
-          );
-        else if (name === 'revalidate.web')
+        } else if (name === 'notify.request.push') {
+          const { requestId } = z
+            .strictObject({ requestId: z.uuid() })
+            .parse(job.data);
+          await queueRequestPush(db, cfg, requestId, boss);
+        } else if (name === 'notify.request.push.device') {
+          const { requestId, subscriptionId } = z
+            .strictObject({ requestId: z.uuid(), subscriptionId: z.uuid() })
+            .parse(job.data);
+          await notifyPush(db, cfg, requestId, undefined, subscriptionId);
+        } else if (name === 'revalidate.web')
           await revalidateWeb(
             db,
             cfg,
             z
-              .strictObject({ tags: z.array(z.string()).min(1).max(1000) })
+              .strictObject({ tags: z.array(z.string()).min(1).max(5000) })
               .parse(job.data).tags,
           );
         else if (name === 'auth.new_device') {
@@ -444,7 +519,11 @@ export async function startWorker(
               .strictObject({ userId: z.uuid(), token: z.string().max(1000) })
               .parse(job.data),
             [user] = await db
-              .select()
+              .select({
+                id: s.adminUsers.id,
+                email: s.adminUsers.email,
+                disabledAt: s.adminUsers.disabledAt,
+              })
               .from(s.adminUsers)
               .where(eq(s.adminUsers.id, b.userId));
           if (user && !user.disabledAt) {
@@ -453,20 +532,19 @@ export async function startWorker(
               cfg.TOTP_ENC_KEY,
               user.id,
             );
+            const [inviteSubject, inviteBody, resetSubject, resetBody] =
+              authMailCopy[cfg.OWNER_REPORT_LOCALE];
+            const invite = name === 'auth.invite';
+            const link = new URL(
+              '/auth/' + (invite ? 'setup' : 'reset'),
+              cfg.ADMIN_ORIGIN,
+            );
+            link.searchParams.set('token', token);
             await mailer.sendMail({
               from: cfg.SMTP_FROM,
               to: user.email,
-              subject:
-                name === 'auth.invite'
-                  ? 'Set up your Stella account'
-                  : 'Reset your Stella password',
-              text: new URL(
-                '/auth/' +
-                  (name === 'auth.invite' ? 'setup' : 'reset') +
-                  '?token=' +
-                  encodeURIComponent(token),
-                cfg.ADMIN_ORIGIN,
-              ).href,
+              subject: invite ? inviteSubject : resetSubject,
+              text: (invite ? inviteBody : resetBody) + '\n\n' + link.href,
             });
           }
         } else if (name === 'cleanup.sessions') await cleanupSessions(db);

@@ -26,6 +26,8 @@ import /etc/caddy/stella/common.caddy
     }
     @api host {$API_HOST}
     handle @api {
+      @internal_api path /internal/*
+      respond @internal_api 404
       reverse_proxy api:4000 {
         header_up X-Forwarded-For {client_ip}
       }
@@ -39,7 +41,8 @@ import /etc/caddy/stella/common.caddy
       route {
       @internal path /api/revalidate /readyz
       respond @internal 404
-      handle /v1/requests {
+      @booking path /v1/requests /v1/requests/quote
+      handle @booking {
         reverse_proxy api:4000 {
           header_up X-Forwarded-For {client_ip}
         }

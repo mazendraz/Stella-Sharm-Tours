@@ -84,7 +84,7 @@ Bright, warm and optimistic. All client video is colour-graded (brighter, warmer
 ### 3.1 Home
 
 1. **Story hero** (full screen, `100svh` minus 64px so the next card peeks).
-   - **Slides come from the `hero_slides` table, in the order the owner sets in the admin (Homepage → Hero videos).** They are not tied to the collections: the owner picks which video is 1st, 2nd, 3rd, 4th…, can switch a slide off, schedule it (start/end date) or show it on mobile or desktop only. The seed creates one slide per collection, Private first.
+   - **Slides come from the `hero_slides` table, in the order the owner sets in the admin (Homepage → Hero videos).** They are not tied to the collections: the owner picks which video is 1st, 2nd, 3rd, 4th…, can switch a slide off, schedule it (start/end date) or show it on mobile or desktop only. The seed creates a mobile and desktop slide per collection when both videos are ready, with Private first on each device.
    - Each slide: background video (vertical 720×1280 on mobile, horizontal 1280×720 on desktop, poster first) or an image, kicker, Marcellus headline, sub line (translated), primary CTA (to a collection, trip, package, My trip, WhatsApp or an internal page; default label "See [collection] trips"), secondary "WhatsApp".
    - Each slide stays `duration_s` seconds (default 6, set per slide in the admin). Only slide 1's poster is preloaded (LCP); the next slide's video starts loading only when the current one is playing.
    - No published slide → fall back to a single static slide with the first collection's cover image.
@@ -134,13 +134,18 @@ Bright, warm and optimistic. All client video is colour-graded (brighter, warmer
 - Adults stepper → live sample total (per-person × adults; per-boat/per-car prices counted once).
 - "Request this trip" → booking sheet in multi mode.
 - Persist in `localStorage` (`stella.mytrip.v1`) with try/catch; works without it.
+- [x] Resolve saved tours independently. Keep available tours visible, let guests remove withdrawn tours and offer a retry for temporary catalog errors. Enable requests once every remaining tour is available.
 
 ### 3.5 Booking request sheet (bottom sheet on mobile, centered modal on desktop)
 
-Fields: date (horizontal chips: next 30 days + "Pick another date" native date input), adults (≥1), children (≥0) with ages (optional), Group | Private segmented control (shown for trips with format `both`; **preselected Private** when the sheet was opened from Private mode or the trip is private-only; private price shows "on request" unless `private_surcharge_pct` is set), pickup area chips (Naama Bay, Nabq Bay, Sharks Bay, Hadaba, Old Market, Other → hotel name text), name, WhatsApp number (with country code picker, default country code by locale — +39 IT, +34 ES, +33 FR, … see `docs/08-i18n-plan.md` §9), email (optional), notes.
+Fields: travel format, a start date with an optional last day of stay, adults (≥1), children (≥0) with ages (optional), pickup area chips (Naama Bay, Nabq Bay, Sharks Bay, Hadaba, Old Market, Other → hotel name text), name, WhatsApp number with a country picker, email (optional), notes.
 
+- If any selected tour is private-only, show Private as the required format before the date and contact fields. Otherwise offer Group and Private. Preselect Private when opened from Private mode.
 - Inline validation (zod schema shared with API), errors under fields, focus first error.
-- Shows the **estimated total** computed by `packages/shared/price.ts` (same function the API uses).
+- [x] After the guest selects a start date, show each tour’s service dates, its price and the server-calculated total. Show all active rate options for a single tour and select the primary row by ID. If a rate changes before submission, show the updated quote and keep the guest’s form details for review.
+- [x] Count stay length through the last day of the last tour, including rest days. Warn if the selected stay is shorter.
+- [x] Accept national WhatsApp numbers using the selected country’s dialing rules. Accept pasted international numbers with their own country code. Show the exact international number the team will receive.
+- [x] Retrying the same request details in the same browser tab recovers the original confirmation. A revised quote or a change to the booking details starts a new submission.
 - Submit → `POST /v1/requests` → success screen with reference (e.g. `STL-7F3K2`) and the **prefilled WhatsApp message** + button `https://wa.me/<number>?text=<encoded>`.
 - Honeypot field + timing check + rate limit (see security plan). No CAPTCHA by default.
 - Copy: "No payment online. The team confirms availability, pickup time and price on WhatsApp."

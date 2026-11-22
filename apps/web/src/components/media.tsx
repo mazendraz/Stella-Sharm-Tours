@@ -1,6 +1,6 @@
 'use client';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { preload } from 'react-dom';
 import type { Media as MediaType } from '@stella/shared/public-contract';
 export function Media({
   media,
@@ -41,33 +41,37 @@ export function Media({
     return (
       <span className={'media-placeholder ' + className} aria-hidden="true" />
     );
-  // Media without size variants (e.g. a video poster) is served as-is; a width
-  // loader would only pretend to resize it.
-  const hasVariants = Object.keys(media.variants ?? {}).length > 0;
+  const candidates = Object.entries(media.variants ?? {})
+    .map(([key, url]) => ({ width: Number(key), url }))
+    .filter(({ width }) => Number.isSafeInteger(width) && width > 0)
+    .sort((a, b) => a.width - b.width)
+    .map(({ width, url }) => ({
+      width: Math.min(width, media.width ?? width),
+      url,
+    }))
+    .filter(({ width }, index, list) => width !== list[index - 1]?.width);
+  const srcSet = candidates.length
+    ? candidates.map(({ width, url }) => `${url} ${width}w`).join(', ')
+    : undefined;
+  const src = candidates.find(({ width }) => width >= 480)?.url ?? media.url;
+  if (priority && visible)
+    preload(src, {
+      as: 'image',
+      fetchPriority: 'high',
+      ...(srcSet ? { imageSrcSet: srcSet, imageSizes: sizes } : {}),
+    });
   const picture = (
-    <Image
-      className={className}
-      src={media.url}
+    <img
+      className={'responsive-media ' + className}
+      src={src}
+      srcSet={srcSet}
       alt={media.alt.text}
       lang={media.alt.lang}
-      fill
-      sizes={sizes}
-      priority={priority}
+      sizes={srcSet ? sizes : undefined}
+      loading={priority ? 'eager' : 'lazy'}
       fetchPriority={priority ? 'high' : undefined}
-      decoding={priority ? 'sync' : 'async'}
+      decoding="async"
       onLoad={onReady}
-      unoptimized={!hasVariants}
-      loader={({ width }) => {
-        const variants = Object.entries(media.variants ?? {})
-          .map(([w, url]) => ({ w: Number(w), url }))
-          .filter((v) => Number.isFinite(v.w))
-          .sort((a, b) => a.w - b.w);
-        return (
-          variants.find((v) => v.w >= width)?.url ??
-          variants.at(-1)?.url ??
-          media.url
-        );
-      }}
     />
   );
   if (!defer) return picture;

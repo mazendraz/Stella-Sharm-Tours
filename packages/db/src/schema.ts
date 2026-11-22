@@ -19,6 +19,7 @@ import {
   customType,
 } from 'drizzle-orm/pg-core';
 import type { Locale } from '@stella/shared';
+import type { Confirmation } from '@stella/shared/booking';
 export type Localized = { en: string } & Partial<
   Record<Locale, string | undefined>
 >;
@@ -141,6 +142,22 @@ export const media = pgTable(
     ),
   ],
 );
+export const publicMediaRenditions = pgTable(
+  'public_media_renditions',
+  {
+    storageKey: text('storage_key').primaryKey(),
+    mediaId: uuid('media_id')
+      .notNull()
+      .references(() => media.id, { onDelete: 'cascade' }),
+  },
+  (t) => [
+    index('public_media_renditions_media_idx').on(t.mediaId),
+    check(
+      'public_media_rendition_key',
+      sql`${t.storageKey} ~ '^[a-f0-9]{2}/[a-f0-9]{64}$'`,
+    ),
+  ],
+);
 export const collections = pgTable(
   'collections',
   {
@@ -178,6 +195,7 @@ export const trips = pgTable(
   {
     id: id(),
     slug: text('slug').notNull().unique(),
+    story: jsonb('story').$type<import('@stella/shared/story').Story>(),
     kind: text('kind', { enum: ['trip', 'package'] })
       .notNull()
       .default('trip'),
@@ -465,6 +483,7 @@ export const bookingRequests = pgTable(
   },
   (t) => [
     index('requests_status_created').on(t.status, t.createdAt),
+    index('requests_created_id').on(t.createdAt, t.id),
     index('requests_phone').on(t.phone),
     check(
       'request_guests',
@@ -476,6 +495,26 @@ export const bookingRequests = pgTable(
     ),
     check('request_mode', sql`${t.mode} in ('single','multi')`),
     check('request_format', sql`${t.format} in ('group','private')`),
+  ],
+);
+export const bookingRequestReceipts = pgTable(
+  'booking_request_receipts',
+  {
+    submissionId: text('submission_id').primaryKey(),
+    requestId: uuid('request_id')
+      .notNull()
+      .references(() => bookingRequests.id, { onDelete: 'cascade' }),
+    payloadHash: text('payload_hash').notNull(),
+    confirmation: jsonb('confirmation').$type<Confirmation>(),
+    expiresAt: timestamp('expires_at', { withTimezone: true })
+      .notNull()
+      .default(sql`now() + interval '24 hours'`),
+  },
+  (t) => [
+    index('request_receipt_request').on(t.requestId),
+    index('request_receipt_expiry')
+      .on(t.expiresAt)
+      .where(sql`${t.confirmation} is not null`),
   ],
 );
 export const bookingRequestItems = pgTable(

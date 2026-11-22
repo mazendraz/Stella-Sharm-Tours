@@ -1,12 +1,66 @@
 import { test, expect } from '@playwright/test';
+import en from '../../apps/web/messages/en.json' with { type: 'json' };
+import it from '../../apps/web/messages/it.json' with { type: 'json' };
+import es from '../../apps/web/messages/es.json' with { type: 'json' };
+import fr from '../../apps/web/messages/fr.json' with { type: 'json' };
+import de from '../../apps/web/messages/de.json' with { type: 'json' };
+import ru from '../../apps/web/messages/ru.json' with { type: 'json' };
+import tr from '../../apps/web/messages/tr.json' with { type: 'json' };
+
+test('a missing trip offers recovery in each core language', async ({
+  page,
+}) => {
+  for (const [locale, messages] of Object.entries({
+    en,
+    it,
+    es,
+    fr,
+    de,
+    ru,
+    tr,
+  })) {
+    const response = await page.goto(
+      '/' + locale + '/t/qa-trip-does-not-exist',
+    );
+    expect(response?.status()).toBe(404);
+    await expect(
+      page.getByRole('heading', { name: messages.notFound }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('main').getByRole('link', { name: messages.home }),
+    ).toHaveAttribute('href', '/' + locale);
+  }
+});
+
+test('trip return time renders in all seven core locales', async ({ page }) => {
+  for (const [locale, messages] of Object.entries({
+    en,
+    it,
+    es,
+    fr,
+    de,
+    ru,
+    tr,
+  })) {
+    await page.goto('/' + locale + '/t/mount-sinai-st-catherine');
+    const fact = page
+      .getByText(messages.returnTime, { exact: true })
+      .locator('..');
+    await expect(fact).toContainText('13:00–13:30');
+  }
+});
 test('new core languages detect correctly and use local UI and phone defaults', async ({
   page,
   request,
 }) => {
+  // Test the site-language default when the browser has no preferred region.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'language', { get: () => 'en' });
+  });
   for (const [locale, label, code] of [
-    ['fr', 'Demander', '+33'],
-    ['de', 'Anfragen', '+49'],
-    ['tr', 'Talep gönder', '+90'],
+    ['fr', 'Demander', 'FR'],
+    ['de', 'Anfragen', 'DE'],
+    ['tr', 'Talep gönder', 'TR'],
   ] as const) {
     const redirect = await request.get('/', {
       headers: { 'Accept-Language': locale + '-' + locale.toUpperCase() },
@@ -94,8 +148,20 @@ test('request validation, public boundaries and localized 404', async ({
   await page.goto('/en/t/quad-bike-safari');
   await page.getByRole('button', { name: 'Request', exact: true }).click();
   const sheet = page.getByRole('dialog');
-  await sheet.getByRole('button', { name: 'Send request' }).click();
-  await expect(sheet.locator('[name=start_date]')).toBeFocused();
+  await expect(
+    sheet.getByRole('button', { name: 'Send request' }),
+  ).toBeEnabled();
+  await sheet.getByRole('button', { name: 'Send request' }).press('Enter');
+  await expect(sheet.locator('.range-field .field-error')).toBeVisible();
+  const firstDay = sheet.locator('.range-day:enabled').first();
+  await expect(firstDay).toBeFocused();
+  await expect(firstDay).toHaveAccessibleDescription(en.invalid);
+  const { width, height } = (await firstDay.boundingBox())!;
+  expect(width).toBeGreaterThanOrEqual(44);
+  expect(height).toBeGreaterThanOrEqual(44);
+  await page.keyboard.press('Enter');
+  await expect(firstDay).toHaveAttribute('aria-pressed', 'true');
+  await expect(sheet.locator('.range-field .field-error')).toHaveCount(0);
 });
 test('responsive screen inventory', async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });

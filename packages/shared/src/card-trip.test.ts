@@ -111,6 +111,7 @@ describe('client payload projections', () => {
       address: text('Old Market'),
       legal_entity: null,
       pickup_areas: ['Naama Bay'],
+      social: [{ label: 'Instagram', url: 'https://instagram.com/x' }],
       hero_slides: [{ id: 's' }],
       featured_trips: [trip],
       private_trips: [trip],
@@ -123,6 +124,7 @@ describe('client payload projections', () => {
       'legal_entity',
       'locales',
       'pickup_areas',
+      'social',
     ]);
     expect(shell.has_hero).toBe(true);
     expect(shellSite({ ...site, hero_slides: [] }).has_hero).toBe(false);

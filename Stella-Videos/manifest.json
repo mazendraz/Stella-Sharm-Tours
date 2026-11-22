@@ -1,0 +1,539 @@
+[
+  {
+    "key": "intro-private",
+    "title": "Private with Stella",
+    "kind": "Intro",
+    "shots": [
+      {
+        "file": "assets/video-stock/stock-giza-carriage-h.mp4",
+        "start": 2,
+        "x": 0.48
+      },
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 2,
+        "x": 0.52
+      },
+      {
+        "file": "assets/video-stock/stock-sea-boat.mp4",
+        "start": 0.7,
+        "x": 0.43
+      }
+    ],
+    "mobile": null
+  },
+  {
+    "key": "intro-history",
+    "title": "Pharaohs & Temples",
+    "kind": "Intro",
+    "shots": [
+      "assets/video-stock/hero6-history-h.mp4"
+    ],
+    "mobile": [
+      "assets/video-stock/hero6-history-v.mp4"
+    ]
+  },
+  {
+    "key": "intro-sea",
+    "title": "The Red Sea",
+    "kind": "Intro",
+    "shots": [
+      "assets/video-stock/stock-sea-boat.mp4",
+      {
+        "file": "assets/video-stock/stock-red-sea-reef.mp4",
+        "start": 3,
+        "x": 0.63
+      }
+    ],
+    "mobile": null
+  },
+  {
+    "key": "intro-desert",
+    "title": "Desert & Adventure",
+    "kind": "Intro",
+    "shots": [
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 3,
+        "x": 0.5
+      },
+      {
+        "file": "assets/video/bedouin-quad-v.mp4",
+        "start": 0,
+        "x": 0.65
+      }
+    ],
+    "mobile": null
+  },
+  {
+    "key": "intro-beyond",
+    "title": "Beyond Egypt",
+    "kind": "Intro",
+    "shots": [
+      "assets/journeys/photo-23119576.jpg",
+      "assets/video-stock/stock-petra-treasury.mp4"
+    ],
+    "mobile": null
+  },
+  {
+    "key": "intro-relax",
+    "title": "Sharm Fun & Relax",
+    "kind": "Intro",
+    "shots": [
+      {
+        "file": "assets/video-stock/stock-sharm-sunset.mp4",
+        "start": 1,
+        "x": 0.25
+      },
+      "assets/images/stock/spa-hammam.jpg"
+    ],
+    "mobile": null
+  },
+  {
+    "key": "intro-all",
+    "title": "All of Egypt",
+    "kind": "Intro",
+    "shots": [
+      {
+        "file": "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+        "start": 6,
+        "x": 0.5
+      },
+      "assets/journeys/sinai-hike-hd.mp4",
+      "assets/video-stock/stock-red-sea-reef.mp4"
+    ],
+    "mobile": null
+  },
+  {
+    "key": "cairo-bus-old-museum",
+    "title": "Cairo by Bus — One Day (Old Egyptian Museum)",
+    "kind": "Trips",
+    "shots": [
+      "assets/journeys/cairo-drive.mp4",
+      "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "cairo-bus-gem",
+    "title": "Cairo by Bus — One Day (Grand Egyptian Museum)",
+    "kind": "Trips",
+    "shots": [
+      "assets/journeys/v2-gem.jpg",
+      "assets/video-stock/stock-giza-pyramids-aerial.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "cairo-plane-1-day",
+    "title": "Cairo by Plane — One Day",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-giza-camels.mp4",
+      "assets/images/stock/camels-pyramids.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "cairo-bus-2-days",
+    "title": "Cairo by Bus — 2 Days",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/coptic-cairo-v.mp4",
+      "assets/images/stock/sphinx.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "cairo-alexandria-bus-2-days",
+    "title": "Cairo & Alexandria by Bus — 2 Days",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+      "assets/journeys/hd-corniche.jpg",
+      "assets/journeys/v3-library-wide.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "cairo-plane-2-days-private",
+    "title": "Cairo by Plane — 2 Days (Private)",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-giza-pyramids-aerial.mp4",
+      {
+        "file": "assets/video/cairo-citadel-mosque-v.mp4",
+        "start": 3,
+        "x": 0.5
+      }
+    ],
+    "gap": false
+  },
+  {
+    "key": "luxor-plane-1-day",
+    "title": "Luxor by Plane — One Day",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/karnak.jpg",
+      "assets/journeys/v3-luxor-temple.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "mount-sinai-st-catherine",
+    "title": "Mount Sinai Sunrise & St Catherine",
+    "kind": "Trips",
+    "shots": [
+      "assets/journeys/sinai-hike-hd.mp4",
+      "assets/video-stock/stock-mount-sinai-sunrise.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "st-catherine-monastery-dahab",
+    "title": "Monastery of Saint Catherine & Dahab",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/stcath-monastery.jpg",
+      "assets/video-stock/stock-saint-catherine.mp4",
+      "assets/images/stock/dahab.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "petra-bus-ferry",
+    "title": "Petra — One Day by Bus & Ferry",
+    "kind": "Trips",
+    "shots": [
+      "assets/journeys/photo-23119576.jpg",
+      "assets/video-stock/stock-petra-treasury.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "jerusalem-bethlehem",
+    "title": "Jerusalem & Bethlehem — Day Tour by Bus",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/jerusalem-dome.jpg",
+      "assets/journeys/birth.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "ras-mohammed-bus",
+    "title": "Ras Mohammed by Bus",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-red-sea-reef.mp4",
+      "assets/images/stock/reef.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "ras-mohammed-private-car",
+    "title": "Ras Mohammed — Private Car",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-red-sea-reef.mp4",
+      "assets/images/stock/reef-wall.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "ras-mohammed-white-island-boat",
+    "title": "Ras Mohammed & White Island by Boat",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-sea-boat.mp4",
+      "assets/images/stock/white-island.jpg",
+      "assets/video-stock/stock-red-sea-reef.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "tiran-island-boat",
+    "title": "Tiran Island by Boat",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/tiran-boat.jpg",
+      "assets/video-stock/stock-red-sea-reef.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "sea-scope-submarine",
+    "title": "Sea Scope (Submarine)",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/fish.jpg",
+      "assets/images/stock/reef-wall.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "glass-bottom-boat",
+    "title": "Glass Bottom Boat",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/fish.jpg",
+      "assets/images/stock/reef.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "private-speed-boat",
+    "title": "Private Speed Boat (VIP)",
+    "kind": "Trips",
+    "shots": [
+      "assets/video-stock/stock-sea-boat.mp4",
+      "assets/images/stock/boat-guest.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "water-activities",
+    "title": "Water Activities — Parasailing, Banana & Sofa Boat",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/beach-family.jpg",
+      "assets/images/stock/sharm-bay.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "quad-bike-safari",
+    "title": "Quad Bike Safari",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/bedouin-quad-v.mp4",
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "buggy-car-safari",
+    "title": "Buggy Car Safari",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/desert-palms.jpg",
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "super-safari-5in1",
+    "title": "Super Safari 5 in 1",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/bedouin-quad-v.mp4",
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "stella-sharm-7in1",
+    "title": "Stella Sharm 7 in 1",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/hero-desert-v.mp4",
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "arabian-night-safari",
+    "title": "Arabian Night Safari (Private)",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/bedouin-quad-v.mp4",
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "nabq-private-morning",
+    "title": "Nabq National Park — Private Morning Tour",
+    "kind": "Trips",
+    "shots": [
+      "assets/video/desert-jeep-v.mp4",
+      "assets/images/stock/camel.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "nabq-private-afternoon",
+    "title": "Nabq National Park — Private Afternoon & Evening Tour",
+    "kind": "Trips",
+    "shots": [
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 3,
+        "x": 0.5
+      },
+      "assets/images/stock/quads-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "camping-nabq",
+    "title": "Camping in Nabq National Park",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/sinai-valley.jpg",
+      "assets/images/stock/desert-palms.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "red-canyon-three-pools",
+    "title": "Red Canyon (Salama) & Three Pools",
+    "kind": "Trips",
+    "shots": [
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 3,
+        "x": 0.5
+      },
+      "assets/video/reef-snorkel-v.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "red-canyon-blue-hole",
+    "title": "Red Canyon (Salama) & Blue Hole",
+    "kind": "Trips",
+    "shots": [
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 3,
+        "x": 0.5
+      },
+      "assets/video-stock/stock-red-sea-reef.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "dahab-day-trip",
+    "title": "Dahab Day Trip",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/dahab.jpg",
+      "assets/video/desert-camel-v.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "wishwash-lake-canyon",
+    "title": "Wishwash Lake & Canyon (Private)",
+    "kind": "Trips",
+    "shots": [
+      {
+        "file": "assets/video/coloured-canyon-v.mp4",
+        "start": 3,
+        "x": 0.5
+      },
+      "assets/images/stock/wishwash.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "desert-horse-riding",
+    "title": "Desert Horse Riding",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/horse-desert.jpg",
+      "assets/images/stock/sinai-valley.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "horse-riding-by-sea-nabq",
+    "title": "Horse Riding by the Sea (Nabq National Park)",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/horse-beach.jpg",
+      "assets/images/stock/sharm-sunset.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "dolphin-show",
+    "title": "Dolphin Show",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/dolphin-show.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "romantic-dinner-cruise",
+    "title": "Romantic Dinner Cruise",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/yacht.jpg",
+      "assets/video-stock/stock-sharm-sunset.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "aqua-park",
+    "title": "Aqua Park",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/beach-family.jpg"
+    ],
+    "gap": true
+  },
+  {
+    "key": "spa-turkish-bath",
+    "title": "Spa & Turkish Bath",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/spa-hammam.jpg"
+    ],
+    "gap": false
+  },
+  {
+    "key": "sharm-city-tour",
+    "title": "Sharm El Sheikh City Tour (Private)",
+    "kind": "Trips",
+    "shots": [
+      "assets/images/stock/sharm-bay.jpg",
+      "assets/video-stock/stock-sharm-sunset.mp4"
+    ],
+    "gap": false
+  },
+  {
+    "key": "story-cairo-drive",
+    "title": "cairo-drive",
+    "kind": "Stories",
+    "shots": [
+      "assets/journeys/cairo-drive.mp4"
+    ]
+  },
+  {
+    "key": "story-petra-hd",
+    "title": "petra-hd",
+    "kind": "Stories",
+    "shots": [
+      "assets/journeys/petra-hd.mp4"
+    ]
+  },
+  {
+    "key": "story-sinai-hike-hd",
+    "title": "sinai-hike-hd",
+    "kind": "Stories",
+    "shots": [
+      "assets/journeys/sinai-hike-hd.mp4"
+    ]
+  },
+  {
+    "key": "story-valley-hd",
+    "title": "valley-hd",
+    "kind": "Stories",
+    "shots": [
+      "assets/journeys/valley-hd.mp4"
+    ]
+  }
+]

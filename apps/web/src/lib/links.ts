@@ -16,6 +16,23 @@ export function whatsapp(number: string | null, message?: string) {
         (message ? '?text=' + encodeURIComponent(message) : '')
     : null;
 }
+/**
+ * Office pin (Stella Sharm Tours on Google Maps, Old Market). The static map
+ * in /public/map is rendered from OpenStreetMap around this point; an admin
+ * upload in Settings (map_image) replaces the picture, not the destination.
+ */
+const office = { lat: 27.8669735, lon: 34.293776 };
+export const officeMap = {
+  url:
+    'https://www.google.com/maps/search/?api=1&query=' +
+    encodeURIComponent(office.lat + ',' + office.lon),
+  image: '/map/office.webp',
+};
+/** "+201095989932" → "+20 109 598 9932" for display; other numbers unchanged. */
+export function displayPhone(number: string) {
+  const egypt = /^\+20(\d{3})(\d{3})(\d{4})$/.exec(number.replace(/\s/g, ''));
+  return egypt ? `+20 ${egypt[1]} ${egypt[2]} ${egypt[3]}` : number;
+}
 export function money(amount: number, locale: string) {
   return new Intl.NumberFormat(locale, {
     style: 'currency',

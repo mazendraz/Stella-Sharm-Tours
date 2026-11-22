@@ -30,7 +30,7 @@ import /etc/caddy/stella/common.caddy
   request_body {
     max_size 301MB
   }
-  @private path /media/* /readyz
+  @private path /media/* /readyz /internal/*
   respond @private 404
   reverse_proxy api:4000 {
     header_up X-Forwarded-For {remote_host}

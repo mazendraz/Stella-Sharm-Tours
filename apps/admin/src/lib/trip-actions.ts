@@ -3,15 +3,36 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAdmin } from './admin-context';
 import { useGuard } from './guard';
+import { useConfirm } from '../components/ui/dialog';
+import type { MenuItem } from '../components/ui/menu';
 
 /** Shared actions for trips and packages (list rows and editor header). */
 export function useTripActions(kind: 'trip' | 'package') {
   const { t, save, write, notify, report } = useAdmin(),
     client = useQueryClient(),
     { navigate } = useGuard(),
+    confirm = useConfirm(),
     base = kind === 'package' ? '/packages/' : '/trips/';
   const published =
     kind === 'package' ? 'packageUnpublished' : 'tripUnpublished';
+  const archive = async (id: string, after?: () => void) => {
+    await save(
+      '/v1/admin/trips/' + id + '/archive',
+      'POST',
+      {},
+      {
+        success: t(kind === 'package' ? 'packageArchived' : 'tripArchived'),
+      },
+    );
+    after?.();
+  };
+  const unarchive = (id: string) =>
+    save(
+      '/v1/admin/trips/' + id + '/unarchive',
+      'POST',
+      {},
+      { success: t('restoredItem') },
+    );
   return {
     publish: (id: string) =>
       save(
@@ -29,24 +50,39 @@ export function useTripActions(kind: 'trip' | 'package') {
         {},
         { success: t(published) },
       ),
-    archive: async (id: string, after?: () => void) => {
-      await save(
-        '/v1/admin/trips/' + id + '/archive',
-        'POST',
-        {},
-        {
-          success: t(kind === 'package' ? 'packageArchived' : 'tripArchived'),
-        },
-      );
-      after?.();
-    },
-    unarchive: (id: string) =>
-      save(
-        '/v1/admin/trips/' + id + '/unarchive',
-        'POST',
-        {},
-        { success: t('restoredItem') },
-      ),
+    archive,
+    unarchive,
+    /** Archive / restore entries for an editor's "More actions" menu. */
+    archiveMenu: (id: string, name: string, archived: boolean): MenuItem[] =>
+      archived
+        ? [
+            'separator',
+            {
+              label: t('unarchive'),
+              onSelect: () => void unarchive(id).catch(() => {}),
+            },
+          ]
+        : [
+            'separator',
+            {
+              label: t('archive'),
+              tone: 'danger',
+              onSelect: async () => {
+                if (
+                  await confirm({
+                    title: t('archiveTitle', { name }),
+                    body: t('archiveBody'),
+                    confirmLabel: t('archive'),
+                    tone: 'danger',
+                  })
+                )
+                  await archive(
+                    id,
+                    () => void navigate(base.slice(0, -1)),
+                  ).catch(() => {});
+              },
+            },
+          ],
     duplicate: async (id: string) => {
       try {
         const { value, revisions } = await write<{ id: string }>(

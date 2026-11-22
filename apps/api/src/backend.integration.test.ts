@@ -5,12 +5,14 @@ import {
 } from '@testcontainers/postgresql';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { and, eq, sql, desc } from 'drizzle-orm';
-import { randomBytes, randomUUID } from 'node:crypto';
-import { mkdir, readFile } from 'node:fs/promises';
+import { createHmac, randomBytes, randomUUID } from 'node:crypto';
+import { mkdir, readFile, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import sourceCatalog from '../../../data/catalog.json';
 import { connectDatabase } from '../../../packages/db/src/index';
 import { seedCatalog } from '../../../packages/db/src/seed-data';
 import { preparePrivacyDraft } from '../../../packages/db/src/privacy-draft';
+import { applyRuntimePrivileges } from '../../../packages/db/src/runtime-privileges';
 import * as s from '../../../packages/db/src/schema';
 import { roles, can, permissions } from '@stella/shared/admin';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
@@ -18,7 +20,11 @@ import { bookingArea } from '@stella/shared/i18n/guests';
 import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
-import { cairoDate } from '@stella/shared/booking';
+import {
+  addCalendarDays,
+  cairoDate,
+  quoteSchema,
+} from '@stella/shared/booking';
 import { configSchema, type Config } from './config';
 import { createApp } from './app';
 import { createMediaImporter, processMedia, runTool } from './media';
@@ -35,11 +41,14 @@ import {
   revalidateWeb,
   purgeRequests,
   dispatchOutbox,
-  bootstrapQueues,
+  cleanupSessions,
+  cleanupMedia,
   notifyWeeklyPrices,
   notifyWeeklyOperations,
   notifyNewDevice,
+  queueRequestPush,
 } from './jobs';
+import { migrateQueues } from './migration-jobs';
 import { PgBoss } from 'pg-boss';
 import sharp from 'sharp';
 import { serveProcessed } from './serve-media';
@@ -48,6 +57,9 @@ import webpush from 'web-push';
 import { createECDH } from 'node:crypto';
 let container: StartedPostgreSqlContainer | undefined,
   connection: ReturnType<typeof connectDatabase>,
+  apiConnection: ReturnType<typeof connectDatabase>,
+  workerConnection: ReturnType<typeof connectDatabase>,
+  workerUrl: string,
   cfg: Config,
   app: ReturnType<typeof createApp>,
   seed: Awaited<ReturnType<typeof seedCatalog>>;
@@ -56,6 +68,11 @@ const clients = new Map<string, Client>(),
   password = 'QA-' + randomBytes(24).toString('base64url'),
   nonce = randomUUID(),
   root = resolve('.local/integration');
+const runtimeRoles = {
+  api: 'qa_api_' + nonce.replaceAll('-', ''),
+  worker: 'qa_worker_' + nonce.replaceAll('-', ''),
+};
+const createdRoles: string[] = [];
 class Client {
   cookies = new Map<string, string>();
   ip = 'qa-' + randomUUID();
@@ -166,6 +183,17 @@ async function submit(
     { remoteAddress: ip },
   );
 }
+async function previewQuote(body: unknown, origin = cfg.WEB_ORIGIN) {
+  return app.request(
+    'http://localhost/v1/requests/quote',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: origin },
+      body: JSON.stringify(body),
+    },
+    { remoteAddress: 'quote-' + randomUUID() },
+  );
+}
 beforeAll(async () => {
   let url = process.env.TEST_DATABASE_URL;
   if (!url) {
@@ -214,7 +242,24 @@ beforeAll(async () => {
     ownerEmail: cfg.SEED_OWNER_EMAIL,
     importMedia: createMediaImporter(connection.db, cfg, resolve('.')),
   });
-  app = createApp(connection.db, cfg);
+  await migrateQueues(url);
+  const roleUrl = async (role: string) => {
+    const credential = randomBytes(24).toString('hex');
+    await connection.pool.query(
+      `CREATE ROLE "${role}" LOGIN PASSWORD '${credential}'`,
+    );
+    createdRoles.push(role);
+    const result = new URL(url);
+    result.username = role;
+    result.password = credential;
+    return result.href;
+  };
+  const apiUrl = await roleUrl(runtimeRoles.api);
+  workerUrl = await roleUrl(runtimeRoles.worker);
+  await applyRuntimePrivileges(connection.pool, runtimeRoles);
+  apiConnection = connectDatabase(apiUrl);
+  workerConnection = connectDatabase(workerUrl);
+  app = createApp(apiConnection.db, cfg);
   owner = new Client();
   expect(seed.setupToken).toBeTruthy();
   const setup = await owner.call('/v1/admin/auth/password/setup', 'POST', {
@@ -239,12 +284,99 @@ beforeAll(async () => {
   ownerRecovery = (await enabled.json()).recovery_codes;
   expect(ownerRecovery).toHaveLength(10);
 });
+const completeQaCopy = (text: string) =>
+  Object.fromEntries(locales.map((locale) => [locale, text])) as s.Localized;
 afterAll(async () => {
-  await connection?.pool.end();
-  await container?.stop();
+  try {
+    await apiConnection?.pool.end();
+    await workerConnection?.pool.end();
+    for (const role of createdRoles) {
+      await connection.pool.query(`DROP OWNED BY "${role}"`);
+      await connection.pool.query(`DROP ROLE "${role}"`);
+    }
+  } finally {
+    await connection?.pool.end();
+    await container?.stop();
+  }
+});
+describe('runtime database privileges', () => {
+  it('removes legacy table, column and default grants on repeat migration', async () => {
+    const worker = '"' + runtimeRoles.worker + '"';
+    await connection.pool.query(
+      `GRANT SELECT (password_hash), UPDATE (role) ON public.admin_users TO ${worker}`,
+    );
+    await connection.pool.query(
+      `GRANT DELETE ON public.audit_log TO ${worker}`,
+    );
+    await connection.pool.query(
+      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO ${worker}`,
+    );
+    await applyRuntimePrivileges(connection.pool, runtimeRoles);
+    await connection.pool.query(
+      'CREATE TABLE public.qa_future_table (id integer)',
+    );
+    try {
+      const {
+        rows: [access],
+      } = await workerConnection.pool.query(`
+        SELECT
+          has_column_privilege(current_user,'admin_users','email','SELECT') AS staff_email,
+          has_column_privilege(current_user,'admin_users','password_hash','SELECT') AS password_hash,
+          has_column_privilege(current_user,'admin_users','totp_secret_enc','SELECT') AS mfa_secret,
+          has_column_privilege(current_user,'admin_users','role','UPDATE') AS change_role,
+          has_table_privilege(current_user,'audit_log','SELECT,INSERT,UPDATE,DELETE') AS audit_access,
+          has_table_privilege(current_user,'sessions','SELECT,INSERT,UPDATE,DELETE') AS sessions_access,
+          has_table_privilege(current_user,'auth_tokens','SELECT,INSERT,UPDATE,DELETE') AS reset_access,
+          has_column_privilege(current_user,'booking_requests','notes','SELECT') AS booking_notes,
+          has_table_privilege(current_user,'settings','INSERT,UPDATE,DELETE') AS settings_write,
+          has_table_privilege(current_user,'qa_future_table','SELECT,INSERT,UPDATE,DELETE') AS future_access,
+          has_schema_privilege(current_user,'public','CREATE') AS public_ddl
+      `);
+      expect(access).toEqual({
+        staff_email: true,
+        password_hash: false,
+        mfa_secret: false,
+        change_role: false,
+        audit_access: false,
+        sessions_access: false,
+        reset_access: false,
+        booking_notes: false,
+        settings_write: false,
+        future_access: false,
+        public_ddl: false,
+      });
+      const {
+        rows: [api],
+      } = await apiConnection.pool.query(`
+        SELECT
+          has_table_privilege(current_user,'audit_log','INSERT') AS log_write,
+          has_table_privilege(current_user,'audit_log','UPDATE,DELETE') AS log_tamper,
+          has_schema_privilege(current_user,'pgboss','USAGE') AS queue_access,
+          has_table_privilege(current_user,'qa_future_table','SELECT,INSERT,UPDATE,DELETE') AS future_access
+      `);
+      expect(api).toEqual({
+        log_write: true,
+        log_tamper: false,
+        queue_access: false,
+        future_access: false,
+      });
+      await expect(
+        workerConnection.pool.query(
+          'select public.worker_set_translation_status($1,$2::jsonb)',
+          ['contacts', '{}'],
+        ),
+      ).rejects.toMatchObject({ code: '42501' });
+      await cleanupSessions(workerConnection.db);
+      await cleanupMedia(workerConnection.db, cfg);
+    } finally {
+      await connection.pool.query('DROP TABLE public.qa_future_table');
+    }
+  });
 });
 describe('real PostgreSQL catalog and requests', () => {
   it('seeds all 38 trips and site/collection content in all seven core languages without English fallback', async () => {
+    const returnTimes = sourceCatalog.trips.filter((trip) => trip.return_time);
+    expect(returnTimes).toHaveLength(19);
     for (const locale of locales) {
       const catalog = await loadCatalog(
         connection.db,
@@ -252,6 +384,13 @@ describe('real PostgreSQL catalog and requests', () => {
         cfg.MEDIA_PUBLIC_URL,
       );
       expect(catalog.trips).toHaveLength(38);
+      for (const source of returnTimes) {
+        const trip = catalog.trips.find((entry) => entry.slug === source.slug);
+        expect(trip?.return_label).toEqual({
+          text: bundledCoreText(source.return_time!, locale),
+          lang: locale,
+        });
+      }
       const visit = (value: unknown, path: string) => {
         if (Array.isArray(value))
           value.forEach((v, i) => visit(v, path + '[' + i + ']'));
@@ -276,7 +415,7 @@ describe('real PostgreSQL catalog and requests', () => {
     }
   });
   it('bounds public reads independently of booking limits and returns Retry-After', async () => {
-    const limited = createApp(connection.db, {
+    const limited = createApp(apiConnection.db, {
       ...cfg,
       PUBLIC_READS_PER_MINUTE: 2,
     });
@@ -287,6 +426,48 @@ describe('real PostgreSQL catalog and requests', () => {
     const blocked = await limited.request('/v1/public/preview?token=invalid');
     expect(blocked.status).toBe(429);
     expect(Number(blocked.headers.get('retry-after'))).toBeGreaterThan(0);
+    const reader = createHmac('sha256', cfg.WEB_REVALIDATE_SECRET)
+      .update('stella:public-catalog-reader:v1')
+      .digest('hex');
+    const headers = { 'X-Stella-Catalog-Reader': reader };
+    for (let i = 0; i < 3; i++)
+      expect(
+        (await limited.request('/v1/public/locales', { headers })).status,
+      ).toBe(200);
+    expect(
+      (
+        await limited.request('/v1/public/locales', {
+          headers: { 'X-Stella-Catalog-Reader': 'forged' },
+        })
+      ).status,
+    ).toBe(429);
+  });
+  it('loads selected saved trips in order and keeps draft and missing slugs withdrawn', async () => {
+    const locale = 'fr';
+    const [first, second] = ['quad-bike-safari', 'glass-bottom-boat'];
+    const fetchTrip = async (slug: string) =>
+      (
+        await app.request('/v1/public/trips/' + slug + '?locale=' + locale)
+      ).json();
+    const result = await app.request(
+      '/v1/public/saved-trips?locale=fr&slugs=' +
+        [first, 'hidden-trip-qa', 'egypt-in-4-days', second, first].join(','),
+    );
+    expect(result.status).toBe(200);
+    expect(await result.json()).toEqual([
+      { slug: first, status: 'available', trip: await fetchTrip(first!) },
+      { slug: 'hidden-trip-qa', status: 'withdrawn' },
+      { slug: 'egypt-in-4-days', status: 'withdrawn' },
+      { slug: second, status: 'available', trip: await fetchTrip(second!) },
+    ]);
+    expect(
+      (
+        await app.request(
+          '/v1/public/saved-trips?slugs=' +
+            Array.from({ length: 39 }, (_, i) => 'trip-' + i).join(','),
+        )
+      ).status,
+    ).toBe(422);
   });
   it('enforces the per-phone daily cap across different IP addresses', async () => {
     for (let i = 0; i < 20; i++)
@@ -303,7 +484,7 @@ describe('real PostgreSQL catalog and requests', () => {
     expect(seededSlides).toHaveLength(7);
     expect(
       seededSlides.filter((slide) => slide.status === 'published'),
-    ).toHaveLength(6);
+    ).toHaveLength(7);
     const [trip] = await connection.db
       .select()
       .from(s.trips)
@@ -317,11 +498,55 @@ describe('real PostgreSQL catalog and requests', () => {
       .update(s.tripPrices)
       .set({ amountEur: '16' })
       .where(eq(s.tripPrices.id, rows[0]!.id));
+    await connection.db
+      .update(s.trips)
+      .set({ returnLabel: '20:30' })
+      .where(eq(s.trips.slug, 'cairo-plane-1-day'));
+    await connection.db
+      .update(s.trips)
+      .set({ returnLabel: null })
+      .where(eq(s.trips.slug, 'luxor-plane-1-day'));
     const second = await seedCatalog(connection.db, {
       catalogPath: new URL('../../../data/catalog.json', import.meta.url),
       ownerEmail: cfg.SEED_OWNER_EMAIL,
     });
     expect(second.setupToken).toBeNull();
+    for (const [slug, time] of [
+      ['cairo-plane-1-day', '20:30'],
+      ['luxor-plane-1-day', '~21:00'],
+    ] as const) {
+      const [withReturn] = await connection.db
+        .select({ returnLabel: s.trips.returnLabel })
+        .from(s.trips)
+        .where(eq(s.trips.slug, slug));
+      expect(withReturn?.returnLabel).toBe(time);
+    }
+    await connection.db
+      .update(s.trips)
+      .set({ returnLabel: '~21:00' })
+      .where(eq(s.trips.slug, 'cairo-plane-1-day'));
+    for (const [slug, untimed] of [
+      ['jerusalem-bethlehem', 6],
+      ['ras-mohammed-bus', 5],
+      ['ras-mohammed-private-car', 5],
+    ] as const) {
+      const source = sourceCatalog.trips.find((entry) => entry.slug === slug)!;
+      expect(source.itinerary.filter(([time]) => time === null)).toHaveLength(
+        untimed,
+      );
+      const stops = await connection.db
+        .select({
+          time: s.tripItinerary.timeLabel,
+          text: s.tripItinerary.text,
+        })
+        .from(s.tripItinerary)
+        .innerJoin(s.trips, eq(s.trips.id, s.tripItinerary.tripId))
+        .where(eq(s.trips.slug, slug))
+        .orderBy(s.tripItinerary.sort);
+      expect(stops.map(({ time, text }) => [time, text.en])).toEqual(
+        source.itinerary,
+      );
+    }
     expect(
       (
         await connection.db
@@ -375,6 +600,53 @@ describe('real PostgreSQL catalog and requests', () => {
       (await app.request('/v1/public/site?locale=en&unexpected=1')).status,
     ).toBe(422);
   });
+  it('rejects an incomplete live hero edit and keeps legacy slides from blocking bookings', async () => {
+    const [hero] = await connection.db
+      .select()
+      .from(s.heroSlides)
+      .where(eq(s.heroSlides.status, 'published'))
+      .orderBy(s.heroSlides.sort)
+      .limit(1);
+    const path = '/v1/admin/hero-slides/' + hero!.id;
+    for (const patch of [
+      { headline: null, collectionId: null },
+      { videoMediaId: null, imageMediaId: null },
+      { ctaType: 'trip', ctaTarget: 'missing-trip' },
+      { ctaType: 'page', ctaTarget: '/missing-page' },
+      { startsAt: '2027-02-01T00:00:00Z', endsAt: '2027-01-01T00:00:00Z' },
+    ]) {
+      const invalid = await owner.call(path, 'PATCH', patch);
+      expect(invalid.status).toBe(422);
+    }
+    const [unchanged] = await connection.db
+      .select()
+      .from(s.heroSlides)
+      .where(eq(s.heroSlides.id, hero!.id));
+    expect(unchanged).toEqual(hero);
+
+    // Simulate a previously saved row before live edits shared publish validation.
+    await connection.db
+      .update(s.heroSlides)
+      .set({ headline: null, collectionId: null })
+      .where(eq(s.heroSlides.id, hero!.id));
+    try {
+      const response = await app.request('/v1/public/site?locale=it');
+      expect(response.status).toBe(200);
+      expect(
+        siteSchema.parse(await response.json()).hero_slides.map((s) => s.id),
+      ).not.toContain(hero!.id);
+      expect(
+        (await app.request('/v1/public/trips/quad-bike-safari')).status,
+      ).toBe(200);
+      const request = await submit(booking({ phone: '+201055529982' }));
+      expect(request.status).toBe(201);
+    } finally {
+      await connection.db
+        .update(s.heroSlides)
+        .set({ headline: hero!.headline, collectionId: hero!.collectionId })
+        .where(eq(s.heroSlides.id, hero!.id));
+    }
+  });
   it('recomputes prices, ignores day hints, persists snapshots and queues an ID-only notification atomically', async () => {
     const response = await submit(booking());
     expect(response.status).toBe(201);
@@ -406,6 +678,111 @@ describe('real PostgreSQL catalog and requests', () => {
       ),
     ).toBe(true);
     expect(JSON.stringify(tasks)).not.toContain('Synthetic QA visitor');
+  });
+  it('uses the canonical booking number in storage and staff email', async () => {
+    const canonical = '+442079460958';
+    for (const raw of [
+      '020 7946 0958',
+      '+4402079460958',
+      '+44 (0)20 7946 0958',
+    ]) {
+      expect((await submit(booking({ phone: raw }))).status).toBe(422);
+    }
+    const response = await submit(booking({ phone: canonical }));
+    expect(response.status).toBe(201);
+    const { ref } = await response.json();
+    const [request] = await connection.db
+      .select()
+      .from(s.bookingRequests)
+      .where(eq(s.bookingRequests.ref, ref));
+    expect(request?.phone).toBe(canonical);
+    const messages: string[] = [];
+    await notifyRequest(workerConnection.db, cfg, request!.id, {
+      sendMail: async (mail) => {
+        messages.push(String(mail.text));
+      },
+    });
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toContain('Phone: ' + canonical + '\n');
+  });
+  it('recovers the original confirmation after a lost response and concurrent retries', async () => {
+    const key = randomBytes(32).toString('hex');
+    const phone = '+201033344781';
+    const ip = 'replay-' + randomUUID();
+    const body = booking({ submission_id: key, phone });
+    const results = await Promise.all(
+      Array.from({ length: 5 }, () => submit(body, ip)),
+    );
+    expect(results.map((result) => result.status)).toEqual([
+      201, 201, 201, 201, 201,
+    ]);
+    const confirmations = await Promise.all(
+      results.map((result) => result.json()),
+    );
+    expect(confirmations).toEqual(Array(5).fill(confirmations[0]));
+    const saved = await connection.db
+      .select()
+      .from(s.bookingRequests)
+      .where(eq(s.bookingRequests.phone, phone));
+    expect(saved).toHaveLength(1);
+    const [request] = saved;
+    const rows = await connection.db
+      .select()
+      .from(s.bookingRequestReceipts)
+      .where(eq(s.bookingRequestReceipts.submissionId, key));
+    expect(rows[0]).toMatchObject({
+      requestId: request!.id,
+      confirmation: confirmations[0],
+    });
+    expect(rows[0]!.payloadHash).toMatch(/^[a-f0-9]{64}$/);
+    const notifications = await connection.db
+      .select()
+      .from(s.outbox)
+      .where(
+        sql`name in ('notify.request.created', 'notify.request.push') and data->>'requestId' = ${request!.id}`,
+      );
+    expect(
+      notifications.filter((entry) => entry.name === 'notify.request.created'),
+    ).toHaveLength(1);
+    expect(
+      notifications.filter((entry) => entry.name === 'notify.request.push')
+        .length,
+    ).toBeLessThanOrEqual(1);
+    const retry = await submit({ ...body, t: Date.now() - 2 * 86400000 }, ip);
+    expect(retry.status).toBe(201);
+    expect(await retry.json()).toEqual(confirmations[0]);
+    const mismatch = await submit({ ...body, notes: 'Different request' }, ip);
+    expect(mismatch.status).toBe(409);
+    expect(await mismatch.json()).toMatchObject({
+      error: { code: 'SUBMISSION_CONFLICT' },
+    });
+    expect(
+      (
+        await connection.db
+          .select()
+          .from(s.bookingRequests)
+          .where(eq(s.bookingRequests.id, request!.id))
+      )[0]!.notes,
+    ).toBeNull();
+
+    await connection.db
+      .update(s.bookingRequestReceipts)
+      .set({ expiresAt: new Date('2020-01-01') })
+      .where(eq(s.bookingRequestReceipts.submissionId, key));
+    await cleanupSessions(workerConnection.db);
+    const [expired] = await connection.db
+      .select()
+      .from(s.bookingRequestReceipts)
+      .where(eq(s.bookingRequestReceipts.submissionId, key));
+    expect(expired?.confirmation).toBeNull();
+    const late = await submit(body, ip);
+    expect(late.status).toBe(409);
+    expect(await late.json()).toMatchObject({
+      error: { code: 'SUBMISSION_EXPIRED' },
+    });
+    await expect(
+      workerConnection.db.select().from(s.bookingRequestReceipts),
+    ).rejects.toThrow();
   });
   it('confirms real requests with translated trip names and pickup labels in every core language', async () => {
     for (const [index, locale] of locales.entries()) {
@@ -446,6 +823,254 @@ describe('real PostgreSQL catalog and requests', () => {
       (await (await submit(booking({ format: 'private' }))).json())
         .estimate_eur,
     ).toBeNull();
+  });
+  it('requires the private format for a basket containing a private-only trip', async () => {
+    const body = booking({
+      mode: 'multi',
+      items: [
+        { trip_slug: 'quad-bike-safari' },
+        { trip_slug: 'ras-mohammed-private-car' },
+      ],
+      phone: '+201033344499',
+    });
+    const group = await submit(body);
+    expect(group.status).toBe(422);
+    expect(await group.json()).toMatchObject({
+      error: { code: 'PRIVATE_ONLY' },
+    });
+
+    const response = await submit({ ...body, format: 'private' });
+    expect(response.status).toBe(201);
+    const { ref } = await response.json();
+    const [request] = await connection.db
+      .select()
+      .from(s.bookingRequests)
+      .where(eq(s.bookingRequests.ref, ref));
+    expect(request).toMatchObject({ mode: 'multi', format: 'private' });
+    const items = await connection.db
+      .select({ slug: s.trips.slug })
+      .from(s.bookingRequestItems)
+      .innerJoin(s.trips, eq(s.bookingRequestItems.tripId, s.trips.id))
+      .where(eq(s.bookingRequestItems.requestId, request!.id));
+    expect(items.map(({ slug }) => slug).sort()).toEqual([
+      'quad-bike-safari',
+      'ras-mohammed-private-car',
+    ]);
+  });
+  it('uses future service dates and the primary ID, and saves only after a changed quote is reviewed', async () => {
+    const start = addCalendarDays(cairoDate(), 5);
+    const privateDate = addCalendarDays(start, 2);
+    const finish = addCalendarDays(start, 3);
+    const flightSlug = 'cairo-plane-1-day';
+    const privateSlug = 'cairo-plane-2-days-private';
+    const [flight] = await connection.db
+      .select()
+      .from(s.trips)
+      .where(eq(s.trips.slug, flightSlug));
+    const [final] = await connection.db
+      .select()
+      .from(s.trips)
+      .where(eq(s.trips.slug, privateSlug));
+    const [original] = await connection.db
+      .select()
+      .from(s.tripPrices)
+      .where(
+        and(
+          eq(s.tripPrices.tripId, final!.id),
+          eq(s.tripPrices.isPrimary, true),
+        ),
+      );
+    const [flightPrice] = await connection.db
+      .select()
+      .from(s.tripPrices)
+      .where(
+        and(
+          eq(s.tripPrices.tripId, flight!.id),
+          eq(s.tripPrices.isPrimary, true),
+        ),
+      );
+    const seasonal = randomUUID();
+    const phone = '+201033366611';
+    try {
+      await connection.db
+        .update(s.trips)
+        .set({ privateSurchargePct: '0' })
+        .where(eq(s.trips.id, flight!.id));
+      await connection.db
+        .update(s.tripPrices)
+        .set({ validTo: addCalendarDays(start, 1), isPrimary: false })
+        .where(eq(s.tripPrices.id, original!.id));
+      await connection.db.insert(s.tripPrices).values([
+        {
+          id: seasonal,
+          tripId: final!.id,
+          unit: 'person',
+          amountEur: '149.60',
+          validFrom: privateDate,
+          isPrimary: true,
+          sort: 9,
+        },
+        {
+          tripId: final!.id,
+          unit: 'car',
+          amountEur: '220',
+          validFrom: privateDate,
+          sort: -1,
+        },
+      ]);
+      const input = {
+        items: [
+          { trip_slug: flightSlug, day_index: 99 },
+          { trip_slug: privateSlug, day_index: 1 },
+        ],
+        start_date: start,
+        rest_days: true,
+        adults: 1,
+        children: 0,
+        format: 'private',
+        locale: 'en',
+      };
+      const single = quoteSchema.parse(
+        await (
+          await previewQuote({
+            ...input,
+            items: [{ trip_slug: privateSlug }],
+            start_date: privateDate,
+          })
+        ).json(),
+      );
+      expect(single.items[0]!.price_options[0]!.unit).toBe('car');
+      expect(single.items[0]!.selected_price_id).toBe(seasonal);
+      expect(single.estimate_eur).toBe(150);
+
+      const preview = await previewQuote(input);
+      expect(preview.status).toBe(200);
+      expect(preview.headers.get('cache-control')).toBe('no-store');
+      const quote = quoteSchema.parse(await preview.json());
+      expect(
+        quote.items.map((item) => [
+          item.day_index,
+          item.service_date,
+          item.service_end_date,
+        ]),
+      ).toEqual([
+        [1, start, start],
+        [3, privateDate, finish],
+      ]);
+      expect(
+        quote.items[1]!.price_options.map((price) => price.id),
+      ).not.toContain(original!.id);
+      expect(quote.estimate_eur).toBe(Number(flightPrice!.amountEur) + 150);
+      await connection.db
+        .update(s.tripPrices)
+        .set({ amountEur: '151.60' })
+        .where(eq(s.tripPrices.id, seasonal));
+      const payload = booking({
+        ...input,
+        mode: 'multi',
+        quote_id: quote.quote_id,
+        phone,
+        end_date: finish,
+      });
+      const changed = await submit(payload);
+      expect(changed.status).toBe(409);
+      const conflict = await changed.json();
+      expect(conflict.error.code).toBe('QUOTE_CHANGED');
+      const revised = quoteSchema.parse(conflict.quote);
+      expect(revised.estimate_eur).toBe(quote.estimate_eur! + 2);
+      expect(
+        await connection.db
+          .select()
+          .from(s.bookingRequests)
+          .where(eq(s.bookingRequests.phone, phone)),
+      ).toEqual([]);
+      const response = await submit({ ...payload, quote_id: revised.quote_id });
+      expect(response.status).toBe(201);
+      const confirmation = await response.json();
+      expect(confirmation.estimate_eur).toBe(revised.estimate_eur);
+      expect(confirmation.message).toContain(privateDate + ' → ' + finish);
+      expect(confirmation.message).toContain(
+        new Intl.NumberFormat('en', {
+          style: 'currency',
+          currency: 'EUR',
+          maximumFractionDigits: 0,
+        }).format(revised.estimate_eur!),
+      );
+      const [request] = await connection.db
+        .select()
+        .from(s.bookingRequests)
+        .where(eq(s.bookingRequests.ref, confirmation.ref));
+      expect(Number(request!.estimateEur)).toBe(revised.estimate_eur);
+      const [saved] = await connection.db
+        .select()
+        .from(s.bookingRequestItems)
+        .where(
+          and(
+            eq(s.bookingRequestItems.requestId, request!.id),
+            eq(s.bookingRequestItems.tripId, final!.id),
+          ),
+        );
+      expect(saved).toMatchObject({
+        dayIndex: 3,
+        priceSnapshot: {
+          selected_price_id: seasonal,
+          service_date: privateDate,
+          service_end_date: finish,
+          amount: 152,
+          on_request: false,
+        },
+      });
+      expect(
+        (
+          await connection.db
+            .select()
+            .from(s.outbox)
+            .where(eq(s.outbox.name, 'notify.request.created'))
+        ).filter(
+          (task) =>
+            (task.data as { requestId: string }).requestId === request!.id,
+        ),
+      ).toHaveLength(1);
+    } finally {
+      await connection.db
+        .delete(s.tripPrices)
+        .where(
+          and(
+            eq(s.tripPrices.tripId, final!.id),
+            eq(s.tripPrices.validFrom, privateDate),
+          ),
+        );
+      await connection.db
+        .update(s.tripPrices)
+        .set({ validTo: original!.validTo, isPrimary: true })
+        .where(eq(s.tripPrices.id, original!.id));
+      await connection.db
+        .update(s.trips)
+        .set({ privateSurchargePct: flight!.privateSurchargePct })
+        .where(eq(s.trips.id, flight!.id));
+    }
+  });
+  it('limits preview inputs to itinerary details from the public web origin', async () => {
+    const input = {
+      items: [{ trip_slug: 'quad-bike-safari' }],
+      start_date: cairoDate(),
+      adults: 1,
+      children: 0,
+      format: 'private',
+      locale: 'en',
+    };
+    expect((await previewQuote(input, 'https://example.invalid')).status).toBe(
+      403,
+    );
+    expect(
+      (await previewQuote({ ...input, name: 'Synthetic QA visitor' })).status,
+    ).toBe(422);
+    const quote = quoteSchema.parse(await (await previewQuote(input)).json());
+    expect(quote).toMatchObject({
+      estimate_eur: null,
+      known_eur: 0,
+      items: [{ amount_eur: null }],
+    });
   });
   it('rejects tampering/spam/invalid dates before inserting requests', async () => {
     const before = Number(
@@ -573,6 +1198,24 @@ describe('admin security and real mutations', () => {
     expect(header).toContain('HttpOnly');
     expect(header).toContain('SameSite=Strict');
     expect(header).not.toContain('Domain=');
+    const sessionId = sessionHash(raw, cfg.SESSION_SECRET);
+    const stale = new Date(Date.now() - 6 * 60_000);
+    await connection.db
+      .update(s.sessions)
+      .set({ lastSeenAt: stale })
+      .where(eq(s.sessions.id, sessionId));
+    const activity = async () =>
+      (
+        await connection.db
+          .select({ at: s.sessions.lastSeenAt })
+          .from(s.sessions)
+          .where(eq(s.sessions.id, sessionId))
+      )[0]!.at.getTime();
+    expect((await client.call('/v1/admin/requests')).status).toBe(200);
+    const touched = await activity();
+    expect(touched).toBeGreaterThan(stale.getTime());
+    expect((await client.call('/v1/admin/requests')).status).toBe(200);
+    expect(await activity()).toBe(touched);
   });
   it('returns generic login errors and account/IP limits', async () => {
     const client = new Client(),
@@ -780,6 +1423,67 @@ describe('admin security and real mutations', () => {
       ).status,
     ).toBe(401);
   });
+  it('previews and applies all 5000 prices with a compact token', async () => {
+    const id = randomUUID();
+    const [source] = await connection.db
+      .select({ collectionId: s.trips.collectionId })
+      .from(s.trips)
+      .where(eq(s.trips.slug, 'tiran-island-boat'));
+    await connection.db.insert(s.trips).values({
+      id,
+      slug: 'bulk-qa-' + id,
+      title: { en: 'Bulk QA' },
+      collectionId: source!.collectionId,
+    });
+    try {
+      await connection.db
+        .execute(sql`insert into trip_prices(trip_id, unit, amount_eur, sort)
+        select ${id}::uuid, 'person', 20, n from generate_series(1, 5000) n`);
+      const input = { tripIds: [id], mode: 'amount', value: 2 };
+      const preview = await owner.call(
+        '/v1/admin/prices/bulk/preview',
+        'POST',
+        input,
+      );
+      expect(preview.status).toBe(200);
+      const { rows, token } = await preview.json();
+      expect(rows).toHaveLength(5000);
+      expect(token.length).toBeLessThan(1000);
+      const [extra] = await connection.db
+        .insert(s.tripPrices)
+        .values({ tripId: id, unit: 'person', amountEur: '20' })
+        .returning();
+      const over = await owner.call(
+        '/v1/admin/prices/bulk/preview',
+        'POST',
+        input,
+      );
+      expect(over.status).toBe(422);
+      expect(await over.json()).toMatchObject({
+        error: { code: 'PREVIEW_TOO_LARGE' },
+      });
+      const stale = await owner.call('/v1/admin/prices/bulk/apply', 'POST', {
+        token,
+      });
+      expect(stale.status).toBe(409);
+      expect(await stale.json()).toMatchObject({
+        error: { code: 'PREVIEW_STALE' },
+      });
+      await connection.db
+        .delete(s.tripPrices)
+        .where(eq(s.tripPrices.id, extra!.id));
+      expect(
+        (await owner.call('/v1/admin/prices/bulk/apply', 'POST', { token }))
+          .status,
+      ).toBe(200);
+      const { rows: totals } = await connection.db.execute<{ count: number }>(
+        sql`select count(*)::int as count from trip_prices where trip_id=${id} and amount_eur=22`,
+      );
+      expect(totals[0]?.count).toBe(5000);
+    } finally {
+      await connection.db.delete(s.trips).where(eq(s.trips.id, id));
+    }
+  });
   it('requires bulk price confirmation, rejects stale previews and protects surcharge revision restore', async () => {
     const [trip] = await connection.db
       .select()
@@ -940,6 +1644,30 @@ describe('admin security and real mutations', () => {
         await (await app.request('/v1/public/trips/' + trip!.slug)).json(),
       ),
     ).not.toContain('QA staged itinerary');
+    const incomplete = await owner.call(
+      `/v1/admin/trips/${trip!.id}/publish`,
+      'POST',
+      {},
+    );
+    expect(await incomplete.json()).toMatchObject({
+      error: { code: 'CORE_TRANSLATIONS_REQUIRED' },
+    });
+    expect(
+      (
+        await editor.call(`/v1/admin/trips/${trip!.id}/basics`, 'PATCH', {
+          title: completeQaCopy(trip!.title.en),
+        })
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await editor.call(`/v1/admin/trips/${trip!.id}/itinerary`, 'PUT', {
+          rows: [
+            { timeLabel: null, text: completeQaCopy('QA staged itinerary') },
+          ],
+        })
+      ).status,
+    ).toBe(200);
     expect(
       (await owner.call(`/v1/admin/trips/${trip!.id}/publish`, 'POST', {}))
         .status,
@@ -1010,6 +1738,13 @@ describe('admin security and real mutations', () => {
       (
         await owner.call('/v1/admin/homepage', 'PUT', {
           ...body,
+          home: {
+            ...body.home,
+            build_heading: {
+              ...completeQaCopy('QA homepage heading'),
+              it: 'Titolo umano',
+            },
+          },
           publish: true,
         })
       ).status,
@@ -1045,7 +1780,7 @@ describe('admin security and real mutations', () => {
           publish: true,
         })
       ).status,
-    ).toBe(200);
+    ).toBe(422);
     const [stale] = await connection.db
       .select()
       .from(s.contentTranslations)
@@ -1071,6 +1806,76 @@ describe('admin security and real mutations', () => {
     const csv = await owner.call('/v1/admin/requests/export.csv');
     expect(csv.status).toBe(200);
     expect(await csv.text()).toContain("'=SUM(1,2)");
+  });
+  it('matches one trip date for list, counts and filtered CSV, and streams a full export past 10000 rows', async () => {
+    const prefix = 'CSV-QA-' + randomUUID();
+    const split = prefix + '-split';
+    const matched = prefix + '-matched';
+    const trips = await connection.db
+      .select({ id: s.trips.id })
+      .from(s.trips)
+      .limit(2);
+    try {
+      const requests = await connection.db
+        .insert(s.bookingRequests)
+        .values(
+          [split, matched].map((ref) => ({
+            ref,
+            mode: 'multi' as const,
+            locale: 'en',
+            startDate: '2026-12-01',
+            adults: 1,
+            name: ref,
+            phone: '+201033349241',
+          })),
+        )
+        .returning();
+      await connection.db.insert(s.bookingRequestItems).values([
+        { requestId: requests[0]!.id, tripId: trips[0]!.id, dayIndex: 1 },
+        { requestId: requests[0]!.id, tripId: trips[1]!.id, dayIndex: 10 },
+        { requestId: requests[1]!.id, tripId: trips[0]!.id, dayIndex: 5 },
+      ]);
+      const criteria =
+        '?q=' + prefix + '&tripFrom=2026-12-04&tripTo=2026-12-06';
+      const list = await owner.call(
+        '/v1/admin/requests' + criteria + '&status=new',
+      );
+      expect(list.status).toBe(200);
+      expect(
+        (await list.json()).map((entry: { ref: string }) => entry.ref),
+      ).toEqual([matched]);
+      const counts = await owner.call('/v1/admin/requests/counts' + criteria);
+      expect(await counts.json()).toMatchObject({ new: 1, all: 1 });
+      const selected = await owner.call(
+        '/v1/admin/requests/export.csv' +
+          criteria +
+          '&scope=filtered&status=new',
+      );
+      expect(selected.status).toBe(200);
+      const exported = await selected.text();
+      expect(exported).toContain(matched);
+      expect(exported).not.toContain(split);
+      expect(exported.trim().split('\r\n')).toHaveLength(2);
+      await connection.db.execute(sql`
+        insert into booking_requests(ref, mode, locale, start_date, adults, name, phone, created_at)
+        select ${prefix} || '-row-' || n, 'single', 'en', '2026-12-01', 1,
+          'Synthetic QA', '+201033349241', '2026-11-12T12:00:00.123456Z'::timestamptz
+        from generate_series(1,10001) n
+      `);
+      const all = await owner.call('/v1/admin/requests/export.csv?scope=all');
+      expect(all.status).toBe(200);
+      const full = await all.text();
+      const ids = full
+        .split('\r\n')
+        .filter((row) => row.startsWith('"' + prefix + '-row-'))
+        .map((row) => row.split(',')[0]);
+      expect(ids).toHaveLength(10001);
+      expect(new Set(ids).size).toBe(10001);
+    } finally {
+      await connection.db
+        .delete(s.bookingRequests)
+        .where(sql`${s.bookingRequests.ref} like ${prefix + '%'}`);
+    }
   });
 });
 describe('security-session regression cases', () => {
@@ -1531,6 +2336,120 @@ describe('security-session regression cases', () => {
     expect((await response.json()).enrollment_required).toBe(true);
     expect((await editor.client.call('/v1/admin/trips')).status).toBe(403);
   });
+  it('keeps code-managed review rows read-only and blocks publication with incomplete core copy', async () => {
+    const queue = await owner.call('/v1/admin/i18n/queue?locale=fr&entity=ui');
+    expect(queue.status).toBe(200);
+    const home = (await queue.json()).find(
+      (row: { field: string }) => row.field === 'home',
+    );
+    expect(home).toMatchObject({ state: 'repository', value: 'Accueil' });
+    const update = await owner.call('/v1/admin/i18n/review', 'POST', {
+      entity: 'ui',
+      id: home.id,
+      field: home.field,
+      locale: 'fr',
+      source: home.source,
+      text: 'QA',
+    });
+    expect(await update.json()).toMatchObject({
+      error: { code: 'REPOSITORY_MANAGED_TRANSLATION' },
+    });
+    const rejected = await owner.call('/v1/admin/faqs', 'POST', {
+      q: { en: 'Synthetic QA question', fr: ' ' },
+      a: { en: 'Synthetic QA answer' },
+      publish: true,
+    });
+    expect(rejected.status).toBe(422);
+    expect(await rejected.json()).toMatchObject({
+      error: { code: 'CORE_TRANSLATIONS_REQUIRED' },
+    });
+    expect(
+      (await connection.db.select().from(s.faqs)).some(
+        (row) => row.q.en === 'Synthetic QA question',
+      ),
+    ).toBe(false);
+  });
+  it('publishes and undoes editorial translations of departure, return and itinerary times', async () => {
+    const [trip] = await connection.db
+      .select()
+      .from(s.trips)
+      .where(
+        and(
+          eq(s.trips.status, 'published'),
+          sql`${s.trips.departureLabel} IS NOT NULL AND ${s.trips.returnLabel} IS NOT NULL
+        AND EXISTS (SELECT 1 FROM trip_itinerary i WHERE i.trip_id=${s.trips.id} AND i.time_label IS NOT NULL)`,
+        ),
+      )
+      .limit(1);
+    const [stop] = await connection.db
+      .select()
+      .from(s.tripItinerary)
+      .where(
+        and(
+          eq(s.tripItinerary.tripId, trip!.id),
+          sql`${s.tripItinerary.timeLabel} IS NOT NULL`,
+        ),
+      )
+      .limit(1);
+    const publicTrip = async () =>
+      tripSchema.parse(
+        await (
+          await app.request('/v1/public/trips/' + trip!.slug + '?locale=fr')
+        ).json(),
+      );
+    for (const [entity, id, field, source, read] of [
+      [
+        'trip',
+        trip!.id,
+        'departure_label',
+        trip!.departureLabel,
+        (value: Awaited<ReturnType<typeof publicTrip>>) =>
+          value.departure_label,
+      ],
+      [
+        'trip',
+        trip!.id,
+        'return_label',
+        trip!.returnLabel,
+        (value: Awaited<ReturnType<typeof publicTrip>>) =>
+          value.return_label?.text,
+      ],
+      [
+        'itinerary',
+        stop!.id,
+        'time_label',
+        stop!.timeLabel,
+        (value: Awaited<ReturnType<typeof publicTrip>>) =>
+          value.itinerary.map((entry) => entry.time),
+      ],
+    ] as const) {
+      const before = read(await publicTrip());
+      const text = 'Heure de contrôle ' + source;
+      const response = await owner.call('/v1/admin/i18n/review', 'POST', {
+        entity,
+        id,
+        field,
+        locale: 'fr',
+        source,
+        text,
+      });
+      expect(response.status).toBe(200);
+      expect(read(await publicTrip())).toContain(text);
+      const revision = response.headers
+        .get('X-Stella-Revisions')!
+        .split(',')[0];
+      expect(
+        (
+          await owner.call(
+            '/v1/admin/revisions/' + revision + '/restore',
+            'POST',
+            {},
+          )
+        ).status,
+      ).toBe(200);
+      expect(read(await publicTrip())).toEqual(before);
+    }
+  });
   it('stages editor translation reviews, publishes only with manager authority and undoes the exact field', async () => {
     const manager = await dashboardAccount('manager'),
       editor = await dashboardAccount('editor');
@@ -1638,7 +2557,14 @@ describe('security-session regression cases', () => {
         pageKey: 'contact',
         type: 'rich_text',
         status: 'draft',
-        data: { title: { en: 'Contact' }, text: { en: 'Contact the office' } },
+        data: {
+          title: completeQaCopy('Contact'),
+          text: Object.fromEntries(
+            Object.entries(completeQaCopy('Contact the office')).filter(
+              ([locale]) => locale !== 'fr',
+            ),
+          ),
+        },
       })
       .returning();
     await connection.db.insert(s.contentTranslations).values({
@@ -1647,7 +2573,7 @@ describe('security-session regression cases', () => {
       field: 'text',
       locale: 'fr',
       text: 'Contactez le bureau',
-      origin: 'machine',
+      origin: 'human',
       provider: 'codex-authored',
       sourceHash: sha('Contact the office'),
     });
@@ -1679,7 +2605,14 @@ describe('security-session regression cases', () => {
         await connection.db
           .select()
           .from(s.contentTranslations)
-          .where(eq(s.contentTranslations.entityId, block!.id))
+          .where(
+            and(
+              eq(s.contentTranslations.entity, 'page_block'),
+              eq(s.contentTranslations.entityId, block!.id),
+              eq(s.contentTranslations.field, 'text'),
+              eq(s.contentTranslations.locale, 'fr'),
+            ),
+          )
       )[0]!.provider,
     ).toBe('codex-authored');
     expect(
@@ -1700,13 +2633,18 @@ describe('security-session regression cases', () => {
       p256dh: ecdh.getPublicKey().toString('base64url'),
       auth: randomBytes(16).toString('base64url'),
     };
-    await connection.db.insert(s.pushSubscriptions).values({
-      userId: owner.user.id,
-      endpoint: 'https://fcm.googleapis.com/fcm/send/synthetic-test',
-      endpointHash: sha(randomUUID()),
-      ...subscriptionKeys,
-      locale: 'fr',
-    });
+    const [first, second] = await connection.db
+      .insert(s.pushSubscriptions)
+      .values(
+        (['fr', 'it'] as const).map((locale) => ({
+          userId: owner.user.id,
+          endpoint: 'https://fcm.googleapis.com/fcm/send/synthetic-' + locale,
+          endpointHash: sha(randomUUID()),
+          ...subscriptionKeys,
+          locale,
+        })),
+      )
+      .returning();
     const [request] = await connection.db
       .insert(s.bookingRequests)
       .values({
@@ -1721,19 +2659,59 @@ describe('security-session regression cases', () => {
       })
       .returning();
     const payloads: string[] = [];
+    const pushCfg = {
+      ...cfg,
+      VAPID_PUBLIC_KEY: keys.publicKey,
+      VAPID_PRIVATE_KEY: keys.privateKey,
+      VAPID_SUBJECT: 'mailto:owner@example.test',
+    };
+    const queue = 'notify.request.push.device';
+    const boss = new PgBoss({
+      connectionString: workerUrl,
+      migrate: false,
+      createSchema: false,
+    });
+    await boss.start();
+    try {
+      await queueRequestPush(workerConnection.db, pushCfg, request!.id, boss);
+      await queueRequestPush(workerConnection.db, pushCfg, request!.id, boss);
+      const jobs = await boss.fetch(queue, { batchSize: 5 });
+      expect(jobs.map(({ data }) => data)).toEqual(
+        expect.arrayContaining([
+          { requestId: request!.id, subscriptionId: first!.id },
+          { requestId: request!.id, subscriptionId: second!.id },
+        ]),
+      );
+      expect(jobs).toHaveLength(2);
+      await boss.complete(
+        queue,
+        jobs.map(({ id }) => id),
+      );
+    } finally {
+      await boss.stop();
+    }
+    await expect(
+      notifyPush(
+        workerConnection.db,
+        pushCfg,
+        request!.id,
+        async () => {
+          throw Object.assign(new Error('temporary provider failure'), {
+            statusCode: 503,
+          });
+        },
+        second!.id,
+      ),
+    ).rejects.toThrow('Push delivery failed');
     await notifyPush(
-      connection.db,
-      {
-        ...cfg,
-        VAPID_PUBLIC_KEY: keys.publicKey,
-        VAPID_PRIVATE_KEY: keys.privateKey,
-        VAPID_SUBJECT: 'mailto:owner@example.test',
-      },
+      workerConnection.db,
+      pushCfg,
       request!.id,
       async (_subscription, payload) => {
         payloads.push(String(payload));
         return { statusCode: 201, body: '', headers: {} };
       },
+      first!.id,
     );
     expect(payloads).toEqual([JSON.stringify({ locale: 'fr' })]);
     expect(payloads.join('')).not.toContain(request!.name);
@@ -1823,7 +2801,7 @@ describe('security-session regression cases', () => {
   it('invalidates existing sessions immediately when SESSION_SECRET rotates', async () => {
     const { client } = await account();
     expect((await client.call('/v1/admin/me')).status).toBe(200);
-    const rotated = createApp(connection.db, {
+    const rotated = createApp(apiConnection.db, {
       ...cfg,
       SESSION_SECRET: randomBytes(32).toString('hex'),
     });
@@ -1966,7 +2944,7 @@ describe('security-session regression cases', () => {
     for (const locale of locales) {
       const messages: { text: string }[] = [];
       await notifyNewDevice(
-        connection.db,
+        workerConnection.db,
         { ...cfg, OWNER_REPORT_LOCALE: locale },
         user.id,
         device!.id,
@@ -2126,7 +3104,7 @@ describe('security-session regression cases', () => {
     expect(history[0]!.before).toBeNull();
     expect(history[0]!.after).toEqual({ redacted: true });
     const mail: unknown[] = [];
-    await notifyRequest(connection.db, cfg, row!.id, {
+    await notifyRequest(workerConnection.db, cfg, row!.id, {
       sendMail: async (message) => {
         mail.push(message);
       },
@@ -2165,7 +3143,7 @@ describe('security-session regression cases', () => {
       action: 'legacy_update',
       after: { note: 'retention secret' },
     });
-    await purgeRequests(connection.db);
+    await purgeRequests(workerConnection.db);
     const [redacted] = await connection.db
       .select()
       .from(s.bookingRequests)
@@ -2205,7 +3183,7 @@ describe('media, notifications, jobs and translation privacy', () => {
     for (const locale of locales) {
       const messages: { subject: string; text: string }[] = [];
       await notifyWeeklyOperations(
-        connection.db,
+        workerConnection.db,
         { ...cfg, OWNER_REPORT_LOCALE: locale },
         {
           sendMail: async (message) => {
@@ -2231,7 +3209,7 @@ describe('media, notifications, jobs and translation privacy', () => {
     ).call('/v1/admin/media', 'POST', form);
     expect(response.status).toBe(202);
     const { id } = await response.json();
-    await processMedia(connection.db, cfg, id);
+    await processMedia(workerConnection.db, cfg, id);
     const [m] = await connection.db
       .select()
       .from(s.media)
@@ -2253,6 +3231,163 @@ describe('media, notifications, jobs and translation privacy', () => {
         ).metadata()
       ).format,
     ).toBe('heif');
+  });
+  it('withdraws every known public rendition while keeping the staff preview available', async () => {
+    const editor = await login('editor');
+    const form = new FormData();
+    form.set(
+      'file',
+      new Blob([
+        new Uint8Array(
+          await sharp(Buffer.from(nonce.repeat(2).slice(0, 48)), {
+            raw: { width: 4, height: 4, channels: 3 },
+          })
+            .png()
+            .toBuffer(),
+        ),
+      ]),
+      'withdrawal.png',
+    );
+    const upload = await editor.call('/v1/admin/media', 'POST', form);
+    expect(upload.status).toBe(202);
+    const { id } = await upload.json();
+    const asset = '/v1/admin/media/' + id;
+    const publicPath = async () => {
+      const [row] = await connection.db
+        .select({ variants: s.media.variants })
+        .from(s.media)
+        .where(eq(s.media.id, id));
+      return (row!.variants!.jpg as Record<string, string>)['480']!;
+    };
+    expect(
+      (await editor.call(asset, 'PATCH', { rightsStatus: 'owned' })).status,
+    ).toBe(200);
+    await processMedia(workerConnection.db, cfg, id);
+    const firstPath = await publicPath();
+    // Simulate a ready asset that predates the rendition registry.
+    await connection.db
+      .delete(s.publicMediaRenditions)
+      .where(eq(s.publicMediaRenditions.mediaId, id));
+    const backfill = await readFile(
+      new URL(
+        '../../../packages/db/drizzle/0005_public_media_renditions.sql',
+        import.meta.url,
+      ),
+      'utf8',
+    );
+    await connection.db.execute(
+      sql.raw(backfill.split('--> statement-breakpoint').at(-1)!),
+    );
+    expect(
+      (
+        await app.request('/internal/media-access', {
+          headers: {
+            'X-Stella-Media-Key': firstPath.slice(
+              0,
+              firstPath.lastIndexOf('/'),
+            ),
+          },
+        })
+      ).status,
+    ).toBe(204);
+    expect(
+      (await editor.call(asset, 'PATCH', { autoEnhance: false })).status,
+    ).toBe(200);
+    await processMedia(workerConnection.db, cfg, id);
+    const currentPath = await publicPath();
+    expect(currentPath).not.toBe(firstPath);
+    for (const path of [firstPath, currentPath]) {
+      const publicRead = await app.request('/media/' + path);
+      expect(publicRead.status).toBe(200);
+      expect(publicRead.headers.get('cache-control')).toContain(
+        'must-revalidate',
+      );
+      await publicRead.arrayBuffer();
+    }
+    expect(
+      (await editor.call(asset, 'PATCH', { rightsStatus: 'unknown' })).status,
+    ).toBe(200);
+    for (const path of [firstPath, currentPath]) {
+      // The bytes still exist. Rights must be checked before reading them.
+      expect(
+        (await readFile(resolve(cfg.MEDIA_ROOT, path))).length,
+      ).toBeGreaterThan(0);
+      expect((await app.request('/media/' + path)).status).toBe(404);
+      const gate = await app.request('/internal/media-access', {
+        headers: { 'X-Stella-Media-Key': path.slice(0, path.lastIndexOf('/')) },
+      });
+      expect(gate.status).toBe(404);
+    }
+    await Promise.all([
+      processMedia(workerConnection.db, cfg, id),
+      processMedia(workerConnection.db, cfg, id),
+    ]);
+    const preview = await editor.call(asset + '/preview');
+    expect(preview.status).toBe(200);
+    expect(preview.headers.get('cache-control')).toContain('no-store');
+    await preview.arrayBuffer();
+    expect((await app.request('/media/' + currentPath)).status).toBe(404);
+  });
+  it('retries a failed upload once and restores an archived original without granting rights', async () => {
+    const editor = await login('editor');
+    const bytes = await sharp(
+      Buffer.from(nonce.split('').reverse().join('').repeat(2).slice(0, 48)),
+      { raw: { width: 4, height: 4, channels: 3 } },
+    )
+      .png()
+      .toBuffer();
+    const upload = async () => {
+      const form = new FormData();
+      form.set('file', new Blob([new Uint8Array(bytes)]), 'retry.png');
+      const response = await editor.call('/v1/admin/media', 'POST', form);
+      expect(response.status).toBe(202);
+      return response.json();
+    };
+    const { id } = await upload();
+    const asset = '/v1/admin/media/' + id;
+    const [original] = await connection.db
+      .select()
+      .from(s.media)
+      .where(eq(s.media.id, id));
+    await connection.db
+      .update(s.media)
+      .set({ status: 'failed' })
+      .where(eq(s.media.id, id));
+    await rm(original!.originalPath);
+    const retries = await Promise.all([upload(), upload()]);
+    expect(retries).toEqual([
+      { id, status: 'processing' },
+      { id, status: 'processing' },
+    ]);
+    const queued = await connection.db
+      .select()
+      .from(s.outbox)
+      .where(
+        sql`${s.outbox.name} = 'media.process' and ${s.outbox.data}->>'mediaId' = ${id}`,
+      );
+    expect(queued).toHaveLength(2);
+    expect(await readFile(original!.originalPath)).toEqual(bytes);
+    expect(
+      (await editor.call(asset, 'PATCH', { rightsStatus: 'owned' })).status,
+    ).toBe(200);
+    await processMedia(workerConnection.db, cfg, id);
+    expect(await upload()).toEqual({ id, status: 'ready' });
+    expect((await editor.call(asset, 'DELETE')).status).toBe(200);
+    await rm(original!.originalPath);
+    expect(await upload()).toEqual({ id, status: 'processing' });
+    const [restored] = await connection.db
+      .select()
+      .from(s.media)
+      .where(eq(s.media.id, id));
+    expect(restored).toMatchObject({
+      archivedAt: null,
+      rightsStatus: 'unknown',
+    });
+    expect(await readFile(restored!.originalPath)).toEqual(bytes);
+    await processMedia(workerConnection.db, cfg, id);
+    const preview = await editor.call(asset + '/preview');
+    expect(preview.status).toBe(200);
+    await preview.arrayBuffer();
   });
   it('processes real video without audio or location metadata and keeps unknown-rights variants private', async () => {
     const path = resolve(root, 'synthetic-' + nonce + '.mp4');
@@ -2289,7 +3424,7 @@ describe('media, notifications, jobs and translation privacy', () => {
     ).call('/v1/admin/media', 'POST', form);
     expect(response.status).toBe(202);
     const { id } = await response.json();
-    await processMedia(connection.db, cfg, id);
+    await processMedia(workerConnection.db, cfg, id);
     const [m] = await connection.db
       .select()
       .from(s.media)
@@ -2362,7 +3497,7 @@ describe('media, notifications, jobs and translation privacy', () => {
   });
   it('reports actual price changes to owners through the injected transport', async () => {
     const sent: { to: string; text: string }[] = [];
-    await notifyWeeklyPrices(connection.db, cfg, {
+    await notifyWeeklyPrices(workerConnection.db, cfg, {
       sendMail: async (mail) => {
         sent.push(mail);
       },
@@ -2399,7 +3534,7 @@ describe('media, notifications, jobs and translation privacy', () => {
     const response = await editor.call('/v1/admin/media', 'POST', form);
     expect(response.status).toBe(202);
     const { id } = await response.json();
-    await processMedia(connection.db, cfg, id);
+    await processMedia(workerConnection.db, cfg, id);
     const [m] = await connection.db
       .select()
       .from(s.media)
@@ -2433,7 +3568,7 @@ describe('media, notifications, jobs and translation privacy', () => {
         .from(s.bookingRequests)
         .limit(1),
       messages: unknown[] = [];
-    await notifyRequest(connection.db, cfg, request!.id, {
+    await notifyRequest(workerConnection.db, cfg, request!.id, {
       sendMail: async (mail) => {
         messages.push(mail);
       },
@@ -2444,7 +3579,7 @@ describe('media, notifications, jobs and translation privacy', () => {
       .update(s.bookingRequests)
       .set({ createdAt: new Date('2020-01-01') })
       .where(eq(s.bookingRequests.id, request!.id));
-    await purgeRequests(connection.db);
+    await purgeRequests(workerConnection.db);
     const [purged] = await connection.db
       .select()
       .from(s.bookingRequests)
@@ -2455,24 +3590,66 @@ describe('media, notifications, jobs and translation privacy', () => {
   });
   it('limits translation to published public fields, preserves human values and enforces the budget', async () => {
     const payloads: { texts: string[]; locale: string }[] = [],
-      fields = await publicTranslationFields(connection.db, cfg);
+      fields = await publicTranslationFields(workerConnection.db, cfg);
     expect(JSON.stringify(fields)).not.toMatch(
       /Synthetic QA visitor|ipHash|originalPath|editorialNotes|setup-required/,
     );
     const provider = fakeProvider(payloads);
-    await translatePublic(connection.db, cfg, { locale: 'pl' }, [provider]);
+    await translatePublic(workerConnection.db, cfg, { locale: 'pl' }, [
+      provider,
+    ]);
     expect(payloads.length).toBeGreaterThan(0);
     expect(JSON.stringify(payloads)).not.toMatch(
       /Synthetic QA visitor|201012345678|setup-required/,
     );
     const live = await (await app.request('/v1/public/locales')).json();
     expect(live.some((l: { code: string }) => l.code === 'pl')).toBe(true);
+    const delivered = payloads.length;
     await translatePublic(
-      connection.db,
+      workerConnection.db,
       cfg,
       { entity: 'collection', locale: 'it' },
       [provider],
     );
+    expect(payloads).toHaveLength(delivered);
+    expect(
+      (await owner.call('/v1/admin/i18n/backfill/it', 'POST')).status,
+    ).toBe(422);
+    expect(
+      (
+        await owner.call('/v1/admin/i18n/translate', 'POST', {
+          entity: 'ui',
+          id: 'qa',
+          locale: 'it',
+        })
+      ).status,
+    ).toBe(422);
+    await workerConnection.db
+      .execute(sql`select public.worker_save_machine_translation(
+      'ui', 'qa-core-protection', 'copy', 'it', 'QA provider output', 'qa', 'fake'
+    )`);
+    expect(
+      await connection.db
+        .select()
+        .from(s.contentTranslations)
+        .where(eq(s.contentTranslations.entityId, 'qa-core-protection')),
+    ).toEqual([]);
+    expect(
+      (await (await app.request('/v1/public/locales')).json()).some(
+        (l: { code: string }) => l.code === 'ar',
+      ),
+    ).toBe(false);
+    await translatePublic(workerConnection.db, cfg, { locale: 'ar' }, [
+      provider,
+    ]);
+    expect(
+      await (await app.request('/v1/public/locales')).json(),
+    ).toContainEqual(
+      expect.objectContaining({ code: 'ar', dir: 'rtl', indexable: true }),
+    );
+    expect(
+      payloads.every(({ locale }) => locale === 'pl' || locale === 'ar'),
+    ).toBe(true);
     const [privateCollection] = await connection.db
       .select()
       .from(s.collections)
@@ -2490,13 +3667,19 @@ describe('media, notifications, jobs and translation privacy', () => {
     expect(human?.origin).toBe('human');
     expect(human?.text).toBe(privateCollection!.name.it);
     expect(
-      await reserveCharacters(connection.db, 'google', 500001, 1000000, true),
+      await reserveCharacters(
+        workerConnection.db,
+        'google',
+        500001,
+        1000000,
+        true,
+      ),
     ).toBe(false);
   });
   it('expands invalidation across affected collections/packages in bounded webhook bodies', async () => {
     const calls: string[][] = [];
     await revalidateWeb(
-      connection.db,
+      workerConnection.db,
       cfg,
       ['trip:quad-bike-safari'],
       async (_url, init) => {
@@ -2507,14 +3690,26 @@ describe('media, notifications, jobs and translation privacy', () => {
     );
     expect(calls.flat()).toContain('collection:private');
     expect(calls.flat()).toContain('trip:egypt-in-4-days');
+    expect(calls.flat()).not.toContain('trip:glass-bottom-boat');
     expect(calls.every((tags) => tags.length <= 50)).toBe(true);
   });
   it('dispatches the durable outbox and pg-boss enqueue in one transaction', async () => {
-    const boss = new PgBoss(cfg.DATABASE_URL);
+    const boss = new PgBoss({
+      connectionString: workerUrl,
+      migrate: false,
+      createSchema: false,
+    });
     await boss.start();
     try {
-      await bootstrapQueues(boss);
-      expect(await dispatchOutbox(connection.pool, boss)).toBeGreaterThan(0);
+      await boss.schedule(
+        'cleanup.sessions',
+        '0 * * * *',
+        {},
+        { tz: 'Africa/Cairo' },
+      );
+      expect(await dispatchOutbox(workerConnection.pool, boss)).toBeGreaterThan(
+        0,
+      );
       const tasks = await boss.fetch('notify.request.created', {
         batchSize: 100,
       });
@@ -2543,7 +3738,7 @@ describe('media, notifications, jobs and translation privacy', () => {
         'application/json'
       ].schema.additionalProperties,
     ).toBe(false);
-    const production = createApp(connection.db, {
+    const production = createApp(apiConnection.db, {
       ...cfg,
       NODE_ENV: 'production',
     });

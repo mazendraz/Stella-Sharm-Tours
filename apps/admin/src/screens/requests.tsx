@@ -6,13 +6,17 @@ import {
   Copy,
   Filter,
   Mail,
-  MessageCircle,
   Phone,
   ChevronDown,
   AlertTriangle,
 } from 'lucide-react';
 import { can } from '@stella/shared/admin';
 import { isCoreLocale, type Locale } from '@stella/shared';
+import {
+  scheduleNotice,
+  storedScheduleNotice,
+} from '@stella/shared/i18n/booking-messages';
+import { bookingArea } from '@stella/shared/i18n/guests';
 import { useAdmin, useData } from '../lib/admin-context';
 import { content, obj, rows, type Row } from '../lib/content';
 import { addDays, dateTime, dayLabel, money, relative } from '../lib/format';
@@ -23,6 +27,7 @@ import { SearchBox, Pagination } from '../components/ui/data-table';
 import { StatusBadge } from '../components/ui/status';
 import { Menu, type MenuItem } from '../components/ui/menu';
 import { useConfirm } from '../components/ui/dialog';
+import { WhatsAppIcon } from '../components/ui/whatsapp-icon';
 import { EmptyState, LoadError, Skeleton } from '../components/ui/states';
 import { FormField, AutoTextarea } from '../components/ui/field';
 import { usePageTitle } from '../components/ui/editor';
@@ -70,8 +75,11 @@ export function Requests({ id }: { id?: string }) {
   ]
     .filter(Boolean)
     .join('&');
+  const visibleQuery = [status === 'all' ? '' : 'status=' + status, filterQuery]
+    .filter(Boolean)
+    .join('&');
   const list = useData<Row[]>(
-      `/v1/admin/requests?page=${page}${status === 'all' ? '' : '&status=' + status}${filterQuery ? '&' + filterQuery : ''}`,
+      `/v1/admin/requests?page=${page}${visibleQuery ? '&' + visibleQuery : ''}`,
     ),
     counts = useData<Record<string, number>>(
       '/v1/admin/requests/counts' + (filterQuery ? '?' + filterQuery : ''),
@@ -86,21 +94,20 @@ export function Requests({ id }: { id?: string }) {
       (id ? '/requests/' + id : '/requests') + '?' + search.toString(),
     );
   };
-  const exportCsv = async () => {
+  const exportCsv = async (scope: 'all' | 'filtered') => {
     try {
-      const file = await request<Blob>('/v1/admin/requests/export.csv');
-      const rowsCount = Math.max(
-        0,
-        (await file.text()).split('\n').filter((line) => line.trim()).length -
-          1,
+      const file = await request<Blob>(
+        '/v1/admin/requests/export.csv?scope=' +
+          scope +
+          (scope === 'filtered' && visibleQuery ? '&' + visibleQuery : ''),
       );
       const url = URL.createObjectURL(file),
         link = document.createElement('a');
       link.href = url;
-      link.download = 'requests.csv';
+      link.download = 'requests-' + scope + '.csv';
       link.click();
-      URL.revokeObjectURL(url);
-      notify(tp('requestsExported', rowsCount));
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notify(t('requestsCsvDownloaded'));
     } catch (error) {
       report(error);
     }
@@ -116,7 +123,14 @@ export function Requests({ id }: { id?: string }) {
           {can(me!.role, 'export') && (
             <Menu
               items={[
-                { label: t('exportCsv'), onSelect: () => void exportCsv() },
+                {
+                  label: t('exportFilteredCsv'),
+                  onSelect: () => void exportCsv('filtered'),
+                },
+                {
+                  label: t('exportAllCsv'),
+                  onSelect: () => void exportCsv('all'),
+                },
               ]}
             />
           )}
@@ -501,7 +515,7 @@ function RequestDetail({
                 : '') + content(item.title, customerLocale),
           )
           .join('\n'),
-        pickup: String(row.pickupArea ?? ''),
+        pickup: bookingArea(String(row.pickupArea ?? ''), customerLocale),
       })[key] ?? '',
   );
   const phone = String(row.phone ?? ''),
@@ -547,7 +561,11 @@ function RequestDetail({
   ]
     .filter(Boolean)
     .join(' · ');
-  const noteValue = note ?? String(row.internalNote ?? '');
+  const originalNote =
+    row.internalNote === storedScheduleNotice
+      ? scheduleNotice[locale]
+      : String(row.internalNote ?? '');
+  const noteValue = note ?? originalNote;
   return (
     <article className="request-detail" aria-labelledby="request-name">
       <button
@@ -616,7 +634,7 @@ function RequestDetail({
               rel="noopener noreferrer"
               onClick={() => status === 'new' && setAskContacted(true)}
             >
-              <MessageCircle size={18} aria-hidden />
+              <WhatsAppIcon size={19} />
               {t('whatsapp')}
             </a>
           )}
@@ -756,7 +774,7 @@ function RequestDetail({
             ['phone', phone],
             ['email', row.email],
             ['hotel', row.hotel],
-            ['pickup', row.pickupArea],
+            ['pickup', bookingArea(String(row.pickupArea ?? ''), locale)],
             ['guests', guests],
             [
               'childAges',
@@ -839,7 +857,7 @@ function RequestDetail({
               />
             )}
           </FormField>
-          {note !== null && note !== String(row.internalNote ?? '') && (
+          {note !== null && note !== originalNote && (
             <div className="inline-actions">
               <button
                 type="button"

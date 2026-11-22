@@ -11,6 +11,7 @@ import type { authService } from './auth';
 import { recordChange } from './admin';
 import { readSettings } from './catalog';
 import { fail } from './errors';
+import { requireCoreCopy } from './publication-languages';
 const slugs = z
   .array(z.string().regex(/^[a-z0-9-]{1,120}$/))
   .max(38)
@@ -117,6 +118,10 @@ export function registerHomepage(
         await save('homepage_draft', input);
         return;
       }
+      await requireCoreCopy(tx, [
+        { entity: 'settings', id: 'home', copy: input.home },
+        { entity: 'settings', id: 'how_steps', copy: input.how_steps },
+      ]);
       await save('home', input.home);
       await save('how_steps', input.how_steps);
       const [collection] = await tx
@@ -125,6 +130,13 @@ export function registerHomepage(
         .where(eq(s.collections.kind, 'private_virtual'))
         .for('update');
       if (!collection) fail(422, 'PRIVATE_COLLECTION_REQUIRED');
+      await requireCoreCopy(tx, [
+        {
+          entity: 'collection',
+          id: collection.id,
+          copy: { perks: input.private_perks },
+        },
+      ]);
       await tx
         .update(s.collections)
         .set({ perks: input.private_perks, updatedAt: new Date() })

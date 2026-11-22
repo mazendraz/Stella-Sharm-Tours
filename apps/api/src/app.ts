@@ -1,3 +1,4 @@
+import { publicStorySchema } from '@stella/shared/story';
 import { OpenAPIHono } from '@hono/zod-openapi';
 import { cors } from 'hono/cors';
 import { bodyLimit } from 'hono/body-limit';
@@ -16,12 +17,22 @@ import {
   faqSchema,
   pageSchema,
   localeSchema,
+  savedTripsSchema,
+  savedTripLimit,
 } from '@stella/shared/public-contract';
-import { bookingSchema, confirmationSchema } from '@stella/shared/booking';
+import {
+  bookingSchema,
+  confirmationSchema,
+  quoteChangedSchema,
+  quoteInputSchema,
+  quoteSchema,
+} from '@stella/shared/booking';
 import type { Config } from './config';
 import type { ApiEnv } from './types';
 import { loadCatalog, loadLiveLocales } from './catalog';
 import { createRequest, hashPrivate } from './requests';
+import { calculateBookingQuote, parseQuoteInput } from './booking-quote';
+import { consume } from './rate';
 import { authService, clientIp, equal } from './auth';
 import { createHmac } from 'node:crypto';
 import { registerAdmin } from './admin';
@@ -30,6 +41,11 @@ import { registerHomepage } from './homepage';
 import { registerAdminUi } from './admin-ui';
 import { registerPush } from './push';
 import { fail } from './errors';
+import {
+  processedPath,
+  publicRenditionAllowed,
+  serveProcessed,
+} from './serve-media';
 const query = z.strictObject({
   locale: z
     .string()
@@ -37,6 +53,18 @@ const query = z.strictObject({
     .default('en'),
 });
 const slug = z.string().regex(/^[a-z0-9-]{1,120}$/);
+const savedTripQuery = query.extend({
+  slugs: z
+    .string()
+    .max(savedTripLimit * 121)
+    .refine((value) => {
+      const slugs = value.split(',');
+      return (
+        slugs.length <= savedTripLimit &&
+        slugs.every((item) => slug.safeParse(item).success)
+      );
+    }),
+});
 export function createApp(
   db: Database,
   cfg: Config,
@@ -92,15 +120,27 @@ export function createApp(
       credentials: false,
     }),
   );
-  app.use(
-    '/v1/requests',
-    cors({
-      origin: new URL(cfg.WEB_ORIGIN).origin,
-      allowMethods: ['POST', 'OPTIONS'],
-      allowHeaders: ['Content-Type'],
-      credentials: false,
-    }),
-  );
+  for (const path of ['/v1/requests', '/v1/requests/quote'])
+    app.use(
+      path,
+      cors({
+        origin: new URL(cfg.WEB_ORIGIN).origin,
+        allowMethods: ['POST', 'OPTIONS'],
+        allowHeaders: ['Content-Type'],
+        credentials: false,
+      }),
+      async (c, next) => {
+        if (c.req.method !== 'POST') return next();
+        if (c.req.header('origin') !== new URL(cfg.WEB_ORIGIN).origin)
+          fail(403, 'INVALID_ORIGIN');
+        if (
+          c.req.header('content-type')?.split(';')[0]?.trim().toLowerCase() !==
+          'application/json'
+        )
+          fail(422, 'JSON_REQUIRED');
+        await next();
+      },
+    );
   app.use(
     '/v1/admin/*',
     cors({
@@ -112,11 +152,19 @@ export function createApp(
     }),
   );
   const buckets = new Map<string, { count: number; until: number }>();
+  const catalogReaderToken = createHmac('sha256', cfg.WEB_REVALIDATE_SECRET)
+    .update('stella:public-catalog-reader:v1')
+    .digest('hex');
   app.use('/v1/public/*', async (c, next) => {
     if (Object.values(c.req.queries()).some((values) => values.length !== 1))
       fail(422, 'INVALID_QUERY');
+    const trusted =
+      c.req.path !== '/v1/public/preview' &&
+      equal(c.req.header('x-stella-catalog-reader') ?? '', catalogReaderToken);
     const now = Date.now(),
-      key = hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT);
+      key = trusted
+        ? 'catalog-reader'
+        : hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT);
     let bucket = buckets.get(key);
     if (!bucket || bucket.until <= now) {
       if (buckets.size > 10000) {
@@ -126,7 +174,12 @@ export function createApp(
       bucket = { count: 0, until: now + 60000 };
       buckets.set(key, bucket);
     }
-    if (++bucket.count > cfg.PUBLIC_READS_PER_MINUTE) {
+    if (
+      ++bucket.count >
+      (trusted
+        ? Math.max(2400, cfg.PUBLIC_READS_PER_MINUTE)
+        : cfg.PUBLIC_READS_PER_MINUTE)
+    ) {
       c.header('Retry-After', String(Math.ceil((bucket.until - now) / 1000)));
       fail(429, 'RATE_LIMITED');
     }
@@ -194,9 +247,32 @@ export function createApp(
       kind: kind === 't' ? 'trip' : 'collection',
       locale,
       data: value,
+      ...(kind === 't' ? { story: preview.story(slug!) } : {}),
     });
   });
   app.get('/healthz', (c) => c.json({ status: 'ok', service: 'api' }));
+  app.get('/internal/media-access', async (c) => {
+    const allowed = await publicRenditionAllowed(
+      db,
+      c.req.header('x-stella-media-key') ?? '',
+    );
+    return c.body(null, allowed ? 204 : 404, { 'Cache-Control': 'no-store' });
+  });
+  app.get('/media/*', async (c) => {
+    const path = c.req.path.slice('/media/'.length);
+    if (
+      !processedPath.test(path) ||
+      !(await publicRenditionAllowed(db, path.slice(0, path.lastIndexOf('/'))))
+    )
+      return c.body(null, 404, { 'Cache-Control': 'no-store' });
+    return serveProcessed(
+      cfg.MEDIA_ROOT,
+      path,
+      c.req.header('range'),
+      c.req.header('accept') ?? '',
+      true,
+    );
+  });
   app.get('/readyz', async (c) => {
     try {
       await db.execute(sql`select 1`);
@@ -230,6 +306,26 @@ export function createApp(
     return c.json(await loadLiveLocales(db));
   });
   app.get('/v1/public/site', async (c) => c.json((await catalog(c)).site));
+  app.get('/v1/public/saved-trips', async (c) => {
+    const parsed = savedTripQuery.safeParse(c.req.query());
+    if (!parsed.success) fail(422, 'INVALID_QUERY');
+    const { locale, slugs } = parsed.data;
+    const requestedTrips = [...new Set(slugs.split(','))];
+    const result = await loadCatalog(db, locale, cfg.MEDIA_PUBLIC_URL, {
+      requestedTrips,
+    });
+    if (!result.site.locales.some(({ code }) => code === locale))
+      fail(404, 'LOCALE_NOT_FOUND');
+    const trips = new Map(result.trips.map((trip) => [trip.slug, trip]));
+    return c.json(
+      requestedTrips.map((slug) => {
+        const trip = trips.get(slug);
+        return trip
+          ? { slug, status: 'available', trip }
+          : { slug, status: 'withdrawn' };
+      }),
+    );
+  });
   app.get('/v1/public/collections', async (c) =>
     c.json((await catalog(c)).collections),
   );
@@ -250,6 +346,12 @@ export function createApp(
       if (!result) fail(404, 'NOT_FOUND');
       return c.json(result);
     });
+  app.get('/v1/public/trips/:slug/story', async (c) => {
+    if (!slug.safeParse(c.req.param('slug')).success) fail(404, 'NOT_FOUND');
+    const story = (await catalog(c)).story(c.req.param('slug'));
+    if (!story) fail(404, 'NOT_FOUND');
+    return c.json(story);
+  });
   app.get('/v1/public/faq', async (c) => {
     const result = await catalog(c),
       rows = await db
@@ -315,29 +417,36 @@ export function createApp(
     return c.json(Object.fromEntries(rows.map((r) => [r.field, r.text])));
   });
   app.post('/v1/requests', async (c) => {
-    if (c.req.header('origin') !== new URL(cfg.WEB_ORIGIN).origin)
-      fail(403, 'INVALID_ORIGIN');
-    if (
-      c.req.header('content-type')?.split(';')[0]?.trim().toLowerCase() !==
-      'application/json'
-    )
-      fail(422, 'JSON_REQUIRED');
     let body: unknown;
     try {
       body = await c.req.json();
     } catch {
       fail(400, 'INVALID_JSON');
     }
-    return c.json(
-      await createRequest(
-        db,
-        cfg,
-        body,
-        clientIp(c, cfg),
-        c.req.header('user-agent') ?? '',
-      ),
-      201,
+    const result = await createRequest(
+      db,
+      cfg,
+      body,
+      clientIp(c, cfg),
+      c.req.header('user-agent') ?? '',
     );
+    return 'quote' in result
+      ? c.json({ error: { code: 'QUOTE_CHANGED' }, quote: result.quote }, 409)
+      : c.json(result, 201);
+  });
+  app.post('/v1/requests/quote', async (c) => {
+    const ipHash = hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT);
+    if (!(await consume(db, 'quote-ip:' + ipHash, 40, 60)))
+      fail(429, 'RATE_LIMITED');
+    const body: unknown = await c.req
+      .json()
+      .catch(() => fail(400, 'INVALID_JSON'));
+    const input = parseQuoteInput(body);
+    const { quote } = await db.transaction(
+      (tx) => calculateBookingQuote(tx, input),
+      { isolationLevel: 'repeatable read', accessMode: 'read only' },
+    );
+    return c.json(quote);
   });
   app.use('/v1/admin/*', async (c, next) => {
     if (c.req.method === 'OPTIONS') return next();
@@ -379,6 +488,8 @@ export function createApp(
     collections: z.array(collectionSchema),
     'collections/{slug}': collectionDetailSchema,
     'trips/{slug}': tripSchema,
+    'trips/{slug}/story': publicStorySchema,
+    'saved-trips': savedTripsSchema,
     'packages/{slug}': tripSchema,
     faq: faqSchema,
     'pages/{key}': pageSchema,
@@ -389,7 +500,7 @@ export function createApp(
       method: 'get',
       path: '/v1/public/' + path,
       request: {
-        query,
+        query: path === 'saved-trips' ? savedTripQuery : query,
         ...(path.includes('{')
           ? {
               params: z.object(
@@ -420,6 +531,43 @@ export function createApp(
       201: {
         description: 'Request saved',
         content: { 'application/json': { schema: confirmationSchema } },
+      },
+      409: {
+        description:
+          'Review the revised quote or resolve the earlier submission',
+        content: {
+          'application/json': {
+            schema: z.union([
+              quoteChangedSchema,
+              z.object({
+                error: z.object({
+                  code: z.enum([
+                    'SUBMISSION_CONFLICT',
+                    'SUBMISSION_EXPIRED',
+                    'CATALOG_CHANGED',
+                  ]),
+                  message: z.string(),
+                }),
+              }),
+            ]),
+          },
+        },
+      },
+    },
+  });
+  app.openAPIRegistry.registerPath({
+    method: 'post',
+    path: '/v1/requests/quote',
+    request: {
+      body: {
+        required: true,
+        content: { 'application/json': { schema: quoteInputSchema } },
+      },
+    },
+    responses: {
+      200: {
+        description: 'Current estimate for the planned service dates',
+        content: { 'application/json': { schema: quoteSchema } },
       },
     },
   });

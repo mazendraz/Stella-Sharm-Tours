@@ -57,7 +57,7 @@ create table content_translations (
 create index on content_translations (locale, entity);
 ```
 
-- `origin='machine'`: auto-language text, or a core-language fallback while staff have not written one yet.
+- `origin='machine'`: text in a non-core language. Bundled core editorial copy is stored with `origin='human'`.
 - `origin='human'`: written by the API whenever staff save a core value (or edit an auto one); it stores the EN `source_hash` so the admin can show "EN changed — review".
 - **Resolver** (`packages/shared/i18n/resolve.ts`, unit-tested): for `(field, locale)` return
   1. the jsonb value for that locale if it is a core locale and not empty (human);
@@ -87,8 +87,8 @@ create index on content_translations (locale, entity);
   - `i18n.refresh_stale` — nightly: anything whose `source_hash` no longer matches EN.
 - Batching (≤ 50 strings / call), retries with backoff, per-month character counter; when the budget is reached the jobs stop and the owner gets an admin alert + email (the site keeps showing the last translations).
 - After a job writes rows → `revalidate.web` with the right tags (`trip:<slug>`, `site`, `ui:<locale>`…).
-- Rough size (measured on `data/catalog.json` ≈ 15k EN characters, + UI strings, FAQ and legal pages): ≈ 50k characters per language → machine fallbacks for ES/FR/DE/RU/TR (until staff write them) + 10 auto languages ≈ 750k characters once, then only what changes (usually a few thousand a month).
-- Cost (Nov 2026 list prices): DeepL API Free and Google Cloud Translation both include 500k characters/month free; DeepL Pro is $5.49/month + $25 per million, Google $20 per million above the free 500k. **Free mode (default, `free_tier_only: true`)**: the worker uses DeepL Free up to 500k characters/month, then Google's free 500k, then stops until next month (no billing). So the first backfill (~750k) finishes free within the first month, and later months only translate changes (a few thousand characters). Turning `free_tier_only` off allows paid usage up to `monthly_char_budget`.
+- Rough size (measured on `data/catalog.json` ≈ 15k EN characters, plus UI strings, FAQ and legal pages): ≈ 50k characters per language, or ≈ 500k across the 10 initial auto languages. Later runs translate changed fields.
+- **Free mode (default, `free_tier_only: true`)**: the worker caps DeepL Free and Google at 500,000 characters per provider per month and requires explicit free-tier confirmation for Google. It pauses when the configured budget or free limits are reached. Turning `free_tier_only` off allows paid usage up to `monthly_char_budget`.
 
 ## 5. Glossary & safety checks
 
@@ -118,7 +118,7 @@ create index on content_translations (locale, entity);
 
 ## 9. Booking request & WhatsApp
 
-- Default phone country code by locale (map in `packages/shared`): `it` +39, `es` +34, `fr` +33, `de` +49, `ru` +7, `pl` +48, `cs` +420, `sk` +421, `uk` +380, `ro` +40, `hu` +36, `nl` +31, `pt` +351, `tr` +90; `en` and others: none preselected.
+- The form suggests the browser’s region when available and otherwise uses the first popular country for the language. It uses the selected country to interpret national numbers and the calling code in pasted international numbers. The preview isolates the canonical number from surrounding text for correct reading in RTL. Numerals entered in Arabic-Indic or Eastern Arabic-Indic digits are accepted.
 - `booking_requests.locale` is saved. The admin inbox shows a language badge. "Reply on WhatsApp" offers the template in the customer's language for core languages, EN otherwise (templates are translated with placeholders **before** the customer's name is inserted).
 - The prefilled WhatsApp message the customer sends uses their locale for core languages, EN for auto languages (staff must be able to read it).
 - Staff emails are always EN.
@@ -132,7 +132,7 @@ create index on content_translations (locale, entity);
 ## 11. Admin
 
 - Every translatable editor (trips, collections, hero slides, packages, FAQ, pages, homepage blocks, media alt): **language tabs EN · IT · ES · FR · DE · RU · TR** (EN first, required). Desktop: EN next to one chosen language. Mobile: one language toggle per section (not per field) to save taps.
-- Each non-EN field shows a status: ✓ written by staff · "auto" (machine fallback) · "EN changed — review" · empty.
+- Each non-EN field shows its editorial, automatic, stale, or empty status. The review queue displays repository-managed core website strings as read-only. The worker sends only enabled non-core locales to providers and uses the provider’s advertised target code. Coverage counts current, nonblank translations.
 - "Auto-translate from EN" button per field and per section: fills a draft that staff can correct; saving it makes it human.
 - **Translation queue**: all core fields that are empty, auto or stale, filtered by language — so a French-speaking staff member can work through only FR.
 - **More → Languages** (owner, manager): core list (fixed), auto languages with on/off switch, coverage %, last run, "Re-translate all", characters used this month vs budget, glossary editor, "index auto languages" switch, preview any page in any language.

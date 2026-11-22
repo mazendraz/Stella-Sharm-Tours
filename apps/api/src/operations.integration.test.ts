@@ -29,6 +29,9 @@ describe('actual PostgreSQL backup and staging scrub', () => {
         `insert into sessions(id,user_id,expires_at) select 'synthetic-session',id,now()+interval '1 hour' from admin_users limit 1`,
       );
       await source.pool.query(
+        `insert into booking_request_receipts(submission_id, request_id, payload_hash, confirmation) select repeat('a',64), id, repeat('b',64), '{"message":"private-visitor@example.test"}' from booking_requests where ref='ST-TEST'`,
+      );
+      await source.pool.query(
         `insert into auth_tokens(id,user_id,purpose,expires_at) select 'synthetic-token',id,'reset',now()+interval '1 hour' from admin_users limit 1`,
       );
       await source.pool.query(
@@ -63,7 +66,7 @@ describe('actual PostgreSQL backup and staging scrub', () => {
         await readFile(resolve('infra/backup/scrub-staging.sql'), 'utf8'),
       );
       const { rows } = await staging.pool.query(
-        `select (select count(*) from trips)::int as trips, (select count(*) from content_translations)::int as translations, (select count(*) from admin_users)+(select count(*) from booking_requests)+(select count(*) from sessions)+(select count(*) from auth_tokens)+(select count(*) from admin_devices)+(select count(*) from outbox) as private_rows`,
+        `select (select count(*) from trips)::int as trips, (select count(*) from content_translations)::int as translations, (select count(*) from admin_users)+(select count(*) from booking_requests)+(select count(*) from booking_request_receipts)+(select count(*) from sessions)+(select count(*) from auth_tokens)+(select count(*) from admin_devices)+(select count(*) from outbox) as private_rows`,
       );
       expect(rows[0].trips).toBe(42);
       expect(rows[0].translations).toBeGreaterThan(1000);

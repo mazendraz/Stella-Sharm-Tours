@@ -19,6 +19,7 @@ const platforms = [
   'TikTok',
   'YouTube',
   'TripAdvisor',
+  'Google Maps',
   'Website',
 ] as const;
 const phoneRe = /^\+[1-9]\d{6,14}$/;

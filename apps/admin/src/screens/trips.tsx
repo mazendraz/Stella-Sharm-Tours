@@ -16,6 +16,7 @@ import { useGuard } from '../lib/guard';
 import { useMediaMap } from '../lib/catalog';
 import { PageHeader } from '../components/ui/page-header';
 import { DataTable, SearchBox, type Column } from '../components/ui/data-table';
+import { FilterBar } from '../components/ui/filter-bar';
 import { StatusBadge, contentStatus } from '../components/ui/status';
 import { MediaThumb } from '../components/ui/media-picker';
 import { Toggle } from '../components/ui/field';
@@ -338,12 +339,33 @@ export function TripsList() {
           },
         }}
         toolbar={
-          <div className="filters">
-            <SearchBox
-              value={q}
-              onChange={setQ}
-              placeholder={t('searchTrips')}
-            />
+          <FilterBar
+            search={
+              <SearchBox
+                value={q}
+                onChange={setQ}
+                placeholder={t('searchTrips')}
+              />
+            }
+            active={[collection, status, format].filter(Boolean).length}
+            pinned={
+              missing && (
+                <button
+                  type="button"
+                  className="chip removable filter-chip"
+                  onClick={() => setFilters({ missing: '' })}
+                >
+                  {t(
+                    missing === 'price'
+                      ? 'filterMissingPrice'
+                      : 'filterMissingCover',
+                  )}
+                  <span aria-hidden> ✕</span>
+                  <span className="sr-only"> — {t('clearFilters')}</span>
+                </button>
+              )
+            }
+          >
             <select
               aria-label={t('collection')}
               value={collection}
@@ -377,27 +399,12 @@ export function TripsList() {
               <option value="private">{t('fmtPrivate')}</option>
               <option value="both">{t('fmtBoth')}</option>
             </select>
-            {missing && (
-              <button
-                type="button"
-                className="chip removable filter-chip"
-                onClick={() => setFilters({ missing: '' })}
-              >
-                {t(
-                  missing === 'price'
-                    ? 'filterMissingPrice'
-                    : 'filterMissingCover',
-                )}
-                <span aria-hidden> ✕</span>
-                <span className="sr-only"> — {t('clearFilters')}</span>
-              </button>
-            )}
             <Toggle
               checked={grouped}
               onChange={setGrouped}
               label={t('groupByCollection')}
             />
-          </div>
+          </FilterBar>
         }
       />
       {creating && (

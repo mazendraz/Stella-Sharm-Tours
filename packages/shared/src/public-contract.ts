@@ -39,6 +39,8 @@ export const priceSchema = z.object({
   is_primary: z.boolean(),
 });
 export const tripSchema = z.object({
+  story_available: z.boolean().optional(),
+  story_cover: mediaSchema.optional(),
   slug: z.string(),
   collection: z.string(),
   kind: z.enum(['trip', 'package']),
@@ -52,6 +54,7 @@ export const tripSchema = z.object({
   days_label: textSchema.nullable(),
   run_days: z.array(z.number().int().min(0).max(6)).nullable(),
   departure_label: z.string().nullable(),
+  return_label: textSchema.nullable().optional(),
   days_count: z.number().int().min(1),
   flight: z.boolean(),
   overnight: z.boolean(),
@@ -86,6 +89,18 @@ export const tripSchema = z.object({
   seo_description: textSchema.nullable(),
 });
 export type Trip = z.infer<typeof tripSchema>;
+export const savedTripsSchema = z.array(
+  z.discriminatedUnion('status', [
+    z.object({
+      slug: z.string(),
+      status: z.literal('available'),
+      trip: tripSchema,
+    }),
+    z.object({ slug: z.string(), status: z.literal('withdrawn') }),
+    z.object({ slug: z.string(), status: z.literal('unavailable') }),
+  ]),
+);
+export const savedTripLimit = 38;
 export type Price = z.infer<typeof priceSchema>;
 export type Media = z.infer<typeof mediaSchema>;
 export const collectionSchema = z.object({

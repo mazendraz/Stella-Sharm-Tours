@@ -14,7 +14,12 @@ export function resolveText(
   if (isCoreLocale(locale) && value[locale]?.trim())
     return { text: value[locale]!, lang: locale, fallback: false };
   const row = rows
-    .filter((r) => r.locale === locale && r.text.trim())
+    .filter(
+      (r) =>
+        r.locale === locale &&
+        r.text.trim() &&
+        (!isCoreLocale(locale) || r.origin === 'human'),
+    )
     .sort(
       (a, b) => Number(b.origin === 'human') - Number(a.origin === 'human'),
     )[0];

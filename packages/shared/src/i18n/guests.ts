@@ -40,3 +40,32 @@ export function bookingGuests(
   const labels = words[locale] ?? words.en!;
   return `${adults} ${labels[adults === 1 ? 0 : 1]} · ${children} ${labels[children === 1 ? 2 : 3]}`;
 }
+
+export function bookingEstimate(
+  amount: number | null,
+  known: number,
+  locale: string,
+) {
+  const labels: Record<string, readonly [string, string]> = {
+    en: ['Estimated total', 'On request'],
+    it: ['Totale stimato', 'Su richiesta'],
+    es: ['Total estimado', 'Bajo petición'],
+    fr: ['Total estimé', 'Sur demande'],
+    de: ['Geschätzter Gesamtpreis', 'Auf Anfrage'],
+    ru: ['Ориентировочная стоимость', 'По запросу'],
+    tr: ['Tahmini toplam', 'Talep üzerine'],
+  };
+  const [label, onRequest] = labels[locale] ?? labels.en!;
+  const money = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'EUR',
+    maximumFractionDigits: 0,
+  });
+  const value =
+    amount !== null
+      ? money.format(amount)
+      : known > 0
+        ? money.format(known) + ' + ' + onRequest
+        : onRequest;
+  return label + ': ' + value;
+}

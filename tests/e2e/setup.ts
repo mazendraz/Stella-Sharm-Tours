@@ -2,7 +2,12 @@
 export default async function setup() {
   for (const [url, fixture] of [
     ['http://127.0.0.1:4100/healthz', true],
-    ['http://127.0.0.1:3000/healthz', false],
+    [
+      'http://127.0.0.1:' +
+        (process.env.PLAYWRIGHT_FIXTURE_WEB_PORT ?? '3000') +
+        '/healthz',
+      false,
+    ],
   ] as const) {
     const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw new Error(`QA service unavailable: ${url}`);

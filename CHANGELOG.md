@@ -2,6 +2,124 @@
 
 ## Unreleased
 
+- Replace the seven homepage intro videos with Pexels footage and frame each
+  clip for desktop and mobile. Add a hero-only catalog sync for existing sites.
+
+- **Trip stories** — add the multilingual route viewer, draft editing and trip
+  publication for six journeys across seven catalog entries.
+
+- **Requests and exports**: match both date bounds against the same excursion
+  and use the same filters for the list, count and CSV. Full CSV export
+  traverses results in bounded batches.
+- **Seven-language publication**: enforce complete core copy when publishing,
+  preserve editorial translation provenance and support editing and undoing
+  trip and itinerary time labels. Machine translation accepts only enabled
+  additional locales. Localize booking confirmations, staff booking and
+  authentication mail, pickup labels in staff replies, schedule notices and
+  the public recovery page.
+- **Calendar and page delivery**: focus the calendar on a date error and use
+  native keyboard-accessible date buttons. Load authenticated admin screens
+  on demand, use the actual media rendition widths and deliver smaller brand
+  assets. Load saved itineraries in one bounded catalog request.
+- **Cache and search indexing**: scope catalog invalidation to affected trips,
+  packages and collections, group bulk price invalidation, and bound session
+  activity writes. Return a retryable sitemap error during a catalog outage
+  and only index published legal pages.
+- **Deployment and notifications**: prepare read-only operations files per
+  commit, ship standalone web and dashboard images, and retry push delivery
+  per subscription. Systemd can send a generic incident event to an operator
+  webhook configured on the server.
+- **Admin save and price controls**: preserve edits typed while a save is
+  pending and keep failed sections open for retry. Give inline price drafts
+  explicit Save and Cancel controls. Keep bulk preview submissions compact
+  and detect changes to the price scope before applying them.
+- **Safe booking retries**: return the original booking reference and
+  confirmation when the same request is retried. Save one booking and one
+  notification even if requests overlap or the first response is lost.
+- **Booking stay dates and WhatsApp numbers**: count through the final day
+  of the last tour when checking the stay. Normalize local numbers and pasted
+  international numbers using country dialing rules. Show the exact number
+  sent to staff, with phone guidance and errors in all seven core languages.
+- **Date-aware booking quotes**: resolve seasonal rates on each tour’s
+  service date, use the selected price ID and save the quoted dates and
+  whole-euro amounts. Show the revised quote before saving if a rate changes
+  during booking. Localize the quote and review messages in all seven core
+  languages.
+- **My Trip recovery and booking formats**: show available saved tours even
+  when another tour has been withdrawn. Let guests remove withdrawn tours or
+  retry after a temporary catalog failure. Require Private for the whole
+  itinerary when any selected tour is private-only. Localize the explanation
+  and the My Trip page title in all seven core languages.
+- **Catalog seed and trip return times**: accept itinerary stops with unknown
+  times and preserve their order on repeat seed. Import the 19 supplied trip
+  return times, fill missing return times on existing records, and display
+  localized times on the public trip page in all seven core languages.
+- **Browser release checks**: use current booking calendar and country
+  controls, serve authored translations in the isolated catalog fixture, and
+  add seeded site, admin and language checks to CI.
+- **Live hero validation**: apply publish checks to live edits and keep
+  incomplete legacy slides from interrupting catalog reads or bookings.
+- **Media withdrawal and upload recovery**: check current rights before
+  serving public variants, including previously generated versions. Restore
+  failed uploads by re-uploading the same file. Recover an archived upload as
+  a private asset pending a fresh rights decision.
+- **Runtime database permissions**: give the API and worker explicit database
+  grants. The worker can send existing notifications, process media, translate
+  content, and run retention jobs with no direct access to password hashes,
+  MFA secrets, sessions, reset tokens, or the full audit history.
+- **Production dependency advisory**: remove the unused next-intl extraction
+  watcher from the public app. Install production dependencies separately in
+  release images so development-only dependencies stay in the build stage.
+
+- **Admin sign-in and mobile fixes** (2026-11-15):
+  - Sign-in errors say what went wrong: wrong email/password, wrong or
+    expired code, expired link, too many attempts, or server unreachable,
+    instead of always "Email, password or code is incorrect". The error sits
+    above the button; no duplicate toast. New strings in all seven languages.
+  - Dev: opening the admin at `127.0.0.1:3001` (the address `next dev`
+    prints) now redirects to `NEXT_PUBLIC_ADMIN_URL` (`localhost:3001`).
+    Before, the API rejected the origin (`INVALID_ORIGIN`) and sign-in failed
+    as if the password were wrong.
+  - Phone sign-in screen: compact logo row so the form starts near the top.
+    Admin font uses `display: optional` (preloaded) so text no longer swaps
+    font mid-load.
+  - Trip and package editors: **Archive / Restore** in the "More actions"
+    menu (with confirmation), not only inside the status pill.
+  - Request detail: the WhatsApp button matches the website (WhatsApp logo,
+    WhatsApp green `#25D366`, dark text, contrast 7.8:1).
+  - Activity: status changes use their labels ("Confirmed → Completed"), and
+    duplicates name the original: “duplicated trip “X” as “X (copy)””.
+  - Phone lists: one **Filters** button (with the active count) next to the
+    search box on Trips, Packages, Prices, Media and Translations
+    (`components/ui/filter-bar.tsx`); wide screens keep the one-row filters.
+  - Floating actions (New trip, Change prices together, Upload, …) no longer
+    cover the last row: the page gets room below the list.
+  - Translations on phones: one card per text (where, state, English,
+    translation, approve) instead of an 860px table with sideways scroll;
+    "Select all on this page" is labelled.
+  - Editors on phones: no app top bar or bottom nav, slimmer language/section
+    bars and a one-row save bar. Fixed bars went from ~340px to ~160px of a
+    667px screen.
+  - Tablet rail: the nav scrolls on short screens instead of running under
+    the account button.
+
+- **Official contact channels** (owner, 2026-11-14): call number
+  +20 109 598 9932, email stellasharmtour@gmail.com, Instagram, Facebook,
+  TripAdvisor and Google Maps are seeded into Settings. The seed fills them
+  into existing databases only where the field is still empty.
+  Contact page shows call/email cards (icon, label, value), a clickable office map (static
+  OpenStreetMap image with a pin, `public/map/office.webp`, credited; an
+  admin `map_image` still replaces the picture) that opens the exact pin in
+  Google Maps, and a "Follow us" list. The footer adds Call, Email and round
+  social icons (the map icon also opens the pin). New UI strings in all
+  seven languages. Admin → Settings → Social adds a "Google Maps" platform.
+- **Hero chip row** (collection pills over the video): swiping the chips
+  scrolls them instead of changing the slide, mouse users can drag the row,
+  the active chip scrolls into view, and the edges fade while more chips are
+  hidden.
+- Production owner login (and password-reset address) is now
+  stellasharmtour@gmail.com in `infra/configure.mjs`.
+
 - **Admin rebuilt** to `docs/stella-admin-rebuild-spec.md` (details and every
   deviation in `REBUILD_NOTES.md`):
   - New shell: grouped sidebar (Sales, Catalog, Website, Languages, Admin),

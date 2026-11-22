@@ -4,6 +4,7 @@ import { createHmac } from 'node:crypto';
 import { connectDatabase } from '../../packages/db/src/index';
 export async function localDatabase(
   mode: 'development' | 'verification' = 'development',
+  access: 'fixture' | 'runtime' = 'fixture',
 ) {
   const env = parseEnv(
       await readFile(
@@ -25,11 +26,7 @@ export async function localDatabase(
       throw new Error(
         'Verification config is not the isolated local container stack',
       );
-    url.hostname = '127.0.0.1';
-    url.port = '4991';
-    return { ...connectDatabase(url.href), env };
-  }
-  if (
+  } else if (
     env.NODE_ENV !== 'development' ||
     url.hostname !== '127.0.0.1' ||
     url.port !== '55433' ||
@@ -40,10 +37,38 @@ export async function localDatabase(
     throw new Error(
       'This browser suite requires the isolated generated local development configuration',
     );
-  return { ...connectDatabase(env.DATABASE_URL!), env };
+  if (url.username !== 'stella_api')
+    throw new Error('The isolated API must use its runtime role');
+  const credential =
+    access === 'runtime'
+      ? url
+      : new URL(
+          parseEnv(
+            await readFile(
+              mode === 'verification'
+                ? '.local/integration-runtime/production/env/migration.env'
+                : '.env',
+              'utf8',
+            ),
+          ).MIGRATION_DATABASE_URL!,
+        );
+  if (
+    credential.host !== url.host ||
+    credential.pathname !== url.pathname ||
+    credential.username !==
+      (access === 'runtime' ? 'stella_api' : 'stella_migrate')
+  )
+    throw new Error('Fixture credentials must match the isolated database');
+  if (mode === 'verification') {
+    credential.hostname = '127.0.0.1';
+    credential.port = '4991';
+  }
+  return { ...connectDatabase(credential.href), env };
 }
-export default async function setup() {
-  const { pool, env } = await localDatabase();
+export async function assertRestrictedRuntime(
+  mode: 'development' | 'verification',
+) {
+  const { pool } = await localDatabase(mode, 'runtime');
   try {
     const {
       rows: [role],
@@ -57,6 +82,14 @@ export default async function setup() {
       role.can_create
     )
       throw new Error('Runtime API database role has excessive privileges');
+  } finally {
+    await pool.end();
+  }
+}
+export default async function setup() {
+  await assertRestrictedRuntime('development');
+  const { pool, env } = await localDatabase();
+  try {
     const hashes = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].map(
       (ip) =>
         'request-ip:' +

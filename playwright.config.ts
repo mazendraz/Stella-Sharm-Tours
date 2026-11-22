@@ -7,7 +7,8 @@ export default defineConfig({
   retries: 0,
   reporter: 'list',
   use: {
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL:
+      'http://127.0.0.1:' + (process.env.PLAYWRIGHT_FIXTURE_WEB_PORT ?? '3000'),
     trace: 'retain-on-failure',
     channel: process.env.PLAYWRIGHT_CHANNEL ?? 'chrome',
   },

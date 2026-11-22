@@ -91,6 +91,22 @@ test('production-like proxy, runtime URLs, sitemap, media negotiation and privat
   expect(sitemap).not.toContain('example.invalid');
   for (const locale of locales)
     expect(sitemap).toContain(`http://localhost:4983/${locale}`);
+  for (const key of ['terms', 'privacy', 'cancellation']) {
+    const data = await request.get(
+      'http://localhost:4984/v1/public/pages/' + key,
+    );
+    const url = 'http://localhost:4983/en/legal/' + key;
+    if (data.ok()) expect(sitemap).toContain(url);
+    else {
+      expect(data.status()).toBe(404);
+      expect(sitemap).not.toContain(url);
+      await page.goto('/en/legal/' + key);
+      await expect(page.locator('meta[name=robots]')).toHaveAttribute(
+        'content',
+        /noindex/,
+      );
+    }
+  }
   const robots = await (await request.get('/robots.txt')).text();
   expect(robots).toContain('http://localhost:4983/sitemap.xml');
   const site = await (
@@ -110,7 +126,7 @@ test('production-like proxy, runtime URLs, sitemap, media negotiation and privat
     headers: { Accept: 'image/avif;q=0,image/webp;q=0,image/jpeg' },
   });
   expect(jpeg.headers()['content-type']).toContain('image/jpeg');
-  expect(avif.headers()['cache-control']).toContain('immutable');
+  expect(avif.headers()['cache-control']).toContain('must-revalidate');
 });
 test('the same built image serves the runtime canonical, API and sitemap URLs in a second environment', async ({
   request,
@@ -168,12 +184,12 @@ test('real booking uses the runtime API address and delivers only to isolated Ma
   await page.goto('/en/t/quad-bike-safari');
   await page.getByRole('button', { name: 'Request', exact: true }).click();
   const sheet = page.getByRole('dialog').last();
-  await sheet.locator('.date-chip').first().click();
+  await sheet.locator('.range-day:enabled').first().click();
   await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
   await sheet
     .getByLabel('Your name', { exact: true })
     .fill('Synthetic integration QA ' + info.project.name);
-  await sheet.getByLabel('Country code').selectOption('+20');
+  await sheet.getByLabel('Country', { exact: true }).selectOption('EG');
   await sheet
     .getByLabel('WhatsApp number', { exact: true })
     .fill(

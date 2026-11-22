@@ -1,6 +1,14 @@
 import { randomUUID, createHmac } from 'node:crypto';
 import type { Hono } from 'hono';
-import { and, eq, inArray, isNull, sql, getTableColumns } from 'drizzle-orm';
+import {
+  and,
+  eq,
+  inArray,
+  isNull,
+  isNotNull,
+  sql,
+  getTableColumns,
+} from 'drizzle-orm';
 import { z } from 'zod';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -29,6 +37,8 @@ import {
   tripSnapshot,
 } from './admin';
 import { fail } from './errors';
+import { coreWebMessages } from './web-dictionaries';
+import { requireCoreCopy } from './publication-languages';
 import { restorePublication } from './restore-publication';
 import {
   restoreTranslation,
@@ -496,6 +506,19 @@ export function registerMore(
           );
         const b = draft ? collectionEditSchema.parse(draft.data) : {};
         const merged = { ...before, ...b };
+        await requireCoreCopy(tx, [
+          {
+            entity: 'collection',
+            id,
+            copy: {
+              name: merged.name,
+              shortName: merged.shortName,
+              headline: merged.headline,
+              subline: merged.subline,
+              perks: merged.perks,
+            },
+          },
+        ]);
         for (const mid of [merged.coverMediaId, merged.heroVideoId])
           if (mid) {
             const [m] = await tx
@@ -552,6 +575,10 @@ export function registerMore(
     if (b.publish && !can(c.get('principal').role, 'publish'))
       fail(403, 'FORBIDDEN');
     const row = await db.transaction(async (tx) => {
+      if (b.publish)
+        await requireCoreCopy(tx, [
+          { entity: 'faq', id: '', copy: { q: b.q, a: b.a } },
+        ]);
       const [row] = await tx
         .insert(s.faqs)
         .values({
@@ -592,6 +619,10 @@ export function registerMore(
       if (!before) fail(404, 'NOT_FOUND');
       if (before.status === 'published' && c.get('principal').role === 'editor')
         fail(403, 'DRAFT_ONLY');
+      if (b.publish)
+        await requireCoreCopy(tx, [
+          { entity: 'faq', id, copy: { q: b.q, a: b.a } },
+        ]);
       await tx
         .update(s.faqs)
         .set({
@@ -707,6 +738,10 @@ export function registerMore(
             );
         }
         await recordHumanFields(tx, 'page_block', id, row.data, existing?.data);
+        if (b.publish)
+          await requireCoreCopy(tx, [
+            { entity: 'page_block', id, copy: row.data },
+          ]);
       }
       await recordChange(
         tx,
@@ -958,6 +993,21 @@ export function registerMore(
       fields
         .filter((f) => !p.data.entity || p.data.entity === f.entity)
         .flatMap((f) => {
+          if (f.entity === 'ui' && isCoreLocale(p.data.locale)) {
+            const dictionary: Record<string, string> =
+              coreWebMessages[p.data.locale];
+            return [
+              {
+                entity: f.entity,
+                id: f.id,
+                field: f.field,
+                source: f.en,
+                ...where(f.entity, f.id),
+                value: dictionary[f.field] ?? '',
+                state: 'repository',
+              },
+            ];
+          }
           const row = rows.find(
             (r) =>
               r.entity === f.entity &&
@@ -1018,6 +1068,7 @@ export function registerMore(
           locale: z.string().regex(/^[a-z]{2,3}$/),
         }),
       );
+      if (isCoreLocale(b.locale)) fail(422, 'INVALID_LOCALE');
       await db
         .insert(s.outbox)
         .values({ name: 'i18n.translate_entity', data: b });
@@ -1029,7 +1080,8 @@ export function registerMore(
     auth.guard('languages'),
     async (c) => {
       const locale = c.req.param('locale');
-      if (!/^[a-z]{2,3}$/.test(locale)) fail(422, 'INVALID_LOCALE');
+      if (!/^[a-z]{2,3}$/.test(locale) || isCoreLocale(locale))
+        fail(422, 'INVALID_LOCALE');
       await db
         .insert(s.outbox)
         .values({ name: 'i18n.backfill_locale', data: { locale } });
@@ -1052,74 +1104,82 @@ function registerBulkAndRestore(
     /** Round results to the nearest €1 (default) or €5. */
     round: z.union([z.literal(0), z.literal(1), z.literal(5)]).default(1),
   });
+  const rowLimit = 5000;
+  const tripLimit = 200;
   const payloadSchema = z.strictObject({
     user: z.uuid(),
     expires: z.number(),
-    rows: z
-      .array(
-        z.strictObject({
-          id: z.uuid(),
-          tripId: z.uuid(),
-          before: z.number().nonnegative(),
-          after: z.number().min(0).max(99999999),
-        }),
-      )
-      .max(5000),
+    input: previewSchema,
+    fingerprint: z.string().regex(/^[a-f0-9]{64}$/),
   });
-  const large = (a: number, b: number) =>
-    a === 0 ? b !== 0 : Math.abs(b - a) / a > 0.4;
-  app.post('/v1/admin/prices/bulk/preview', auth.guard('prices'), async (c) => {
-    const b = await auth.parse(c, previewSchema);
-    const rows = await db
+  type PreviewInput = z.infer<typeof previewSchema>;
+  const priceRows = (reader: Pick<Database, 'select'>, input: PreviewInput) =>
+    reader
       .select({
         id: s.tripPrices.id,
         tripId: s.tripPrices.tripId,
         amount: s.tripPrices.amountEur,
+        slug: s.trips.slug,
       })
       .from(s.tripPrices)
       .innerJoin(s.trips, eq(s.trips.id, s.tripPrices.tripId))
       .where(
         and(
           isNull(s.trips.archivedAt),
-          b.collectionId ? eq(s.trips.collectionId, b.collectionId) : undefined,
-          b.tripIds ? inArray(s.trips.id, b.tripIds) : undefined,
+          isNotNull(s.tripPrices.amountEur),
+          input.collectionId
+            ? eq(s.trips.collectionId, input.collectionId)
+            : undefined,
+          input.tripIds ? inArray(s.trips.id, input.tripIds) : undefined,
         ),
-      );
-    const values = rows.flatMap((row) =>
-      row.amount === null
-        ? []
-        : [
-            {
-              id: row.id,
-              tripId: row.tripId,
-              before: Number(row.amount),
-              after: (() => {
-                const raw =
-                  b.mode === 'percent'
-                    ? Number(row.amount) * (1 + b.value / 100)
-                    : Number(row.amount) + b.value;
-                // round 0 = keep cents (no rounding beyond 2 decimals)
-                const step = b.round || 0.01;
-                return Math.max(
-                  0,
-                  Number((Math.round(raw / step) * step).toFixed(2)),
-                );
-              })(),
-            },
-          ],
+      )
+      .orderBy(s.tripPrices.id)
+      .limit(rowLimit + 1);
+  type PriceRows = Awaited<ReturnType<typeof priceRows>>;
+  const oversized = (rows: PriceRows) =>
+    rows.length > rowLimit ||
+    new Set(rows.map(({ tripId }) => tripId)).size > tripLimit;
+  const fingerprint = (rows: PriceRows) =>
+    sha(
+      JSON.stringify(
+        rows.map(({ id, tripId, amount }) => [id, tripId, amount]),
+      ),
     );
-    const payload = payloadSchema.parse({
-        user: c.get('principal').id,
-        expires: Date.now() + 300000,
-        rows: values,
-      }),
-      encoded = Buffer.from(JSON.stringify(payload)).toString('base64url'),
+  const adjustment = (rows: PriceRows, input: PreviewInput) =>
+    rows.map(({ id, tripId, amount }) => {
+      const before = Number(amount);
+      const raw =
+        input.mode === 'percent'
+          ? before * (1 + input.value / 100)
+          : before + input.value;
+      const step = input.round || 0.01;
+      const after = Math.max(
+        0,
+        Number((Math.round(raw / step) * step).toFixed(2)),
+      );
+      if (after > 99999999) fail(422, 'INVALID_PRICE');
+      return { id, tripId, before, after };
+    });
+  const large = (a: number, b: number) =>
+    a === 0 ? b !== 0 : Math.abs(b - a) / a > 0.4;
+  app.post('/v1/admin/prices/bulk/preview', auth.guard('prices'), async (c) => {
+    const input = await auth.parse(c, previewSchema);
+    const current = await priceRows(db, input);
+    if (oversized(current)) fail(422, 'PREVIEW_TOO_LARGE');
+    const rows = adjustment(current, input);
+    const payload = {
+      user: c.get('principal').id,
+      expires: Date.now() + 300000,
+      input,
+      fingerprint: fingerprint(current),
+    };
+    const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url'),
       signature = createHmac('sha256', cfg.SESSION_SECRET)
         .update(encoded)
         .digest('base64url');
     return c.json({
-      rows: values,
-      requires_confirmation: values.some((r) => large(r.before, r.after)),
+      rows,
+      requires_confirmation: rows.some((row) => large(row.before, row.after)),
       token: encoded + '.' + signature,
     });
   });
@@ -1155,50 +1215,57 @@ function registerBulkAndRestore(
     const p = parsed.data;
     if (p.user !== c.get('principal').id || p.expires < Date.now())
       fail(409, 'PREVIEW_EXPIRED');
-    if (p.rows.some((r) => large(r.before, r.after)) && !b.confirmLargeChange)
-      fail(409, 'PRICE_CONFIRMATION_REQUIRED');
     await db.transaction(async (tx) => {
-      const ids = [...new Set(p.rows.map((r) => r.tripId))];
-      if (!ids.length) return;
+      const current = await priceRows(tx, p.input).for('update');
+      if (oversized(current) || fingerprint(current) !== p.fingerprint)
+        fail(409, 'PREVIEW_STALE');
+      const changed = adjustment(current, p.input).filter(
+        (row) => row.before !== row.after,
+      );
+      if (
+        changed.some((row) => large(row.before, row.after)) &&
+        !b.confirmLargeChange
+      )
+        fail(409, 'PRICE_CONFIRMATION_REQUIRED');
+      if (!changed.length) return;
+
+      const byTrip = new Map<string, typeof changed>();
+      for (const row of changed) {
+        const entries = byTrip.get(row.tripId) ?? [];
+        entries.push(row);
+        byTrip.set(row.tripId, entries);
+      }
+      // Include unpriced rows in each undo snapshot.
       const before = await tx
         .select()
         .from(s.tripPrices)
-        .where(inArray(s.tripPrices.tripId, ids))
+        .where(inArray(s.tripPrices.tripId, [...byTrip.keys()]))
         .for('update');
-      for (const row of p.rows) {
-        const current = before.find(
-          (r) => r.id === row.id && r.tripId === row.tripId,
-        );
-        if (
-          !current ||
-          current.amountEur === null ||
-          Number(current.amountEur) !== row.before
-        )
-          fail(409, 'PREVIEW_STALE');
-      }
-      for (const id of ids) {
-        const rows = p.rows.filter((r) => r.tripId === id);
-        for (const row of rows)
-          await tx
-            .update(s.tripPrices)
-            .set({ amountEur: String(row.after) })
-            .where(eq(s.tripPrices.id, row.id));
-        const [trip] = await tx
-          .select()
-          .from(s.trips)
-          .where(eq(s.trips.id, id));
+      await tx.execute(sql`
+        update ${s.tripPrices} as price set amount_eur = changed.amount
+        from jsonb_to_recordset(${JSON.stringify(changed.map((row) => ({ id: row.id, amount: row.after })))}::jsonb)
+          as changed(id uuid, amount numeric)
+        where price.id = changed.id
+      `);
+      const slugs = new Map(current.map((row) => [row.tripId, row.slug]));
+      for (const [id, rows] of byTrip)
         await recordChange(
           tx,
           c,
           cfg,
           'trip_prices',
           id,
-          before.filter((r) => r.tripId === id),
+          before.filter((row) => row.tripId === id),
           rows,
           'bulk_prices',
-          ['site', 'collections', 'trip:' + trip!.slug],
+          [],
         );
-      }
+      await tx.insert(s.outbox).values({
+        name: 'revalidate.web',
+        data: {
+          tags: [...byTrip.keys()].map((id) => 'trip:' + slugs.get(id)!),
+        },
+      });
     });
     return c.json({ ok: true });
   });
@@ -1214,11 +1281,14 @@ function registerBulkAndRestore(
       z.strictObject({ confirmLargeChange: z.boolean().optional() }),
     );
     await db.transaction(async (tx) => {
+      // Serialize repeated restores without granting write access to history.
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtextextended(${'restore-revision:' + parsed.data}, 0))`,
+      );
       const [revision] = await tx
         .select()
         .from(s.revisions)
-        .where(eq(s.revisions.id, parsed.data))
-        .for('update');
+        .where(eq(s.revisions.id, parsed.data));
       if (!revision) fail(404, 'NOT_FOUND');
       const value = obj(revision.snapshot),
         id = revision.entityId,
@@ -1793,7 +1863,7 @@ function registerBulkAndRestore(
         };
         if (value.rightsStatus === 'unknown') {
           const used = await tx.execute(
-            sql`select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=${id} and t.status='published' union all select 1 from collections where status='published' and (cover_media_id=${id} or hero_video_id=${id}) union all select 1 from hero_slides where status='published' and (image_media_id=${id} or video_media_id=${id}) limit 1`,
+            sql`select 1 from trip_media tm join trips t on t.id=tm.trip_id where tm.media_id=${id} and t.status='published' union all select 1 from trips where status='published' and story->'scenes' @> jsonb_build_array(jsonb_build_object('mediaId',${id}::text)) union all select 1 from collections where status='published' and (cover_media_id=${id} or hero_video_id=${id}) union all select 1 from hero_slides where status='published' and (image_media_id=${id} or video_media_id=${id}) limit 1`,
           );
           if (used.rows.length) fail(409, 'MEDIA_IN_USE');
         }

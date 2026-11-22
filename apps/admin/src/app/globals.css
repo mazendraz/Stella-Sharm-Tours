@@ -460,13 +460,18 @@ details.advanced[open] > summary {
 .btn-danger:hover:not(:disabled) {
   background: #8f1c13;
 }
+/* Same as the website's WhatsApp button: WhatsApp green + glyph. Dark text
+   on #25D366 keeps contrast readable (white on it is too low). */
 .btn-whatsapp {
-  background: #1f8f4e;
-  border-color: #1f8f4e;
-  color: white;
+  background: #25d366;
+  border-color: #25d366;
+  color: #062b16;
+  box-shadow: 0 6px 18px #25d36640;
 }
 .btn-whatsapp:hover {
-  background: #187240 !important;
+  background: #1fbe5b !important;
+  border-color: #1fbe5b;
+  color: #062b16;
 }
 .btn-sm {
   min-height: 36px;
@@ -1094,7 +1099,7 @@ main#main {
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 6px 12px;
   border-radius: 10px;
   text-decoration: none;
@@ -2819,6 +2824,38 @@ a.activity-link:hover .activity-text {
 .sun {
   display: none;
 }
+/* Phones: compact brand row so the form starts near the top of the screen. */
+@media (max-width: 767.98px) {
+  .auth-layout {
+    align-content: start;
+    gap: 16px;
+    padding: 16px;
+  }
+  .auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 4px 2px 0;
+  }
+  .auth-brand .brand-logo {
+    block-size: 64px;
+  }
+  .auth-brand h1 {
+    font-size: 19px;
+    line-height: 1.3;
+    margin: 0;
+  }
+  .auth-card {
+    padding: 20px;
+    align-self: start;
+  }
+  .auth-card .language-select {
+    margin-block-end: 12px;
+  }
+  .auth-layout label {
+    margin-block: 10px;
+  }
+}
 .qr {
   display: grid;
   justify-items: center;
@@ -3144,7 +3181,6 @@ a.activity-link:hover .activity-text {
     height: 24px;
   }
   .sidebar .nav-link {
-    min-height: 32px;
     padding-block: 4px;
     font-size: 14px;
   }
@@ -3410,4 +3446,230 @@ a.activity-link:hover .activity-text {
     min-height: calc(100dvh - 56px);
     align-content: center;
   }
+}
+
+/* ---------- Mobile pass (2026-11-15) ---------- */
+
+/* List filters: one "Filters" button on phones (see components/ui/filter-bar). */
+.filter-toggle,
+.select-page-label {
+  display: none;
+}
+.filter-extra {
+  display: contents;
+}
+@media (max-width: 639.98px) {
+  .filter-bar > .searchbox,
+  .filter-bar > .inline-label {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .filter-bar > .inline-label select {
+    width: 100%;
+    max-width: none;
+  }
+  /* The count drops to its own short line instead of squeezing the bar. */
+  .table-toolbar > .filter-bar {
+    flex-basis: 100%;
+  }
+  .keyboard-tip {
+    display: none;
+  }
+  .filter-toggle {
+    display: inline-flex;
+    flex: none;
+    min-height: 44px;
+  }
+  .filter-extra {
+    display: none;
+  }
+  .filter-bar[data-open] .filter-extra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex-basis: 100%;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .filter-extra > select,
+  .filter-extra > .mini-field,
+  .filter-extra > .searchbox {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  /* Floating primary action: room below the last row so it covers nothing. */
+  main#main:has(.page-primary) {
+    padding-block-end: calc(
+      var(--bottom-nav) + 104px + env(safe-area-inset-bottom)
+    );
+  }
+}
+
+/* Editors on phones: no app top bar or bottom nav, slimmer sticky bars and a
+   one-row save bar, so the form gets most of the screen. */
+@media (max-width: 767.98px) {
+  .shell:has(.editor) {
+    --topbar: 0px;
+  }
+  .shell:has(.editor) .topbar,
+  .shell:has(.editor) .bottom-nav {
+    display: none;
+  }
+  .shell:has(.editor) main#main {
+    padding-block-end: 24px;
+  }
+  .shell:has(.editor) .save-bar {
+    bottom: 0;
+    flex-wrap: nowrap;
+    padding-block: 8px max(8px, env(safe-area-inset-bottom));
+  }
+  .shell:has(.editor) .save-bar-text {
+    flex: 1 1 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 13px;
+    margin: 0;
+  }
+  .shell:has(.editor) .save-bar-actions {
+    width: auto;
+    flex: none;
+  }
+  .shell:has(.editor) .save-bar-actions .btn {
+    flex: none;
+  }
+  .language-bar {
+    padding-block: 4px;
+    margin-block-end: 4px;
+  }
+  .section-nav {
+    top: calc(var(--topbar) + 54px);
+  }
+  .section-nav ul {
+    padding-block: 2px 6px;
+  }
+  .editor-section {
+    scroll-margin-top: calc(var(--topbar) + 110px);
+  }
+
+  /* Translations: one card per text instead of an 860px table. */
+  .table-scroll:has(.translations-table) {
+    overflow: visible;
+  }
+  .translations-table,
+  .translations-table thead,
+  .translations-table tbody {
+    display: block;
+    min-width: 0;
+  }
+  .translations-table {
+    border: 0;
+    background: none;
+  }
+  .translations-table thead tr {
+    display: flex;
+  }
+  .translations-table thead th {
+    display: none;
+  }
+  .translations-table thead th.col-check {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: auto;
+    padding: 0 4px 10px;
+    border: 0;
+    background: none;
+    font-size: 14px;
+    font-weight: 650;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ink);
+  }
+  .select-page-label {
+    display: inline;
+  }
+  .translations-table tbody tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'check where approve'
+      'check state approve'
+      'src src src'
+      'tr tr tr';
+    gap: 6px 10px;
+    padding: 12px;
+    margin-block-end: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .translations-table td {
+    display: block;
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+  .translations-table input[type='checkbox'] {
+    width: 24px;
+    height: 24px;
+  }
+  .translations-table td.col-check {
+    grid-area: check;
+  }
+  .translations-table .cell-where {
+    grid-area: where;
+  }
+  .translations-table .cell-state {
+    grid-area: state;
+  }
+  .translations-table .cell-approve {
+    grid-area: approve;
+  }
+  .translations-table .cell-approve .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+  .translations-table .cell-source {
+    grid-area: src;
+  }
+  .translations-table .cell-translation {
+    grid-area: tr;
+  }
+  .translations-table .cell-source::before,
+  .translations-table .cell-translation::before {
+    content: attr(data-label);
+    display: block;
+    margin-block-end: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+}
+
+/* Tablet rail: the nav scrolls on short screens instead of running under the
+   account button. */
+@media (min-width: 768px) {
+  .sidebar-nav {
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .sidebar-logo,
+  .sidebar-account {
+    flex: none;
+  }
+}
+.inline-price-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
 }

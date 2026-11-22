@@ -16,9 +16,26 @@ import {
   runDays,
   splitNotes,
 } from '../../../packages/db/src/normalize';
-import { protectText } from './translate';
+import { protectText, providerTargets } from './translate';
 import { inside, runTool } from './media';
 import { liveLocales } from './catalog';
+it('keeps the advertised provider codes for normalized site locales', () => {
+  expect(
+    Object.fromEntries(
+      providerTargets([
+        'PT-BR',
+        'PT-PT',
+        'ZH-HANS',
+        'ZH-HANT',
+        'AR',
+        'en-US',
+        '??',
+      ]),
+    ),
+  ).toEqual({ pt: 'PT-PT', zh: 'ZH-HANS', ar: 'AR', en: 'en-US' });
+  expect(providerTargets(['zh-TW', 'zh-CN']).get('zh')).toBe('zh-CN');
+  expect(providerTargets(['pt', 'pt-PT']).get('pt')).toBe('pt');
+});
 describe('authorization policy', () => {
   for (const role of roles)
     for (const action of Object.keys(
@@ -112,10 +129,15 @@ describe('security primitives and source normalization', () => {
       ])?.text,
     ).toBe('edited');
     expect(
-      resolveText(value, 'de', [
-        { locale: 'de', origin: 'machine', text: 'Meer', sourceHash: 'old' },
+      resolveText(value, 'nl', [
+        { locale: 'nl', origin: 'machine', text: 'Zee', sourceHash: 'old' },
       ])?.lang,
-    ).toBe('de');
+    ).toBe('nl');
+    expect(
+      resolveText(value, 'de', [
+        { locale: 'de', origin: 'machine', text: 'Meer' },
+      ]),
+    ).toEqual({ text: 'Sea', lang: 'en', fallback: true });
     expect(resolveText(value, 'tr')).toEqual({
       text: 'Sea',
       lang: 'en',

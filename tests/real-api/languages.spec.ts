@@ -13,7 +13,7 @@ const messages = { en, it, es, fr, de, ru, tr };
 for (const locale of locales)
   test(
     locale + ' actual translated content and language switch',
-    async ({ page }, info) => {
+    async ({ page, request }, info) => {
       const errors: string[] = [];
       page.on('pageerror', (error) => errors.push(error.message));
       page.on('console', (message) => {
@@ -48,6 +48,22 @@ for (const locale of locales)
       await expect(page).toHaveTitle(
         new RegExp(bundledCoreText('Quad Bike Safari', locale)!),
       );
+      const api =
+        process.env.STELLA_INTEGRATION_VERIFY === '1'
+          ? 'http://localhost:4984'
+          : 'http://localhost:4000';
+      const { cover } = await (
+        await request.get(
+          api + '/v1/public/trips/quad-bike-safari?locale=' + locale,
+        )
+      ).json();
+      expect(cover.alt.lang).toBe(locale);
+      await expect(
+        page
+          .locator('.gallery')
+          .getByRole('img', { name: cover.alt.text })
+          .first(),
+      ).toBeVisible();
       await expect(
         page
           .getByText(bundledCoreText('Every day', locale)!, { exact: true })
@@ -69,6 +85,21 @@ for (const locale of locales)
       // Measure the finished surface, rather than text composited through
       // the finite opening fade against the darker gallery/backdrop.
       await expect(sheet).toHaveCSS('opacity', '1');
+      const day = sheet.locator('.range-day:enabled').first();
+      const target = await day.boundingBox();
+      expect(target?.width).toBeGreaterThanOrEqual(44);
+      expect(target?.height).toBeGreaterThanOrEqual(44);
+      const send = sheet.getByRole('button', {
+        name: messages[locale].sendRequest,
+        exact: true,
+      });
+      await expect(send).toBeEnabled();
+      await send.press('Enter');
+      await expect(day).toBeFocused();
+      await expect(day).toHaveAccessibleDescription(messages[locale].invalid);
+      await page.keyboard.press('Enter');
+      await expect(day).toHaveAttribute('aria-pressed', 'true');
+      await expect(sheet.locator('.range-field .field-error')).toHaveCount(0);
       expect(
         (
           await new AxeBuilder({ page })
@@ -94,5 +125,14 @@ for (const locale of locales)
           path: '.local/languages/desktop-tr-dialog.png',
           animations: 'disabled',
         });
+      await page.goto('/' + locale + '/t/qa-trip-does-not-exist');
+      await expect(
+        page.getByRole('heading', { name: messages[locale].notFound }),
+      ).toBeVisible();
+      await expect(
+        page
+          .getByRole('main')
+          .getByRole('link', { name: messages[locale].home }),
+      ).toHaveAttribute('href', '/' + locale);
     },
   );

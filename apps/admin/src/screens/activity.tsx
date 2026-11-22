@@ -85,7 +85,14 @@ export function Activity() {
         obj(after.values).archivedAt
           ? 'act_undoCreate'
           : 'act_' + String(row.action);
-    const text = t(key, { who, type, name: name || type });
+    // Duplicates name the original too: "duplicated trip “X” as “X (copy)”".
+    const source =
+      row.action === 'duplicate' && typeof after.source === 'string'
+        ? content(lookup.get(after.source), locale)
+        : '';
+    const text = source
+      ? t('act_duplicateFrom', { who, type, source, name: name || type })
+      : t(key, { who, type, name: name || type });
     const base =
       text === key ? t('act_update', { who, type, name: name || type }) : text;
     return row.times > 1 ? base + ' ' + t('timesN', { n: row.times }) : base;

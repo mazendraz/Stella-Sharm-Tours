@@ -1,6 +1,7 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Pause, Play, ArrowUpRight } from 'lucide-react';
@@ -272,9 +273,13 @@ export function StoryHero({
       className="hero"
       aria-label={t('journeys')}
       onTouchStart={(e) => {
-        touch.current = e.touches[0]?.clientX ?? 0;
+        // Swiping the chip row scrolls the chips, not the slides.
+        touch.current = (e.target as Element).closest('.story-pills')
+          ? NaN
+          : (e.touches[0]?.clientX ?? 0);
       }}
       onTouchEnd={(e) => {
+        if (Number.isNaN(touch.current)) return;
         const delta = (e.changedTouches[0]?.clientX ?? 0) - touch.current;
         if (Math.abs(delta) > 55)
           go(index + (delta > 0 ? -1 : 1) * (rtl ? -1 : 1));
@@ -361,7 +366,7 @@ export function StoryHero({
         ))}
       </div>
       <div className="hero-bottom wrap">
-        <div className="story-pills">
+        <ChipRow current={current}>
           {filtered.map((s, i) => (
             <button
               key={s.id}
@@ -372,7 +377,7 @@ export function StoryHero({
               <Content value={s.kicker ?? s.title} />
             </button>
           ))}
-        </div>
+        </ChipRow>
         <div className="hero-controls">
           <button
             className="icon-button"
@@ -398,5 +403,87 @@ export function StoryHero({
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Horizontally scrollable chip row: touch-swipe and trackpad scroll natively,
+ * mouse users can drag it, the active chip is kept in view, and the edges
+ * fade while more chips are hidden that way.
+ */
+function ChipRow({
+  current,
+  children,
+}: {
+  current: number;
+  children: ReactNode;
+}) {
+  const row = useRef<HTMLDivElement>(null),
+    drag = useRef<{ x: number; left: number; moved: boolean } | null>(null),
+    [edges, setEdges] = useState({ start: false, end: false });
+  const measure = () => {
+    const el = row.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth,
+      pos = Math.abs(el.scrollLeft);
+    setEdges({ start: pos > 2, end: max - pos > 2 });
+  };
+  useEffect(() => {
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+  useEffect(() => {
+    const el = row.current,
+      chip = el?.children[current] as HTMLElement | undefined;
+    if (!el || !chip) return;
+    const a = el.getBoundingClientRect(),
+      b = chip.getBoundingClientRect();
+    if (b.left >= a.left && b.right <= a.right) return;
+    el.scrollBy({
+      left: b.left + b.width / 2 - (a.left + a.width / 2),
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    });
+  }, [current]);
+  return (
+    <div
+      ref={row}
+      className="story-pills"
+      data-fade-start={edges.start || undefined}
+      data-fade-end={edges.end || undefined}
+      onScroll={measure}
+      onPointerDown={(e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        drag.current = {
+          x: e.clientX,
+          left: e.currentTarget.scrollLeft,
+          moved: false,
+        };
+      }}
+      onPointerMove={(e) => {
+        const d = drag.current;
+        if (!d) return;
+        const dx = e.clientX - d.x;
+        if (!d.moved && Math.abs(dx) < 6) return;
+        if (!d.moved) e.currentTarget.setPointerCapture(e.pointerId);
+        d.moved = true;
+        e.currentTarget.scrollLeft = d.left - dx;
+      }}
+      onPointerUp={() => {
+        // Keep the flag until the click that follows a drag is swallowed.
+        setTimeout(() => (drag.current = null));
+      }}
+      onPointerCancel={() => (drag.current = null)}
+      onClickCapture={(e) => {
+        if (drag.current?.moved) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+    >
+      {children}
+    </div>
   );
 }

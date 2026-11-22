@@ -1,6 +1,6 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
@@ -10,10 +10,17 @@ import {
   cairoDate,
   maxBookingDate,
   confirmationSchema,
+  quoteChangedSchema,
+  quoteSchema,
+  requiresPrivateRequest,
+  stayDays,
+  type Quote,
+  type QuoteInput,
 } from '@stella/shared/booking';
-import { estimateTrip, estimateTrips } from '@stella/shared/price';
-import { planDays } from '@stella/shared/days';
+import { lastPlannedDay, planDays } from '@stella/shared/days';
+import { normalizeBookingPhone } from '@stella/shared/phone';
 import { money, track } from '@/lib/links';
+import { bookingSubmissionId, bookingTabSeed } from '@/lib/booking-submission';
 import { Panel, Stepper } from './primitives';
 import { useTripStore } from './store';
 import { Content } from './text';
@@ -31,10 +38,11 @@ export default function RequestSheet({
     router = useRouter();
   const state = useTripStore((s) => s.request),
     rest = useTripStore((s) => s.rest),
-    form = useRef<HTMLFormElement>(null);
+    form = useRef<HTMLFormElement>(null),
+    dateField = useRef<HTMLFieldSetElement>(null);
   const [adults, setAdults] = useState(state?.adults ?? 1),
     [children, setChildren] = useState(0),
-    [format, setFormat] = useState<'group' | 'private'>(
+    [pickedFormat, setFormat] = useState<'group' | 'private'>(
       state?.format ?? 'group',
     ),
     [date, setDate] = useState(''),
@@ -49,6 +57,7 @@ export default function RequestSheet({
         ? region!
         : (popular[locale]?.[0] ?? '');
     }),
+    [phoneInput, setPhoneInput] = useState(''),
     [area, setArea] = useState(''),
     [errors, setErrors] = useState<Record<string, string>>({}),
     [busy, setBusy] = useState(false),
@@ -56,11 +65,106 @@ export default function RequestSheet({
     [failed, setFailed] = useState(false),
     [priceId, setPriceId] = useState(''),
     [hours, setHours] = useState(1);
+  const [quoteAttempt, setQuoteAttempt] = useState(0);
+  const [quoteResult, setQuoteResult] = useState<{
+    key: string;
+    date: string;
+    value: Quote | null;
+    revised?: boolean;
+  } | null>(null);
   const [success, setSuccess] = useState<
     import('@stella/shared/booking').Confirmation | null
   >(null);
   const opened = useRef(Date.now()),
-    abort = useRef<AbortController | null>(null);
+    tabSeed = useRef<string | null>(null),
+    abort = useRef<AbortController | null>(null),
+    quoteNotice = useRef<HTMLParagraphElement>(null);
+  const privateRequired = requiresPrivateRequest(state?.trips ?? []);
+  const format = privateRequired ? 'private' : pickedFormat;
+  const quoteInput: QuoteInput | null =
+    state && date
+      ? {
+          items: state.trips.map((trip) => ({
+            trip_slug: trip.slug,
+            ...(state.trips.length === 1 && priceId
+              ? { price_id: priceId }
+              : {}),
+            ...(state.trips.length === 1 && hours > 1 ? { hours } : {}),
+          })),
+          start_date: date,
+          rest_days: rest,
+          adults,
+          children,
+          format,
+          locale,
+        }
+      : null;
+  const quoteBody = quoteInput ? JSON.stringify(quoteInput) : '';
+  const quoteKey = quoteBody + '/' + quoteAttempt;
+  const currentQuote = quoteResult?.key === quoteKey ? quoteResult : null;
+  const quote = currentQuote?.value;
+  const quoteChanged = currentQuote?.revised === true;
+  const phone = normalizeBookingPhone(phoneInput, country);
+  const countryOptions = useMemo(() => {
+    let names: Intl.DisplayNames | undefined;
+    try {
+      names = new Intl.DisplayNames([locale], { type: 'region' });
+    } catch {
+      // Region codes still identify each option on older browsers.
+    }
+    const sort = new Intl.Collator(locale);
+    // Windows has no flag emoji (it displays the region's letters).
+    const withFlags =
+      typeof navigator !== 'undefined' && !/Windows/i.test(navigator.userAgent);
+    const options = countries
+      .map(([code, dial]) => {
+        const name = names?.of(code) ?? code;
+        return {
+          code,
+          name,
+          label: (withFlags ? flag(code) + ' ' : '') + name + ' (' + dial + ')',
+        };
+      })
+      .sort((a, b) => sort.compare(a.name, b.name));
+    const top = popular[locale] ?? [];
+    return {
+      popular: top.flatMap(
+        (code) => options.find((option) => option.code === code) ?? [],
+      ),
+      others: options.filter((option) => !top.includes(option.code)),
+    };
+  }, [locale]);
+
+  useEffect(() => {
+    if (!quoteBody) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const response = await fetch(new URL('/v1/requests/quote', apiOrigin), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: quoteBody,
+          credentials: 'same-origin',
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('quote');
+        const value = quoteSchema.parse(await response.json());
+        if (!controller.signal.aborted)
+          setQuoteResult({ key: quoteKey, date, value });
+      } catch {
+        if (!controller.signal.aborted)
+          setQuoteResult({ key: quoteKey, date, value: null });
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [apiOrigin, date, quoteBody, quoteKey]);
+  useEffect(() => {
+    if (quoteChanged) quoteNotice.current?.focus();
+  }, [quoteChanged, quote?.quote_id]);
   useEffect(() => () => abort.current?.abort(), []);
   useEffect(() => {
     if (!state) return;
@@ -74,52 +178,67 @@ export default function RequestSheet({
     single = trips.length === 1,
     trip = trips[0];
   if (!trip) return null;
-  const estimate = single
-    ? estimateTrip(trip, adults, children, format, priceId || undefined, hours)
-    : estimateTrips(trips, adults, children, format);
-  const plan = planDays(trips, rest),
-    needed = plan.length ? plan[plan.length - 1]!.day : 1;
-  const names = (() => {
-    try {
-      return new Intl.DisplayNames([locale], { type: 'region' });
-    } catch {
-      return null;
-    }
-  })();
-  const top = popular[locale] ?? [];
-  // Windows has no flag emoji (it shows "US" letters instead), so skip them there.
-  const flags =
-    typeof navigator !== 'undefined' && !/Windows/i.test(navigator.userAgent);
-  const name = (iso: string) => names?.of(iso) ?? iso;
-  const label = ([iso, dial]: [string, string]) =>
-    (flags ? flag(iso) + ' ' : '') + name(iso) + ' (' + dial + ')';
-  const byName = [...countries].sort((a, b) =>
-    name(a[0]).localeCompare(name(b[0]), locale),
-  );
+  const quotedItem =
+    single && quoteResult?.date === date
+      ? quoteResult.value?.items[0]
+      : undefined;
+  const activePriceId =
+    priceId &&
+    !quoteChanged &&
+    quotedItem?.price_options.some((option) => option.id === priceId)
+      ? priceId
+      : (quotedItem?.selected_price_id ?? '');
+  const dateLabel = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeZone: 'UTC',
+  });
+  const serviceLabel = (start: string, end: string) => {
+    const at = (day: string) => new Date(day + 'T12:00:00Z');
+    return start === end
+      ? dateLabel.format(at(start))
+      : dateLabel.formatRange(at(start), at(end));
+  };
+  const finalService = quote?.items.at(-1);
+  const needed = finalService
+    ? stayDays(date, finalService.service_end_date)
+    : lastPlannedDay(planDays(trips, rest));
+  function clearPhoneError() {
+    setErrors((current) => {
+      if (!current.phone) return current;
+      const next = { ...current };
+      delete next.phone;
+      return next;
+    });
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (busy || !ready) return;
+    if (abort.current || !ready) return;
     const data = new FormData(event.currentTarget);
-    const code = countries.find(([c]) => c === country)?.[1] ?? '';
-    const phone = (code + String(data.get('phone') ?? '')).replace(
-      /[\s()-]/g,
-      '',
+    const submittedPhone = normalizeBookingPhone(
+      String(data.get('phone') ?? ''),
+      country,
     );
     const ages = String(data.get('child_ages') ?? '').trim();
-    const rows = plan
-      .filter((row) => row.trip)
-      .map((row) => ({
-        trip_slug: row.trip!.slug,
-        day_index: row.day,
-        ...(single && priceId ? { price_id: priceId } : {}),
-        ...(single && trip!.prices.some((p) => p.unit === 'hour')
-          ? { hours }
-          : {}),
-      }));
     const parsed = bookingSchema.safeParse({
+      ...quoteInput,
       mode: single ? 'single' : 'multi',
-      items: rows,
+      items: (
+        quoteInput?.items ?? trips.map((trip) => ({ trip_slug: trip.slug }))
+      ).map(({ trip_slug, ...selection }) => ({
+        trip_slug,
+        ...selection,
+        ...(single && priceId
+          ? {
+              price_id: quote?.items[0]?.price_options.some(
+                (option) => option.id === priceId,
+              )
+                ? priceId
+                : undefined,
+            }
+          : {}),
+      })),
       start_date: date,
+      quote_id: quote?.quote_id,
       ...(end ? { end_date: end } : {}),
       rest_days: rest,
       adults,
@@ -131,7 +250,7 @@ export default function RequestSheet({
       pickup_area: area,
       hotel: String(data.get('hotel') ?? ''),
       name: String(data.get('name') ?? ''),
-      phone,
+      phone: submittedPhone,
       email: String(data.get('email') ?? ''),
       notes: String(data.get('notes') ?? ''),
       locale,
@@ -140,11 +259,24 @@ export default function RequestSheet({
     });
     if (!parsed.success) {
       const mapped = Object.fromEntries(
-        parsed.error.issues.map((i) => [String(i.path[0]), t('invalid')]),
+        parsed.error.issues.map((i) => [
+          String(i.path[0]),
+          t(i.path[0] === 'phone' ? 'phoneInvalid' : 'invalid'),
+        ]),
       );
       setErrors(mapped);
       const first = Object.keys(mapped)[0];
       requestAnimationFrame(() => {
+        if (first === 'start_date' || first === 'end_date') {
+          const dates = dateField.current;
+          const enabled = '.range-day:not(:disabled)';
+          (
+            dates?.querySelector<HTMLButtonElement>(
+              enabled + '[aria-pressed=true]',
+            ) ?? dates?.querySelector<HTMLButtonElement>(enabled)
+          )?.focus();
+          return;
+        }
         const element = form.current?.querySelector<HTMLElement>(
           '[name="' + first + '"]',
         );
@@ -152,20 +284,38 @@ export default function RequestSheet({
       });
       return;
     }
+    if (!quote) return;
     setErrors({});
     setFailed(false);
     setBusy(true);
     const controller = new AbortController();
     abort.current = controller;
     try {
+      tabSeed.current ??= bookingTabSeed();
+      const submissionId = await bookingSubmissionId(
+        parsed.data,
+        tabSeed.current,
+      );
+      if (controller.signal.aborted) return;
       const response = await fetch(new URL('/v1/requests', apiOrigin), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsed.data),
-        credentials: 'omit',
+        body: JSON.stringify({ ...parsed.data, submission_id: submissionId }),
+        credentials: 'same-origin',
         cache: 'no-store',
         signal: controller.signal,
       });
+      if (response.status === 409) {
+        const revised = quoteChangedSchema.safeParse(await response.json());
+        if (revised.success) {
+          setQuoteResult((current) =>
+            current?.key === quoteKey
+              ? { ...current, value: revised.data.quote, revised: true }
+              : current,
+          );
+          return;
+        }
+      }
       if (!response.ok) throw new Error('request');
       const confirmed = confirmationSchema.parse(await response.json());
       try {
@@ -186,6 +336,7 @@ export default function RequestSheet({
       track('request_submit_error');
       setFailed(true);
     } finally {
+      abort.current = null;
       setBusy(false);
     }
   }
@@ -205,13 +356,7 @@ export default function RequestSheet({
         required={required}
         maxLength={name === 'name' ? 80 : name === 'email' ? 254 : 150}
         autoComplete={
-          name === 'name'
-            ? 'name'
-            : name === 'email'
-              ? 'email'
-              : name === 'phone'
-                ? 'tel-national'
-                : 'off'
+          name === 'name' ? 'name' : name === 'email' ? 'email' : 'off'
         }
         aria-invalid={!!errors[name]}
         aria-describedby={errors[name] ? 'error-' + name : undefined}
@@ -259,7 +404,31 @@ export default function RequestSheet({
             <h2>{single ? <Content value={trip.title} /> : t('myTrip')}</h2>
             <p className="small-text">{t('noPayment')}</p>
             <form ref={form} onSubmit={submit} noValidate>
+              <fieldset>
+                <legend>{t('format')}</legend>
+                {privateRequired ? (
+                  <div>
+                    <strong>{t('private')}</strong>
+                    <p className="small-text">{t('privateRequired')}</p>
+                  </div>
+                ) : (
+                  <div className="segmented">
+                    {(['group', 'private'] as const).map((m) => (
+                      <button
+                        type="button"
+                        key={m}
+                        aria-pressed={format === m}
+                        className={m === format ? 'active' : ''}
+                        onClick={() => setFormat(m)}
+                      >
+                        {t(m)}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </fieldset>
               <DateRange
+                ref={dateField}
                 start={date}
                 end={end}
                 min={cairoDate()}
@@ -267,8 +436,14 @@ export default function RequestSheet({
                 needed={needed}
                 error={errors.start_date ?? errors.end_date}
                 onChange={(a, b) => {
+                  if (a !== date) setPriceId('');
                   setDate(a);
                   setEnd(b);
+                  if (errors.start_date || errors.end_date) {
+                    setErrors(
+                      ({ start_date: _start, end_date: _end, ...rest }) => rest,
+                    );
+                  }
                 }}
               />
               <Stepper
@@ -284,49 +459,30 @@ export default function RequestSheet({
                 max={40}
               />
               {children > 0 && field('child_ages', t('childAges'))}
-              {(trips.some((tr) => tr.format === 'both') || !single) && (
-                <fieldset>
-                  <legend>{t('format')}</legend>
-                  <div className="segmented">
-                    {(['group', 'private'] as const).map((m) => (
-                      <button
-                        type="button"
-                        key={m}
-                        aria-pressed={format === m}
-                        className={m === format ? 'active' : ''}
-                        onClick={() => setFormat(m)}
-                      >
-                        {t(m)}
-                      </button>
+              {quotedItem && quotedItem.price_options.length > 1 && (
+                <div className="field">
+                  <label htmlFor="booking-price">{t('priceOption')}</label>
+                  <select
+                    id="booking-price"
+                    value={activePriceId}
+                    onChange={(e) => setPriceId(e.target.value)}
+                  >
+                    {quotedItem.price_options.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.label?.text ??
+                          t(p.unit === 'group' ? 'groupUnit' : p.unit)}{' '}
+                        ·{' '}
+                        {p.amount_eur === null
+                          ? t('onRequest')
+                          : money(p.amount_eur, locale)}
+                      </option>
                     ))}
-                  </div>
-                </fieldset>
+                  </select>
+                </div>
               )}
-              {single &&
-                trip.prices.filter((p) => p.unit !== 'child').length > 1 && (
-                  <div className="field">
-                    <label htmlFor="booking-price">{t('priceOption')}</label>
-                    <select
-                      id="booking-price"
-                      value={priceId}
-                      onChange={(e) => setPriceId(e.target.value)}
-                    >
-                      {trip.prices
-                        .filter((p) => p.unit !== 'child')
-                        .map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.label?.text ??
-                              t(p.unit === 'group' ? 'groupUnit' : p.unit)}{' '}
-                            ·{' '}
-                            {p.amount_eur === null
-                              ? t('onRequest')
-                              : money(p.amount_eur, locale)}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                )}
-              {trip.prices.some((p) => p.unit === 'hour') && (
+              {quotedItem?.price_options.some(
+                (p) => p.id === activePriceId && p.unit === 'hour',
+              ) && (
                 <Stepper
                   label={t('hours')}
                   min={1}
@@ -372,35 +528,73 @@ export default function RequestSheet({
                 <select
                   id="booking-country"
                   value={country}
-                  onChange={(e) => setCountry(e.target.value)}
-                  aria-invalid={!!errors.phone}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    clearPhoneError();
+                  }}
                 >
                   <option value="">{t('chooseCountry')}</option>
-                  {top.length > 0 && (
+                  {countryOptions.popular.length > 0 && (
                     <optgroup label={t('popular')}>
-                      {countries
-                        .filter(([c]) => top.includes(c))
-                        .map((c) => (
-                          <option key={'top-' + c[0]} value={c[0]}>
-                            {label(c)}
-                          </option>
-                        ))}
+                      {countryOptions.popular.map(({ code, label }) => (
+                        <option key={code} value={code}>
+                          {label}
+                        </option>
+                      ))}
                     </optgroup>
                   )}
                   <optgroup label={t('allCountries')}>
-                    {byName.map((c) => (
-                      <option key={c[0]} value={c[0]}>
-                        {label(c)}
+                    {countryOptions.others.map(({ code, label }) => (
+                      <option key={code} value={code}>
+                        {label}
                       </option>
                     ))}
                   </optgroup>
                 </select>
               </div>
-              <div className="phone-row">
-                <span className="phone-prefix" aria-hidden="true">
-                  {countries.find(([c]) => c === country)?.[1] ?? '+'}
-                </span>
-                {field('phone', t('phone'), 'tel', true)}
+              <div className="field">
+                <label htmlFor="booking-phone">{t('phone')}</label>
+                <input
+                  id="booking-phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  dir="ltr"
+                  maxLength={48}
+                  required
+                  value={phoneInput}
+                  onChange={(event) => {
+                    setPhoneInput(event.target.value);
+                    clearPhoneError();
+                  }}
+                  aria-invalid={!!errors.phone}
+                  aria-describedby={
+                    errors.phone
+                      ? 'error-phone booking-phone-hint'
+                      : 'booking-phone-hint'
+                  }
+                />
+                <p
+                  className="small-text"
+                  id="booking-phone-hint"
+                  aria-live="polite"
+                >
+                  {phone ? (
+                    <>
+                      {t('phonePreview')}{' '}
+                      <strong>
+                        <bdi dir="ltr">{phone}</bdi>
+                      </strong>
+                    </>
+                  ) : (
+                    t('phoneHint')
+                  )}
+                </p>
+                {errors.phone && (
+                  <p className="field-error" id="error-phone">
+                    {errors.phone}
+                  </p>
+                )}
               </div>
               {field('email', t('email'), 'email')}
               <div className="field">
@@ -416,30 +610,86 @@ export default function RequestSheet({
                   autoComplete="off"
                 />
               </div>
-              <div className="estimate">
+              {quote && (
+                <ul className="quote-items">
+                  {quote.items.map((item) => (
+                    <li key={item.trip_slug}>
+                      <span>
+                        <Content
+                          value={
+                            trips.find((trip) => trip.slug === item.trip_slug)
+                              ?.title ?? null
+                          }
+                        />
+                        <small>
+                          <bdi>
+                            {serviceLabel(
+                              item.service_date,
+                              item.service_end_date,
+                            )}
+                          </bdi>
+                        </small>
+                      </span>
+                      <bdi>
+                        {item.amount_eur === null
+                          ? t('onRequest')
+                          : money(item.amount_eur, locale)}
+                      </bdi>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="estimate" aria-live="polite" aria-atomic="true">
                 <span>{t('estimate')}</span>
-                <strong>
-                  <bdi>
-                    {estimate.amount > 0
-                      ? money(estimate.amount, locale)
-                      : estimate.onRequest
-                        ? ''
-                        : money(0, locale)}
-                  </bdi>
-                  {estimate.onRequest && (
-                    <small>
-                      {estimate.amount > 0 ? t('plusRequest') : t('onRequest')}
-                    </small>
-                  )}
-                </strong>
+                {quote ? (
+                  <strong>
+                    {quote.estimate_eur !== null || quote.known_eur > 0 ? (
+                      <bdi>
+                        {money(quote.estimate_eur ?? quote.known_eur, locale)}
+                      </bdi>
+                    ) : null}
+                    {quote.estimate_eur === null && (
+                      <small>
+                        {t(quote.known_eur > 0 ? 'plusRequest' : 'onRequest')}
+                      </small>
+                    )}
+                  </strong>
+                ) : (
+                  <span>
+                    {t(
+                      !date
+                        ? 'quoteChooseDate'
+                        : currentQuote
+                          ? 'quoteUnavailable'
+                          : 'quoteLoading',
+                    )}
+                  </span>
+                )}
               </div>
+              {date && currentQuote?.value === null && (
+                <button
+                  type="button"
+                  className="button line"
+                  onClick={() => setQuoteAttempt((n) => n + 1)}
+                >
+                  {t('retry')}
+                </button>
+              )}
+              {quoteChanged && (
+                <p ref={quoteNotice} tabIndex={-1} role="alert">
+                  {t('quoteChanged')}
+                </p>
+              )}
               <p className="small-text">{t('childrenAsk')}</p>
               {failed && (
                 <p role="alert" className="field-error">
                   {t('requestError')}
                 </p>
               )}
-              <button className="button ink wide" disabled={busy || !ready}>
+              <button
+                className="button ink wide"
+                disabled={busy || !ready || (!!date && !quote)}
+              >
                 {t(busy ? 'sending' : 'sendRequest')}
               </button>
             </form>

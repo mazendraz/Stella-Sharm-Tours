@@ -1,9 +1,28 @@
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import { Readable } from 'node:stream';
+import { and, eq, isNull, ne } from 'drizzle-orm';
+import type { Database } from '@stella/db';
+import { media, publicMediaRenditions } from '@stella/db/schema';
 import { inside } from './media';
 export const processedPath =
   /^[a-f0-9]{2}\/[a-f0-9]{64}\/(?:(?:160|480|768|1200|1920)\.(?:jpg|webp|avif)|poster\.(?:jpg|avif)|mp4_[vh]\.mp4)$/;
+export async function publicRenditionAllowed(db: Database, storageKey: string) {
+  if (!/^[a-f0-9]{2}\/[a-f0-9]{64}$/.test(storageKey)) return false;
+  const [match] = await db
+    .select({ key: publicMediaRenditions.storageKey })
+    .from(publicMediaRenditions)
+    .innerJoin(media, eq(media.id, publicMediaRenditions.mediaId))
+    .where(
+      and(
+        eq(publicMediaRenditions.storageKey, storageKey),
+        ne(media.rightsStatus, 'unknown'),
+        isNull(media.archivedAt),
+      ),
+    );
+  return !!match;
+}
+
 export async function serveProcessed(
   root: string,
   path: string,
@@ -78,7 +97,7 @@ export async function serveProcessed(
     'Content-Length': String(end - start + 1),
     'Accept-Ranges': 'bytes',
     'Cache-Control': publicAsset
-      ? 'public, max-age=31536000, immutable'
+      ? 'public, no-cache, must-revalidate'
       : 'private, no-store',
     'X-Content-Type-Options': 'nosniff',
     'Cross-Origin-Resource-Policy': publicAsset ? 'cross-origin' : 'same-site',

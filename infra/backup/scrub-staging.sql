@@ -1,6 +1,13 @@
 -- Executed only in an isolated staging database, with all application services stopped.
 BEGIN;
-TRUNCATE booking_request_items, booking_requests, sessions, auth_tokens,
+DO $$ BEGIN
+  IF to_regclass('public.booking_request_receipts') IS NULL THEN
+    TRUNCATE booking_request_items, booking_requests;
+  ELSE
+    TRUNCATE booking_request_receipts, booking_request_items, booking_requests;
+  END IF;
+END $$;
+TRUNCATE sessions, auth_tokens,
   audit_log, revisions, content_drafts, rate_buckets, outbox;
 UPDATE media SET uploaded_by=NULL;
 UPDATE settings SET updated_by=NULL;

@@ -1,0 +1,933 @@
+{
+  "titles": {
+    "petra-opening": {
+      "en": "Petra",
+      "it": "Petra",
+      "es": "Petra",
+      "fr": "Pétra",
+      "de": "Petra",
+      "ru": "Петра",
+      "tr": "Petra"
+    },
+    "cairo-opening": {
+      "en": "Cairo",
+      "it": "Il Cairo",
+      "es": "El Cairo",
+      "fr": "Le Caire",
+      "de": "Kairo",
+      "ru": "Каир",
+      "tr": "Kahire"
+    },
+    "alexandria-opening": {
+      "en": "Alexandria",
+      "it": "Alessandria",
+      "es": "Alejandría",
+      "fr": "Alexandrie",
+      "de": "Alexandria",
+      "ru": "Александрия",
+      "tr": "İskenderiye"
+    },
+    "jerusalem-opening": {
+      "en": "Jerusalem and Bethlehem",
+      "it": "Gerusalemme e Betlemme",
+      "es": "Jerusalén y Belén",
+      "fr": "Jérusalem et Bethléem",
+      "de": "Jerusalem und Bethlehem",
+      "ru": "Иерусалим и Вифлеем",
+      "tr": "Kudüs ve Beytüllahim"
+    },
+    "nabq": {
+      "en": "Nabq Bay",
+      "it": "Baia di Nabq",
+      "es": "Bahía de Nabq",
+      "fr": "Baie de Nabq",
+      "de": "Bucht von Nabq",
+      "ru": "Бухта Набк",
+      "tr": "Nabk Körfezi"
+    },
+    "dahab": {
+      "en": "Dahab",
+      "it": "Dahab",
+      "es": "Dahab",
+      "fr": "Dahab",
+      "de": "Dahab",
+      "ru": "Дахаб",
+      "tr": "Dahab"
+    },
+    "nuweiba": {
+      "en": "Nuweiba",
+      "it": "Nuweiba",
+      "es": "Nuweiba",
+      "fr": "Nuweiba",
+      "de": "Nuweiba",
+      "ru": "Нувейба",
+      "tr": "Nuveyba"
+    },
+    "taba": {
+      "en": "Taba",
+      "it": "Taba",
+      "es": "Taba",
+      "fr": "Taba",
+      "de": "Taba",
+      "ru": "Таба",
+      "tr": "Taba"
+    },
+    "aqaba": {
+      "en": "Aqaba",
+      "it": "Aqaba",
+      "es": "Áqaba",
+      "fr": "Aqaba",
+      "de": "Akaba",
+      "ru": "Акаба",
+      "tr": "Akabe"
+    },
+    "petra": {
+      "en": "The Siq",
+      "it": "Il Siq",
+      "es": "El Siq",
+      "fr": "Le Siq",
+      "de": "Der Siq",
+      "ru": "Ущелье Сик",
+      "tr": "Sik Geçidi"
+    },
+    "treasury": {
+      "en": "The Treasury",
+      "it": "Il Tesoro",
+      "es": "El Tesoro",
+      "fr": "Le Trésor",
+      "de": "Das Schatzhaus",
+      "ru": "Сокровищница",
+      "tr": "Hazine"
+    },
+    "el-tor": {
+      "en": "El Tor",
+      "it": "El Tor",
+      "es": "El Tor",
+      "fr": "El Tor",
+      "de": "El Tor",
+      "ru": "Эт-Тур",
+      "tr": "Tur"
+    },
+    "ras-sudr": {
+      "en": "Ras Sudr",
+      "it": "Ras Sudr",
+      "es": "Ras Sudr",
+      "fr": "Ras Sudr",
+      "de": "Ras Sudr",
+      "ru": "Рас-Судр",
+      "tr": "Ras Sudr"
+    },
+    "hamdi-tunnel": {
+      "en": "Ahmed Hamdi Tunnel",
+      "it": "Tunnel Ahmed Hamdi",
+      "es": "Túnel Ahmed Hamdi",
+      "fr": "Tunnel Ahmed Hamdi",
+      "de": "Ahmed-Hamdi-Tunnel",
+      "ru": "Тоннель Ахмеда Хамди",
+      "tr": "Ahmed Hamdi Tüneli"
+    },
+    "suez": {
+      "en": "Suez",
+      "it": "Suez",
+      "es": "Suez",
+      "fr": "Suez",
+      "de": "Sues",
+      "ru": "Суэц",
+      "tr": "Süveyş"
+    },
+    "cairo": {
+      "en": "Cairo",
+      "it": "Il Cairo",
+      "es": "El Cairo",
+      "fr": "Le Caire",
+      "de": "Kairo",
+      "ru": "Каир",
+      "tr": "Kahire"
+    },
+    "gem": {
+      "en": "Grand Egyptian Museum",
+      "it": "Grande Museo Egizio",
+      "es": "Gran Museo Egipcio",
+      "fr": "Grand Musée égyptien",
+      "de": "Großes Ägyptisches Museum",
+      "ru": "Большой Египетский музей",
+      "tr": "Büyük Mısır Müzesi"
+    },
+    "pyramids": {
+      "en": "Giza Pyramids",
+      "it": "Piramidi di Giza",
+      "es": "Pirámides de Guiza",
+      "fr": "Pyramides de Gizeh",
+      "de": "Pyramiden von Gizeh",
+      "ru": "Пирамиды Гизы",
+      "tr": "Gize Piramitleri"
+    },
+    "sphinx": {
+      "en": "The Great Sphinx",
+      "it": "La Grande Sfinge",
+      "es": "La Gran Esfinge",
+      "fr": "Le Grand Sphinx",
+      "de": "Die Große Sphinx",
+      "ru": "Большой сфинкс",
+      "tr": "Büyük Sfenks"
+    },
+    "hussein": {
+      "en": "Al-Hussein Mosque",
+      "it": "Moschea di al-Hussein",
+      "es": "Mezquita de Al-Hussein",
+      "fr": "Mosquée Al-Hussein",
+      "de": "Al-Hussein-Moschee",
+      "ru": "Мечеть Аль-Хусейна",
+      "tr": "El Hüseyin Camii"
+    },
+    "bazaar": {
+      "en": "Khan el-Khalili",
+      "it": "Khan el-Khalili",
+      "es": "Jan el-Jalili",
+      "fr": "Khan el-Khalili",
+      "de": "Chan el-Chalili",
+      "ru": "Хан-эль-Халили",
+      "tr": "Han el-Halili"
+    },
+    "muizz": {
+      "en": "Al-Muizz Street",
+      "it": "Via al-Muizz",
+      "es": "Calle Al-Muizz",
+      "fr": "Rue Al-Muizz",
+      "de": "Al-Muizz-Straße",
+      "ru": "Улица Аль-Муизз",
+      "tr": "El Muiz Caddesi"
+    },
+    "citadel": {
+      "en": "Citadel and Muhammad Ali Mosque",
+      "it": "Cittadella e moschea di Muhammad Ali",
+      "es": "Ciudadela y mezquita de Muhammad Alí",
+      "fr": "Citadelle et mosquée Mohammed-Ali",
+      "de": "Zitadelle und Muhammad-Ali-Moschee",
+      "ru": "Цитадель и мечеть Мухаммеда Али",
+      "tr": "Kale ve Kavalalı Mehmet Ali Paşa Camii"
+    },
+    "hanging-church": {
+      "en": "The Hanging Church",
+      "it": "La Chiesa Sospesa",
+      "es": "La Iglesia Colgante",
+      "fr": "L’église suspendue",
+      "de": "Die Hängende Kirche",
+      "ru": "Висячая церковь",
+      "tr": "Asma Kilise"
+    },
+    "coastal-arrival": {
+      "en": "Arrival on the Mediterranean",
+      "it": "Arrivo sul Mediterraneo",
+      "es": "Llegada al Mediterráneo",
+      "fr": "Arrivée sur la Méditerranée",
+      "de": "Ankunft am Mittelmeer",
+      "ru": "Выход к Средиземному морю",
+      "tr": "Akdeniz kıyısına varış"
+    },
+    "stanley": {
+      "en": "Stanley Bridge",
+      "it": "Ponte Stanley",
+      "es": "Puente Stanley",
+      "fr": "Pont Stanley",
+      "de": "Stanley-Brücke",
+      "ru": "Мост Стэнли",
+      "tr": "Stanley Köprüsü"
+    },
+    "montaza": {
+      "en": "Montaza Gardens",
+      "it": "Giardini di Montaza",
+      "es": "Jardines de Montaza",
+      "fr": "Jardins de Montaza",
+      "de": "Montaza-Gärten",
+      "ru": "Сады Монтаза",
+      "tr": "Montaza Bahçeleri"
+    },
+    "library": {
+      "en": "Bibliotheca Alexandrina",
+      "it": "Biblioteca di Alessandria",
+      "es": "Biblioteca de Alejandría",
+      "fr": "Bibliothèque d’Alexandrie",
+      "de": "Bibliotheca Alexandrina",
+      "ru": "Александрийская библиотека",
+      "tr": "İskenderiye Kütüphanesi"
+    },
+    "reading-room": {
+      "en": "The reading room",
+      "it": "La sala di lettura",
+      "es": "La sala de lectura",
+      "fr": "La salle de lecture",
+      "de": "Der Lesesaal",
+      "ru": "Читальный зал",
+      "tr": "Okuma salonu"
+    },
+    "morsi": {
+      "en": "Abu al-Abbas al-Mursi Mosque",
+      "it": "Moschea di Abu al-Abbas al-Mursi",
+      "es": "Mezquita de Abu al-Abbás al-Mursi",
+      "fr": "Mosquée Abou al-Abbas al-Moursi",
+      "de": "Abu-al-Abbas-al-Mursi-Moschee",
+      "ru": "Мечеть Абу-ль-Аббаса аль-Мурси",
+      "tr": "Ebu Abbas el-Mursi Camii"
+    },
+    "qaitbay": {
+      "en": "Citadel of Qaitbay",
+      "it": "Fortezza di Qaitbay",
+      "es": "Ciudadela de Qaitbay",
+      "fr": "Fort de Qaitbay",
+      "de": "Zitadelle von Qaitbay",
+      "ru": "Крепость Кайт-Бей",
+      "tr": "Kayıtbay Kalesi"
+    },
+    "ramparts": {
+      "en": "The sea walls",
+      "it": "Le mura sul mare",
+      "es": "Las murallas frente al mar",
+      "fr": "Les remparts sur la mer",
+      "de": "Die seeseitigen Mauern",
+      "ru": "Крепостные стены у моря",
+      "tr": "Denize bakan surlar"
+    },
+    "eilat": {
+      "en": "Eilat",
+      "it": "Eilat",
+      "es": "Eilat",
+      "fr": "Eilat",
+      "de": "Eilat",
+      "ru": "Эйлат",
+      "tr": "Eylat"
+    },
+    "dead-sea": {
+      "en": "The Dead Sea",
+      "it": "Il Mar Morto",
+      "es": "El mar Muerto",
+      "fr": "La mer Morte",
+      "de": "Das Tote Meer",
+      "ru": "Мёртвое море",
+      "tr": "Ölü Deniz"
+    },
+    "jerusalem": {
+      "en": "Jerusalem",
+      "it": "Gerusalemme",
+      "es": "Jerusalén",
+      "fr": "Jérusalem",
+      "de": "Jerusalem",
+      "ru": "Иерусалим",
+      "tr": "Kudüs"
+    },
+    "bethlehem": {
+      "en": "Bethlehem",
+      "it": "Betlemme",
+      "es": "Belén",
+      "fr": "Bethléem",
+      "de": "Bethlehem",
+      "ru": "Вифлеем",
+      "tr": "Beytüllahim"
+    },
+    "jordan-river": {
+      "en": "The Jordan River",
+      "it": "Il fiume Giordano",
+      "es": "El río Jordán",
+      "fr": "Le Jourdain",
+      "de": "Der Jordan",
+      "ru": "Река Иордан",
+      "tr": "Şeria Nehri"
+    },
+    "departure": {
+      "en": "Sharm El Sheikh",
+      "it": "Sharm el-Sheikh",
+      "es": "Sharm el-Sheij",
+      "fr": "Charm el-Cheikh",
+      "de": "Scharm El-Scheich",
+      "ru": "Шарм-эш-Шейх",
+      "tr": "Şarm El-Şeyh"
+    },
+    "flight": {
+      "en": "Flight to Luxor",
+      "it": "Volo per Luxor",
+      "es": "Vuelo a Lúxor",
+      "fr": "Vol vers Louxor",
+      "de": "Flug nach Luxor",
+      "ru": "Перелёт в Луксор",
+      "tr": "Luksor’a uçuş"
+    },
+    "karnak": {
+      "en": "Karnak Temple",
+      "it": "Tempio di Karnak",
+      "es": "Templo de Karnak",
+      "fr": "Temple de Karnak",
+      "de": "Karnak-Tempel",
+      "ru": "Карнакский храм",
+      "tr": "Karnak Tapınağı"
+    },
+    "hatshepsut": {
+      "en": "Temple of Hatshepsut",
+      "it": "Tempio di Hatshepsut",
+      "es": "Templo de Hatshepsut",
+      "fr": "Temple d’Hatchepsout",
+      "de": "Tempel der Hatschepsut",
+      "ru": "Храм Хатшепсут",
+      "tr": "Hatşepsut Tapınağı"
+    },
+    "statue": {
+      "en": "Hatshepsut’s statue",
+      "it": "Statua di Hatshepsut",
+      "es": "Estatua de Hatshepsut",
+      "fr": "Statue d’Hatchepsout",
+      "de": "Statue der Hatschepsut",
+      "ru": "Статуя Хатшепсут",
+      "tr": "Hatşepsut heykeli"
+    },
+    "memnon": {
+      "en": "Colossi of Memnon",
+      "it": "Colossi di Memnone",
+      "es": "Colosos de Memnón",
+      "fr": "Colosses de Memnon",
+      "de": "Memnonkolosse",
+      "ru": "Колоссы Мемнона",
+      "tr": "Memnon Heykelleri"
+    },
+    "luxor-temple": {
+      "en": "Luxor Temple",
+      "it": "Tempio di Luxor",
+      "es": "Templo de Lúxor",
+      "fr": "Temple de Louxor",
+      "de": "Luxor-Tempel",
+      "ru": "Луксорский храм",
+      "tr": "Luksor Tapınağı"
+    },
+    "sphinx-avenue": {
+      "en": "Avenue of Sphinxes",
+      "it": "Viale delle Sfingi",
+      "es": "Avenida de las Esfinges",
+      "fr": "Allée des sphinx",
+      "de": "Sphingenallee",
+      "ru": "Аллея сфинксов",
+      "tr": "Sfenksler Yolu"
+    },
+    "museum": {
+      "en": "Luxor Museum",
+      "it": "Museo di Luxor",
+      "es": "Museo de Lúxor",
+      "fr": "Musée de Louxor",
+      "de": "Luxor-Museum",
+      "ru": "Луксорский музей",
+      "tr": "Luksor Müzesi"
+    },
+    "kings": {
+      "en": "Valley of the Kings",
+      "it": "Valle dei Re",
+      "es": "Valle de los Reyes",
+      "fr": "Vallée des Rois",
+      "de": "Tal der Könige",
+      "ru": "Долина царей",
+      "tr": "Krallar Vadisi"
+    },
+    "kv9": {
+      "en": "Tomb of Ramesses V and VI",
+      "it": "Tomba di Ramses V e VI",
+      "es": "Tumba de Ramsés V y VI",
+      "fr": "Tombe de Ramsès V et VI",
+      "de": "Grab von Ramses V. und VI.",
+      "ru": "Гробница Рамсеса V и VI",
+      "tr": "V. ve VI. Ramses’in mezarı"
+    },
+    "queens": {
+      "en": "Valley of the Queens",
+      "it": "Valle delle Regine",
+      "es": "Valle de las Reinas",
+      "fr": "Vallée des Reines",
+      "de": "Tal der Königinnen",
+      "ru": "Долина цариц",
+      "tr": "Kraliçeler Vadisi"
+    },
+    "nefertari": {
+      "en": "Tomb of Nefertari",
+      "it": "Tomba di Nefertari",
+      "es": "Tumba de Nefertari",
+      "fr": "Tombe de Néfertari",
+      "de": "Grab der Nefertari",
+      "ru": "Гробница Нефертари",
+      "tr": "Nefertari’nin mezarı"
+    },
+    "workers": {
+      "en": "Deir el-Medina",
+      "it": "Deir el-Medina",
+      "es": "Deir el-Medina",
+      "fr": "Deir el-Médineh",
+      "de": "Deir el-Medina",
+      "ru": "Дейр-эль-Медина",
+      "tr": "Deyr el-Medine"
+    },
+    "nobles": {
+      "en": "Tomb of Ramose",
+      "it": "Tomba di Ramose",
+      "es": "Tumba de Ramose",
+      "fr": "Tombe de Ramosé",
+      "de": "Grab des Ramose",
+      "ru": "Гробница Рамосе",
+      "tr": "Ramose’nin mezarı"
+    },
+    "habu": {
+      "en": "Medinet Habu",
+      "it": "Medinet Habu",
+      "es": "Medinet Habu",
+      "fr": "Médinet Habou",
+      "de": "Medinet Habu",
+      "ru": "Мединет-Абу",
+      "tr": "Medinet Habu"
+    },
+    "ramesseum": {
+      "en": "The Ramesseum",
+      "it": "Il Ramesseum",
+      "es": "El Ramesseum",
+      "fr": "Le Ramesséum",
+      "de": "Das Ramesseum",
+      "ru": "Рамессеум",
+      "tr": "Ramesseum"
+    },
+    "seti": {
+      "en": "Temple of Seti I",
+      "it": "Tempio di Seti I",
+      "es": "Templo de Seti I",
+      "fr": "Temple de Séthi Ier",
+      "de": "Tempel Sethos’ I.",
+      "ru": "Храм Сети I",
+      "tr": "I. Seti Tapınağı"
+    },
+    "mountains": {
+      "en": "The Sinai mountains",
+      "it": "Le montagne del Sinai",
+      "es": "Las montañas del Sinaí",
+      "fr": "Les montagnes du Sinaï",
+      "de": "Die Berge des Sinai",
+      "ru": "Синайские горы",
+      "tr": "Sina Dağları"
+    },
+    "trail": {
+      "en": "The mountain trail",
+      "it": "Il sentiero di montagna",
+      "es": "El sendero de montaña",
+      "fr": "Le sentier de montagne",
+      "de": "Der Bergpfad",
+      "ru": "Горная тропа",
+      "tr": "Dağ patikası"
+    },
+    "before-sunrise": {
+      "en": "Before sunrise",
+      "it": "Prima dell’alba",
+      "es": "Antes del amanecer",
+      "fr": "Avant le lever du soleil",
+      "de": "Vor Sonnenaufgang",
+      "ru": "Перед рассветом",
+      "tr": "Gün doğmadan önce"
+    },
+    "summit": {
+      "en": "Sunrise on Mount Sinai",
+      "it": "Alba sul Monte Sinai",
+      "es": "Amanecer en el monte Sinaí",
+      "fr": "Lever de soleil sur le mont Sinaï",
+      "de": "Sonnenaufgang auf dem Sinai",
+      "ru": "Рассвет на горе Синай",
+      "tr": "Sina Dağı’nda gün doğumu"
+    },
+    "monastery": {
+      "en": "St Catherine’s Monastery",
+      "it": "Monastero di Santa Caterina",
+      "es": "Monasterio de Santa Catalina",
+      "fr": "Monastère Sainte-Catherine",
+      "de": "Katharinenkloster",
+      "ru": "Монастырь Святой Екатерины",
+      "tr": "Azize Katerina Manastırı"
+    },
+    "return": {
+      "en": "Return to Sharm",
+      "it": "Rientro a Sharm",
+      "es": "Regreso a Sharm",
+      "fr": "Retour à Charm",
+      "de": "Rückfahrt nach Scharm",
+      "ru": "Обратно в Шарм",
+      "tr": "Şarm’a dönüş"
+    }
+  },
+  "captions": {
+    "coast": {
+      "en": "The road follows Sinai’s eastern shore.",
+      "it": "La strada segue la costa orientale del Sinai.",
+      "es": "La carretera recorre la costa oriental del Sinaí.",
+      "fr": "La route longe la côte orientale du Sinaï.",
+      "de": "Die Straße folgt der Ostküste des Sinai.",
+      "ru": "Дорога идёт вдоль восточного побережья Синая.",
+      "tr": "Yol, Sina’nın doğu kıyısını takip ediyor."
+    },
+    "gulf": {
+      "en": "Follow the western side of Sinai towards Suez.",
+      "it": "Il percorso risale il Sinai occidentale verso Suez.",
+      "es": "La ruta sube por el oeste del Sinaí hacia Suez.",
+      "fr": "Le parcours remonte l’ouest du Sinaï vers Suez.",
+      "de": "Die Route führt an der Westseite des Sinai nach Sues.",
+      "ru": "Путь идёт по западной стороне Синая к Суэцу.",
+      "tr": "Rota Sina’nın batısından Süveyş’e uzanıyor."
+    },
+    "sea": {
+      "en": "Cross the gulf by ferry from Taba to Aqaba.",
+      "it": "Da Taba si attraversa il golfo in traghetto fino ad Aqaba.",
+      "es": "Cruza el golfo en ferry desde Taba hasta Áqaba.",
+      "fr": "Traversez le golfe en ferry de Taba à Aqaba.",
+      "de": "Mit der Fähre geht es von Taba über den Golf nach Akaba.",
+      "ru": "Паром пересекает залив из Табы в Акабу.",
+      "tr": "Taba’dan Akabe’ye körfezi feribotla geçin."
+    },
+    "petra": {
+      "en": "Walk between the sandstone walls of the Siq.",
+      "it": "Cammina tra le pareti di arenaria del Siq.",
+      "es": "Camina entre las paredes de arenisca del Siq.",
+      "fr": "Marchez entre les parois de grès du Siq.",
+      "de": "Gehen Sie zwischen den Sandsteinwänden des Siq hindurch.",
+      "ru": "Пройдите между песчаниковыми стенами Сика.",
+      "tr": "Sik Geçidi’nin kumtaşı duvarları arasında yürüyün."
+    },
+    "treasury": {
+      "en": "At the end of the Siq, the Treasury appears in a gap between the cliffs.",
+      "it": "Alla fine del Siq il Tesoro appare tra le pareti di roccia.",
+      "es": "Al final del Siq, el Tesoro asoma entre las paredes del desfiladero.",
+      "fr": "Au bout du Siq, le Trésor apparaît entre les parois rocheuses.",
+      "de": "Am Ende des Siq öffnet sich zwischen den Felswänden der Blick auf das Schatzhaus.",
+      "ru": "В конце Сика в просвете между скалами появляется Сокровищница.",
+      "tr": "Sik’in sonunda kayalıkların arasından Hazine görünür."
+    },
+    "alex": {
+      "en": "After the desert road from Cairo, Alexandria opens onto the Mediterranean.",
+      "it": "Dopo la strada desertica dal Cairo, Alessandria si apre sul Mediterraneo.",
+      "es": "Tras la carretera del desierto desde El Cairo, Alejandría se abre al Mediterráneo.",
+      "fr": "Après la route du désert depuis Le Caire, Alexandrie s’ouvre sur la Méditerranée.",
+      "de": "Nach der Wüstenstraße aus Kairo öffnet sich Alexandria zum Mittelmeer.",
+      "ru": "После пустынной дороги из Каира Александрия встречает Средиземным морем.",
+      "tr": "Kahire’den gelen çöl yolunun sonunda İskenderiye Akdeniz’e açılır."
+    },
+    "library": {
+      "en": "See the library from outside on this itinerary.",
+      "it": "Questo itinerario prevede la visita dall’esterno.",
+      "es": "En este itinerario se ve la biblioteca desde fuera.",
+      "fr": "Ce parcours permet de voir la bibliothèque de l’extérieur.",
+      "de": "Auf dieser Route sehen Sie die Bibliothek von außen.",
+      "ru": "По программе библиотеку осматривают снаружи.",
+      "tr": "Bu programda kütüphaneyi dışarıdan görürsünüz."
+    },
+    "reading": {
+      "en": "A look inside the library. The scheduled visit is outside.",
+      "it": "Uno sguardo alla sala di lettura. La visita in programma è dall’esterno.",
+      "es": "Una mirada al interior. La visita del programa es exterior.",
+      "fr": "Un aperçu de l’intérieur. La visite prévue se fait de l’extérieur.",
+      "de": "Ein Blick in den Lesesaal. Der Programmpunkt führt zur Außenansicht.",
+      "ru": "Загляните в читальный зал. По программе библиотеку осматривают снаружи.",
+      "tr": "Okuma salonuna bir bakış. Programdaki ziyaret dışarıdandır."
+    },
+    "historic": {
+      "en": "A glimpse of historic Cairo. Visits depend on the chosen programme.",
+      "it": "Uno sguardo al Cairo storico. Le visite dipendono dal programma scelto.",
+      "es": "Una mirada al Cairo histórico. Las visitas dependen del programa elegido.",
+      "fr": "Un aperçu du Caire historique. Les visites dépendent du programme choisi.",
+      "de": "Ein Blick auf das historische Kairo. Die Besuche richten sich nach dem gewählten Programm.",
+      "ru": "Знакомство с историческим Каиром. Посещение зависит от выбранной программы.",
+      "tr": "Tarihî Kahire’ye bir bakış. Ziyaretler seçilen programa bağlıdır."
+    },
+    "fly": {
+      "en": "Fly directly from Sharm El Sheikh to Luxor.",
+      "it": "Volo diretto da Sharm el-Sheikh a Luxor.",
+      "es": "Vuelo directo de Sharm el-Sheij a Lúxor.",
+      "fr": "Vol direct de Charm el-Cheikh à Louxor.",
+      "de": "Direktflug von Scharm El-Scheich nach Luxor.",
+      "ru": "Прямой перелёт из Шарм-эш-Шейха в Луксор.",
+      "tr": "Şarm El-Şeyh’ten Luksor’a doğrudan uçuş."
+    },
+    "trail": {
+      "en": "The climb begins at night. This daylight view shows the mountain path.",
+      "it": "La salita inizia di notte. Questa vista diurna mostra il sentiero.",
+      "es": "El ascenso empieza de noche. Esta vista diurna muestra el sendero.",
+      "fr": "La montée commence de nuit. Cette vue de jour montre le sentier.",
+      "de": "Der Aufstieg beginnt nachts. Diese Tagesaufnahme zeigt den Bergpfad.",
+      "ru": "Подъём начинается ночью. Дневной кадр показывает горную тропу.",
+      "tr": "Tırmanış gece başlar. Bu gündüz görüntüsü dağ patikasını gösterir."
+    },
+    "sun": {
+      "en": "First light reaches the ridges of Sinai.",
+      "it": "La prima luce raggiunge i crinali del Sinai.",
+      "es": "La primera luz alcanza las crestas del Sinaí.",
+      "fr": "Les premières lueurs éclairent les crêtes du Sinaï.",
+      "de": "Die ersten Sonnenstrahlen erreichen die Bergkämme des Sinai.",
+      "ru": "Первые лучи освещают хребты Синая.",
+      "tr": "İlk ışıklar Sina’nın sırtlarına vuruyor."
+    },
+    "redsea": {
+      "en": "Look across the Gulf of Aqaba towards the mountains on the far shore.",
+      "it": "Guarda oltre il golfo di Aqaba, verso i monti sull’altra sponda.",
+      "es": "Mira al otro lado del golfo de Áqaba, hacia las montañas de la otra orilla.",
+      "fr": "Le regard traverse le golfe d’Aqaba jusqu’aux montagnes de l’autre rive.",
+      "de": "Blicken Sie über den Golf von Akaba zu den Bergen am anderen Ufer.",
+      "ru": "За водами залива Акаба видны горы на противоположном берегу.",
+      "tr": "Akabe Körfezi’nin karşı kıyısındaki dağlara bakın."
+    },
+    "tunnel": {
+      "en": "The route crosses beneath the Suez Canal and leaves Sinai.",
+      "it": "Il percorso passa sotto il canale di Suez e lascia il Sinai.",
+      "es": "La ruta pasa bajo el canal de Suez y deja atrás el Sinaí.",
+      "fr": "La route passe sous le canal de Suez et quitte le Sinaï.",
+      "de": "Die Route führt unter dem Sueskanal hindurch und verlässt den Sinai.",
+      "ru": "Дорога проходит под Суэцким каналом и покидает Синай.",
+      "tr": "Yol, Süveyş Kanalı’nın altından geçerek Sina’dan ayrılıyor."
+    },
+    "giza": {
+      "en": "The pyramids rise above the open Giza plateau.",
+      "it": "Le piramidi si innalzano sull’altopiano di Giza.",
+      "es": "Las pirámides se alzan sobre la meseta de Guiza.",
+      "fr": "Les pyramides se dressent sur le plateau de Gizeh.",
+      "de": "Die Pyramiden erheben sich auf dem Plateau von Gizeh.",
+      "ru": "Пирамиды возвышаются над плато Гиза.",
+      "tr": "Piramitler Gize platosunun üzerinde yükseliyor."
+    },
+    "sphinx": {
+      "en": "A limestone lion with a human face looks out across the plateau.",
+      "it": "Un leone di calcare dal volto umano guarda oltre l’altopiano.",
+      "es": "Un león de piedra caliza con rostro humano mira hacia la meseta.",
+      "fr": "Un lion de calcaire à visage humain domine le plateau.",
+      "de": "Ein Löwe aus Kalkstein mit menschlichem Gesicht blickt über das Plateau.",
+      "ru": "Известняковый лев с человеческим лицом смотрит вдаль с плато.",
+      "tr": "İnsan yüzlü, kireç taşından bir aslan platoya bakıyor."
+    },
+    "gem": {
+      "en": "The museum stands near the Giza pyramids.",
+      "it": "Il museo sorge vicino alle piramidi di Giza.",
+      "es": "El museo se encuentra cerca de las pirámides de Guiza.",
+      "fr": "Le musée se trouve près des pyramides de Gizeh.",
+      "de": "Das Museum liegt nahe den Pyramiden von Gizeh.",
+      "ru": "Музей расположен рядом с пирамидами Гизы.",
+      "tr": "Müze, Gize Piramitleri’nin yakınında yer alıyor."
+    },
+    "city": {
+      "en": "From the desert road, the journey enters the streets of Cairo.",
+      "it": "Dalla strada del deserto si entra nelle strade del Cairo.",
+      "es": "Desde la carretera del desierto se entra en las calles de El Cairo.",
+      "fr": "Après la route du désert viennent les rues du Caire.",
+      "de": "Von der Wüstenstraße führt die Fahrt in die Straßen Kairos.",
+      "ru": "После пустынной дороги начинаются улицы Каира.",
+      "tr": "Çöl yolundan sonra rota Kahire sokaklarına giriyor."
+    },
+    "harbour": {
+      "en": "See Alexandria’s harbour from the old coastal fort.",
+      "it": "Guarda il porto di Alessandria dalla fortezza sul mare.",
+      "es": "Mira el puerto de Alejandría desde la fortaleza costera.",
+      "fr": "Découvrez le port d’Alexandrie depuis le fort en bord de mer.",
+      "de": "Blicken Sie von der Küstenfestung auf Alexandrias Hafen.",
+      "ru": "Из прибрежной крепости видна гавань Александрии.",
+      "tr": "Kıyıdaki kaleden İskenderiye limanına bakın."
+    },
+    "dead": {
+      "en": "Salt and water meet on the shore of the Dead Sea.",
+      "it": "Sale e acqua si incontrano sulla riva del Mar Morto.",
+      "es": "La sal y el agua se encuentran a orillas del mar Muerto.",
+      "fr": "Le sel et l’eau se rejoignent sur les rives de la mer Morte.",
+      "de": "Salz und Wasser treffen am Ufer des Toten Meeres aufeinander.",
+      "ru": "Соль и вода встречаются на берегу Мёртвого моря.",
+      "tr": "Ölü Deniz kıyısında tuz ve su buluşuyor."
+    },
+    "river": {
+      "en": "Reeds line the banks of the Jordan River.",
+      "it": "Le canne costeggiano le rive del Giordano.",
+      "es": "Los juncos bordean el río Jordán.",
+      "fr": "Les roseaux bordent les rives du Jourdain.",
+      "de": "Schilf säumt die Ufer des Jordan.",
+      "ru": "По берегам Иордана растёт тростник.",
+      "tr": "Şeria Nehri’nin kıyılarında sazlıklar uzanıyor."
+    },
+    "temple": {
+      "en": "Walk among the great stone columns of Karnak.",
+      "it": "Cammina tra le grandi colonne di pietra di Karnak.",
+      "es": "Camina entre las grandes columnas de piedra de Karnak.",
+      "fr": "Marchez entre les grandes colonnes de pierre de Karnak.",
+      "de": "Gehen Sie zwischen den mächtigen Steinsäulen von Karnak hindurch.",
+      "ru": "Пройдите между огромными каменными колоннами Карнака.",
+      "tr": "Karnak’ın büyük taş sütunları arasında yürüyün."
+    },
+    "terraces": {
+      "en": "The terraces rise against the cliffs of the West Bank.",
+      "it": "Le terrazze si innalzano davanti alle scogliere della riva occidentale.",
+      "es": "Las terrazas se elevan ante los acantilados de la orilla occidental.",
+      "fr": "Les terrasses s’élèvent au pied des falaises de la rive ouest.",
+      "de": "Die Terrassen steigen vor den Felswänden des Westufers auf.",
+      "ru": "Террасы поднимаются у скал западного берега.",
+      "tr": "Teraslar batı yakasındaki kayalıkların önünde yükseliyor."
+    },
+    "memnon": {
+      "en": "Two seated stone figures stand on Luxor’s West Bank.",
+      "it": "Due figure di pietra sedute si stagliano sulla riva occidentale di Luxor.",
+      "es": "Dos figuras de piedra sentadas se alzan en la orilla occidental de Lúxor.",
+      "fr": "Deux figures de pierre assises se dressent sur la rive ouest de Louxor.",
+      "de": "Zwei sitzende Steinfiguren stehen am Westufer von Luxor.",
+      "ru": "На западном берегу Луксора возвышаются две сидящие каменные фигуры.",
+      "tr": "Luksor’un batı yakasında oturan iki taş heykel yükseliyor."
+    },
+    "monastery": {
+      "en": "After the descent, the route reaches St Catherine’s Monastery.",
+      "it": "Dopo la discesa si raggiunge il monastero di Santa Caterina.",
+      "es": "Tras el descenso se llega al monasterio de Santa Catalina.",
+      "fr": "Après la descente, le parcours rejoint le monastère Sainte-Catherine.",
+      "de": "Nach dem Abstieg erreicht die Route das Katharinenkloster.",
+      "ru": "После спуска путь ведёт к монастырю Святой Екатерины.",
+      "tr": "İnişten sonra rota Azize Katerina Manastırı’na ulaşıyor."
+    },
+    "church": {
+      "en": "The route visits the Church of the Nativity in Bethlehem.",
+      "it": "Il percorso tocca la basilica della Natività a Betlemme.",
+      "es": "El recorrido visita la basílica de la Natividad en Belén.",
+      "fr": "Le parcours passe par la basilique de la Nativité à Bethléem.",
+      "de": "In Bethlehem führt die Route zur Geburtskirche.",
+      "ru": "В Вифлееме маршрут ведёт к базилике Рождества Христова.",
+      "tr": "Rota Beytüllahim’de Doğuş Kilisesi’ne uğruyor."
+    },
+    "oldcity": {
+      "en": "Explore the streets of Jerusalem’s Old City.",
+      "it": "Esplora le strade della Città Vecchia di Gerusalemme.",
+      "es": "Recorre las calles de la Ciudad Vieja de Jerusalén.",
+      "fr": "Parcourez les rues de la vieille ville de Jérusalem.",
+      "de": "Entdecken Sie die Gassen der Jerusalemer Altstadt.",
+      "ru": "Пройдите по улицам Старого города Иерусалима.",
+      "tr": "Kudüs’ün Eski Şehir sokaklarını keşfedin."
+    },
+    "gardens": {
+      "en": "Palace gardens overlook the Mediterranean.",
+      "it": "I giardini del palazzo si affacciano sul Mediterraneo.",
+      "es": "Los jardines del palacio dan al Mediterráneo.",
+      "fr": "Les jardins du palais dominent la Méditerranée.",
+      "de": "Die Palastgärten blicken auf das Mittelmeer.",
+      "ru": "Из дворцовых садов открывается вид на Средиземное море.",
+      "tr": "Saray bahçeleri Akdeniz’e bakıyor."
+    },
+    "mosque": {
+      "en": "See the mosque in Alexandria’s Anfushi district.",
+      "it": "Scopri la moschea nel quartiere Anfushi di Alessandria.",
+      "es": "Descubre la mezquita en el barrio de Anfushi de Alejandría.",
+      "fr": "Découvrez la mosquée dans le quartier d’Anfouchi à Alexandrie.",
+      "de": "Entdecken Sie die Moschee im Viertel Anfushi in Alexandria.",
+      "ru": "Мечеть находится в александрийском квартале Анфуши.",
+      "tr": "Cami, İskenderiye’nin Anfuşi semtinde yer alıyor."
+    },
+    "back": {
+      "en": "The road returns through Sinai to Sharm El Sheikh.",
+      "it": "La strada riattraversa il Sinai fino a Sharm el-Sheikh.",
+      "es": "El camino vuelve por el Sinaí hasta Sharm el-Sheij.",
+      "fr": "La route retraverse le Sinaï jusqu’à Charm el-Cheikh.",
+      "de": "Die Rückfahrt führt durch den Sinai nach Scharm El-Scheich.",
+      "ru": "Обратный путь через Синай ведёт в Шарм-эш-Шейх.",
+      "tr": "Dönüş yolu Sina’dan geçerek Şarm El-Şeyh’e ulaşıyor."
+    },
+    "luxor-temple": {
+      "en": "Columns frame the courtyards of Luxor Temple on the east bank of the Nile.",
+      "it": "Le colonne incorniciano i cortili del tempio di Luxor sulla riva orientale del Nilo.",
+      "es": "Las columnas enmarcan los patios del templo de Lúxor en la orilla oriental del Nilo.",
+      "fr": "Les colonnes encadrent les cours du temple de Louxor sur la rive est du Nil.",
+      "de": "Säulen rahmen die Höfe des Luxor-Tempels am Ostufer des Nils ein.",
+      "ru": "Колонны обрамляют дворы Луксорского храма на восточном берегу Нила.",
+      "tr": "Nil’in doğu yakasında sütunlar Luksor Tapınağı’nın avlularını çevreliyor."
+    },
+    "sphinx-avenue": {
+      "en": "Stone sphinxes mark the ancient processional way between Luxor and Karnak.",
+      "it": "Sfingi di pietra segnano l’antica via processionale tra Luxor e Karnak.",
+      "es": "Esfinges de piedra marcan la antigua vía procesional entre Lúxor y Karnak.",
+      "fr": "Des sphinx de pierre jalonnent l’ancienne voie processionnelle entre Louxor et Karnak.",
+      "de": "Steinerne Sphingen säumen den alten Prozessionsweg zwischen Luxor und Karnak.",
+      "ru": "Каменные сфинксы выстроились вдоль древней дороги процессий между Луксором и Карнаком.",
+      "tr": "Taş sfenksler Luksor ile Karnak arasındaki antik tören yolunu süslüyor."
+    },
+    "museum": {
+      "en": "A museum on the Nile brings objects from ancient Thebes together.",
+      "it": "Sulle rive del Nilo, il museo riunisce reperti dell’antica Tebe.",
+      "es": "A orillas del Nilo, el museo reúne piezas de la antigua Tebas.",
+      "fr": "Au bord du Nil, le musée rassemble des objets de l’ancienne Thèbes.",
+      "de": "Am Nil zeigt das Museum Fundstücke aus dem antiken Theben.",
+      "ru": "В музее на берегу Нила собраны находки из древних Фив.",
+      "tr": "Nil kıyısındaki müzede antik Teb’den eserler bir araya geliyor."
+    },
+    "kings": {
+      "en": "Royal tombs lie beneath the dry ridges of the West Bank.",
+      "it": "Le tombe reali si celano sotto i crinali aridi della riva occidentale.",
+      "es": "Las tumbas reales se esconden bajo las crestas áridas de la orilla occidental.",
+      "fr": "Les tombes royales se cachent sous les crêtes arides de la rive ouest.",
+      "de": "Unter den trockenen Bergrücken des Westufers liegen die Königsgräber.",
+      "ru": "Под сухими хребтами западного берега скрыты царские гробницы.",
+      "tr": "Batı yakasının kurak sırtlarının altında kraliyet mezarları uzanıyor."
+    },
+    "kv9": {
+      "en": "Painted corridors lead deep into the tomb shared by two pharaohs.",
+      "it": "Corridoi dipinti si addentrano nella tomba condivisa da due faraoni.",
+      "es": "Los pasillos pintados se adentran en la tumba de dos faraones.",
+      "fr": "Des couloirs peints s’enfoncent dans la tombe de deux pharaons.",
+      "de": "Bemalte Gänge führen tief in das Grab zweier Pharaonen.",
+      "ru": "Расписанные коридоры уходят вглубь гробницы двух фараонов.",
+      "tr": "Boyalı koridorlar iki firavunun mezarının derinliklerine uzanıyor."
+    },
+    "queens": {
+      "en": "Beyond the cliffs lies a valley of royal family tombs.",
+      "it": "Oltre le pareti rocciose si apre una valle di tombe della famiglia reale.",
+      "es": "Tras los riscos se abre un valle de tumbas de la familia real.",
+      "fr": "Au-delà des falaises s’ouvre une vallée de tombes de la famille royale.",
+      "de": "Hinter den Felsen liegt ein Tal mit Gräbern der königlichen Familie.",
+      "ru": "За скалами открывается долина с гробницами членов царской семьи.",
+      "tr": "Kayalıkların ardında kraliyet ailesinin mezarlarının bulunduğu vadi uzanıyor."
+    },
+    "nefertari": {
+      "en": "A painted detail brings Queen Nefertari’s tomb into close view.",
+      "it": "Un dettaglio dipinto mostra da vicino la tomba di Nefertari.",
+      "es": "Un detalle pintado acerca la tumba de la reina Nefertari.",
+      "fr": "Un détail peint permet de voir de près la tombe de Néfertari.",
+      "de": "Ein gemaltes Detail gibt Einblick in das Grab der Nefertari.",
+      "ru": "Фрагмент росписи позволяет разглядеть убранство гробницы Нефертари.",
+      "tr": "Bir duvar resmi, Kraliçe Nefertari’nin mezarına yakından bakma imkânı veriyor."
+    },
+    "workers": {
+      "en": "The builders and painters of the royal tombs lived here.",
+      "it": "Qui vivevano i costruttori e i pittori delle tombe reali.",
+      "es": "Aquí vivían los constructores y pintores de las tumbas reales.",
+      "fr": "Ici vivaient les artisans qui creusaient et peignaient les tombes royales.",
+      "de": "Hier lebten die Handwerker, die die Königsgräber bauten und ausmalten.",
+      "ru": "Здесь жили мастера, строившие и расписывавшие царские гробницы.",
+      "tr": "Kraliyet mezarlarını inşa eden ve boyayan ustalar burada yaşardı."
+    },
+    "nobles": {
+      "en": "Look closely at the carved procession in Ramose’s tomb.",
+      "it": "Osserva da vicino la processione scolpita nella tomba di Ramose.",
+      "es": "Observa la procesión tallada en la tumba de Ramose.",
+      "fr": "Observez le cortège sculpté dans la tombe de Ramosé.",
+      "de": "Betrachten Sie den in Stein gemeißelten Festzug im Grab des Ramose.",
+      "ru": "Рассмотрите высеченную в камне процессию в гробнице Рамосе.",
+      "tr": "Ramose’nin mezarındaki taşa işlenmiş alaya yakından bakın."
+    },
+    "habu": {
+      "en": "Monumental gateways open into the temple of Ramesses III.",
+      "it": "Portali monumentali introducono al tempio di Ramses III.",
+      "es": "Las puertas monumentales dan paso al templo de Ramsés III.",
+      "fr": "Des portes monumentales ouvrent sur le temple de Ramsès III.",
+      "de": "Monumentale Tore führen in den Tempel von Ramses III.",
+      "ru": "Монументальные ворота ведут в храм Рамсеса III.",
+      "tr": "Anıtsal kapılar III. Ramses’in tapınağına açılıyor."
+    },
+    "ramesseum": {
+      "en": "The remains of Ramesses II’s memorial temple stand on the West Bank.",
+      "it": "Le rovine del tempio funerario di Ramses II sorgono sulla riva occidentale.",
+      "es": "Los restos del templo funerario de Ramsés II se alzan en la orilla occidental.",
+      "fr": "Les vestiges du temple funéraire de Ramsès II se dressent sur la rive ouest.",
+      "de": "Am Westufer stehen die Überreste des Totentempels von Ramses II.",
+      "ru": "На западном берегу сохранились руины поминального храма Рамсеса II.",
+      "tr": "Batı yakasında II. Ramses’in anı tapınağının kalıntıları yükseliyor."
+    },
+    "seti": {
+      "en": "At Qurna, stone columns mark the temple of Seti I.",
+      "it": "A Qurna, le colonne di pietra segnano il tempio di Seti I.",
+      "es": "En Qurna, las columnas de piedra señalan el templo de Seti I.",
+      "fr": "À Gourna, des colonnes de pierre marquent le temple de Séthi Ier.",
+      "de": "In Qurna stehen steinerne Säulen am Tempel Sethos’ I.",
+      "ru": "В Курне каменные колонны отмечают место храма Сети I.",
+      "tr": "Kurna’da taş sütunlar I. Seti Tapınağı’nı işaret ediyor."
+    }
+  }
+}

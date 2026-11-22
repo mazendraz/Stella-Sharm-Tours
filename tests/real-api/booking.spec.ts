@@ -17,11 +17,11 @@ test('real catalog, request persistence contract, local SMTP and accessible conf
   await page.goto('/en/t/quad-bike-safari');
   await page.getByRole('button', { name: 'Request', exact: true }).click();
   const sheet = page.getByRole('dialog').last();
-  await sheet.locator('.date-chip').first().click();
+  await sheet.locator('.range-day:enabled').first().click();
   await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
   const name = 'Synthetic browser QA ' + info.project.name;
   await sheet.getByLabel('Your name', { exact: true }).fill(name);
-  await sheet.getByLabel('Country code').selectOption('+20');
+  await sheet.getByLabel('Country', { exact: true }).selectOption('EG');
   await sheet
     .getByLabel('WhatsApp number', { exact: true })
     .fill(

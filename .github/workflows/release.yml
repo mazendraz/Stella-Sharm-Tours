@@ -70,9 +70,10 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$DEPLOY_HOST" =~ ^[a-zA-Z0-9.-]+$ && "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]
+          [[ "$RELEASE_SHA" =~ ^[a-f0-9]{40}$ && "$TARGET_ENV" =~ ^(production|staging)$ ]]
           install -d -m 700 ~/.ssh
           printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/id_ed25519
           printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
           ssh -o BatchMode=yes -o StrictHostKeyChecking=yes "$DEPLOY_USER@$DEPLOY_HOST" \
-            "cd /srv/stella/repo && git fetch origin && git checkout --detach '$RELEASE_SHA' && bash infra/deploy.sh '$TARGET_ENV' '$RELEASE_SHA'"
+            "bash -s -- '$TARGET_ENV' '$RELEASE_SHA'" < infra/deploy-release.sh

@@ -5,11 +5,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '@stella/shared/admin';
 import { QRCodeSVG } from 'qrcode.react';
-import { useAdmin } from '../lib/admin-context';
+import { ApiError, useAdmin } from '../lib/admin-context';
 import { LanguageSelect } from './language-select';
 import { PasswordInput } from './password-input';
 export function Auth() {
-  const { me, request, refresh, t, report, online } = useAdmin(),
+  const { me, request, refresh, t, online } = useAdmin(),
     path = usePathname(),
     query = useSearchParams(),
     router = useRouter();
@@ -43,8 +43,24 @@ export function Auth() {
     try {
       await action();
     } catch (error) {
-      report(error);
-      setError(t('invalidLogin'));
+      // Shown inline (role=alert) only, no duplicate toast. Say what actually
+      // went wrong: a blocked or failed request is not a wrong password, and
+      // the login form has no code field.
+      const code = error instanceof ApiError ? error.code : 'NETWORK';
+      setError(
+        t(
+          {
+            INVALID_CREDENTIALS: 'loginIncorrect',
+            INVALID_INPUT: 'loginIncorrect',
+            INVALID_CODE: 'codeIncorrect',
+            INVALID_TOKEN: 'linkExpired',
+            WEAK_PASSWORD: 'errWeakPassword',
+            RATE_LIMITED: 'rate',
+            NETWORK: 'serverUnreachable',
+            OFFLINE: 'serverUnreachable',
+          }[code] ?? 'errGeneric',
+        ),
+      );
     } finally {
       setBusy(false);
     }
@@ -123,8 +139,8 @@ export function Auth() {
                 {...form.register('password')}
               />
             </label>
-            {Object.keys(form.formState.errors).length > 0 && (
-              <p role="alert">{t('invalidLogin')}</p>
+            {(error || Object.keys(form.formState.errors).length > 0) && (
+              <p role="alert">{error || t('loginIncorrect')}</p>
             )}
             <button disabled={busy || !online}>{t('login')}</button>
             <button
@@ -264,7 +280,7 @@ export function Auth() {
             </button>
           </form>
         )}
-        {error && <p role="alert">{error}</p>}
+        {error && mode !== 'login' && <p role="alert">{error}</p>}
         {notice && <p role="status">{notice}</p>}
       </section>
     </main>

@@ -70,7 +70,6 @@ export function locState(l: Loc, locale: Locale): LocState {
   )
     return 'stale';
   if (own) return 'ok';
-  if (l.reviewed.includes(locale)) return 'ok';
   return locDisplay(l, locale).trim() ? 'machine' : 'missing';
 }
 
@@ -125,6 +124,31 @@ export function mapLocs<T>(value: T, fn: (l: Loc) => Loc): T {
   return value;
 }
 
+export function acknowledgeEditorSection<T>(submitted: T, current: T) {
+  // Edits preserve each field's initial object, including during row reorders.
+  const sent = new Map<Loc['init'], Loc>();
+  const base = mapLocs(submitted, (field) => {
+    sent.set(field.init, field);
+    return { ...field, init: { ...field.raw }, reviewed: [] };
+  });
+  const values =
+    submitted === current
+      ? base
+      : mapLocs(current, (field) => {
+          const saved = sent.get(field.init);
+          return saved
+            ? {
+                ...field,
+                init: { ...saved.raw },
+                reviewed: field.reviewed.filter(
+                  (locale) => !saved.reviewed.includes(locale),
+                ),
+              }
+            : field;
+        });
+  return { base, values };
+}
+
 /** Per-locale counts for the language bar. */
 export function localeSummary(value: unknown) {
   const summary = Object.fromEntries(
@@ -145,8 +169,8 @@ export function markReviewed<T>(value: T, locale: Locale): T {
   return mapLocs(value, (l) => {
     if (locEmpty(l)) return l;
     const text = locDisplay(l, locale);
-    const raw = { ...l.raw };
-    if (text.trim()) raw[locale] = text;
+    if (!text.trim()) return l;
+    const raw = { ...l.raw, [locale]: text };
     return {
       ...l,
       raw,

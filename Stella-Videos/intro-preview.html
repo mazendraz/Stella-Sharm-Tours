@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فيديوهات انترو Stella Sharm Tours</title>
+<style>
+  body { max-width: 1120px; margin: auto; padding: 24px; background: #102533; color: white; font: 18px system-ui; }
+  select { padding: 10px; font: inherit; }
+  main { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+  video { width: 100%; max-height: 68vh; background: #081820; }
+  @media (max-width: 620px) { main { grid-template-columns: 1fr; } }
+</style>
+<h1>فيديوهات انترو Stella Sharm Tours</h1>
+<label for="intro">اختار الشريحة</label>
+<select id="intro">
+  <option value="7492809">Private · الأهرامات</option>
+  <option value="16194346">History · نقوش المعابد</option>
+  <option value="20271097">Red Sea · الشعاب المرجانية</option>
+  <option value="5977492">Desert · الباجي في الصحرا</option>
+  <option value="14923757">Beyond Egypt · البتراء</option>
+  <option value="4185235">Relax · المنتجعات على البحر</option>
+  <option value="15216597">All of Egypt · مركب شراعي في النيل</option>
+</select>
+<main>
+  <section>
+    <h2>الديسكتوب</h2>
+    <video id="desktop" controls playsinline preload="metadata"></video>
+  </section>
+  <section>
+    <h2>الموبايل</h2>
+    <video id="mobile" controls playsinline preload="metadata"></video>
+  </section>
+</main>
+<script>
+  const picker = document.querySelector('#intro');
+  const desktop = document.querySelector('#desktop');
+  const mobile = document.querySelector('#mobile');
+
+  function loadClip() {
+    const base = '../assets/video-stock/hero-pexels-' + picker.value;
+    desktop.src = base + '-h.mp4';
+    mobile.src = base + '-v.mp4';
+  }
+
+  picker.addEventListener('change', loadClip);
+  loadClip();
+</script>
+</html>

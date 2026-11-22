@@ -638,11 +638,51 @@ label {
   z-index: 3;
 }
 .story-pills {
+  --fade-start: 0px;
+  --fade-end: 0px;
   display: flex;
   gap: 8px;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
   scrollbar-width: none;
   padding-block: 4px;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 var(--fade-start),
+    #000 calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+.story-pills::-webkit-scrollbar {
+  display: none;
+}
+.story-pills[data-fade-start] {
+  --fade-start: 40px;
+}
+.story-pills[data-fade-end] {
+  --fade-end: 56px;
+}
+[dir='rtl'] .story-pills {
+  mask-image: linear-gradient(
+    to left,
+    transparent,
+    #000 var(--fade-start),
+    #000 calc(100% - var(--fade-end)),
+    transparent
+  );
+}
+@media (pointer: fine) {
+  .story-pills {
+    cursor: grab;
+  }
+  .story-pills:active {
+    cursor: grabbing;
+  }
+}
+.story-pills .chip {
+  flex: none;
 }
 .story-pills .chip {
   background: #14100a45;
@@ -1096,6 +1136,30 @@ label {
   padding-block: 4px;
   font-size: 14px;
   line-height: 1.35;
+}
+.footer-social {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.footer-social a {
+  inline-size: 44px;
+  block-size: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--ink);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.footer-social a:hover {
+  background: var(--ink);
+  color: var(--paper);
 }
 .footer-bottom {
   grid-column: 1 / -1;
@@ -1722,17 +1786,27 @@ label {
   gap: 8px;
   margin-block-end: 12px;
 }
-.phone-row {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 12px;
-}
 .honeypot {
   position: absolute;
   inset-inline-start: -10000px;
   inline-size: 1px;
   block-size: 1px;
   overflow: hidden;
+}
+.quote-items {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.quote-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.quote-items small {
+  display: block;
 }
 .estimate {
   display: flex;
@@ -1836,6 +1910,10 @@ label {
 .day-card > div {
   flex: 1;
 }
+.saved-trip-placeholder {
+  padding-block-start: 18px;
+  overflow-wrap: anywhere;
+}
 .rest-day {
   border-style: dashed;
   background: transparent;
@@ -1903,6 +1981,102 @@ label {
   background: var(--paper-2);
   border: 1px solid var(--line);
   border-radius: 24px;
+}
+.contact-lines,
+.social-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 44px;
+  overflow-wrap: anywhere;
+}
+.social-links svg {
+  flex: none;
+  color: var(--history);
+}
+.contact-lines {
+  margin-block-start: 22px;
+  gap: 10px;
+  max-inline-size: 420px;
+}
+.contact-layout .contact-lines a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-block-size: 64px;
+  padding-inline: 10px 18px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.contact-layout .contact-lines a:hover {
+  border-color: var(--line-strong);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.06);
+}
+.contact-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: 50%;
+  background: var(--history);
+  color: #fff;
+}
+.contact-text {
+  display: grid;
+  min-inline-size: 0;
+}
+.contact-label {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.contact-text bdi {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+[dir='rtl'] .contact-text bdi {
+  text-align: end;
+}
+.office-card .map-button {
+  display: flex;
+  inline-size: max-content;
+  max-inline-size: 100%;
+  margin-block-start: 18px;
+  font-size: 12px;
+}
+.office-heading {
+  margin-block: 26px 4px;
+  font-family: var(--font-body), sans-serif;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.social-links {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0 16px;
+}
+.social-links a {
+  font-size: 14px;
+  color: var(--ink);
 }
 .faq-item {
   border-block-end: 1px solid var(--line-strong);
@@ -2528,12 +2702,81 @@ label {
     inset-block-end: 0;
   }
 }
+.office-map-link {
+  display: block;
+  border-radius: 16px;
+  color: var(--ink);
+}
+.office-map-link:focus-visible {
+  outline: 3px solid var(--history);
+  outline-offset: 3px;
+}
 .office-map {
   position: relative;
+  display: block;
   block-size: 240px;
   border-radius: 16px;
   overflow: hidden;
-  margin-block-end: 22px;
+  border: 1px solid var(--line);
+  background: var(--paper-2);
+}
+.office-map img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.office-map-link:hover .office-map img {
+  transform: scale(1.04);
+}
+.office-map-pin {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -100%;
+  display: grid;
+  place-items: center;
+  inline-size: 46px;
+  block-size: 46px;
+  border-radius: 50% 50% 50% 0;
+  rotate: -45deg;
+  background: var(--history);
+  color: #fff;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
+}
+[dir='rtl'] .office-map-pin {
+  translate: 50% -100%;
+}
+.office-map-pin svg {
+  rotate: 45deg;
+}
+.office-map-cta {
+  position: absolute;
+  inset-inline-end: 12px;
+  inset-block-end: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-block-size: 40px;
+  padding-inline: 14px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.94);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.14);
+  font-size: 13px;
+  font-weight: 700;
+}
+.office-map-credit {
+  margin-block: 6px 18px;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .office-map img {
+    transition: none;
+  }
+  .office-map-link:hover .office-map img {
+    transform: none;
+  }
 }
 .combo-price {
   display: block;
@@ -2591,22 +2834,34 @@ label {
 }
 
 /* Stella logo (Nov 2026) */
-.wordmark img {
+.wordmark .brand-mark,
+.wordmark .brand-word {
   display: block;
   inline-size: auto;
+  background: center / contain no-repeat;
+}
+.responsive-media {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
 }
 .wordmark .brand-mark {
   block-size: 42px;
+  aspect-ratio: 117 / 112;
+  background-image: url('/brand/mark.webp');
 }
 .wordmark .brand-word {
   block-size: 30px;
+  aspect-ratio: 283 / 96;
+  background-image: url('/brand/wordmark.webp');
 }
-.wordmark .on-dark,
-.nav.over-hero:not(.scrolled) .wordmark .on-light {
-  display: none;
+.nav.over-hero:not(.scrolled) .wordmark .brand-mark {
+  background-image: url('/brand/mark-light.webp');
 }
-.nav.over-hero:not(.scrolled) .wordmark .on-dark {
-  display: block;
+.nav.over-hero:not(.scrolled) .wordmark .brand-word {
+  background-image: url('/brand/wordmark-light.webp');
 }
 .footer-brand img {
   display: block;
@@ -2649,29 +2904,12 @@ label {
   gap: 7px;
 }
 
-/* Phone number with the chosen country's calling code in front. */
-.phone-row {
-  grid-template-columns: auto 1fr;
-  align-items: end;
-}
-.phone-prefix {
-  display: grid;
-  place-items: center;
-  min-inline-size: 64px;
-  min-block-size: 50px;
-  padding-inline: 12px;
-  border: 1.5px solid var(--line-strong);
-  border-radius: 14px;
-  background: var(--paper-2);
-  font-weight: 700;
-  direction: ltr;
-}
-
 /* Date range calendar in the request form. */
 .range-field {
   border: 0;
   padding: 0;
   margin: 0;
+  min-inline-size: 0;
 }
 .range-field legend {
   font-weight: 750;
@@ -2686,7 +2924,7 @@ label {
   border: 1.5px solid var(--line-strong);
   border-radius: 20px;
   background: white;
-  padding: 10px 12px 14px;
+  padding: 10px clamp(4px, calc(100vw - 372px), 12px) 14px;
 }
 .range-head {
   display: flex;
@@ -2715,7 +2953,7 @@ label {
 }
 .range-day {
   position: relative;
-  block-size: 42px;
+  min-block-size: 44px;
   border: 0;
   background: transparent;
   font-size: 15px;
@@ -2764,6 +3002,7 @@ label {
 }
 .range-summary .text-link {
   margin-inline-start: auto;
+  min-block-size: 44px;
   background: none;
   border: 0;
   font-size: 13px;

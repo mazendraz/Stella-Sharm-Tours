@@ -105,3 +105,22 @@ Each collection has two 6 s hero clips, each framed for its own screen:
 In `data/catalog.json` they are `hero_video` and `hero_video_mobile`; `pnpm db:sync-media` gives each collection a phone slide and a desktop slide.
 Sources (Pexels): boat over the reef (file 13413450, Private + All), camels 35695240 + pyramid drone shot 10719349 (History, All), reef 27263876 (Sea), quads at sunset (file 14945991, Desert desktop), Sharm sunset 34525290 (Relax), Petra 4253642 (Beyond), Mount Sinai 9424565 (All). Desert phone: client canyon + quad clips.
 Cutting scripts: `scripts/media/hero6.py` (these heroes), `stock-clips.py`, `recut-client-clips.py`. They read the Pexels originals from the Downloads folder. The vertical crop is framed on the subject (sun, reef, camels, Treasury).
+
+## Homepage intro footage (Nov 22, 2026)
+
+The active catalog uses the Pexels downloads below. Each clip has a continuous
+720p landscape edit and a 720×1280 portrait edit under `assets/video-stock/`.
+
+| Slide | Footage | Pexels file ID |
+| --- | --- | --- |
+| Private | Visitor photographing a pyramid | 7492809 |
+| History | Light and shadow on carved temple walls | 16194346 |
+| Red Sea | Fish above a coral reef | 20271097 |
+| Desert | Dune buggy | 5977492 |
+| Beyond Egypt | Petra Treasury through the Siq | 14923757 |
+| Relax | Beachfront resorts | 4185235 |
+| All of Egypt | Sailboat on the Nile | 15216597 |
+
+Run `pnpm db:sync-media --hero-only` against the intended database to apply the
+new videos to existing homepage slides. The catalog seed pairs the two versions
+when it creates new slides.

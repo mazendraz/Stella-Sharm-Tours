@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { priceSchema } from './public-contract';
+export { requiresPrivateRequest } from './days';
+
 export function cairoDate(now = new Date()) {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Africa/Cairo',
@@ -12,6 +15,11 @@ export function maxBookingDate(now = new Date()) {
   date.setUTCMonth(date.getUTCMonth() + 18);
   return date.toISOString().slice(0, 10);
 }
+export function addCalendarDays(date: string, days: number) {
+  const value = new Date(date + 'T12:00:00Z');
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}
 // Inclusive number of days between two ISO dates (14 → 17 Nov = 4 days).
 export function stayDays(start: string, end: string) {
   return (
@@ -21,9 +29,13 @@ export function stayDays(start: string, end: string) {
     ) + 1
   );
 }
-export const bookingSchema = z
+const quoteId = z.string().regex(/^[a-f0-9]{64}$/);
+const submissionId = z.string().regex(/^[a-f0-9]{64}$/);
+export function bookingStartDateIsValid(date: string) {
+  return date >= cairoDate() && date <= maxBookingDate();
+}
+const quoteFields = z
   .object({
-    mode: z.enum(['single', 'multi']),
     items: z
       .array(
         z
@@ -40,28 +52,62 @@ export const bookingSchema = z
       )
       .min(1)
       .max(38),
-    start_date: z.iso
-      .date()
-      .refine((v) => v >= cairoDate() && v <= maxBookingDate(), 'date'),
-    // Optional last day of the guest's stay (inclusive), from the calendar.
-    end_date: z.iso.date().optional(),
+    start_date: z.iso.date(),
     // false = the guest removed the automatic rest day after overnight trips.
     rest_days: z.boolean().optional(),
     adults: z.number().int().min(1).max(60),
     children: z.number().int().min(0).max(40),
-    child_ages: z.array(z.number().int().min(0).max(17)).max(40).optional(),
     format: z.enum(['group', 'private']),
+    locale: z.string().min(2).max(16),
+  })
+  .strict();
+export const quoteInputSchema = quoteFields.extend({
+  start_date: z.iso.date().refine(bookingStartDateIsValid, 'date'),
+});
+
+export const quoteSchema = z.object({
+  quote_id: quoteId,
+  estimate_eur: z.number().int().nonnegative().nullable(),
+  known_eur: z.number().int().nonnegative(),
+  items: z
+    .array(
+      z.object({
+        trip_slug: z.string(),
+        day_index: z.number().int().positive(),
+        service_date: z.iso.date(),
+        service_end_date: z.iso.date(),
+        amount_eur: z.number().int().nonnegative().nullable(),
+        selected_price_id: z.string().nullable(),
+        price_options: z.array(priceSchema),
+      }),
+    )
+    .min(1)
+    .max(38),
+});
+export const quoteChangedSchema = z.object({
+  error: z.object({ code: z.literal('QUOTE_CHANGED') }),
+  quote: quoteSchema,
+});
+export type Quote = z.infer<typeof quoteSchema>;
+export type QuoteInput = z.infer<typeof quoteInputSchema>;
+
+export const bookingPayloadSchema = quoteFields
+  .extend({
+    mode: z.enum(['single', 'multi']),
+    quote_id: quoteId.optional(),
+    submission_id: submissionId.optional(),
+    // Optional last day of the guest's stay (inclusive), from the calendar.
+    end_date: z.iso.date().optional(),
+    child_ages: z.array(z.number().int().min(0).max(17)).max(40).optional(),
     pickup_area: z.string().trim().min(1).max(100),
     hotel: z.string().trim().max(150).optional(),
     name: z.string().trim().min(1).max(80),
     phone: z.string().regex(/^\+[1-9]\d{6,14}$/),
     email: z.union([z.email().max(254), z.literal('')]).optional(),
     notes: z.string().trim().max(1000).optional(),
-    locale: z.string().min(2).max(16),
     hp: z.literal(''),
     t: z.number().int().positive(),
   })
-  .strict()
   .superRefine((v, ctx) => {
     if (v.end_date) {
       const days = stayDays(v.start_date, v.end_date);
@@ -75,7 +121,18 @@ export const bookingSchema = z
         message: 'children',
       });
   });
+export const bookingSchema = bookingPayloadSchema.refine(
+  (value) => bookingStartDateIsValid(value.start_date),
+  { path: ['start_date'], message: 'date' },
+);
 export type Booking = z.infer<typeof bookingSchema>;
+export function submissionDetails({
+  t: _openedAt,
+  submission_id: _id,
+  ...details
+}: Booking) {
+  return details;
+}
 export const confirmationSchema = z.object({
   ref: z.string().regex(/^STL-[A-Z0-9]+$/),
   estimate_eur: z.number().nullable(),

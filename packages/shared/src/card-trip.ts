@@ -30,7 +30,12 @@ export function navCollection(collection: Collection): Collection {
 /** The site fields the layout shell, footer and request sheet use. */
 export type ShellSite = Pick<
   Site,
-  'locales' | 'contacts' | 'address' | 'legal_entity' | 'pickup_areas'
+  | 'locales'
+  | 'contacts'
+  | 'address'
+  | 'legal_entity'
+  | 'pickup_areas'
+  | 'social'
 > & { has_hero: boolean };
 export function shellSite(site: Site): ShellSite {
   return {
@@ -39,6 +44,7 @@ export function shellSite(site: Site): ShellSite {
     address: site.address,
     legal_entity: site.legal_entity,
     pickup_areas: site.pickup_areas,
+    social: site.social,
     has_hero: site.hero_slides.length > 0,
   };
 }

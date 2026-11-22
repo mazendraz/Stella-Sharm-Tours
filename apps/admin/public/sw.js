@@ -1,6 +1,8 @@
 const CACHE = 'stella-admin-shell-v2';
 // Dev server chunk names are not content-hashed: never cache them locally.
-const DEV = ['localhost', '127.0.0.1', '[::1]'].includes(self.location.hostname);
+const DEV = ['localhost', '127.0.0.1', '[::1]'].includes(
+  self.location.hostname,
+);
 const SHELL = [
   '/offline.html',
   '/offline.js',

@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { locales } from '@stella/shared';
 import { analyticsConfig } from '@stella/shared/analytics';
-const core: readonly string[] = locales;
+type Direction = 'ltr' | 'rtl';
+type LiveLocales = ReadonlyMap<string, Direction>;
+const core: LiveLocales = new Map(locales.map((code) => [code, 'ltr']));
 // Live locales change only when the owner switches a language in the admin.
 // Cache them per instance so a page request does not wait on the API each time;
 // 60 s matches the public API's s-maxage. Failures fall back to core quickly
 // and are retried sooner.
 const LOCALES_TTL_MS = 60_000;
 const LOCALES_RETRY_MS = 10_000;
-let cachedLocales: { value: readonly string[]; expires: number } | undefined;
-let pendingLocales: Promise<readonly string[]> | undefined;
-async function fetchLiveLocales(): Promise<readonly string[]> {
+let cachedLocales: { value: LiveLocales; expires: number } | undefined;
+let pendingLocales: Promise<LiveLocales> | undefined;
+async function fetchLiveLocales(): Promise<LiveLocales> {
   try {
     const r = await fetch(
       new URL('/v1/public/locales', process.env.API_INTERNAL_URL),
@@ -22,11 +24,16 @@ async function fetchLiveLocales(): Promise<readonly string[]> {
         Array.isArray(data) &&
         data.every(
           (x) =>
+            x &&
+            (x.dir === 'ltr' || x.dir === 'rtl') &&
             typeof x.code === 'string' &&
             /^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$/.test(x.code),
         )
       ) {
-        const value = [...new Set([...core, ...data.map((x) => x.code)])];
+        const value: LiveLocales = new Map([
+          ...core,
+          ...data.map((x): [string, Direction] => [x.code, x.dir]),
+        ]);
         cachedLocales = { value, expires: Date.now() + LOCALES_TTL_MS };
         return value;
       }
@@ -39,7 +46,7 @@ async function fetchLiveLocales(): Promise<readonly string[]> {
   cachedLocales = { value, expires: Date.now() + LOCALES_RETRY_MS };
   return value;
 }
-async function liveLocales(): Promise<readonly string[]> {
+async function liveLocales(): Promise<LiveLocales> {
   if (cachedLocales && cachedLocales.expires > Date.now())
     return cachedLocales.value;
   pendingLocales ??= fetchLiveLocales().finally(() => {
@@ -87,20 +94,21 @@ export async function middleware(request: NextRequest) {
       .sort((a, b) => b.q - a.q || a.i - b.i);
     const locale = bot
       ? 'en'
-      : saved && live.includes(saved)
+      : saved && live.has(saved)
         ? saved
-        : (preferences.find((p) => live.includes(p.code) && p.q > 0)?.code ??
-          'en');
+        : (preferences.find((p) => live.has(p.code) && p.q > 0)?.code ?? 'en');
     const response = NextResponse.redirect(new URL('/' + locale, request.url));
     response.headers.set('Content-Security-Policy', csp);
     return response;
   }
-  if (!live.includes(segment))
+  const direction = live.get(segment);
+  if (!direction)
     return new NextResponse(null, {
       status: 404,
       headers: { 'Content-Security-Policy': csp },
     });
   headers.set('x-stella-locale', segment);
+  headers.set('x-stella-dir', direction);
   const response = NextResponse.next({ request: { headers } });
   response.headers.set('Content-Security-Policy', csp);
   if (path.endsWith('/preview')) {
@@ -112,6 +120,6 @@ export async function middleware(request: NextRequest) {
 }
 export const config = {
   matcher: [
-    '/((?!api(?:/|$)|healthz(?:/|$)|readyz(?:/|$)|_next(?:/|$)|fonts(?:/|$)|brand(?:/|$)|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|analytics-guard\\.js$).*)',
+    '/((?!api(?:/|$)|healthz(?:/|$)|readyz(?:/|$)|_next(?:/|$)|fonts(?:/|$)|brand(?:/|$)|map(?:/|$)|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|analytics-guard\\.js$).*)',
   ],
 };

@@ -60,7 +60,7 @@ Goal: nothing breaks, nothing leaks, and a mistake in the admin can be undone. B
 ## 4. API & web hardening
 
 - CSRF: admin mutations require header `X-CSRF-Token` (double-submit, tied to the session) **and** an `Origin` check against the admin origin.
-- CORS: public API allows only the web origin for `POST /v1/requests`; admin routes allow only the admin origin with credentials.
+- CORS: booking submissions and quote previews (`POST /v1/requests` and `POST /v1/requests/quote`) require the web origin and JSON. The cross-origin booking API uses no credentials. The quote endpoint rejects contact fields, limits previews to 40 per minute per IP and returns no-store responses. Admin routes allow only the admin origin with credentials.
 - Validation: zod on every input, max lengths everywhere (name 80, notes 1000, etc.), reject unknown fields.
 - Output: never return password hashes, TOTP secrets, IP hashes; separate public DTOs.
 - Rich text (FAQ, legal pages): stored as a restricted Markdown subset, rendered with an allow-list sanitizer.
@@ -77,6 +77,9 @@ Goal: nothing breaks, nothing leaks, and a mistake in the admin can be undone. B
 
 Covered in the backend plan §5. Extra: uploads go to a quarantine dir; only processed variants are ever served; the originals dir is not web-accessible; filenames are never user-controlled.
 
+- [x] Public media rights are checked at the origin for each registered rendition. Withdrawing rights or archiving an asset denies delivery immediately after the database change. Existing private previews remain session-protected. Migration 0005 registers the current renditions of active assets with recorded rights. Historical files with no recorded ownership are denied at the origin.
+- [ ] On rollout, purge any configured intermediary media cache that previously stored the year-long immutable responses. Copies previously saved by visitors or retained under an older browser cache policy can outlive the origin withdrawal.
+
 ## 6. Server (VPS) hardening checklist
 
 - [ ] Ubuntu 24.04 LTS, `unattended-upgrades` on for security updates, automatic reboot window 04:00.
@@ -84,6 +87,7 @@ Covered in the backend plan §5. Extra: uploads go to a quarantine dir; only pro
 - [ ] UFW: allow 22 (or custom), 80, 443 only.
 - [ ] Docker: containers run as non-root users, `read_only: true` where possible, `no-new-privileges`, resource limits; Docker socket never mounted into apps.
 - [ ] Postgres: no published port; strong unique passwords per DB role; app role has no superuser/DDL rights at runtime (separate migration role).
+- [x] Scope API and worker grants by table, operation and sensitive column. Migrations remove legacy grants and leave newly created application tables inaccessible to runtime roles by default. The worker uses filtered audit views and fixed routines for privacy cleanup, eligible notifications and translation writes. Only the migration credential manages DDL.
 - [ ] Secrets in `/srv/stella/env/*.env` (600), never in images or git; rotated yearly or on staff change.
 - [ ] Time sync, log rotation, disk usage alert at 80%.
 - [ ] Separate SSH keys per person; remove on offboarding (documented in `docs/OWNERS.md`).
@@ -97,6 +101,7 @@ Covered in the backend plan §5. Extra: uploads go to a quarantine dir; only pro
 - IPs stored only as salted hash; analytics cookieless (Umami) → no cookie banner needed if nothing else sets cookies. Google Maps / YouTube embeds only after click-to-load consent.
 - Admin can export or delete a customer's data on request (search by phone).
 - API export/erase requires owner/manager and recent reauthentication; phone stays in a POST body, never URL/audit metadata. Export includes item/price snapshots without IP/user-agent data. Erasure removes items/history/pending notification payloads and redacts request audit snapshots. Retention uses calendar months and an explicit anonymization marker; anonymized requests cannot regain identifiers through edits/Undo. Mailbox/WhatsApp/backup handling is a separate operator process.
+- Booking retry receipts are keyed by an opaque ID and a server-keyed payload fingerprint. Confirmations are available only to matching submissions for 24 hours and are cleared by the maintenance job. Erasure, anonymization and staging scrub remove receipts. The worker has no direct read access to the receipt table.
 
 ## 8. Safety nets for content
 

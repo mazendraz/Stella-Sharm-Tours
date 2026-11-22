@@ -10,7 +10,7 @@ gates are in [admin verification](admin-verification.md).
 Run as `deploy` from `/srv/stella/repo`:
 
 ```bash
-bash infra/deploy.sh staging 0123456789abcdef0123456789abcdef01234567
+bash infra/deploy-release.sh staging 0123456789abcdef0123456789abcdef01234567
 bash infra/monitoring/check.sh staging
 bash infra/deploy.sh staging --rollback
 ```
@@ -23,6 +23,23 @@ readiness/heartbeat probes and restores previous images/proxy snapshot on failur
 automatically reverses database migrations; migrations must remain compatible
 with the previous release. A first-deploy failure stops applications and keeps
 the DB. Previous/current release records update only after successful health.
+
+The release entry point archives the exact commit’s `infra/` directory under
+`/srv/stella/release-checkouts/<SHA>`. It leaves the shared Git checkout in place.
+Each environment holds its own deploy lock for migrations, backup, health checks
+and rollback. The migration service uses the API image and bootstraps the worker
+queues as well as database migrations. Migration `0009` records bundled core
+translation provenance and prevents the worker from writing machine translations
+in the seven core languages. The recipient push queue is created by the same
+migration service.
+
+For a fresh environment, deploy the scoped database roles with the API and
+worker images from the same release. For an existing environment running
+images from before migration 0006, first stage a compatibility release with
+the updated API and worker and the additive SQL objects, then rehearse rollback
+to that compatible release before applying the narrower grants. Earlier
+workers use direct queries that require the old broad permissions. Keep a
+compatible image available for rollback once the new grants are in force.
 
 To inspect an environment safely without printing secrets:
 
@@ -159,6 +176,8 @@ enables notifications under My account on their own installed HTTPS dashboard.
 No keys are provisioned/enabled by local acceptance. Push payloads contain a
 locale only; customer names/phones/references never reach push providers. Push
 and mail use independent durable queues; a push failure cannot prevent mail.
+Each installation receives its own retryable job. A failed installation does not
+cause completed deliveries for other installations to be retried.
 Only active owner/manager/sales accounts receive push. Revoking all sessions
 removes subscriptions; browsers may re-enable them after signing in again.
 

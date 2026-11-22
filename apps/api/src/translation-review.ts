@@ -33,7 +33,7 @@ export async function revalidateTranslations(tx: Tx, locale: string) {
       tags: [
         'site',
         'collections',
-        'faqs',
+        'faq',
         'ui:' + locale,
         ...['contact', 'privacy', 'terms', 'cancellation'].map(
           (key) => 'page:' + key,
@@ -85,6 +85,8 @@ export function translationTarget(input: z.infer<typeof selector>) {
         'description',
         'days_label',
         'duration_label',
+        'departure_label',
+        'return_label',
         'seo_title',
         'seo_description',
         'notes',
@@ -99,7 +101,7 @@ export function translationTarget(input: z.infer<typeof selector>) {
     faq: ['faqs', ['q', 'a']],
     trip_item: ['trip_items', ['text']],
     trip_price: ['trip_prices', ['label']],
-    itinerary: ['trip_itinerary', ['text']],
+    itinerary: ['trip_itinerary', ['text', 'time_label']],
   };
   if (input.entity === 'ui') return null;
   if (input.entity === 'settings')
@@ -108,14 +110,25 @@ export function translationTarget(input: z.infer<typeof selector>) {
       column: 'value',
       key: 'key',
       path: input.field === 'value' ? [] : path,
+      scalar: false,
     };
   if (input.entity === 'page_block')
-    return { table: 'page_blocks', column: 'data', key: 'id', path };
+    return {
+      table: 'page_blocks',
+      column: 'data',
+      key: 'id',
+      path,
+      scalar: false,
+    };
   const definition = map[input.entity],
     column = path.shift();
   if (!definition || !column || !definition[1].includes(column))
     fail(422, 'INVALID_TRANSLATION_FIELD');
-  return { table: definition[0], column, key: 'id', path };
+  const scalar = ['departure_label', 'return_label', 'time_label'].includes(
+    column,
+  );
+  if (scalar && path.length) fail(422, 'INVALID_TRANSLATION_FIELD');
+  return { table: definition[0], column, key: 'id', path, scalar };
 }
 export async function updateTranslationValue(
   tx: Tx,
@@ -128,15 +141,21 @@ export async function updateTranslationValue(
   const table = sql.identifier(target.table),
     column = sql.identifier(target.column),
     key = sql.identifier(target.key);
-  const current = await tx.execute<{ value: Record<string, string> }>(
-    sql`select ${column} #> ${jsonPathSql(target.path)} as value from ${table} where ${key}::text=${input.id} for update`,
+  const current = await tx.execute<{
+    value: Record<string, string> | string | null;
+  }>(
+    sql`select ${target.scalar ? column : sql`${column} #> ${jsonPathSql(target.path)}`} as value from ${table} where ${key}::text=${input.id} for update`,
   );
   if (!current.rows.length) fail(404, 'NOT_FOUND');
   if (
     expectedSource !== undefined &&
-    current.rows[0]!.value?.en !== expectedSource
+    (target.scalar
+      ? current.rows[0]!.value
+      : (current.rows[0]!.value as Record<string, string> | null)?.en) !==
+      expectedSource
   )
     fail(409, 'TRANSLATION_STALE');
+  if (target.scalar) return;
   const path = [...target.path, input.locale];
   await tx.execute(
     text === null
@@ -168,7 +187,7 @@ export async function restoreTranslation(tx: Tx, snapshot: unknown) {
   const [current] = await tx.select().from(s.contentTranslations).where(where);
   const target = translationTarget(data.target);
   let previous: string | null = null;
-  if (target) {
+  if (target && !target.scalar) {
     const result = await tx.execute<{ value: string | null }>(
       sql`select ${sql.identifier(target.column)} #>> ${jsonPathSql([...target.path, data.target.locale])} as value from ${sql.identifier(target.table)} where ${sql.identifier(target.key)}::text=${data.target.id}`,
     );
