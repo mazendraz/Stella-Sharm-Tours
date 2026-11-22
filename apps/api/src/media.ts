@@ -389,7 +389,10 @@ export async function processMedia(
       .select()
       .from(media)
       .where(eq(media.id, id))
-      .for('update');
+      // NO KEY UPDATE still serialises writers but, unlike UPDATE, does not
+      // conflict with the KEY SHARE lock held by an open transaction that
+      // references this row (e.g. the catalog seed inserting trip_media).
+      .for('no key update');
     if (
       !current ||
       current.archivedAt ||
