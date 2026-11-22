@@ -21,6 +21,8 @@ if [[ ! -d "$PROXY_CONFIG_DIR" ]]; then
   mkdir -p "$PROXY_CONFIG_DIR"
   cp "$STELLA_REPO/infra/Caddyfile" "$STELLA_REPO/infra/Caddyfile.staging" "$PROXY_CONFIG_DIR/"
   cp -a "$STELLA_REPO/infra/caddy" "$PROXY_CONFIG_DIR/caddy"
+  # Caddy runs as UID 1000; when deploying as root, hand it the read-only snapshot.
+  if [[ $EUID -eq 0 ]]; then chown -R 1000:1000 "$PROXY_CONFIG_DIR"; fi
 fi
 compose config --quiet
 # Release tags are immutable commit SHAs, so an image already present locally
