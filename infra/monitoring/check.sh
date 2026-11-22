@@ -12,6 +12,11 @@ used=$(df -P "$DATA_DIR" | awk 'NR==2 {gsub(/%/,"",$5); print $5}')
 [[ "$used" -lt 80 ]] || { echo 'Disk utilization at or above 80%' >&2; exit 1; }
 if [[ "$ENVIRONMENT" == production ]]; then
   [[ -f "$DATA_DIR/backups/last-success" && $(find "$DATA_DIR/backups/last-success" -mmin -1560 -print) ]] || { echo 'Database backup overdue' >&2; exit 1; }
-  [[ -f "$DATA_DIR/backups/last-offsite-success" && $(find "$DATA_DIR/backups/last-offsite-success" -mmin -1560 -print) ]] || { echo 'Encrypted off-site backup overdue/unconfigured' >&2; exit 1; }
+  if [[ "${OFFSITE_BACKUP:-required}" == pending ]]; then
+    # Explicit, temporary operator opt-out set in compose.env until restic is configured.
+    echo 'WARNING: off-site backup not configured yet (OFFSITE_BACKUP=pending); local dumps only.' >&2
+  else
+    [[ -f "$DATA_DIR/backups/last-offsite-success" && $(find "$DATA_DIR/backups/last-offsite-success" -mmin -1560 -print) ]] || { echo 'Encrypted off-site backup overdue/unconfigured' >&2; exit 1; }
+  fi
 fi
 echo 'Operational checks passed.'

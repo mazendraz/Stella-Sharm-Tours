@@ -23,7 +23,9 @@ if [[ ! -d "$PROXY_CONFIG_DIR" ]]; then
   cp -a "$STELLA_REPO/infra/caddy" "$PROXY_CONFIG_DIR/caddy"
 fi
 compose config --quiet
-compose pull api worker web admin caddy postgres
+# Release tags are immutable commit SHAs, so an image already present locally
+# (built on this server or pulled earlier) is the same image; fetch only missing ones.
+compose pull --policy missing api worker web admin caddy postgres
 if [[ "$ENVIRONMENT" == production ]]; then
   [[ "$WEB_HOST" != *example* && "$WEB_HOST" != *.invalid && "$WEB_HOST" != *.test ]] || { echo 'Real production DNS required' >&2; exit 1; }
   label=$(docker image inspect "$IMAGE_PREFIX/stella-admin:$RELEASE" --format '{{index .Config.Labels "org.stella.admin-ui"}}')
