@@ -162,5 +162,6 @@
   "storyMode_ferry": "Traversée en ferry",
   "storyMode_flight": "En avion",
   "storyMode_walk": "À pied",
-  "storyMode_arrival": "Arrivée"
+  "storyMode_arrival": "Arrivée",
+  "homeTripStories": "Découvrez les itinéraires"
 }

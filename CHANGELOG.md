@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Sharpen the Taba–Aqaba ferry and Taba–Eilat road story maps with locally bundled Sentinel-2 imagery.
+
+- Show published trip stories on the homepage after private tours, with direct viewer access.
+
 - Replace the seven homepage intro videos with Pexels footage and frame each
   clip for desktop and mobile. Add a hero-only catalog sync for existing sites.
 

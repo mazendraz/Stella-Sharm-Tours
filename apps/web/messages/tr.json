@@ -162,5 +162,6 @@
   "storyMode_ferry": "Feribotla geçiş",
   "storyMode_flight": "Uçakla",
   "storyMode_walk": "Yürüyerek",
-  "storyMode_arrival": "Varış"
+  "storyMode_arrival": "Varış",
+  "homeTripStories": "Rotaları keşfedin"
 }

@@ -1,131 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { publicStorySchema, type PublicStory } from '@stella/shared/story';
 import type { Trip } from '@stella/shared/public-contract';
 import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
-import terrain from './journey-relief.webp';
+import { StoryStopPicker } from './story-stop-picker';
+import { RouteMap, usesGulfDetail } from './story-route-map';
 import './trip-story.css';
 
-type Scene = PublicStory['scenes'][number];
-type Point = [number, number];
-
-// Natural Earth II shaded relief, cropped to 20–44°E and 18–38°N.
-function RouteMap({
-  arriving,
-  scenes,
-  index,
-  moving,
-}: {
-  arriving: boolean;
-  scenes: Scene[];
-  index: number;
-  moving: boolean;
-}) {
-  const points = scenes.flatMap((s) => s.route),
-    xs = points.map((p) => p[0]),
-    ys = points.map((p) => p[1]);
-  const left = Math.min(...xs),
-    right = Math.max(...xs),
-    top = Math.max(...ys),
-    bottom = Math.min(...ys);
-  const scale = Math.min(
-    280 / Math.max(0.05, (right - left) * 0.87),
-    198 / Math.max(0.05, top - bottom),
-  );
-  const xy = ([lon, lat]: Point) => [
-    160 + (lon - (left + right) / 2) * 0.87 * scale,
-    118 + ((top + bottom) / 2 - lat) * scale,
-  ];
-  const path = (pts: Point[]) =>
-    pts
-      .map(
-        (p, i) =>
-          (i ? 'L' : 'M') +
-          xy(p)
-            .map((v) => v.toFixed(2))
-            .join(' '),
-      )
-      .join(' ');
-  const scene = scenes[index]!,
-    [cx, cy] = xy(scene.route[scene.route.length - 1]!);
-  return (
-    <svg viewBox="0 0 320 236" aria-hidden="true" className="story-chart">
-      <rect width="320" height="236" fill="#f1dfb9" />
-      <image
-        href={terrain.src}
-        x={xy([20, 38])[0]}
-        y={xy([20, 38])[1]}
-        width={24 * 0.87 * scale}
-        height={20 * scale}
-        preserveAspectRatio="none"
-      />
-      {scenes.map((s, i) => (
-        <path
-          key={s.id}
-          d={path(s.route)}
-          fill="none"
-          stroke={i < index ? '#6e361c' : '#494940'}
-          strokeWidth={i < index ? 2.3 : 1.3}
-          strokeDasharray={
-            s.transport === 'flight' || s.transport === 'ferry'
-              ? '4 3'
-              : undefined
-          }
-        />
-      ))}
-      <path
-        key={scene.id}
-        d={path(scene.route)}
-        pathLength={1}
-        className={moving ? 'story-trace' : ''}
-        fill="none"
-        stroke="#ac3e1c"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      {(moving || arriving) && (
-        <circle
-          key={moving ? 'leg' : 'arrival'}
-          r="4.6"
-          fill="#ad4121"
-          stroke="white"
-          strokeWidth="2"
-        >
-          <animateMotion
-            dur={moving ? '1.4s' : '1.2s'}
-            keyTimes="0;1"
-            keyPoints={moving ? '0;0.8' : '0.8;1'}
-            calcMode="linear"
-            path={path(scene.route)}
-            fill="freeze"
-          />
-        </circle>
-      )}
-      {!moving && !arriving && (
-        <circle
-          cx={cx}
-          cy={cy}
-          r="4.6"
-          fill="#ad4121"
-          stroke="white"
-          strokeWidth="2"
-        />
-      )}
-    </svg>
-  );
-}
 export default function TripStory({
   trip,
   privateMode,
+  homeCard = false,
   previewStory,
 }: {
   trip: Trip;
   privateMode: boolean;
+  homeCard?: boolean;
   previewStory?: PublicStory | undefined;
 }) {
   const t = useTranslations(),
@@ -138,7 +33,7 @@ export default function TripStory({
     [error, setError] = useState(false),
     [index, setIndex] = useState(0),
     [moving, setMoving] = useState(false),
-    [arriving, setArriving] = useState(false),
+    [paused, setPaused] = useState(true),
     [broken, setBroken] = useState(false);
   const pointer = useRef<{ x: number; y: number } | null>(null),
     requestAfter = useRef(false);
@@ -200,19 +95,7 @@ export default function TripStory({
       } else finish();
     };
   }, [open, locale, trip, privateMode, previewStory]);
-  useEffect(() => {
-    if (!moving) return;
-    const timer = setTimeout(() => {
-      setMoving(false);
-      setArriving(true);
-    }, 1400);
-    return () => clearTimeout(timer);
-  }, [moving, index]);
-  useEffect(() => {
-    if (!arriving) return;
-    const timer = setTimeout(() => setArriving(false), 1200);
-    return () => clearTimeout(timer);
-  }, [arriving]);
+  const arrive = useCallback(() => setMoving(false), []);
   const go = (next: number) => {
     if (
       !story ||
@@ -223,7 +106,6 @@ export default function TripStory({
     )
       return;
     setBroken(false);
-    setArriving(false);
     setIndex(next);
     setMoving(
       !matchMedia('(prefers-reduced-motion: reduce)').matches &&
@@ -239,10 +121,9 @@ export default function TripStory({
       <button
         type="button"
         ref={entry}
-        className="story-entry"
+        className={homeCard ? 'story-entry home-story-card' : 'story-entry'}
         disabled={!ready && !previewStory}
         onClick={() => {
-          setArriving(false);
           setIndex(0);
           setMoving(false);
           setBroken(false);
@@ -253,7 +134,8 @@ export default function TripStory({
         }}
       >
         {cover && <Media media={cover} defer />}
-        <span>{t('storyExplore')}</span>
+        {homeCard && <Play className="home-story-play" aria-hidden size={38} />}
+        <span>{homeCard ? trip.title.text : t('storyExplore')}</span>
       </button>
       <dialog
         ref={dialog}
@@ -281,8 +163,11 @@ export default function TripStory({
               aria-label={t('close')}
               onClick={() => setOpen(false)}
             >
-              <X />
+              <X size={16} /> {t('close')}
             </button>
+            <b className="story-wordmark" lang="en">
+              STELLA
+            </b>
             {!story || !scene ? (
               <p role="status">
                 {error ? t('storyUnavailable') : t('storyLoading')}
@@ -322,17 +207,30 @@ export default function TripStory({
                     pointer.current = null;
                   }}
                 >
-                  {!moving && (
+                  <img
+                    key={scene.id + '-still'}
+                    src={scene.media.url}
+                    alt={scene.media.alt.text}
+                    style={{
+                      objectFit: scene.frame,
+                      objectPosition:
+                        (scene.focalX ?? 50) +
+                        '% ' +
+                        (scene.focalY ?? 50) +
+                        '%',
+                    }}
+                  />
+                  {moving && story.scenes[index - 1] && (
                     <img
-                      key={scene.id + '-still'}
-                      src={scene.media.url}
-                      alt={scene.media.alt.text}
+                      className="story-departure"
+                      alt=""
+                      src={story.scenes[index - 1]!.media.url}
                       style={{
-                        objectFit: scene.frame,
+                        objectFit: story.scenes[index - 1]!.frame,
                         objectPosition:
-                          (scene.focalX ?? 50) +
+                          (story.scenes[index - 1]!.focalX ?? 50) +
                           '% ' +
-                          (scene.focalY ?? 50) +
+                          (story.scenes[index - 1]!.focalY ?? 50) +
                           '%',
                       }}
                     />
@@ -342,7 +240,9 @@ export default function TripStory({
                       key={scene.id + '-video'}
                       ref={video}
                       poster={scene.media.url}
-                      controls
+                      onPlay={() => setPaused(false)}
+                      onPause={() => setPaused(true)}
+                      onEnded={() => setPaused(true)}
                       muted
                       playsInline
                       autoPlay={
@@ -378,25 +278,85 @@ export default function TripStory({
                   className={'story-location' + (moving ? ' traveling' : '')}
                 >
                   <RouteMap
-                    arriving={arriving}
+                    onArrival={arrive}
                     scenes={story.scenes}
                     index={index}
                     moving={moving}
                   />
                 </div>
-                <div className="story-caption" aria-live="polite">
-                  <small>
-                    {moving
-                      ? t('storyMode_' + scene.transport)
-                      : t('story_' + scene.kind)}
-                  </small>
-                  <h2>{scene.title.text}</h2>
-                  <p>{scene.caption.text}</p>
-                  {scene.credit && (
+                <footer className="story-panel">
+                  <div className="story-caption" aria-live="polite">
+                    <small>
+                      {index + 1} / {story.scenes.length} ·{' '}
+                      {moving
+                        ? t('storyMode_' + scene.transport)
+                        : t('story_' + scene.kind)}
+                    </small>
+                    <h2>{scene.title.text}</h2>
+                    <p>{scene.caption.text}</p>
+                  </div>
+                  <div className="story-actions">
+                    <button
+                      aria-label={t('previous')}
+                      hidden={index === 0}
+                      disabled={moving}
+                      onClick={() => go(index - 1)}
+                    >
+                      {t('previous')}
+                    </button>
+                    {trip.slug === 'luxor-plane-1-day' && (
+                      <StoryStopPicker
+                        scenes={story.scenes}
+                        index={index}
+                        disabled={moving}
+                        onSelect={go}
+                      />
+                    )}
+                    {index === story.scenes.length - 1 && !previewStory ? (
+                      <button
+                        onClick={() => {
+                          requestAfter.current = true;
+                          track('trip_story_request', { slug: trip.slug });
+                          setOpen(false);
+                        }}
+                      >
+                        {t('request')}
+                      </button>
+                    ) : (
+                      <button
+                        aria-label={t('next')}
+                        disabled={index === story.scenes.length - 1 && !moving}
+                        onClick={() =>
+                          moving ? setMoving(false) : go(index + 1)
+                        }
+                      >
+                        {moving
+                          ? scene.title.text
+                          : t('next') +
+                            (story.scenes[index + 1]
+                              ? ' · ' + story.scenes[index + 1]!.title.text
+                              : '')}
+                      </button>
+                    )}
+                    {!moving && scene.media.video && !broken && (
+                      <button
+                        onClick={() => {
+                          const v = video.current;
+                          if (!v) return;
+                          if (v.paused)
+                            void v.play().catch(() => setPaused(true));
+                          else v.pause();
+                        }}
+                      >
+                        {t(paused ? 'play' : 'pause')}
+                      </button>
+                    )}
+                  </div>
+                  {(scene.credit || usesGulfDetail(scene.route)) && (
                     <details key={scene.id} className="story-credits">
                       <summary>{t('storyCredits')}</summary>
                       <small>
-                        {scene.credit.split(' · ').map((part, i) =>
+                        {scene.credit?.split(' · ').map((part, i) =>
                           /^https?:\/\//.test(part) ? (
                             <a
                               key={i}
@@ -411,47 +371,19 @@ export default function TripStory({
                           ),
                         )}
                       </small>
+                      {usesGulfDetail(scene.route) && (
+                        <small style={{ display: 'block' }}>
+                          <a href="https://s2maps.eu">Sentinel-2 cloudless</a> —
+                          EOX IT Services GmbH
+                          {
+                            ' (Contains modified Copernicus Sentinel data 2016 & 2017) · '
+                          }
+                          <a href="https://creativecommons.org/licenses/by/4.0/">
+                            CC BY 4.0
+                          </a>
+                        </small>
+                      )}
                     </details>
-                  )}
-                </div>
-                <footer>
-                  <button
-                    aria-label={t('previous')}
-                    disabled={moving || index === 0}
-                    onClick={() => go(index - 1)}
-                  >
-                    <ChevronLeft />
-                  </button>
-                  <select
-                    value={index}
-                    aria-label={t('storyStops')}
-                    disabled={moving}
-                    onChange={(e) => go(Number(e.target.value))}
-                  >
-                    {story.scenes.map((s, i) => (
-                      <option key={s.id} value={i}>
-                        {i + 1} / {story.scenes.length} · {s.title.text}
-                      </option>
-                    ))}
-                  </select>
-                  {index === story.scenes.length - 1 && !previewStory ? (
-                    <button
-                      onClick={() => {
-                        requestAfter.current = true;
-                        track('trip_story_request', { slug: trip.slug });
-                        setOpen(false);
-                      }}
-                    >
-                      {t('request')}
-                    </button>
-                  ) : (
-                    <button
-                      aria-label={t('next')}
-                      disabled={moving || index === story.scenes.length - 1}
-                      onClick={() => go(index + 1)}
-                    >
-                      <ChevronRight />
-                    </button>
                   )}
                 </footer>
               </>

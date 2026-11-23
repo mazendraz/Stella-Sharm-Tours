@@ -8,13 +8,17 @@
 - [x] 5. Import all seven program drafts in isolated PostgreSQL. Database checks passed for preview isolation, Petra publication in seven languages, and reversal.
 - [ ] 6. Verify on staging and enable the approved programs individually. Production deployment follows the existing staging review and release process.
 
+- [x] Add a homepage gallery after the private tours section. Each card opens the published story in the current locale. The two Cairo bus programs share one entry.
+
 ## Content decisions
+
+- [x] Use a local crop of the 2016 Sentinel-2 cloudless mosaic for the northern Gulf of Aqaba close-ups. Source: EOX WMS layer `s2cloudless`, EPSG:4326, bounds 34.60–35.30°E / 29.20–29.82°N, 2048 × 1814. Cropped and converted to WebP. [EOX attribution and license](https://eox.at/2023/10/sentinel-2-cloudless-2022).
 
 - Petra shows the ferry from Taba to Aqaba. Cairo follows the west coast of Sinai. Alexandria shares the Cairo road and shows the Mediterranean on arrival.
 - The Jerusalem visual route follows the supplied sequence. The catalog lists the Jordan River earlier in the day. Confirm the sequence with operations before public activation.
 - The Alexandria Library stop describes the exterior visit. The reading room and Luxor landmarks beyond the scheduled visits are illustrative scenes.
 - The draft uses the catalog aerial film focused on the Giza pyramids, a licensed Dome of the Rock still and a photo of the tunnel's west portal. The two original clips with unresolved rights are excluded from the import. Asset hashes and source records are in `data/journeys/media.json`.
-- The shared 2.5D map uses the routes from the prototypes and a shaded relief crop from [Natural Earth II](https://www.naturalearthdata.com/downloads/50m-raster-data/50m-natural-earth-2/). Natural Earth map data is [in the public domain](https://www.naturalearthdata.com/about/terms-of-use/).
+- The shared map animates each prototype road segment against NASA GIBS Blue Marble Shaded Relief and Bathymetry imagery (27–39°E, 24–34°N). The wider fallback is a shaded relief crop from [Natural Earth II](https://www.naturalearthdata.com/downloads/50m-raster-data/50m-natural-earth-2/). Natural Earth map data is [in the public domain](https://www.naturalearthdata.com/about/terms-of-use/).
 
 ## Staging and rollout
 

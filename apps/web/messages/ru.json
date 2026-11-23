@@ -162,5 +162,6 @@
   "storyMode_ferry": "На пароме",
   "storyMode_flight": "На самолёте",
   "storyMode_walk": "Пешком",
-  "storyMode_arrival": "Прибытие"
+  "storyMode_arrival": "Прибытие",
+  "homeTripStories": "Откройте для себя маршруты"
 }

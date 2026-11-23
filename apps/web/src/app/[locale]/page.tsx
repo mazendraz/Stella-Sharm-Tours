@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+import { HomeTripStories } from '@/components/home-trip-stories';
 import { eligibleSlides } from '@stella/shared/hero';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { cardTrip, navCollection } from '@stella/shared/card-trip';
@@ -119,6 +121,7 @@ export default async function Home({
                 ))}
               </div>
             </section>
+            <Suspense fallback={null}><HomeTripStories locale={locale} /></Suspense>
             <section className="section" id="journeys">
               <Reveal>
                 <p className="kicker section-kicker">{t('journeys')}</p>
