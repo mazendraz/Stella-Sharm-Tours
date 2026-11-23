@@ -59,6 +59,10 @@ const scan = spawnSync(
     'ALL',
     '--security-opt',
     'no-new-privileges',
+    // The scan copy is owner-only (0600); read it as the same user on Linux/macOS.
+    ...(process.getuid
+      ? ['--user', process.getuid() + ':' + process.getgid()]
+      : []),
     '--tmpfs',
     '/tmp:rw,noexec,nosuid,size=64m',
     '-e',
