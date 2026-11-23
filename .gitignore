@@ -15,3 +15,13 @@ test-results/
 .local/
 *.log
 .DS_Store
+
+# Large local media and working copies (not used by the build, seed or tests)
+Stella-Videos/
+reports/**/*.mp4
+reports/**/*.zip
+reports/stella-film-review/
+assets/images/stock-original/
+assets/_backup-v1/
+# Loose patch exports at the repo root (dependency patches live in patches/)
+/*.patch

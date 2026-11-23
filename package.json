@@ -74,15 +74,6 @@
     "typescript-eslint": "8.72.2",
     "vitest": "3.2.7"
   },
-  "pnpm": {
-    "overrides": {
-      "next-intl@4.15.0>@parcel/watcher": "-",
-      "postcss": "8.5.32"
-    },
-    "patchedDependencies": {
-      "next@15.5.29": "patches/next@15.5.29.patch"
-    }
-  },
   "lint-staged": {
     "*.{ts,tsx,mjs}": [
       "eslint --fix",
