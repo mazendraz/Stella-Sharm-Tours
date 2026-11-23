@@ -169,5 +169,9 @@
   "storyMode_flight": "By air",
   "storyMode_walk": "On foot",
   "storyMode_arrival": "Arrival",
-  "homeTripStories": "Explore the journeys"
+  "homeTripStories": "Explore the journeys",
+  "summaryRef": "Request number",
+  "summaryDates": "Dates",
+  "summaryGuests": "Guests",
+  "summaryTours": "Tours"
 }

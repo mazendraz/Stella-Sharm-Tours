@@ -169,5 +169,9 @@
   "storyMode_flight": "In volo",
   "storyMode_walk": "A piedi",
   "storyMode_arrival": "Arrivo",
-  "homeTripStories": "Scopri gli itinerari"
+  "homeTripStories": "Scopri gli itinerari",
+  "summaryRef": "Numero richiesta",
+  "summaryDates": "Date",
+  "summaryGuests": "Ospiti",
+  "summaryTours": "Escursioni"
 }

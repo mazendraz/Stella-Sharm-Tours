@@ -3,6 +3,7 @@ import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import { Check } from 'lucide-react';
 import type { FormEvent } from 'react';
 import type { ShellSite } from '@stella/shared/card-trip';
 import {
@@ -27,6 +28,8 @@ import { Content } from './text';
 import { DateRange } from './date-range';
 import { countries, popular } from './countries';
 import { CountryPicker } from './country-picker';
+import { RequestSummaryCard } from './request-summary';
+import type { RequestSummary } from '@/lib/request-summary';
 import { useApiOrigin } from './runtime-config';
 export default function RequestSheet({
   site,
@@ -79,6 +82,7 @@ export default function RequestSheet({
   const [success, setSuccess] = useState<
     import('@stella/shared/booking').Confirmation | null
   >(null);
+  const [summary, setSummary] = useState<RequestSummary | null>(null);
   const opened = useRef(Date.now()),
     tabSeed = useRef<string | null>(null),
     abort = useRef<AbortController | null>(null),
@@ -266,6 +270,19 @@ export default function RequestSheet({
       return;
     }
     if (!quote) return;
+    const lastService = quote.items
+      .map((item) => item.service_end_date)
+      .sort()
+      .at(-1);
+    if (end && lastService && end < lastService) {
+      setErrors({ end_date: t('planNeeds', { days: needed }) });
+      requestAnimationFrame(() =>
+        dateField.current
+          ?.querySelector<HTMLButtonElement>('.range-day:not(:disabled)')
+          ?.focus(),
+      );
+      return;
+    }
     setErrors({});
     setFailure(null);
     setBusy(true);
@@ -313,11 +330,32 @@ export default function RequestSheet({
         return;
       }
       const confirmed = confirmationSchema.parse(await response.json());
+      const titles = new Map(trips.map((trip) => [trip.slug, trip.title.text]));
+      const sent: RequestSummary = {
+        name: parsed.data.name,
+        start: parsed.data.start_date,
+        end: parsed.data.end_date ?? lastService ?? parsed.data.start_date,
+        adults: parsed.data.adults,
+        children: parsed.data.children,
+        format: parsed.data.format,
+        area: parsed.data.pickup_area,
+        hotel: parsed.data.hotel ?? '',
+        items: quote.items.map((item) => ({
+          title: titles.get(item.trip_slug) ?? item.trip_slug,
+          start: item.service_date,
+          end: item.service_end_date,
+          amount: item.amount_eur,
+        })),
+        known: quote.known_eur,
+        estimate: quote.estimate_eur,
+      };
+      setSummary(sent);
       try {
         sessionStorage.setItem(
           'stella.confirmation.' + confirmed.ref,
           JSON.stringify({
             ...confirmed,
+            summary: sent,
             expires: Date.now() + 30 * 60 * 1000,
           }),
         );
@@ -378,25 +416,31 @@ export default function RequestSheet({
       <div className="request-body">
         {success ? (
           <div className="confirmation">
-            <p className="kicker">
-              <bdi>{success.ref}</bdi>
-            </p>
+            <span className="confirmation-badge" aria-hidden="true">
+              <Check size={26} strokeWidth={2.4} />
+            </span>
             <h2>{t('sent')}</h2>
             <p>{t('sentSub')}</p>
-            <pre>{success.message}</pre>
-            <a className="button wa" href={success.whatsapp_url}>
-              <WhatsAppIcon size={19} />
-              {t('openWhatsapp')}
-            </a>
-            <button
-              className="button line"
-              onClick={() => {
-                useTripStore.getState().closeRequest();
-                router.push('/' + locale + '/request/done/' + success.ref);
-              }}
-            >
-              {t('close')}
-            </button>
+            {summary ? (
+              <RequestSummaryCard reference={success.ref} summary={summary} />
+            ) : (
+              <pre>{success.message}</pre>
+            )}
+            <div className="confirmation-actions">
+              <a className="button wa" href={success.whatsapp_url}>
+                <WhatsAppIcon size={19} />
+                {t('openWhatsapp')}
+              </a>
+              <button
+                className="button line"
+                onClick={() => {
+                  useTripStore.getState().closeRequest();
+                  router.push('/' + locale + '/request/done/' + success.ref);
+                }}
+              >
+                {t('close')}
+              </button>
+            </div>
           </div>
         ) : (
           <>

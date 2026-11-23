@@ -141,6 +141,13 @@ function persistRequest(
         !settings.pickup_areas.includes(b.pickup_area)
       )
         fail(422, 'PICKUP_AREA_INVALID');
+      // The guest's stay must cover the last day of the last tour.
+      const lastServiceDay = quote.items
+        .map((item) => item.service_end_date)
+        .sort()
+        .at(-1);
+      if (b.end_date && lastServiceDay && b.end_date < lastServiceDay)
+        fail(422, 'STAY_TOO_SHORT');
       if (b.quote_id && b.quote_id !== quote.quote_id) return { quote };
       if (selected.some(({ invalidPrice }) => invalidPrice))
         fail(422, 'INVALID_PRICE');

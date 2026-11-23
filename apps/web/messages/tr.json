@@ -169,5 +169,9 @@
   "storyMode_flight": "Uçakla",
   "storyMode_walk": "Yürüyerek",
   "storyMode_arrival": "Varış",
-  "homeTripStories": "Rotaları keşfedin"
+  "homeTripStories": "Rotaları keşfedin",
+  "summaryRef": "Talep numarası",
+  "summaryDates": "Tarihler",
+  "summaryGuests": "Misafirler",
+  "summaryTours": "Turlar"
 }
