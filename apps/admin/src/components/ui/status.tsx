@@ -60,6 +60,7 @@ export function StatusMenu({
   status,
   name,
   canPublish = true,
+  hasDrafts = false,
   onPublish,
   onUnpublish,
   onArchive,
@@ -71,6 +72,7 @@ export function StatusMenu({
   status: ContentStatus;
   name: string;
   canPublish?: boolean;
+  hasDrafts?: boolean;
   onPublish?: (() => Promise<unknown>) | undefined;
   onUnpublish?: (() => Promise<unknown>) | undefined;
   onArchive?: (() => Promise<unknown>) | undefined;
@@ -94,7 +96,11 @@ export function StatusMenu({
     }
   };
   const items: MenuItem[] = [];
-  if (status === 'draft' && onPublish && canPublish)
+  if (
+    (status === 'draft' || (status === 'published' && hasDrafts)) &&
+    onPublish &&
+    canPublish
+  )
     items.push({
       label: t('publish'),
       onSelect: async () => {

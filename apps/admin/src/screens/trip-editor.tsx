@@ -731,6 +731,7 @@ export function TripEditor({ id }: { id: string }) {
       status={
         <StatusMenu
           status={status}
+          hasDrafts={drafts.length > 0}
           name={name}
           canPublish={can(role, 'publish')}
           missingLocales={missing.map((code) => languageName(code, locale))}
