@@ -1,4 +1,10 @@
 {
+  "moveTripEarlier": "Move {trip} earlier",
+  "moveTripLater": "Move {trip} later",
+  "searchCountries": "Search name or calling code",
+  "noCountries": "No countries found.",
+  "pricedTripsSubtotal": "Subtotal for tours with prices",
+  "requestRateLimited": "Too many attempts. Please try again later.",
   "phoneHint": "Use a local number for the selected country or include the international calling code.",
   "phonePreview": "Number the team will use",
   "phoneInvalid": "Enter a valid WhatsApp number with the correct country or international calling code.",

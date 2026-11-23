@@ -1,4 +1,10 @@
 {
+  "moveTripEarlier": "{trip} nach oben verschieben",
+  "moveTripLater": "{trip} nach unten verschieben",
+  "searchCountries": "Name oder Vorwahl suchen",
+  "noCountries": "Keine Länder gefunden.",
+  "pricedTripsSubtotal": "Zwischensumme der Ausflüge mit Preis",
+  "requestRateLimited": "Zu viele Versuche. Bitte versuchen Sie es später erneut.",
   "phoneHint": "Gib eine Rufnummer aus dem gewählten Land oder eine Nummer mit internationaler Vorwahl ein.",
   "phonePreview": "Kontaktnummer für unser Team",
   "phoneInvalid": "Gib eine gültige WhatsApp-Nummer mit dem richtigen Land oder der richtigen internationalen Vorwahl ein.",

@@ -4,7 +4,7 @@ import type { ReactNode, CSSProperties } from 'react';
 import { useTranslations } from 'next-intl';
 import { Minus, Plus, X } from 'lucide-react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 export function Stepper({
   label,
   value,
@@ -52,6 +52,12 @@ export function Panel({
   kind = 'sheet',
   clip = null,
   returnTo = null,
+  footer,
+  onEscapeKeyDown,
+  restored = false,
+  immediateClose = false,
+  scrollTop = 0,
+  onPanelScroll,
 }: {
   open: boolean;
   onClose: () => void;
@@ -60,6 +66,12 @@ export function Panel({
   kind?: 'sheet' | 'collection' | 'trip' | 'builder';
   clip?: { top: number; right: number; bottom: number; left: number } | null;
   returnTo?: HTMLElement | null;
+  footer?: ReactNode;
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  restored?: boolean;
+  immediateClose?: boolean;
+  scrollTop?: number;
+  onPanelScroll?: (scrollTop: number) => void;
 }) {
   const t = useTranslations();
   const returnFocus = useRef<HTMLElement | null>(
@@ -69,6 +81,13 @@ export function Panel({
   );
   const start = useRef(0);
   const [closing, setClosing] = useState(false);
+  const closeRequested = useRef(false);
+  const restoreScroll = useCallback(
+    (element: HTMLDivElement | null) => {
+      if (element && scrollTop) element.scrollTop = scrollTop;
+    },
+    [scrollTop],
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
@@ -77,16 +96,45 @@ export function Panel({
     [],
   );
   const close = () => {
-    if (closing) return;
+    if (closeRequested.current) return;
+    closeRequested.current = true;
+    if (
+      immediateClose ||
+      matchMedia('(prefers-reduced-motion:reduce)').matches
+    ) {
+      onClose();
+      return;
+    }
     setClosing(true);
-    timer.current = setTimeout(
-      () => {
-        onClose();
-        setClosing(false);
-      },
-      matchMedia('(prefers-reduced-motion:reduce)').matches ? 0 : 320,
-    );
+    timer.current = setTimeout(onClose, 320);
   };
+  const content = (
+    <>
+      {kind === 'sheet' && (
+        <div
+          className="drag-handle"
+          onPointerDown={(e) => {
+            start.current = e.clientY;
+            e.currentTarget.setPointerCapture(e.pointerId);
+          }}
+          onPointerUp={(e) => {
+            if (e.clientY - start.current > 80) close();
+          }}
+        >
+          <span />
+        </div>
+      )}
+      <Dialog.Title className="sr-only">{title}</Dialog.Title>
+      <button
+        className="icon-button panel-close"
+        aria-label={t('close')}
+        onClick={close}
+      >
+        <X />
+      </button>
+      {children}
+    </>
+  );
   return (
     <Dialog.Root
       open={open}
@@ -95,9 +143,16 @@ export function Panel({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className={'scrim ' + (closing ? 'closing' : '')} />
+        <Dialog.Overlay
+          className={
+            'scrim' +
+            (restored ? ' restored' : '') +
+            (closing ? ' closing' : '')
+          }
+        />
         <Dialog.Content
           aria-describedby={undefined}
+          onEscapeKeyDown={onEscapeKeyDown}
           style={
             clip
               ? ({
@@ -115,32 +170,29 @@ export function Panel({
               if (target?.isConnected) target.focus({ preventScroll: true });
             });
           }}
-          className={'panel panel-' + kind + (closing ? ' closing' : '')}
+          className={
+            'panel panel-' +
+            kind +
+            (footer ? ' panel-with-footer' : '') +
+            (restored ? ' restored' : '') +
+            (closing ? ' closing' : '')
+          }
           onPointerDownOutside={() => close()}
         >
-          {kind === 'sheet' && (
+          {footer ? (
             <div
-              className="drag-handle"
-              onPointerDown={(e) => {
-                start.current = e.clientY;
-                e.currentTarget.setPointerCapture(e.pointerId);
-              }}
-              onPointerUp={(e) => {
-                if (e.clientY - start.current > 80) close();
-              }}
+              className="panel-scroll"
+              ref={restoreScroll}
+              onScroll={(event) =>
+                onPanelScroll?.(event.currentTarget.scrollTop)
+              }
             >
-              <span />
+              {content}
             </div>
+          ) : (
+            content
           )}
-          <Dialog.Title className="sr-only">{title}</Dialog.Title>
-          <button
-            className="icon-button panel-close"
-            aria-label={t('close')}
-            onClick={close}
-          >
-            <X />
-          </button>
-          {children}
+          {footer}
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

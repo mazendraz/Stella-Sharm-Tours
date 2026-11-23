@@ -325,7 +325,7 @@ export async function loadCatalog(
         (!p.validTo || p.validTo >= today),
     );
     const mediaRows = tms.filter((m) => m.tripId === t.id);
-    const availableStory=t.story ? storyFor(t) : null;
+    const availableStory = t.story ? storyFor(t) : null;
     const result = {
       story_available: t.story ? !!availableStory : undefined,
       story_cover: availableStory?.scenes[0]?.media,
@@ -457,6 +457,7 @@ export async function loadCatalog(
   const locales = liveLocales(settings);
   const home = object(settings.home),
     contacts = object(settings.contacts),
+    bookingNotice = object(settings.request_rules).min_days_ahead,
     privateCollection = cs.find((c) => c.kind === 'private_virtual');
   const settingText = (key: string, value: unknown) =>
     text('settings', key, 'value', value as s.Localized | null);
@@ -603,6 +604,8 @@ export async function loadCatalog(
       };
     }),
     pickup_areas: settings.pickup_areas ?? [],
+    booking_min_days_ahead:
+      typeof bookingNotice === 'number' ? Math.max(1, bookingNotice) : 1,
     social: settings.social ?? [],
     map_image: media(
       typeof settings.map_image === 'string' ? settings.map_image : null,

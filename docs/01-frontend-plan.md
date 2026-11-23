@@ -120,7 +120,7 @@ Bright, warm and optimistic. All client video is colour-graded (brighter, warmer
 - **Price block**: every price row from DB, e.g. "Single €15 / person", "Double €20 / quad"; "On request" when amount is null. Small print "Children: ask us" until child rules exist.
 - **Your day / The plan** — vertical timeline (line draws in on open; dots in collection colour).
 - Packages: "The days inside" — tappable rows that open each trip.
-- Included / Not included / Optional extras / What to bring.
+- [x] Present Included, Not included, Optional extras and What to bring in responsive cards with distinct icons and accessible lists.
 - Notes (e.g. Jerusalem documents needed, Petra timing disclaimer).
 - Sticky bottom bar: price, `+` toggle, **Request** button → booking sheet.
 - SEO: `TouristTrip` JSON-LD with `offers` (price, currency EUR), `itinerary`, `provider`.
@@ -135,6 +135,8 @@ Bright, warm and optimistic. All client video is colour-graded (brighter, warmer
 - "Request this trip" → booking sheet in multi mode.
 - Persist in `localStorage` (`stella.mytrip.v1`) with try/catch; works without it.
 - [x] Resolve saved tours independently. Keep available tours visible, let guests remove withdrawn tours and offer a retry for temporary catalog errors. Enable requests once every remaining tour is available.
+- [x] Keep My trip accessible from the active trip or collection. Show a persistent desktop shortcut with the saved count and keep the mobile tab actionable.
+- [x] Allow guests to reorder saved tours with a touch drag or move buttons. Recalculate day numbers and rest days from that order and use it for the quote and request.
 
 ### 3.5 Booking request sheet (bottom sheet on mobile, centered modal on desktop)
 
@@ -145,6 +147,9 @@ Fields: travel format, a start date with an optional last day of stay, adults (�
 - [x] After the guest selects a start date, show each tour’s service dates, its price and the server-calculated total. Show all active rate options for a single tour and select the primary row by ID. If a rate changes before submission, show the updated quote and keep the guest’s form details for review.
 - [x] Count stay length through the last day of the last tour, including rest days. Warn if the selected stay is shorter.
 - [x] Accept national WhatsApp numbers using the selected country’s dialing rules. Accept pasted international numbers with their own country code. Show the exact international number the team will receive.
+- [x] Offer an inline country picker searchable by localized name or calling code. Require a listed pickup area and display its validation message beside the choices.
+- [x] Open bookings from tomorrow in Cairo time, or later if configured by staff.
+- [x] Show a subtotal for priced tours and leave the full estimate on request when any tour needs a quote.
 - [x] Retrying the same request details in the same browser tab recovers the original confirmation. A revised quote or a change to the booking details starts a new submission.
 - Submit → `POST /v1/requests` → success screen with reference (e.g. `STL-7F3K2`) and the **prefilled WhatsApp message** + button `https://wa.me/<number>?text=<encoded>`.
 - Honeypot field + timing check + rate limit (see security plan). No CAPTCHA by default.
@@ -185,6 +190,8 @@ Use `motion` (Framer Motion). All durations in ms; easing `cubic-bezier(.2,.8,.2
 | Shimmer on primary CTA | 3.2s loop, starts after 1.2s; disabled on reduced motion                                                         |
 
 Performance rules: animate only `transform`, `opacity`, `clip-path`, `filter` on the hero only. Use `will-change` sparingly. Scroll handlers via `requestAnimationFrame`, passive listeners. Target 60fps on a mid-range Android.
+
+- [x] Restore the previous panel and its scroll position on Back. Play the exit only when returning to the visible page underneath, and skip the entrance on a restored history entry.
 
 ---
 

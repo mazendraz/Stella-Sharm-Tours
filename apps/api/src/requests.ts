@@ -140,7 +140,7 @@ function persistRequest(
         !Array.isArray(settings.pickup_areas) ||
         !settings.pickup_areas.includes(b.pickup_area)
       )
-        fail(422, 'REQUEST_RULES');
+        fail(422, 'PICKUP_AREA_INVALID');
       if (b.quote_id && b.quote_id !== quote.quote_id) return { quote };
       if (selected.some(({ invalidPrice }) => invalidPrice))
         fail(422, 'INVALID_PRICE');

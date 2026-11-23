@@ -70,7 +70,10 @@ test('new core languages detect correctly and use local UI and phone defaults', 
     await page.goto('/' + locale + '/t/quad-bike-safari');
     await expect(page.locator('.auto-notice')).toHaveCount(0);
     await page.getByRole('button', { name: label, exact: true }).click();
-    await expect(page.locator('#booking-country')).toHaveValue(code);
+    await expect(page.locator('#booking-country')).toHaveAttribute(
+      'data-country',
+      code,
+    );
     await page.keyboard.press('Escape');
   }
 });
@@ -132,6 +135,62 @@ test('intercepted routes close by keyboard and restore navigation', async ({
   });
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
+});
+test('returning to a collection restores its scroll without replaying its entrance', async ({
+  page,
+}) => {
+  test.setTimeout(90_000);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/en');
+  await expect(page.locator('[data-enhanced=true]')).toBeVisible();
+  const open = page.getByRole('link', {
+    name: 'See private trips',
+    exact: true,
+  });
+  await open.click();
+  const collection = page.locator('.panel-collection');
+  await collection.evaluate((element) =>
+    Promise.all(element.getAnimations().map(({ finished }) => finished)),
+  );
+  const scroller = collection.locator('.panel-scroll');
+  await scroller.evaluate((element) => {
+    element.scrollTop = 180;
+  });
+  const trip = collection
+    .getByRole('heading', { name: 'Private Speed Boat (VIP)', exact: true })
+    .getByRole('link');
+  await trip.scrollIntoViewIfNeeded();
+  await expect
+    .poll(() => scroller.evaluate((element) => element.scrollTop))
+    .toBeGreaterThan(0);
+  const offset = await scroller.evaluate((element) => element.scrollTop);
+  await trip.click();
+  const detail = page.locator('.panel-trip');
+  await expect(detail).toBeVisible();
+  await detail.getByRole('button', { name: en.close, exact: true }).click();
+  await expect(page).toHaveURL(/\/en\/c\/private$/);
+  await expect(collection).toHaveClass(/\brestored\b/);
+  await expect(collection).toHaveCSS('animation-name', 'none');
+  await expect
+    .poll(() =>
+      scroller.evaluate(
+        (element, savedOffset) => Math.abs(element.scrollTop - savedOffset),
+        offset,
+      ),
+    )
+    .toBeLessThan(3);
+
+  await trip.click();
+  await expect(detail).toBeVisible();
+  await page.goBack();
+  await expect(collection).toHaveClass(/\brestored\b/);
+  await expect(collection).toHaveCSS('animation-name', 'none');
+  await collection.getByRole('button', { name: en.close, exact: true }).click();
+  await expect(page).toHaveURL(/\/en$/);
+  await expect(collection).toHaveCount(0);
+  await open.click();
+  await expect(collection).toBeVisible();
+  await expect(collection).toHaveCSS('animation-name', 'collection-open');
 });
 test('request validation, public boundaries and localized 404', async ({
   page,

@@ -53,41 +53,41 @@ const server = createServer(async (req, res) => {
       );
       if (selected.some((item) => !item)) return json({}, 422);
       let known = 0;
-      const items = planDays(selected, input.rest_days).flatMap(
-        ({ day, trip }) => {
-          if (!trip) return [];
-          const selection = ids.get(trip.slug);
-          const prices = trip.prices.filter((price) => price.unit !== 'child');
-          const row =
-            prices.find((price) => price.id === selection.price_id) ??
-            primaryPrice(trip);
-          const estimate = estimateTrip(
-            trip,
-            input.adults,
-            input.children,
-            input.format,
-            row?.id,
-            selection.hours,
-          );
-          known += Math.round(estimate.amount);
-          return [
-            {
-              trip_slug: trip.slug,
-              day_index: day,
-              service_date: addCalendarDays(input.start_date, day - 1),
-              service_end_date: addCalendarDays(
-                input.start_date,
-                day + trip.days_count - 2,
-              ),
-              amount_eur: estimate.onRequest
-                ? null
-                : Math.round(estimate.amount),
-              selected_price_id: row?.id ?? null,
-              price_options: prices,
-            },
-          ];
-        },
-      );
+      const items = planDays(
+        selected,
+        input.rest_days,
+        input.preserve_order,
+      ).flatMap(({ day, trip }) => {
+        if (!trip) return [];
+        const selection = ids.get(trip.slug);
+        const prices = trip.prices.filter((price) => price.unit !== 'child');
+        const row =
+          prices.find((price) => price.id === selection.price_id) ??
+          primaryPrice(trip);
+        const estimate = estimateTrip(
+          trip,
+          input.adults,
+          input.children,
+          input.format,
+          row?.id,
+          selection.hours,
+        );
+        if (!estimate.onRequest) known += Math.round(estimate.amount);
+        return [
+          {
+            trip_slug: trip.slug,
+            day_index: day,
+            service_date: addCalendarDays(input.start_date, day - 1),
+            service_end_date: addCalendarDays(
+              input.start_date,
+              day + trip.days_count - 2,
+            ),
+            amount_eur: estimate.onRequest ? null : Math.round(estimate.amount),
+            selected_price_id: row?.id ?? null,
+            price_options: prices,
+          },
+        ];
+      });
       return json({
         quote_id: createHash('sha256')
           .update(JSON.stringify(items))

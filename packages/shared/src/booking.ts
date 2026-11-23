@@ -20,6 +20,9 @@ export function addCalendarDays(date: string, days: number) {
   value.setUTCDate(value.getUTCDate() + days);
   return value.toISOString().slice(0, 10);
 }
+export function minBookingDate(now = new Date(), daysAhead = 1) {
+  return addCalendarDays(cairoDate(now), Math.max(1, daysAhead));
+}
 // Inclusive number of days between two ISO dates (14 → 17 Nov = 4 days).
 export function stayDays(start: string, end: string) {
   return (
@@ -32,7 +35,8 @@ export function stayDays(start: string, end: string) {
 const quoteId = z.string().regex(/^[a-f0-9]{64}$/);
 const submissionId = z.string().regex(/^[a-f0-9]{64}$/);
 export function bookingStartDateIsValid(date: string) {
-  return date >= cairoDate() && date <= maxBookingDate();
+  const now = new Date();
+  return date >= minBookingDate(now) && date <= maxBookingDate(now);
 }
 const quoteFields = z
   .object({
@@ -55,6 +59,7 @@ const quoteFields = z
     start_date: z.iso.date(),
     // false = the guest removed the automatic rest day after overnight trips.
     rest_days: z.boolean().optional(),
+    preserve_order: z.boolean().optional(),
     adults: z.number().int().min(1).max(60),
     children: z.number().int().min(0).max(40),
     format: z.enum(['group', 'private']),

@@ -27,7 +27,7 @@ export function CollectionView({
   useEffect(() => setReady(true), []);
   useEffect(() => {
     const node = hero.current;
-    const scroller = node?.closest('.panel');
+    const scroller = node?.closest('.panel-scroll');
     const target = scroller ?? window;
     let raf = 0;
     const update = () => {

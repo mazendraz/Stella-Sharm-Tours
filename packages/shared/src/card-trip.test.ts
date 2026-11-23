@@ -111,6 +111,7 @@ describe('client payload projections', () => {
       address: text('Old Market'),
       legal_entity: null,
       pickup_areas: ['Naama Bay'],
+      booking_min_days_ahead: 2,
       social: [{ label: 'Instagram', url: 'https://instagram.com/x' }],
       hero_slides: [{ id: 's' }],
       featured_trips: [trip],
@@ -119,6 +120,7 @@ describe('client payload projections', () => {
     const shell = shellSite(site);
     expect(Object.keys(shell).sort()).toEqual([
       'address',
+      'booking_min_days_ahead',
       'contacts',
       'has_hero',
       'legal_entity',
@@ -127,6 +129,7 @@ describe('client payload projections', () => {
       'social',
     ]);
     expect(shell.has_hero).toBe(true);
+    expect(shell.booking_min_days_ahead).toBe(2);
     expect(shellSite({ ...site, hero_slides: [] }).has_hero).toBe(false);
   });
 });

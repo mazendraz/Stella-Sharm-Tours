@@ -46,26 +46,46 @@ export function bookingEstimate(
   known: number,
   locale: string,
 ) {
-  const labels: Record<string, readonly [string, string]> = {
-    en: ['Estimated total', 'On request'],
-    it: ['Totale stimato', 'Su richiesta'],
-    es: ['Total estimado', 'Bajo petición'],
-    fr: ['Total estimé', 'Sur demande'],
-    de: ['Geschätzter Gesamtpreis', 'Auf Anfrage'],
-    ru: ['Ориентировочная стоимость', 'По запросу'],
-    tr: ['Tahmini toplam', 'Talep üzerine'],
+  const labels: Record<string, readonly [string, string, string]> = {
+    en: ['Estimated total', 'On request', 'Subtotal for tours with prices'],
+    it: [
+      'Totale stimato',
+      'Su richiesta',
+      'Subtotale delle escursioni con prezzo',
+    ],
+    es: [
+      'Total estimado',
+      'Bajo petición',
+      'Subtotal de las excursiones con precio',
+    ],
+    fr: ['Total estimé', 'Sur demande', 'Sous-total des excursions avec tarif'],
+    de: [
+      'Geschätzter Gesamtpreis',
+      'Auf Anfrage',
+      'Zwischensumme der Ausflüge mit Preis',
+    ],
+    ru: [
+      'Ориентировочная стоимость',
+      'По запросу',
+      'Сумма по экскурсиям с указанной ценой',
+    ],
+    tr: [
+      'Tahmini toplam',
+      'Talep üzerine',
+      'Fiyatı belli turların ara toplamı',
+    ],
   };
-  const [label, onRequest] = labels[locale] ?? labels.en!;
+  const [label, onRequest, subtotal] = labels[locale] ?? labels.en!;
   const money = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'EUR',
     maximumFractionDigits: 0,
   });
-  const value =
-    amount !== null
-      ? money.format(amount)
-      : known > 0
-        ? money.format(known) + ' + ' + onRequest
-        : onRequest;
-  return label + ': ' + value;
+  if (amount !== null) return label + ': ' + money.format(amount);
+  return [
+    known > 0 ? subtotal + ': ' + money.format(known) : '',
+    label + ': ' + onRequest,
+  ]
+    .filter(Boolean)
+    .join('\n');
 }

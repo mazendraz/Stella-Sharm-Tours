@@ -1,13 +1,13 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import type { ShellSite } from '@stella/shared/card-trip';
 import {
   bookingSchema,
-  cairoDate,
+  minBookingDate,
   maxBookingDate,
   confirmationSchema,
   quoteChangedSchema,
@@ -25,12 +25,13 @@ import { Panel, Stepper } from './primitives';
 import { useTripStore } from './store';
 import { Content } from './text';
 import { DateRange } from './date-range';
-import { countries, popular, flag } from './countries';
+import { countries, popular } from './countries';
+import { CountryPicker } from './country-picker';
 import { useApiOrigin } from './runtime-config';
 export default function RequestSheet({
   site,
 }: {
-  site: Pick<ShellSite, 'pickup_areas'> | null;
+  site: Pick<ShellSite, 'pickup_areas' | 'booking_min_days_ahead'> | null;
 }) {
   const apiOrigin = useApiOrigin();
   const t = useTranslations(),
@@ -57,12 +58,15 @@ export default function RequestSheet({
         ? region!
         : (popular[locale]?.[0] ?? '');
     }),
+    [countryOpen, setCountryOpen] = useState(false),
     [phoneInput, setPhoneInput] = useState(''),
     [area, setArea] = useState(''),
     [errors, setErrors] = useState<Record<string, string>>({}),
     [busy, setBusy] = useState(false),
     [ready, setReady] = useState(false),
-    [failed, setFailed] = useState(false),
+    [failure, setFailure] = useState<
+      'requestError' | 'requestRateLimited' | null
+    >(null),
     [priceId, setPriceId] = useState(''),
     [hours, setHours] = useState(1);
   const [quoteAttempt, setQuoteAttempt] = useState(0);
@@ -93,6 +97,7 @@ export default function RequestSheet({
           })),
           start_date: date,
           rest_days: rest,
+          ...(state.preserveOrder ? { preserve_order: true } : {}),
           adults,
           children,
           format,
@@ -105,36 +110,6 @@ export default function RequestSheet({
   const quote = currentQuote?.value;
   const quoteChanged = currentQuote?.revised === true;
   const phone = normalizeBookingPhone(phoneInput, country);
-  const countryOptions = useMemo(() => {
-    let names: Intl.DisplayNames | undefined;
-    try {
-      names = new Intl.DisplayNames([locale], { type: 'region' });
-    } catch {
-      // Region codes still identify each option on older browsers.
-    }
-    const sort = new Intl.Collator(locale);
-    // Windows has no flag emoji (it displays the region's letters).
-    const withFlags =
-      typeof navigator !== 'undefined' && !/Windows/i.test(navigator.userAgent);
-    const options = countries
-      .map(([code, dial]) => {
-        const name = names?.of(code) ?? code;
-        return {
-          code,
-          name,
-          label: (withFlags ? flag(code) + ' ' : '') + name + ' (' + dial + ')',
-        };
-      })
-      .sort((a, b) => sort.compare(a.name, b.name));
-    const top = popular[locale] ?? [];
-    return {
-      popular: top.flatMap(
-        (code) => options.find((option) => option.code === code) ?? [],
-      ),
-      others: options.filter((option) => !top.includes(option.code)),
-    };
-  }, [locale]);
-
   useEffect(() => {
     if (!quoteBody) return;
     const controller = new AbortController();
@@ -201,7 +176,7 @@ export default function RequestSheet({
   const finalService = quote?.items.at(-1);
   const needed = finalService
     ? stayDays(date, finalService.service_end_date)
-    : lastPlannedDay(planDays(trips, rest));
+    : lastPlannedDay(planDays(trips, rest, state.preserveOrder));
   function clearPhoneError() {
     setErrors((current) => {
       if (!current.phone) return current;
@@ -277,6 +252,12 @@ export default function RequestSheet({
           )?.focus();
           return;
         }
+        if (first === 'pickup_area') {
+          form.current
+            ?.querySelector<HTMLElement>('#booking-pickup button')
+            ?.focus();
+          return;
+        }
         const element = form.current?.querySelector<HTMLElement>(
           '[name="' + first + '"]',
         );
@@ -286,7 +267,7 @@ export default function RequestSheet({
     }
     if (!quote) return;
     setErrors({});
-    setFailed(false);
+    setFailure(null);
     setBusy(true);
     const controller = new AbortController();
     abort.current = controller;
@@ -305,8 +286,9 @@ export default function RequestSheet({
         cache: 'no-store',
         signal: controller.signal,
       });
-      if (response.status === 409) {
-        const revised = quoteChangedSchema.safeParse(await response.json());
+      if (!response.ok) {
+        const problem = await response.json().catch(() => null);
+        const revised = quoteChangedSchema.safeParse(problem);
         if (revised.success) {
           setQuoteResult((current) =>
             current?.key === quoteKey
@@ -315,8 +297,21 @@ export default function RequestSheet({
           );
           return;
         }
+        if (problem?.error?.code === 'PICKUP_AREA_INVALID') {
+          setErrors({ pickup_area: t('invalid') });
+          setArea('');
+          router.refresh();
+          form.current
+            ?.querySelector<HTMLElement>('#booking-pickup button')
+            ?.focus();
+        } else {
+          setFailure(
+            response.status === 429 ? 'requestRateLimited' : 'requestError',
+          );
+        }
+        track('request_submit_error');
+        return;
       }
-      if (!response.ok) throw new Error('request');
       const confirmed = confirmationSchema.parse(await response.json());
       try {
         sessionStorage.setItem(
@@ -334,7 +329,7 @@ export default function RequestSheet({
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
       track('request_submit_error');
-      setFailed(true);
+      setFailure('requestError');
     } finally {
       abort.current = null;
       setBusy(false);
@@ -374,6 +369,11 @@ export default function RequestSheet({
       onClose={() => useTripStore.getState().closeRequest()}
       title={t(success ? 'sent' : 'requestTrip')}
       returnTo={state.opener}
+      onEscapeKeyDown={(event) => {
+        if (!countryOpen) return;
+        event.preventDefault();
+        setCountryOpen(false);
+      }}
     >
       <div className="request-body">
         {success ? (
@@ -431,7 +431,7 @@ export default function RequestSheet({
                 ref={dateField}
                 start={date}
                 end={end}
-                min={cairoDate()}
+                min={minBookingDate(undefined, site?.booking_min_days_ahead)}
                 max={maxBookingDate()}
                 needed={needed}
                 error={errors.start_date ?? errors.end_date}
@@ -491,7 +491,12 @@ export default function RequestSheet({
                   onChange={setHours}
                 />
               )}
-              <fieldset>
+              <fieldset
+                id="booking-pickup"
+                aria-describedby={
+                  errors.pickup_area ? 'pickup-error' : undefined
+                }
+              >
                 <legend>{t('area')}</legend>
                 <div className="pickup-chips">
                   {(site?.pickup_areas ?? []).map((a) => (
@@ -500,58 +505,37 @@ export default function RequestSheet({
                       className={'chip ' + (area === a ? 'active' : '')}
                       aria-pressed={area === a}
                       key={a}
-                      onClick={() => setArea(a)}
+                      onClick={() => {
+                        setArea(a);
+                        setErrors((current) => ({
+                          ...current,
+                          pickup_area: '',
+                        }));
+                      }}
                     >
                       {a === 'Other' ? t('other') : a}
                     </button>
                   ))}
                 </div>
-                <label className="sr-only" htmlFor="booking-area">
-                  {t('area')}
-                </label>
-                <input
-                  id="booking-area"
-                  name="pickup_area"
-                  value={area}
-                  maxLength={100}
-                  onChange={(e) => setArea(e.target.value)}
-                  aria-invalid={!!errors.pickup_area}
-                />
+                {!site?.pickup_areas.length && <p>{t('unavailableSub')}</p>}
                 {errors.pickup_area && (
-                  <p className="field-error">{errors.pickup_area}</p>
+                  <p className="field-error" id="pickup-error">
+                    {errors.pickup_area}
+                  </p>
                 )}
               </fieldset>
               {field('hotel', t('hotel'))}
               {field('name', t('name'), 'text', true)}
-              <div className="field">
-                <label htmlFor="booking-country">{t('country')}</label>
-                <select
-                  id="booking-country"
-                  value={country}
-                  onChange={(e) => {
-                    setCountry(e.target.value);
-                    clearPhoneError();
-                  }}
-                >
-                  <option value="">{t('chooseCountry')}</option>
-                  {countryOptions.popular.length > 0 && (
-                    <optgroup label={t('popular')}>
-                      {countryOptions.popular.map(({ code, label }) => (
-                        <option key={code} value={code}>
-                          {label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  )}
-                  <optgroup label={t('allCountries')}>
-                    {countryOptions.others.map(({ code, label }) => (
-                      <option key={code} value={code}>
-                        {label}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
-              </div>
+              <CountryPicker
+                country={country}
+                open={countryOpen}
+                onOpenChange={setCountryOpen}
+                onSelect={(code) => {
+                  setCountry(code);
+                  setCountryOpen(false);
+                  clearPhoneError();
+                }}
+              />
               <div className="field">
                 <label htmlFor="booking-phone">{t('phone')}</label>
                 <input
@@ -639,32 +623,39 @@ export default function RequestSheet({
                   ))}
                 </ul>
               )}
-              <div className="estimate" aria-live="polite" aria-atomic="true">
-                <span>{t('estimate')}</span>
-                {quote ? (
-                  <strong>
-                    {quote.estimate_eur !== null || quote.known_eur > 0 ? (
-                      <bdi>
-                        {money(quote.estimate_eur ?? quote.known_eur, locale)}
-                      </bdi>
-                    ) : null}
-                    {quote.estimate_eur === null && (
-                      <small>
-                        {t(quote.known_eur > 0 ? 'plusRequest' : 'onRequest')}
-                      </small>
-                    )}
-                  </strong>
-                ) : (
-                  <span>
-                    {t(
-                      !date
-                        ? 'quoteChooseDate'
-                        : currentQuote
-                          ? 'quoteUnavailable'
-                          : 'quoteLoading',
-                    )}
-                  </span>
+              <div
+                className="estimate-summary"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {quote?.estimate_eur === null && quote.known_eur > 0 && (
+                  <div className="estimate-subtotal">
+                    <span>{t('pricedTripsSubtotal')}</span>
+                    <bdi>{money(quote.known_eur, locale)}</bdi>
+                  </div>
                 )}
+                <div className="estimate">
+                  <span>{t('estimate')}</span>
+                  {quote ? (
+                    <strong>
+                      {quote.estimate_eur === null ? (
+                        t('onRequest')
+                      ) : (
+                        <bdi>{money(quote.estimate_eur, locale)}</bdi>
+                      )}
+                    </strong>
+                  ) : (
+                    <span>
+                      {t(
+                        !date
+                          ? 'quoteChooseDate'
+                          : currentQuote
+                            ? 'quoteUnavailable'
+                            : 'quoteLoading',
+                      )}
+                    </span>
+                  )}
+                </div>
               </div>
               {date && currentQuote?.value === null && (
                 <button
@@ -681,9 +672,9 @@ export default function RequestSheet({
                 </p>
               )}
               <p className="small-text">{t('childrenAsk')}</p>
-              {failed && (
+              {failure && (
                 <p role="alert" className="field-error">
-                  {t('requestError')}
+                  {t(failure)}
                 </p>
               )}
               <button

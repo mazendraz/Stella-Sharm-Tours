@@ -5,7 +5,7 @@ import * as s from '@stella/db/schema';
 import { isCoreLocale } from '@stella/shared';
 import {
   addCalendarDays,
-  cairoDate,
+  minBookingDate,
   quoteInputSchema,
   type Quote,
   type QuoteInput,
@@ -86,7 +86,7 @@ export async function calculateBookingQuote(db: Reader, input: QuoteInput) {
   if (
     input.adults > (rules?.max_adults ?? 60) ||
     input.children > (rules?.max_children ?? 40) ||
-    input.start_date < addCalendarDays(cairoDate(), rules?.min_days_ahead ?? 0)
+    input.start_date < minBookingDate(undefined, rules?.min_days_ahead)
   )
     fail(422, 'REQUEST_RULES');
 
@@ -103,6 +103,7 @@ export async function calculateBookingQuote(db: Reader, input: QuoteInput) {
   const plan = planDays(
     input.items.map(({ trip_slug }) => tripBySlug.get(trip_slug)!),
     input.rest_days ?? true,
+    input.preserve_order,
   ).flatMap(({ day, trip }) =>
     trip
       ? [
@@ -273,7 +274,6 @@ export async function calculateBookingQuote(db: Reader, input: QuoteInput) {
         ? (localized('trip', trip.id, trip.title)?.text ?? trip.title.en)
         : trip.title.en,
       details,
-      amount,
       invalidPrice: !!item.price_id && !explicit,
       snapshot: {
         prices: active,
@@ -281,7 +281,7 @@ export async function calculateBookingQuote(db: Reader, input: QuoteInput) {
         private_surcharge_pct: pricing.private_surcharge_pct,
         selected_price_id: row?.id ?? null,
         hours,
-        amount,
+        amount: details.amount_eur,
         on_request: estimate.onRequest,
         service_date: date,
         service_end_date: end,
@@ -289,7 +289,10 @@ export async function calculateBookingQuote(db: Reader, input: QuoteInput) {
       },
     };
   });
-  const known = selected.reduce((sum, item) => sum + item.amount, 0);
+  const known = selected.reduce(
+    (sum, { details }) => sum + (details.amount_eur ?? 0),
+    0,
+  );
   if (known > 99999999) fail(422, 'ESTIMATE_EXCEEDS_RANGE');
   const quote: Quote = {
     quote_id: createHash('sha256')

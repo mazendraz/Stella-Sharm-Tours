@@ -399,11 +399,23 @@ label {
   font-size: 11px;
   color: var(--ink-2);
 }
-.tabbar {
+.trip-navigation {
+  position: relative;
+  z-index: 7;
+}
+.trip-navigation-page {
   position: fixed;
   inset-block-end: 0;
   inset-inline: 0;
   z-index: 35;
+}
+body:has(.panel-with-footer) .trip-navigation-page {
+  display: none;
+}
+.saved-trip-shortcut {
+  display: none;
+}
+.tabbar {
   display: flex;
   background: #fbf8f2f2;
   backdrop-filter: blur(14px);
@@ -454,8 +466,8 @@ label {
   text-decoration: underline;
 }
 .toast {
-  position: fixed;
-  inset-block-end: 92px;
+  position: absolute;
+  inset-block-end: calc(100% + 12px);
   inset-inline-start: 50%;
   transform: translate(-50%, 12px);
   opacity: 0;
@@ -479,18 +491,9 @@ label {
 .toast.visible {
   opacity: 1;
   transform: translate(-50%, 0);
-  pointer-events: auto;
 }
 [dir='rtl'] .toast.visible {
   transform: translate(50%, 0);
-}
-.toast a {
-  display: inline-flex;
-  min-block-size: 44px;
-  align-items: center;
-  margin-inline-start: 14px;
-  color: var(--private-ink);
-  text-decoration: underline;
 }
 .fly-dot {
   position: fixed;
@@ -1209,6 +1212,18 @@ label {
   background: var(--paper);
   box-shadow: 0 10px 60px #0003;
 }
+.panel-with-footer {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel-scroll {
+  position: relative;
+  flex: 1;
+  min-block-size: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
 .panel-close {
   position: absolute;
   inset-block-start: 16px;
@@ -1242,6 +1257,9 @@ label {
 }
 .panel-trip.closing {
   animation: trip-close 0.32s cubic-bezier(0.6, 0, 0.8, 0.4) both;
+}
+.panel-sheet.closing {
+  animation: sheet-close 0.32s var(--ease) both;
 }
 .scrim.closing {
   animation: fade-out 0.32s both;
@@ -1307,6 +1325,11 @@ label {
   }
   to {
     transform: none;
+  }
+}
+@keyframes sheet-close {
+  to {
+    transform: translateY(100%);
   }
 }
 @keyframes panel-close {
@@ -1603,20 +1626,62 @@ label {
   font-size: 14px;
   margin: 0;
 }
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  align-items: start;
+  gap: 16px;
+  margin-block: 32px;
+}
+.trip-body .inclusion-group {
+  --item-ink: var(--ink-2);
+  --item-tint: var(--paper);
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 22px;
+  background: var(--paper-2);
+}
+.inclusion-group[data-type='include'] {
+  --item-ink: #13645d;
+  --item-tint: #e4efe8;
+}
+.inclusion-group[data-type='optional'],
+.inclusion-group[data-type='bring'] {
+  --item-ink: #784a16;
+  --item-tint: #f6e9d5;
+}
+.inclusion-group h2 {
+  margin: 0;
+  padding: 14px 18px;
+  border-block-end: 1px solid var(--line);
+  background: var(--item-tint);
+}
 .inclusions {
-  padding: 0;
+  margin: 0;
+  padding: 2px 16px;
   list-style: none;
 }
 .inclusions li {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 13px;
-  margin-block: 12px;
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding-block: 10px;
+  font-size: 14px;
+  line-height: 25px;
+  overflow-wrap: anywhere;
 }
-.inclusions svg {
-  margin-block-start: 3px;
-  color: var(--sea);
+.inclusions li + li {
+  border-block-start: 1px solid var(--line);
+}
+.inclusion-icon {
+  display: grid;
+  place-items: center;
+  block-size: 25px;
+  border-radius: 50%;
+  background: var(--item-tint);
+  color: var(--item-ink);
 }
 .notes {
   padding: 20px;
@@ -1707,6 +1772,95 @@ label {
 .request-body textarea {
   min-block-size: 110px;
   resize: vertical;
+}
+.country-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  min-block-size: 50px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 14px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  text-align: start;
+}
+.country-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.country-options {
+  min-inline-size: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  padding: 8px;
+  background: white;
+}
+.country-search {
+  position: relative;
+}
+.country-search > svg {
+  position: absolute;
+  inset-block-start: 16px;
+  inset-inline-start: 12px;
+  pointer-events: none;
+}
+.request-body .country-search input {
+  padding-inline-start: 36px;
+  background: var(--paper-2);
+}
+.country-options-list {
+  max-block-size: min(248px, 36svh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-block-start: 6px;
+  padding: 2px;
+}
+.country-group,
+.country-options-list > p {
+  margin: 8px 10px 2px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 750;
+}
+.country-option {
+  display: grid;
+  grid-template-columns: 25px minmax(0, 1fr) auto 17px;
+  align-items: center;
+  gap: 8px;
+  inline-size: 100%;
+  min-block-size: 44px;
+  border: 0;
+  border-radius: 9px;
+  padding: 6px 8px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: start;
+}
+.country-option:hover,
+.country-option[aria-pressed='true'] {
+  background: var(--paper);
+}
+.country-name {
+  overflow-wrap: anywhere;
+}
+.country-dial {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.country-flag {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif;
+}
+.country-check {
+  visibility: hidden;
+}
+.country-option[aria-pressed='true'] .country-check {
+  visibility: visible;
 }
 .request-body [aria-invalid='true'] {
   border-color: var(--danger);
@@ -1808,7 +1962,8 @@ label {
 .quote-items small {
   display: block;
 }
-.estimate {
+.estimate,
+.estimate-subtotal {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1816,6 +1971,13 @@ label {
   padding-block: 18px;
   border-block-start: 1px solid var(--line-strong);
   font-size: 13px;
+}
+.estimate-subtotal {
+  padding-block: 12px;
+  color: var(--ink-2);
+}
+.estimate-subtotal bdi {
+  font-weight: 750;
 }
 .estimate strong {
   font-size: 24px;
@@ -1909,6 +2071,48 @@ label {
 }
 .day-card > div {
   flex: 1;
+}
+.day-card:has(.trip-order-controls) {
+  padding-block-start: 50px;
+}
+.trip-order-controls {
+  position: absolute;
+  inset-block-start: 3px;
+  inset-inline-end: 9px;
+  display: flex;
+  align-items: center;
+}
+.trip-order-controls .icon-button {
+  background: transparent;
+}
+.trip-order-controls [aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: default;
+}
+.trip-grip {
+  display: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+@media (any-pointer: coarse) {
+  .trip-grip {
+    display: grid;
+    place-items: center;
+    inline-size: 44px;
+    block-size: 44px;
+  }
+}
+.day-card[data-dragging] {
+  z-index: 1;
+  transform: translateY(var(--trip-drag-y, 0));
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+  box-shadow: 0 10px 25px #1a171520;
+}
+.day-card[data-drop-target] {
+  outline: 2px dashed var(--ink);
+  outline-offset: -2px;
 }
 .saved-trip-placeholder {
   padding-block-start: 18px;
@@ -2224,11 +2428,6 @@ label {
   }
   .trip-body h1 {
     font-size: 46px;
-  }
-  .trip-body .items-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
   }
   .contact-layout {
     grid-template-columns: 1fr 1fr;
@@ -2561,8 +2760,26 @@ label {
   .footer {
     padding-block: 60px 50px;
   }
-  .toast {
-    inset-block-end: 28px;
+  .trip-navigation:has(.saved-trip-shortcut) {
+    display: grid;
+    justify-items: center;
+    padding: 12px 16px;
+    background: var(--paper-2);
+    border-block-start: 1px solid var(--line);
+  }
+  .saved-trip-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-block-size: 44px;
+    padding-inline: 18px;
+    border-radius: 999px;
+    background: var(--ink);
+    color: white;
+    font-weight: 750;
+  }
+  body:has(.trip-navigation-page .saved-trip-shortcut) .footer {
+    padding-block-end: 85px;
   }
   .collection-hero {
     block-size: 66vh;
@@ -2701,6 +2918,9 @@ label {
   .trip-page .trip-sticky {
     inset-block-end: 0;
   }
+  body:has(.trip-navigation-page .saved-trip-shortcut) .trip-page .trip-sticky {
+    inset-block-end: 69px;
+  }
 }
 .office-map-link {
   display: block;
@@ -2805,6 +3025,10 @@ label {
 .panel-builder.closing {
   animation: trip-close 0.32s both;
 }
+.panel.restored:not(.closing),
+.scrim.restored:not(.closing) {
+  animation: none;
+}
 @media (min-width: 1024px) {
   .panel-builder {
     inset-inline-start: auto;
@@ -2822,14 +3046,6 @@ label {
 @keyframes trip-close-rtl {
   to {
     transform: translateX(-100%);
-  }
-}
-.panel-builder .builder {
-  padding-block-end: 110px;
-}
-@media (min-width: 1024px) {
-  .panel-builder .builder {
-    padding-block-end: 30px;
   }
 }
 
@@ -3017,21 +3233,8 @@ label {
   transform: scaleX(-1);
 }
 
-/* Bottom tab bar stays on every screen on phones/tablets: it sits above the
-   full-screen trip / collection / My trip panels, which stop just above it.
-   The request form (bottom sheet, z-index 80+) still covers it. */
 :root {
   --tabbar-h: calc(57px + max(10px, env(safe-area-inset-bottom)));
-}
-@media (max-width: 1023px) {
-  .tabbar {
-    z-index: 70;
-  }
-  .panel-trip,
-  .panel-collection,
-  .panel-builder {
-    inset-block-end: var(--tabbar-h);
-  }
 }
 
 /* Hero slides: the stage holds the outgoing and incoming slide. The new one

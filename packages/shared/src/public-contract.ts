@@ -166,6 +166,7 @@ export const siteSchema = z.object({
   private_perks: z.array(z.object({ title: textSchema, sub: textSchema })),
   how_steps: z.array(z.object({ title: textSchema, text: textSchema })),
   pickup_areas: z.array(z.string()),
+  booking_min_days_ahead: z.number().int().min(1).max(30).optional(),
   social: z.array(z.object({ label: z.string(), url: z.url() })),
 });
 export type Site = z.infer<typeof siteSchema>;

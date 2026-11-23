@@ -88,7 +88,7 @@ export function estimateTrips(
         t.format === 'private' ? 'private' : format,
       );
       return {
-        amount: sum.amount + next.amount,
+        amount: sum.amount + (next.onRequest ? 0 : next.amount),
         onRequest: sum.onRequest || next.onRequest,
       };
     },

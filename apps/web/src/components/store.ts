@@ -9,6 +9,7 @@ type RequestState = {
   format: 'group' | 'private';
   adults: number;
   opener: HTMLElement | null;
+  preserveOrder: boolean;
 };
 type Lookup = {
   ids: string[];
@@ -19,6 +20,8 @@ type Lookup = {
 type Store = {
   ids: string[];
   cache: Record<string, Trip>;
+  order: string[] | null;
+  moveSaved: (slug: string, target: string, visibleOrder: string[]) => void;
   ready: boolean;
   lookup: Lookup | null;
   lookupAttempt: number;
@@ -28,7 +31,7 @@ type Store = {
   rest: boolean;
   setRest: (rest: boolean) => void;
   request: RequestState | null;
-  toast: 'added' | 'removed' | null;
+  toast: { message: 'added' | 'removed' } | null;
   overlay: boolean;
   clip: { top: number; right: number; bottom: number; left: number } | null;
   hydrate: () => void;
@@ -41,12 +44,16 @@ type Store = {
     format?: 'group' | 'private',
     adults?: number,
     opener?: HTMLElement,
+    preserveOrder?: boolean,
   ) => void;
   closeRequest: () => void;
 };
-function persist(ids: string[]) {
+function persist(ids: string[], order: string[] | null) {
   try {
-    localStorage.setItem('stella.mytrip.v1', JSON.stringify(ids));
+    localStorage.setItem(
+      'stella.mytrip.v1',
+      JSON.stringify(order ? { order } : ids),
+    );
   } catch {
     /* Selection works in memory. */
   }
@@ -54,6 +61,22 @@ function persist(ids: string[]) {
 export const useTripStore = create<Store>((set, get) => ({
   ids: [],
   cache: {},
+  order: null,
+  moveSaved: (slug, target, visibleOrder) => {
+    const { ids, order } = get();
+    const current = order ?? [
+      ...visibleOrder,
+      ...ids.filter((id) => !visibleOrder.includes(id)),
+    ];
+    const from = current.indexOf(slug);
+    const to = current.indexOf(target);
+    if (from < 0 || to < 0 || from === to) return;
+    const next = [...current];
+    next.splice(from, 1);
+    next.splice(to, 0, slug);
+    persist(ids, next);
+    set({ order: next });
+  },
   ready: false,
   lookup: null,
   lookupAttempt: 0,
@@ -74,23 +97,27 @@ export const useTripStore = create<Store>((set, get) => ({
   clip: null,
   hydrate: () => {
     let ids: string[] = [];
+    let order: string[] | null = null;
     try {
       const data = JSON.parse(localStorage.getItem('stella.mytrip.v1') ?? '[]');
-      if (Array.isArray(data))
+      const values = Array.isArray(data) ? data : data?.order;
+      if (Array.isArray(values)) {
         ids = [
           ...new Set(
-            data.filter(
+            values.filter(
               (x): x is string =>
                 typeof x === 'string' && /^[a-z0-9-]{1,120}$/.test(x),
             ),
           ),
         ].slice(0, 38);
+        if (!Array.isArray(data) && ids.length) order = ids;
+      }
     } catch {}
     let rest = true;
     try {
       rest = localStorage.getItem('stella.mytrip.rest') !== 'off';
     } catch {}
-    set({ ids, rest, ready: true });
+    set({ ids, order, rest, ready: true });
   },
   sync: (trips) =>
     set((s) => ({
@@ -105,19 +132,26 @@ export const useTripStore = create<Store>((set, get) => ({
       get().removeSaved(trip.slug);
       return;
     }
-    const ids = [...get().ids, trip.slug].slice(0, 38);
-    persist(ids);
+    if (get().ids.length >= 38) return;
+    const ids = [...get().ids, trip.slug];
+    const currentOrder = get().order;
+    const order = currentOrder && [...currentOrder, trip.slug];
+    persist(ids, order);
     set((s) => ({
       ids,
+      order,
       cache: { ...s.cache, [trip.slug]: trip },
-      toast: 'added',
+      toast: { message: 'added' },
     }));
     track('trip_add', { slug: trip.slug });
   },
   removeSaved: (slug) => {
     const ids = get().ids.filter((id) => id !== slug);
-    persist(ids);
-    set({ ids, toast: 'removed' });
+    const order = ids.length
+      ? (get().order?.filter((id) => id !== slug) ?? null)
+      : null;
+    persist(ids, order);
+    set({ ids, order, toast: { message: 'removed' } });
     track('trip_remove', { slug });
   },
   addMany: (trips) => {
@@ -125,11 +159,22 @@ export const useTripStore = create<Store>((set, get) => ({
       0,
       38,
     );
-    persist(ids);
+    const currentOrder = get().order;
+    const order = currentOrder && [
+      ...currentOrder,
+      ...ids.filter((id) => !currentOrder.includes(id)),
+    ];
+    persist(ids, order);
     get().sync(trips);
-    set({ ids, toast: 'added' });
+    set({ ids, order, toast: { message: 'added' } });
   },
-  openRequest: (trips, format = 'group', adults = 1, opener) => {
+  openRequest: (
+    trips,
+    format = 'group',
+    adults = 1,
+    opener,
+    preserveOrder = false,
+  ) => {
     if (trips.length === 0) return;
     track('request_open');
     set({
@@ -137,6 +182,7 @@ export const useTripStore = create<Store>((set, get) => ({
         trips,
         adults,
         opener: opener ?? null,
+        preserveOrder,
         format: requiresPrivateRequest(trips) ? 'private' : format,
       },
     });

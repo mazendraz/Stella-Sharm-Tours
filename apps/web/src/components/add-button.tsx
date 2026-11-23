@@ -19,23 +19,26 @@ export function AddButton({ trip }: { trip: Trip }) {
         useTripStore.getState().toggle(trip);
         if (selected || matchMedia('(prefers-reduced-motion:reduce)').matches)
           return;
-        const end = [
-          ...document.querySelectorAll<HTMLElement>('[data-mytrip]'),
-        ].find((element) => element.getClientRects().length > 0);
-        if (!end) return;
-        const a = e.currentTarget.getBoundingClientRect(),
-          b = end.getBoundingClientRect();
-        const dot = document.createElement('span');
-        dot.className = 'fly-dot';
-        dot.style.setProperty('--fx', a.left + a.width / 2 + 'px');
-        dot.style.setProperty('--fy', a.top + a.height / 2 + 'px');
-        dot.style.setProperty('--tx', b.left + b.width / 2 + 'px');
-        dot.style.setProperty('--ty', b.top + b.height / 2 + 'px');
-        document.body.append(dot);
-        dot.addEventListener('animationend', () => dot.remove(), {
-          once: true,
+        const scope = e.currentTarget.closest('.panel-with-footer') ?? document;
+        const start = e.currentTarget.getBoundingClientRect();
+        requestAnimationFrame(() => {
+          const end = Array.from(
+            scope.querySelectorAll<HTMLElement>('[data-mytrip]'),
+          ).find((element) => element.getClientRects().length > 0);
+          if (!end) return;
+          const target = end.getBoundingClientRect();
+          const dot = document.createElement('span');
+          dot.className = 'fly-dot';
+          dot.style.setProperty('--fx', start.left + start.width / 2 + 'px');
+          dot.style.setProperty('--fy', start.top + start.height / 2 + 'px');
+          dot.style.setProperty('--tx', target.left + target.width / 2 + 'px');
+          dot.style.setProperty('--ty', target.top + target.height / 2 + 'px');
+          document.body.append(dot);
+          dot.addEventListener('animationend', () => dot.remove(), {
+            once: true,
+          });
+          setTimeout(() => dot.remove(), 1000);
         });
-        setTimeout(() => dot.remove(), 1000);
       }}
       lang={locale}
     >

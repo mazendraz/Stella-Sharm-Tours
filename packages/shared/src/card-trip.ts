@@ -35,6 +35,7 @@ export type ShellSite = Pick<
   | 'address'
   | 'legal_entity'
   | 'pickup_areas'
+  | 'booking_min_days_ahead'
   | 'social'
 > & { has_hero: boolean };
 export function shellSite(site: Site): ShellSite {
@@ -44,6 +45,7 @@ export function shellSite(site: Site): ShellSite {
     address: site.address,
     legal_entity: site.legal_entity,
     pickup_areas: site.pickup_areas,
+    booking_min_days_ahead: site.booking_min_days_ahead,
     social: site.social,
     has_hero: site.hero_slides.length > 0,
   };

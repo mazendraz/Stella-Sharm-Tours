@@ -11,6 +11,8 @@ import {
   UsersRound,
   Check,
   Minus,
+  Plus,
+  Backpack,
   ChevronRight,
 } from 'lucide-react';
 import type { Trip } from '@stella/shared/public-contract';
@@ -21,6 +23,12 @@ import { useTripStore } from './store';
 import { estimateTrip } from '@stella/shared/price';
 import { money, track } from '@/lib/links';
 const TripStory = dynamic(() => import('./trip-story'));
+const itemGroups = [
+  { type: 'include', Icon: Check },
+  { type: 'exclude', Icon: Minus },
+  { type: 'optional', Icon: Plus },
+  { type: 'bring', Icon: Backpack },
+] as const;
 export function TripView({
   trip,
   whatsappUrl,
@@ -233,22 +241,24 @@ export function TripView({
             </div>
           </section>
         )}
-        <div className="items-grid">
-          {(['include', 'exclude', 'optional', 'bring'] as const).map(
-            (type) => {
+        {trip.items.length > 0 && (
+          <div className="items-grid">
+            {itemGroups.map(({ type, Icon }) => {
               const items = trip.items.filter((i) => i.type === type);
               return (
                 items.length > 0 && (
-                  <section key={type}>
+                  <section
+                    className="inclusion-group"
+                    data-type={type}
+                    key={type}
+                  >
                     <h2>{t(type)}</h2>
-                    <ul className="inclusions">
+                    <ul className="inclusions" role="list">
                       {items.map((item, i) => (
                         <li key={i}>
-                          {type === 'exclude' ? (
-                            <Minus size={17} />
-                          ) : (
-                            <Check size={17} />
-                          )}
+                          <span className="inclusion-icon" aria-hidden="true">
+                            <Icon size={15} strokeWidth={2.2} />
+                          </span>
                           <Content value={item.text} />
                         </li>
                       ))}
@@ -256,9 +266,9 @@ export function TripView({
                   </section>
                 )
               );
-            },
-          )}
-        </div>
+            })}
+          </div>
+        )}
         {trip.notes.length > 0 && (
           <section className="notes">
             <h2>{t('notes')}</h2>

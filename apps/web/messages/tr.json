@@ -1,4 +1,10 @@
 {
+  "moveTripEarlier": "{trip} turunu öne al",
+  "moveTripLater": "{trip} turunu sonraya al",
+  "searchCountries": "Ada veya telefon koduna göre ara",
+  "noCountries": "Ülke bulunamadı.",
+  "pricedTripsSubtotal": "Fiyatı belli turların ara toplamı",
+  "requestRateLimited": "Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.",
   "phoneHint": "Seçtiğiniz ülkeye ait yerel numarayı girin veya uluslararası ülke kodunu ekleyin.",
   "phonePreview": "Ekibimizin kullanacağı numara",
   "phoneInvalid": "Doğru ülkeyi seçerek veya uluslararası ülke kodunu ekleyerek geçerli bir WhatsApp numarası girin.",

@@ -56,9 +56,8 @@ test('seven-language Private discovery persists an on-request quote and local st
         .fill(
           `Synthetic integration QA Private ${info.project.name} ${locale}`,
         );
-      await sheet
-        .getByLabel(messages.country!, { exact: true })
-        .selectOption('EG');
+      await sheet.locator('#booking-country').click();
+      await sheet.locator('[data-country-option=EG]').click();
       const project =
         ['mobile', 'tablet', 'desktop'].indexOf(info.project.name) + 1;
       await sheet

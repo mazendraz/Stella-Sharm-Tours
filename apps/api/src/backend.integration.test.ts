@@ -23,6 +23,7 @@ import { siteSchema, tripSchema } from '@stella/shared/public-contract';
 import {
   addCalendarDays,
   cairoDate,
+  minBookingDate,
   quoteSchema,
 } from '@stella/shared/booking';
 import { configSchema, type Config } from './config';
@@ -151,7 +152,7 @@ function booking(overrides: Record<string, unknown> = {}) {
   return {
     mode: 'single',
     items: [{ trip_slug: 'quad-bike-safari', day_index: 100 }],
-    start_date: cairoDate(),
+    start_date: minBookingDate(),
     adults: 2,
     children: 0,
     format: 'group',
@@ -705,6 +706,70 @@ describe('real PostgreSQL catalog and requests', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0]).toContain('Phone: ' + canonical + '\n');
   });
+  it('saves a mixed private itinerary in the requested order without pricing unknown trips at zero', async () => {
+    const input = {
+      items: [
+        { trip_slug: 'cairo-plane-2-days-private' },
+        { trip_slug: 'ras-mohammed-private-car' },
+        { trip_slug: 'private-speed-boat' },
+      ],
+      start_date: minBookingDate(),
+      adults: 2,
+      children: 0,
+      format: 'private',
+      locale: 'en',
+      rest_days: true,
+      preserve_order: true,
+    };
+    expect(
+      (await previewQuote({ ...input, start_date: cairoDate() })).status,
+    ).toBe(422);
+    const quoteResponse = await previewQuote(input);
+    expect(quoteResponse.status).toBe(200);
+    const quote = quoteSchema.parse(await quoteResponse.json());
+    expect(
+      quote.items.map(({ trip_slug, day_index }) => [trip_slug, day_index]),
+    ).toEqual([
+      ['cairo-plane-2-days-private', 1],
+      ['ras-mohammed-private-car', 4],
+      ['private-speed-boat', 5],
+    ]);
+    expect(quote.estimate_eur).toBeNull();
+    expect(quote.items[1]?.amount_eur).toBeNull();
+    expect(quote.known_eur).toBeGreaterThan(0);
+    const body = booking({
+      ...input,
+      mode: 'multi',
+      quote_id: quote.quote_id,
+      phone: '+201033344763',
+      submission_id: randomBytes(32).toString('hex'),
+    });
+    const invalidArea = await submit({
+      ...body,
+      pickup_area: 'Unlisted hotel',
+    });
+    expect(invalidArea.status).toBe(422);
+    expect((await invalidArea.json()).error.code).toBe('PICKUP_AREA_INVALID');
+    expect((await submit({ ...body, start_date: cairoDate() })).status).toBe(
+      422,
+    );
+    const sent = await submit(body);
+    expect(sent.status).toBe(201);
+    const confirmation = await sent.json();
+    expect(confirmation.message).toContain('Estimated total: On request');
+    expect(confirmation.message).toContain('Subtotal for tours with prices:');
+    const [saved] = await connection.db
+      .select()
+      .from(s.bookingRequests)
+      .where(eq(s.bookingRequests.ref, confirmation.ref));
+    expect(saved?.estimateEur).toBeNull();
+    const items = await connection.db
+      .select({ day: s.bookingRequestItems.dayIndex })
+      .from(s.bookingRequestItems)
+      .where(eq(s.bookingRequestItems.requestId, saved!.id))
+      .orderBy(s.bookingRequestItems.dayIndex);
+    expect(items.map(({ day }) => day)).toEqual([1, 4, 5]);
+  });
   it('recovers the original confirmation after a lost response and concurrent retries', async () => {
     const key = randomBytes(32).toString('hex');
     const phone = '+201033344781';
@@ -1053,7 +1118,7 @@ describe('real PostgreSQL catalog and requests', () => {
   it('limits preview inputs to itinerary details from the public web origin', async () => {
     const input = {
       items: [{ trip_slug: 'quad-bike-safari' }],
-      start_date: cairoDate(),
+      start_date: minBookingDate(),
       adults: 1,
       children: 0,
       format: 'private',
@@ -3707,9 +3772,13 @@ describe('media, notifications, jobs and translation privacy', () => {
         {},
         { tz: 'Africa/Cairo' },
       );
-      expect(await dispatchOutbox(workerConnection.pool, boss)).toBeGreaterThan(
-        0,
-      );
+      let dispatched = 0;
+      let batch: number;
+      do {
+        batch = await dispatchOutbox(workerConnection.pool, boss);
+        dispatched += batch;
+      } while (batch > 0);
+      expect(dispatched).toBeGreaterThan(0);
       const tasks = await boss.fetch('notify.request.created', {
         batchSize: 100,
       });

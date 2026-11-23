@@ -1,4 +1,10 @@
 {
+  "moveTripEarlier": "Sposta {trip} più in alto",
+  "moveTripLater": "Sposta {trip} più in basso",
+  "searchCountries": "Cerca per nome o prefisso",
+  "noCountries": "Nessun Paese trovato.",
+  "pricedTripsSubtotal": "Subtotale delle escursioni con prezzo",
+  "requestRateLimited": "Troppi tentativi. Riprova più tardi.",
   "phoneHint": "Usa un numero locale del Paese selezionato oppure includi il prefisso internazionale.",
   "phonePreview": "Numero che userà il nostro team",
   "phoneInvalid": "Inserisci un numero WhatsApp valido con il Paese o il prefisso internazionale corretto.",

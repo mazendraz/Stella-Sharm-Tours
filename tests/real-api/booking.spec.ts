@@ -21,7 +21,8 @@ test('real catalog, request persistence contract, local SMTP and accessible conf
   await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
   const name = 'Synthetic browser QA ' + info.project.name;
   await sheet.getByLabel('Your name', { exact: true }).fill(name);
-  await sheet.getByLabel('Country', { exact: true }).selectOption('EG');
+  await sheet.locator('#booking-country').click();
+  await sheet.locator('[data-country-option=EG]').click();
   await sheet
     .getByLabel('WhatsApp number', { exact: true })
     .fill(

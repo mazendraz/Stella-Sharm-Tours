@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import {
   addCalendarDays,
   cairoDate,
+  minBookingDate,
   type Quote,
 } from '../../packages/shared/src/booking';
 
@@ -11,6 +12,125 @@ const itineraryStorage = 'stella.mytrip.v1';
 const quad = 'quad-bike-safari';
 const privateCar = 'ras-mohammed-private-car';
 const withdrawn = 'withdrawn-fixture-trip';
+
+test('opens saved tours from a collection and quotes their custom order', async ({
+  page,
+}, { project }) => {
+  test.setTimeout(100_000);
+  const speedBoat = 'private-speed-boat';
+  const desktop = project.name === 'desktop';
+  const touch = project.name === 'mobile';
+  await page.goto('/en');
+  await expect(page.locator('[data-enhanced=true]')).toBeVisible();
+  await page
+    .getByRole('link', { name: 'See private trips', exact: true })
+    .click();
+  const collection = page.locator('.panel-collection');
+  await collection
+    .getByRole('button', {
+      name: /Add to my trip · Ras Mohammed — Private Car/,
+    })
+    .click();
+  await collection
+    .getByRole('button', { name: /Add to my trip · Private Speed Boat/ })
+    .click();
+  await expect(collection.getByText('Added to your trip.')).toBeVisible();
+  await expect(collection.getByText('Added to your trip.')).toHaveCount(0);
+  const shortcut = desktop
+    ? collection.getByRole('link', { name: 'Open my trip · 2 picked' })
+    : collection.locator('.tabbar [data-mytrip]');
+  await shortcut.click();
+  await expect(page).toHaveURL(/\/en\/my-trip$/);
+  const builder = page.locator('.panel-builder');
+  const cards = builder.locator('[data-trip-slug]');
+  await expect(cards).toHaveCount(2);
+  const moveFrom = await cards.nth(1).getAttribute('data-trip-slug');
+  const moveTo = await cards.nth(0).getAttribute('data-trip-slug');
+  if (touch) {
+    const grip = cards.nth(1).locator('.trip-grip');
+    await grip.scrollIntoViewIfNeeded();
+    const start = (await grip.boundingBox())!;
+    const end = (await cards.first().boundingBox())!;
+    const client = await page.context().newCDPSession(page);
+    const x = start.x + start.width / 2;
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x, y: start.y + start.height / 2 }],
+    });
+    await expect(cards.nth(1)).toHaveAttribute('data-dragging', 'true');
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x, y: end.y + end.height / 2 }],
+    });
+    await expect(cards.first()).toHaveAttribute('data-drop-target', 'true');
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await client.detach();
+  } else {
+    await cards
+      .nth(1)
+      .getByRole('button', { name: /^Move .* earlier$/ })
+      .click();
+  }
+  await expect(cards.first()).toHaveAttribute('data-trip-slug', moveFrom!);
+  await expect(cards.nth(1)).toHaveAttribute('data-trip-slug', moveTo!);
+  await page.reload();
+  await expect(page.locator('[data-trip-slug]').first()).toHaveAttribute(
+    'data-trip-slug',
+    moveFrom!,
+  );
+  await page
+    .getByRole('button', { name: 'Request this trip', exact: true })
+    .click();
+  const sheet = page.locator('.panel-sheet');
+  const nextDay = minBookingDate();
+  const calendarLabel = (day: string) =>
+    Intl.DateTimeFormat('en', { dateStyle: 'full', timeZone: 'UTC' }).format(
+      new Date(day + 'T12:00:00Z'),
+    );
+  if (nextDay.slice(0, 7) === cairoDate().slice(0, 7)) {
+    await expect(
+      sheet.getByRole('button', { name: calendarLabel(cairoDate()) }),
+    ).toBeDisabled();
+  }
+  const quoted = page.waitForResponse((response) =>
+    response.url().endsWith('/v1/requests/quote'),
+  );
+  await sheet
+    .getByRole('button', { name: calendarLabel(nextDay), exact: true })
+    .click();
+  const quoteResponse = await quoted;
+  expect(quoteResponse.ok()).toBe(true);
+  const quote = (await quoteResponse.json()) as Quote;
+  expect(quote.items.map(({ trip_slug }) => trip_slug)).toEqual([
+    moveFrom,
+    moveTo,
+  ]);
+  expect(
+    quote.items.find(({ trip_slug }) => trip_slug === privateCar)?.amount_eur,
+  ).toBeNull();
+  expect(quote.known_eur).toBe(
+    quote.items.find(({ trip_slug }) => trip_slug === speedBoat)?.amount_eur,
+  );
+  await expect(sheet.locator('.estimate')).toContainText('On request');
+  await expect(sheet.locator('.estimate-subtotal')).toContainText(
+    'Subtotal for tours with prices',
+  );
+  await sheet.locator('#booking-country').click();
+  const search = sheet.getByRole('searchbox', {
+    name: 'Search name or calling code',
+  });
+  await expect(search).toBeFocused();
+  await search.fill('+20');
+  await sheet.getByRole('button', { name: 'Egypt +20', exact: true }).click();
+  await expect(sheet.locator('#booking-country')).toHaveAttribute(
+    'data-country',
+    'EG',
+  );
+  await expect(sheet.locator('#booking-country')).toBeFocused();
+});
 
 test('warns when the stay misses the final day of a multi-day tour', async ({
   page,
@@ -32,7 +152,7 @@ test('warns when the stay misses the final day of a multi-day tour', async ({
       .getByRole('button', { name: messages.requestTrip, exact: true })
       .click();
     const sheet = page.getByRole('dialog').last();
-    const start = cairoDate();
+    const start = minBookingDate();
     const fullDate = new Intl.DateTimeFormat(locale, {
       dateStyle: 'full',
       timeZone: 'UTC',
@@ -181,9 +301,8 @@ test('shows the dated primary option and asks for review when the estimate chang
     await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
     const name = sheet.getByLabel(messages.name, { exact: true });
     await name.fill('Test visitor');
-    await sheet
-      .getByLabel(messages.country, { exact: true })
-      .selectOption(country);
+    await sheet.locator('#booking-country').click();
+    await sheet.locator('[data-country-option=' + country + ']').click();
     const number = sheet.getByLabel(messages.phone, { exact: true });
     await expect(
       sheet.getByText(messages.phoneHint, { exact: true }),
@@ -298,7 +417,8 @@ test('removes a withdrawn saved tour and requests the remaining mixed itinerary 
   await sheet.locator('.range-day:enabled').first().click();
   await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
   await sheet.getByLabel('Your name', { exact: true }).fill('Test visitor');
-  await sheet.getByLabel('Country', { exact: true }).selectOption('IT');
+  await sheet.locator('#booking-country').click();
+  await sheet.locator('[data-country-option=IT]').click();
   await sheet
     .getByLabel('WhatsApp number', { exact: true })
     .fill('02 1234 5678');
@@ -458,7 +578,8 @@ test('discovery, private request contract and real failure state', async ({
   await sheet.locator('.range-day:enabled').first().click();
   await sheet.getByRole('button', { name: 'Nabq Bay', exact: true }).click();
   await sheet.getByLabel('Your name', { exact: true }).fill('Test visitor');
-  await sheet.getByLabel('Country', { exact: true }).selectOption('IT');
+  await sheet.locator('#booking-country').click();
+  await sheet.locator('[data-country-option=IT]').click();
   await sheet
     .getByLabel('WhatsApp number', { exact: true })
     .fill('02 1234 5678');
@@ -519,6 +640,35 @@ test('home/trip accessibility, no overflow, screenshots', async ({
       fullPage: true,
       scale: 'css',
     });
+  }
+});
+test('renders the trip inclusions card in all core languages', async ({
+  page,
+}, info) => {
+  test.setTimeout(90_000);
+  for (const locale of ['en', 'it', 'es', 'fr', 'de', 'ru', 'tr']) {
+    const messages = JSON.parse(
+      await readFile('apps/web/messages/' + locale + '.json', 'utf8'),
+    );
+    await page.goto('/' + locale + '/t/super-safari-5in1');
+    const included = page.locator('.inclusion-group[data-type=include]');
+    await expect(
+      included.getByRole('heading', { name: messages.include }),
+    ).toBeVisible();
+    await expect(included.getByRole('listitem')).toHaveCount(5);
+    expect(
+      await included.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth,
+      ),
+    ).toBe(true);
+    if (locale === 'en') {
+      const results = await new AxeBuilder({ page })
+        .include('.inclusion-group[data-type=include]')
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(results.violations).toEqual([]);
+      await included.screenshot({ path: info.outputPath('included.png') });
+    }
   }
 });
 test('builder survives reload, mobile widths, core locales and RTL', async ({

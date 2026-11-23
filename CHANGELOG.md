@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Keep My trip reachable after adding tours and preserve the guest’s custom tour order in the itinerary, quote and request.
+- Open bookings from tomorrow in Cairo time, make the phone country picker searchable and validate pickup areas against the listed options.
+- Show the priced tours subtotal separately when the booking total is on request.
+- Give trip inclusions and extras clearer headings, icons and scannable lists.
+- Restore the previous panel and its scroll position on Back without replaying its entrance.
+
 - Sharpen the Taba–Aqaba ferry and Taba–Eilat road story maps with locally bundled Sentinel-2 imagery.
 
 - Show published trip stories on the homepage after private tours, with direct viewer access.

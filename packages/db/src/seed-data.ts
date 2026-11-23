@@ -398,7 +398,7 @@ export async function seedCatalog(db: Database, options: Options) {
         'Old Market',
         'Other',
       ],
-      request_rules: { min_days_ahead: 0, max_adults: 60, max_children: 40 },
+      request_rules: { min_days_ahead: 1, max_adults: 60, max_children: 40 },
       home: {
         private_heading: privateCollection.headline,
         private_text: privateCollection.sub,

@@ -1,4 +1,10 @@
 {
+  "moveTripEarlier": "Avancer {trip}",
+  "moveTripLater": "Reculer {trip}",
+  "searchCountries": "Rechercher par nom ou indicatif",
+  "noCountries": "Aucun pays trouvé.",
+  "pricedTripsSubtotal": "Sous-total des excursions avec tarif",
+  "requestRateLimited": "Trop de tentatives. Réessayez plus tard.",
   "phoneHint": "Saisissez un numéro local du pays sélectionné ou ajoutez l’indicatif international.",
   "phonePreview": "Numéro que notre équipe utilisera",
   "phoneInvalid": "Saisissez un numéro WhatsApp valide en choisissant le bon pays ou en ajoutant le bon indicatif international.",

@@ -63,7 +63,7 @@ export function SettingsScreen() {
         legal: loc(d.legal_entity),
       },
       booking: {
-        minDays: String(r.min_days_ahead ?? 0),
+        minDays: String(Math.max(1, Number(r.min_days_ahead ?? 1))),
         maxAdults: String(r.max_adults ?? 20),
         maxChildren: String(r.max_children ?? 10),
         pickup: Array.isArray(d.pickup_areas)
@@ -112,7 +112,7 @@ export function SettingsScreen() {
           ? t('requiredEnglish')
           : null,
       booking: (v) =>
-        !(Number(v.minDays) >= 0 && Number(v.minDays) <= 30) ||
+        !(Number(v.minDays) >= 1 && Number(v.minDays) <= 30) ||
         !(Number(v.maxAdults) >= 1) ||
         !(Number(v.maxChildren) >= 0)
           ? t('rulesInvalid')
@@ -348,7 +348,7 @@ export function SettingsScreen() {
                             (minDays) =>
                               editor.set('booking', { ...v.booking, minDays }),
                             p,
-                            0,
+                            1,
                             30,
                           )
                         }

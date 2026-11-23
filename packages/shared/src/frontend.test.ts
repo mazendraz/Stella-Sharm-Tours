@@ -2,7 +2,12 @@ import { describe, it, expect } from 'vitest';
 import { estimateTrip, estimateTrips } from './price';
 import { lastPlannedDay, planDays } from './days';
 import { normalizeBookingPhone } from './phone';
-import { bookingSchema, cairoDate, confirmationSchema } from './booking';
+import {
+  bookingSchema,
+  cairoDate,
+  confirmationSchema,
+  minBookingDate,
+} from './booking';
 import { bookingStay } from './i18n/booking-messages';
 import type { Trip } from './public-contract';
 
@@ -188,10 +193,21 @@ describe('booking phone normalization', () => {
   });
 });
 describe('booking validation', () => {
+  it('uses the next Cairo calendar day as the minimum, even when the setting is zero', () => {
+    expect(minBookingDate(new Date('2026-11-23T21:59:00Z'), 0)).toBe(
+      '2026-11-24',
+    );
+    expect(minBookingDate(new Date('2026-11-23T22:00:00Z'), 0)).toBe(
+      '2026-11-25',
+    );
+    expect(minBookingDate(new Date('2026-11-23T22:00:00Z'), 3)).toBe(
+      '2026-11-27',
+    );
+  });
   const valid = () => ({
     mode: 'single',
     items: [{ trip_slug: 'tiran-island-boat' }],
-    start_date: cairoDate(),
+    start_date: minBookingDate(),
     adults: 1,
     children: 0,
     format: 'private',
@@ -211,6 +227,7 @@ describe('booking validation', () => {
   it('rejects invalid dates, phones, guests and honeypots', () => {
     for (const bad of [
       { start_date: '2020-01-01' },
+      { start_date: cairoDate() },
       { phone: 'abc' },
       { adults: 0 },
       { hp: 'bot' },

@@ -93,30 +93,35 @@
 }
 .story-location {
   position: absolute;
-  left: 4vw;
-  top: 75px;
-  width: clamp(106px, 15vw, 188px);
-  height: clamp(108px, 16vw, 195px);
-  overflow: hidden;
+  inset: 0;
+  pointer-events: none;
+  background: #454c42;
+  transform-origin: 0 0;
+  /* Set by RouteMap: a square window of the full-screen map, scaled into the
+     corner. The canvas itself never resizes, so the map never jumps. */
+  transform: var(--map-inset, scale(0));
+  clip-path: var(--map-clip, inset(0));
+  will-change: transform, clip-path;
+  transition:
+    transform 0.64s cubic-bezier(0.32, 0, 0.2, 1),
+    clip-path 0.64s cubic-bezier(0.32, 0, 0.2, 1);
+}
+.story-location.traveling {
+  transform: none;
+  clip-path: inset(0 round 0);
+}
+.story-location-frame {
+  position: absolute;
+  pointer-events: none;
   border: 1px solid #fff9;
   border-radius: 14px;
   box-shadow: 0 3px 18px #0004;
-  pointer-events: none;
-  background: #635846;
-  transition:
-    width 0.64s cubic-bezier(0.32, 0, 0.2, 1),
-    height 0.64s cubic-bezier(0.32, 0, 0.2, 1),
-    top 0.64s cubic-bezier(0.32, 0, 0.2, 1),
-    left 0.64s cubic-bezier(0.32, 0, 0.2, 1),
-    border-radius 0.64s cubic-bezier(0.32, 0, 0.2, 1);
+  transition: opacity 0.3s ease 0.34s;
 }
-.story-location.traveling {
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  border: 0;
-  border-radius: 0;
+.story-location-frame.traveling {
+  opacity: 0;
+  transition-delay: 0s;
+  transition-duration: 0.15s;
 }
 .story-chart {
   display: block;
@@ -264,14 +269,10 @@
   .story-panel {
     bottom: 5px;
   }
-  .story-location {
-    top: 64px;
-    height: 75px;
-    width: 76px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .story-location {
+  .story-location,
+  .story-location-frame {
     transition: none;
   }
   .story-trace {

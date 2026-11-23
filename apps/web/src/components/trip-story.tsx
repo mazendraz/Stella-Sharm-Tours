@@ -9,7 +9,7 @@ import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
 import { StoryStopPicker } from './story-stop-picker';
-import { RouteMap, usesGulfDetail } from './story-route-map';
+import { RouteMap, travelsBetween, usesGulfDetail } from './story-route-map';
 import './trip-story.css';
 
 export default function TripStory({
@@ -110,7 +110,7 @@ export default function TripStory({
     setMoving(
       !matchMedia('(prefers-reduced-motion: reduce)').matches &&
         next === index + 1 &&
-        story.scenes[next]!.route.length > 1,
+        travelsBetween(story.scenes[index], story.scenes[next]!),
     );
     if (next === story.scenes.length - 1)
       track('trip_story_finish', { slug: trip.slug });
@@ -274,16 +274,12 @@ export default function TripStory({
                     </video>
                   )}
                 </div>
-                <div
-                  className={'story-location' + (moving ? ' traveling' : '')}
-                >
-                  <RouteMap
-                    onArrival={arrive}
-                    scenes={story.scenes}
-                    index={index}
-                    moving={moving}
-                  />
-                </div>
+                <RouteMap
+                  onArrival={arrive}
+                  scenes={story.scenes}
+                  index={index}
+                  moving={moving}
+                />
                 <footer className="story-panel">
                   <div className="story-caption" aria-live="polite">
                     <small>

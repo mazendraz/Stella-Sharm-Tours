@@ -27,9 +27,10 @@ export function BuilderLink({
 export function BuildWidget({ collections }: { collections: Collection[] }) {
   const t = useTranslations(),
     ids = useTripStore((s) => s.ids),
+    order = useTripStore((s) => s.order),
     cache = useTripStore((s) => s.cache),
     rest = useTripStore((s) => s.rest);
-  const trips = ids
+  const trips = (order ?? ids)
     .map((id) => cache[id])
     .filter((trip): trip is NonNullable<typeof trip> => !!trip);
   return (
@@ -48,7 +49,7 @@ export function BuildWidget({ collections }: { collections: Collection[] }) {
           ))}
       </div>
       <div className="build-preview">
-        {planDays(trips, rest)
+        {planDays(trips, rest, !!order)
           .slice(0, 4)
           .map((row) => (
             <div key={row.day}>

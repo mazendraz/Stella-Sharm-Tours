@@ -12,6 +12,7 @@ export type DayRow<T = Trip> = { day: number; trip: T | null };
 export function planDays<T extends SchedulableTrip>(
   trips: T[],
   rest = true,
+  preserveOrder = false,
 ): DayRow<T>[] {
   const rank: Record<string, number> = {
     sea: 0,
@@ -21,15 +22,17 @@ export function planDays<T extends SchedulableTrip>(
     beyond: 3,
     all: 4,
   };
-  const sorted = [...trips].sort(
-    (a, b) => (rank[a.collection] ?? 4) - (rank[b.collection] ?? 4),
-  );
+  const ordered = preserveOrder
+    ? trips
+    : [...trips].sort(
+        (a, b) => (rank[a.collection] ?? 4) - (rank[b.collection] ?? 4),
+      );
   const rows: DayRow<T>[] = [];
   let day = 1;
-  sorted.forEach((trip, i) => {
+  ordered.forEach((trip, i) => {
     rows.push({ day, trip });
     day += trip.days_count;
-    if (rest && (trip.flight || trip.overnight) && i < sorted.length - 1)
+    if (rest && (trip.flight || trip.overnight) && i < ordered.length - 1)
       rows.push({ day: day++, trip: null });
   });
   return rows;

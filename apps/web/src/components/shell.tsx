@@ -1,6 +1,7 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
-import { TabBar } from './tab-bar';
+import { TripNavigation } from './tab-bar';
+import { recordPanelLink, restorePanelPath } from './panel-history';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,7 +27,6 @@ import { officeMap, track, whatsapp } from '@/lib/links';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
 import { coreLocaleOptions, isCoreLocale } from '@stella/shared';
-import { BuilderLink } from './home-widgets';
 const RequestSheet = dynamic(() => import('./request-sheet'), { ssr: false });
 export function Shell({
   site,
@@ -112,6 +112,10 @@ export function Shell({
     } catch {}
   }, []);
   useEffect(() => {
+    window.addEventListener('popstate', restorePanelPath, true);
+    return () => window.removeEventListener('popstate', restorePanelPath, true);
+  }, []);
+  useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(
       () => useTripStore.setState({ toast: null }),
@@ -120,7 +124,11 @@ export function Shell({
     return () => clearTimeout(timer);
   }, [toast]);
   const capture = (e: MouseEvent) => {
-    const target = (e.target as Element).closest('[data-collection-link]');
+    const element = e.target as Element;
+    const link = element.closest<HTMLAnchorElement>('a[href]');
+    if (link && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey)
+      recordPanelLink(link);
+    const target = element.closest('[data-collection-link]');
     if (!target) return;
     const r = target.getBoundingClientRect();
     useTripStore.setState({
@@ -368,15 +376,7 @@ export function Shell({
               )}
             </div>
           </footer>
-          <TabBar />
-          <div
-            role="status"
-            aria-live="polite"
-            className={'toast ' + (toast ? 'visible' : '')}
-          >
-            {toast ? t(toast) : ''}
-            {toast && <BuilderLink className="">{t('myTrip')}</BuilderLink>}
-          </div>
+          <TripNavigation />
           {request && <RequestSheet site={site} />}
         </div>
       </>

@@ -149,7 +149,7 @@ export const settingsInput = z.strictObject({
     .optional(),
   request_rules: z
     .strictObject({
-      min_days_ahead: z.number().int().min(0).max(30),
+      min_days_ahead: z.number().int().min(1).max(30),
       max_adults: z.number().int().min(1).max(60),
       max_children: z.number().int().min(0).max(40),
     })
