@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import {
+  ArrowLeft,
   Compass,
   House,
   Mail,
@@ -27,6 +28,20 @@ import { officeMap, track, whatsapp } from '@/lib/links';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
 import { coreLocaleOptions, isCoreLocale } from '@stella/shared';
+// In-site page history, so Back returns to the previous Stella page and a
+// guest who landed here from a link or search gets a sensible parent page.
+const visited: string[] = [];
+function trackVisit(path: string) {
+  if (visited.at(-1) === path) return;
+  if (visited.at(-2) === path) visited.pop();
+  else visited.push(path);
+}
+function parentPath(path: string, locale: string) {
+  const home = '/' + locale;
+  if (path.startsWith(home + '/c/') || path.startsWith(home + '/t/'))
+    return home + '#journeys';
+  return home;
+}
 const RequestSheet = dynamic(() => import('./request-sheet'), { ssr: false });
 export function Shell({
   site,
@@ -41,6 +56,15 @@ export function Shell({
     locale = useLocale(),
     path = usePathname();
   const router = useRouter();
+  const isHome = path === '/' + locale || path === '/';
+  useEffect(() => {
+    trackVisit(path);
+  }, [path]);
+  function goBack() {
+    track('nav_back');
+    if (visited.length > 1) router.back();
+    else router.push(parentPath(path, locale));
+  }
   useEffect(() => {
     const timer = setInterval(() => {
       if (!document.hidden) router.refresh();
@@ -163,14 +187,30 @@ export function Shell({
                 : '')
             }
           >
-            <Link
-              href={'/' + locale}
-              className="wordmark"
-              aria-label={t('brand')}
-            >
-              <span className="brand-mark" aria-hidden="true" />
-              <span className="brand-word" aria-hidden="true" />
-            </Link>
+            <div className="nav-start">
+              {!isHome && (
+                <button
+                  type="button"
+                  className="nav-back"
+                  aria-label={t('back')}
+                  onClick={goBack}
+                >
+                  <ArrowLeft
+                    size={21}
+                    className="flip-rtl"
+                    aria-hidden="true"
+                  />
+                </button>
+              )}
+              <Link
+                href={'/' + locale}
+                className="wordmark"
+                aria-label={t('brand')}
+              >
+                <span className="brand-mark" aria-hidden="true" />
+                <span className="brand-word" aria-hidden="true" />
+              </Link>
+            </div>
             <nav className="desktop-nav" aria-label={t('journeys')}>
               {items.map((i) => (
                 <Link

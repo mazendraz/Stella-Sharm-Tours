@@ -3561,3 +3561,48 @@ input[type='search']::-webkit-search-decoration {
     transition: none;
   }
 }
+
+/* Back button in the header on every page except Home. */
+.nav-start {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-inline-size: 0;
+}
+.nav-back {
+  inline-size: 44px;
+  block-size: 44px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: -6px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: white;
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(27 23 18 / 0.06);
+  transition:
+    background-color 0.18s var(--ease),
+    transform 0.18s var(--ease);
+}
+.nav-back:hover {
+  background: var(--paper);
+}
+.nav-back:active {
+  transform: scale(0.94);
+}
+@media (max-width: 380px) {
+  .nav-start {
+    gap: 6px;
+  }
+  .nav-back {
+    inline-size: 40px;
+    block-size: 40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-back {
+    transition: none;
+  }
+}
