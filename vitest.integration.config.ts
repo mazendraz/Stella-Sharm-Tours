@@ -5,7 +5,9 @@ export default defineConfig({
     environment: 'node',
     fileParallelism: false,
     maxWorkers: 1,
-    hookTimeout: 600000,
+    // The catalog seed imports every media file through the production codec
+    // image; on CI runners it takes close to 10 minutes.
+    hookTimeout: 1500000,
     testTimeout: 120000,
   },
 });
