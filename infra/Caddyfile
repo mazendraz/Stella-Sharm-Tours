@@ -18,7 +18,11 @@ import /etc/caddy/stella/common.caddy
   encode zstd gzip
   @internal path /api/revalidate /readyz
   respond @internal 404
-  reverse_proxy web:3000
+  reverse_proxy web:3000 {
+    header_up X-Forwarded-For {remote_host}
+    # Ride out the few seconds a release recreates the container.
+    lb_try_duration 10s
+  }
 }
 {$ADMIN_HOST} {
   import security

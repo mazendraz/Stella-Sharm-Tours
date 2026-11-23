@@ -5,7 +5,11 @@ unit=${1:?Specify the failed unit}
 logger -p daemon.crit -- "Stella unit $unit failed; inspect journalctl"
 
 credential=${STELLA_ALERT_WEBHOOK_FILE:-/etc/stella/alerts/webhook-url}
-[[ -s "$credential" ]] || exit 0
+if [[ ! -s "$credential" ]]; then
+  # Staging may rely on the journal; production must reach an operator (audit INF-01).
+  [[ "$unit" != *@production.* ]] || { logger -p daemon.crit -- 'Stella production alert webhook missing'; exit 1; }
+  exit 0
+fi
 IFS= read -r url < "$credential" || [[ -n "${url:-}" ]]
 [[ "$url" =~ ^https://[a-zA-Z0-9._-]+(/[a-zA-Z0-9._~:/%?\&=+@-]*)?$ ]] || exit 2
 payload=$(printf '{"event":"stella_unit_failed","unit":"%s"}' "$unit")

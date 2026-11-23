@@ -51,7 +51,10 @@ import /etc/caddy/stella/common.caddy
         import public_media
       }
       handle {
-        reverse_proxy web:3000
+        reverse_proxy web:3000 {
+          header_up X-Forwarded-For {client_ip}
+          lb_try_duration 10s
+        }
       }
       }
     }

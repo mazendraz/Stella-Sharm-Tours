@@ -30,6 +30,13 @@ run on the developer's Windows computer. Remote acceptance remains a launch gate
 stella_gateway`. Production gateway is .2, staging gateway .3. Production and
    staging app subnets are 172.30.20.0/24 and 172.30.21.0/24. Check these do not
    overlap existing networks. Only Caddy publishes 80/443. DB/app ports stay private.
+   **Client addresses over IPv6.** Rate limits and lockouts depend on Caddy seeing
+   each visitor's real address. Docker's userland proxy can present every IPv6
+   visitor as one gateway IPv4 address, so all IPv6 visitors would share one
+   limit. Either publish no AAAA record, or enable IPv6 in Docker with
+   `"userland-proxy": false` in `/etc/docker/daemon.json`. Then check that a
+   request over IPv6 shows the visitor's real address in the Caddy access log
+   before launch (audit SEC-03). The API groups IPv6 visitors by /64.
 8. Configure `production/env/backup.env` from the example, create the restic
    password file with mode 600, and run `restic init` explicitly once using the
    configured repository. Store a separate recovery copy of the restic password,
@@ -41,9 +48,14 @@ stella_gateway`. Production gateway is .2, staging gateway .3. Production and
    Backup schedule explicitly uses **Africa/Cairo**, independent of server TZ.
    The supplied alert unit writes a critical journal event. To deliver it to an
    operator, install a root-owned HTTPS webhook URL at
-   `/etc/stella/alerts/webhook-url` with mode `0600`. The endpoint receives a JSON
-   event name and the failed unit name. Verify receipt with the named operator
-   from staging before launch.
+   `/etc/stella/alerts/webhook-url` with mode `0600` (keep the directory `0711`
+   so the deploy user's health check can confirm the file exists). The endpoint
+   receives a JSON event name and the failed unit name. Production health checks
+   and deploys **fail** while this webhook or the off-site backup is missing.
+   Verify receipt with the named operator from staging before launch.
+10. Add an **off-host** uptime monitor (any external HTTP checker) for
+    `https://WEB_HOST/healthz`, `https://API_HOST/healthz` and TLS expiry. The
+    on-host timers cannot report a host, network or power outage.
 
 ## Staging on the same VPS
 

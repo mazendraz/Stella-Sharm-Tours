@@ -8,7 +8,8 @@ repository=${STELLA_GIT_REPO:-$root/repo}
 [[ "$target" == production || "$target" == staging ]] || exit 2
 [[ "$sha" =~ ^[a-f0-9]{40}$ && "$root" == /* && -d "$root" ]] || exit 2
 store="$root/release-checkouts"
-mkdir -m 700 -p -- "$store"
+mkdir -p -- "$store"
+chmod 700 -- "$store"
 checkout="$store/$sha"
 
 # Both environment jobs can share Git objects. None changes its working tree.
