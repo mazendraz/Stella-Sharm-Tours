@@ -163,7 +163,10 @@ test('signed previews work in all seven locales without enabling draft bookings 
     const token =
       payload +
       '.' +
-      createHmac('sha256', secret).update(payload).digest('base64url');
+      // Preview signatures are purpose-bound (signPurpose('preview', ...)).
+      createHmac('sha256', secret)
+        .update('preview:' + payload)
+        .digest('base64url');
     const response = await page.goto(
       `/${locale}/preview?token=${encodeURIComponent(token)}`,
     );

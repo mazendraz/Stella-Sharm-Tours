@@ -248,6 +248,7 @@ export async function upload(c: Context<ApiEnv>, db: Database, cfg: Config) {
     bytes = 0,
     truncated = false;
   const writes: Promise<void>[] = [];
+  let moved: string | null = null;
   try {
     const parser = Busboy({
       headers: { 'content-type': contentType },
@@ -310,6 +311,7 @@ export async function upload(c: Context<ApiEnv>, db: Database, cfg: Config) {
       const target = inside(cfg.ORIGINALS_ROOT, 'originals', sha256);
       await mkdir(resolve(target, '..'), { recursive: true });
       await rename(path, target);
+      moved = target;
       const [saved] = existing
         ? await tx
             .update(media)
@@ -344,6 +346,17 @@ export async function upload(c: Context<ApiEnv>, db: Database, cfg: Config) {
   } catch (error) {
     await Promise.allSettled(writes);
     await rm(path, { force: true });
+    // The transaction rolled back after the file moved into originals/: drop
+    // it unless another media row still points at the same content (BUG-03).
+    if (moved) {
+      const target = moved;
+      const [referenced] = await db
+        .select({ id: media.id })
+        .from(media)
+        .where(eq(media.originalPath, target))
+        .catch(() => [{ id: 'unknown' }]);
+      if (!referenced) await rm(target, { force: true });
+    }
     throw error;
   }
 }
@@ -370,12 +383,15 @@ export async function processMedia(
   cfg: MediaProcessingConfig,
   id: string,
 ) {
-  const failure = await db.transaction(async (tx) => {
-    // Serialize encoders without holding the media row lock while they run.
-    await tx.execute(
-      sql`select pg_advisory_xact_lock(hashtextextended(${id}, 1))`,
-    );
-    const [original] = await tx
+  // Serialize encoders for one media item with a session-level advisory lock
+  // on a dedicated connection. Encoding runs outside any transaction, so no
+  // snapshot or row lock stays open for minutes (audit BUG-02) and the
+  // runtime roles can use a short idle-in-transaction timeout (DB-02).
+  const lock = await db.$client.connect();
+  let healthy = true;
+  try {
+    await lock.query('select pg_advisory_lock(hashtextextended($1, 1))', [id]);
+    const [original] = await db
       .select()
       .from(media)
       .where(and(eq(media.id, id), isNull(media.archivedAt)));
@@ -384,37 +400,52 @@ export async function processMedia(
       (rendered) => ({ rendered }) as const,
       (error: unknown) => ({ error }) as const,
     );
-
-    const [current] = await tx
-      .select()
-      .from(media)
-      .where(eq(media.id, id))
-      // NO KEY UPDATE still serialises writers but, unlike UPDATE, does not
-      // conflict with the KEY SHARE lock held by an open transaction that
-      // references this row (e.g. the catalog seed inserting trip_media).
-      .for('no key update');
-    if (
-      !current ||
-      current.archivedAt ||
-      processingInputs.some((key) => current[key] !== original[key])
-    )
-      return;
-    if ('error' in result) {
-      await tx.update(media).set({ status: 'failed' }).where(eq(media.id, id));
-      return result;
-    }
-    const { relativePath, ...values } = result.rendered;
-    if (current.rightsStatus !== 'unknown')
+    const failure = await db.transaction(async (tx) => {
+      const [current] = await tx
+        .select()
+        .from(media)
+        .where(eq(media.id, id))
+        // NO KEY UPDATE still serialises writers but, unlike UPDATE, does not
+        // conflict with the KEY SHARE lock held by an open transaction that
+        // references this row (e.g. the catalog seed inserting trip_media).
+        .for('no key update');
+      // Inputs changed while encoding: a newer job renders the new version.
+      if (
+        !current ||
+        current.archivedAt ||
+        processingInputs.some((key) => current[key] !== original[key])
+      )
+        return;
+      if ('error' in result) {
+        await tx
+          .update(media)
+          .set({ status: 'failed' })
+          .where(eq(media.id, id));
+        return result;
+      }
+      const { relativePath, ...values } = result.rendered;
+      if (current.rightsStatus !== 'unknown')
+        await tx
+          .insert(publicMediaRenditions)
+          .values({ storageKey: relativePath, mediaId: id })
+          .onConflictDoNothing();
       await tx
-        .insert(publicMediaRenditions)
-        .values({ storageKey: relativePath, mediaId: id })
-        .onConflictDoNothing();
-    await tx
-      .update(media)
-      .set({ ...values, status: 'ready' })
-      .where(eq(media.id, id));
-  });
-  if (failure) throw failure.error;
+        .update(media)
+        .set({ ...values, status: 'ready' })
+        .where(eq(media.id, id));
+    });
+    if (failure) throw failure.error;
+  } finally {
+    try {
+      await lock.query('select pg_advisory_unlock(hashtextextended($1, 1))', [
+        id,
+      ]);
+    } catch {
+      // Discarding the connection releases any session lock it still holds.
+      healthy = false;
+    }
+    lock.release(!healthy);
+  }
 }
 
 async function renderMedia(

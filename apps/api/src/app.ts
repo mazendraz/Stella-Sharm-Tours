@@ -33,7 +33,8 @@ import { loadCatalog, loadLiveLocales } from './catalog';
 import { createRequest, hashPrivate } from './requests';
 import { calculateBookingQuote, parseQuoteInput } from './booking-quote';
 import { consume } from './rate';
-import { authService, clientIp, equal } from './auth';
+import { createWindowLimiter } from '@stella/shared/window-limiter';
+import { authService, clientIp, equal, signPurpose } from './auth';
 import { createHmac } from 'node:crypto';
 import { registerAdmin } from './admin';
 import { matchAdminContract, registerAdminOpenApi } from './admin-contracts';
@@ -43,7 +44,7 @@ import { registerPush } from './push';
 import { fail } from './errors';
 import {
   processedPath,
-  publicRenditionAllowed,
+  createMediaAccess,
   serveProcessed,
 } from './serve-media';
 const query = z.strictObject({
@@ -68,7 +69,7 @@ const savedTripQuery = query.extend({
 export function createApp(
   db: Database,
   cfg: Config,
-  onUnexpected: () => void = () => {},
+  onUnexpected: (error: unknown, route: string) => void = () => {},
 ) {
   const app = new OpenAPIHono<ApiEnv>(),
     auth = authService(db, cfg);
@@ -151,36 +152,48 @@ export function createApp(
       credentials: true,
     }),
   );
-  const buckets = new Map<string, { count: number; until: number }>();
-  const catalogReaderToken = createHmac('sha256', cfg.WEB_REVALIDATE_SECRET)
-    .update('stella:public-catalog-reader:v1')
-    .digest('hex');
+  const mediaAccess = createMediaAccess(db);
+  // Any admin write can change what media is public (rights, archive, undo).
+  // Admin writes are rare, so drop every cached media decision after one.
+  app.use('/v1/admin/*', async (c, next) => {
+    try {
+      await next();
+    } finally {
+      if (!['GET', 'HEAD', 'OPTIONS'].includes(c.req.method))
+        mediaAccess.clear();
+    }
+  });
+  // The web server reads with one of two HMAC identities, each with its own
+  // quota: page rendering ('catalog-reader') and the public browser-facing
+  // proxy routes ('proxy-reader'). Keeping them apart means traffic on the
+  // proxy can never use up the quota that page rendering depends on (SEC-01).
+  const reader = (purpose: string) =>
+    createHmac('sha256', cfg.WEB_REVALIDATE_SECRET)
+      .update(`stella:public-${purpose}:v1`)
+      .digest('hex');
+  const readers = [
+    ['catalog-reader', reader('catalog-reader')],
+    ['proxy-reader', reader('proxy-reader')],
+  ] as const;
+  const publicReads = createWindowLimiter({
+    pinned: readers.map(([key]) => key),
+  });
   app.use('/v1/public/*', async (c, next) => {
     if (Object.values(c.req.queries()).some((values) => values.length !== 1))
       fail(422, 'INVALID_QUERY');
+    const supplied = c.req.header('x-stella-catalog-reader') ?? '';
     const trusted =
-      c.req.path !== '/v1/public/preview' &&
-      equal(c.req.header('x-stella-catalog-reader') ?? '', catalogReaderToken);
-    const now = Date.now(),
-      key = trusted
-        ? 'catalog-reader'
-        : hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT);
-    let bucket = buckets.get(key);
-    if (!bucket || bucket.until <= now) {
-      if (buckets.size > 10000) {
-        for (const [k, v] of buckets) if (v.until <= now) buckets.delete(k);
-        if (buckets.size > 10000) fail(429, 'RATE_LIMITED');
-      }
-      bucket = { count: 0, until: now + 60000 };
-      buckets.set(key, bucket);
-    }
-    if (
-      ++bucket.count >
-      (trusted
+      c.req.path !== '/v1/public/preview' && supplied
+        ? readers.find(([, token]) => equal(supplied, token))?.[0]
+        : undefined;
+    const { allowed, retryAfter } = publicReads.hit(
+      trusted ?? hashPrivate(clientIp(c, cfg), cfg.IP_HASH_SALT),
+      trusted
         ? Math.max(2400, cfg.PUBLIC_READS_PER_MINUTE)
-        : cfg.PUBLIC_READS_PER_MINUTE)
-    ) {
-      c.header('Retry-After', String(Math.ceil((bucket.until - now) / 1000)));
+        : cfg.PUBLIC_READS_PER_MINUTE,
+    );
+    if (!allowed) {
+      c.header('Retry-After', String(retryAfter));
       fail(429, 'RATE_LIMITED');
     }
     await next();
@@ -206,12 +219,7 @@ export function createApp(
       !payload ||
       !signature ||
       extra.length ||
-      !equal(
-        signature,
-        createHmac('sha256', cfg.SESSION_SECRET)
-          .update(payload)
-          .digest('base64url'),
-      )
+      !equal(signature, signPurpose('preview', payload, cfg.SESSION_SECRET))
     )
       fail(401, 'INVALID_PREVIEW');
     let raw: unknown;
@@ -252,8 +260,7 @@ export function createApp(
   });
   app.get('/healthz', (c) => c.json({ status: 'ok', service: 'api' }));
   app.get('/internal/media-access', async (c) => {
-    const allowed = await publicRenditionAllowed(
-      db,
+    const allowed = await mediaAccess.allowed(
       c.req.header('x-stella-media-key') ?? '',
     );
     return c.body(null, allowed ? 204 : 404, { 'Cache-Control': 'no-store' });
@@ -262,7 +269,7 @@ export function createApp(
     const path = c.req.path.slice('/media/'.length);
     if (
       !processedPath.test(path) ||
-      !(await publicRenditionAllowed(db, path.slice(0, path.lastIndexOf('/'))))
+      !(await mediaAccess.allowed(path.slice(0, path.lastIndexOf('/'))))
     )
       return c.body(null, 404, { 'Cache-Control': 'no-store' });
     return serveProcessed(
@@ -634,7 +641,7 @@ export function createApp(
         },
         409,
       );
-    onUnexpected();
+    onUnexpected(error, c.req.method + ' ' + c.req.routePath);
     return c.json(
       {
         error: {

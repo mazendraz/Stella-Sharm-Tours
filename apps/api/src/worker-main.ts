@@ -7,6 +7,7 @@ import { parseEnv } from '@stella/shared/env';
 import { configSchema } from './config';
 import { startWorker } from './jobs';
 import { reportOperationalError } from '@stella/shared/operational-errors';
+import { summarizeError } from '@stella/shared/error-summary';
 const cfg = parseEnv(
   configSchema.safeExtend({
     VAPID_PRIVATE_KEY: z
@@ -57,8 +58,14 @@ const worker = await startWorker(
   pool,
   cfg,
   mailer,
-  (task) => {
-    logger.error({ task }, 'Worker task failed');
+  (task, error) => {
+    logger.error(
+      {
+        task,
+        ...(error === undefined ? {} : { error: summarizeError(error) }),
+      },
+      'Worker task failed',
+    );
     void reportOperationalError('worker', 'worker_task_failed');
   },
   async () => {

@@ -9,7 +9,14 @@ import {
 } from '@stella/shared/admin';
 import { resolveText } from '@stella/shared/i18n/resolve';
 import { requestRef } from './requests';
-import { seal, unseal, passwordHash } from './auth';
+import {
+  seal,
+  unseal,
+  passwordHash,
+  aad,
+  unsealPurpose,
+  signPurpose,
+} from './auth';
 import { verify } from '@node-rs/argon2';
 import {
   durationFacts,
@@ -110,6 +117,26 @@ describe('security primitives and source normalization', () => {
     corrupted[20] = corrupted[20]! ^ 1;
     expect(() => unseal(corrupted, key, 'user-a')).toThrow();
   });
+  it('keeps sealed values and signatures bound to one purpose', () => {
+    const key = randomBytes(32).toString('base64');
+    const token = seal('reset-token', key, aad('auth-token', 'user-a'));
+    // A reset token cannot be opened as a TOTP secret, and vice versa.
+    expect(() => unseal(token, key, aad('totp', 'user-a'))).toThrow();
+    expect(() => unsealPurpose(token, key, 'totp', 'user-a')).toThrow();
+    expect(unsealPurpose(token, key, 'auth-token', 'user-a')).toEqual({
+      value: 'reset-token',
+      legacy: false,
+    });
+    // Values sealed before purpose-bound AAD still open, flagged as legacy.
+    const legacy = seal('OLDSECRET', key, 'user-a');
+    expect(unsealPurpose(legacy, key, 'totp', 'user-a')).toEqual({
+      value: 'OLDSECRET',
+      legacy: true,
+    });
+    expect(signPurpose('preview', 'payload', key)).not.toBe(
+      signPurpose('bulk-prices', 'payload', key),
+    );
+  });
   it('generates unpredictable Crockford references', () => {
     const refs = Array.from({ length: 1000 }, requestRef);
     expect(new Set(refs).size).toBe(1000);
@@ -208,5 +235,12 @@ describe('live public locales', () => {
         i18n_runtime: { providers_available: false, coverage: { pl: 1 } },
       }).map((l) => l.code),
     ).toEqual(core);
+  });
+});
+describe('admin search patterns', () => {
+  it('matches %, _ and backslash literally', async () => {
+    const { containsPattern } = await import('./admin');
+    expect(containsPattern('50%_off\\x')).toBe('%50\\%\\_off\\\\x%');
+    expect(containsPattern('maria')).toBe('%maria%');
   });
 });

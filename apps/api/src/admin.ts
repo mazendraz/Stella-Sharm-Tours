@@ -1,4 +1,4 @@
-import { randomUUID, createHmac } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import {
   and,
   eq,
@@ -35,10 +35,10 @@ import {
   eraseRequestSchema,
 } from '@stella/shared/admin';
 import { csvCell } from '@stella/shared/csv';
-import { scrubRequestHistory } from './privacy';
+import { eraseRequests, erasureHash } from './privacy';
 import type { ApiEnv } from './types';
 import type { Config } from './config';
-import { authService, clientIp } from './auth';
+import { authService, clientIp, signPurpose } from './auth';
 import { requestExportQuery } from './admin-contracts';
 import { requireCoreCopy } from './publication-languages';
 import { hashPrivate } from './requests';
@@ -493,6 +493,12 @@ export async function tripSnapshot(tx: Transaction, id: string) {
     drafts,
   };
 }
+/**
+ * A LIKE pattern matching the text literally anywhere. Escapes the default
+ * escape character (backslash) and the % and _ wildcards (audit SEC-09).
+ */
+export const containsPattern = (text: string) =>
+  '%' + text.replace(/[\\%_]/g, (match) => '\\' + match) + '%';
 export function registerAdmin(
   app: Hono<ApiEnv>,
   db: Database,
@@ -615,18 +621,23 @@ export function registerAdmin(
       const { phone } = await parse(c, eraseRequestSchema);
       const erased = await db.transaction(
         async (tx) => {
-          const filter = eq(s.bookingRequests.phone, phone);
-          // Serialize with request edits and notification deliveries before scrubbing.
+          const rows = await eraseRequests(
+            tx,
+            eq(s.bookingRequests.phone, phone),
+          );
+          // Record the erasure (keyed hash only) so it is re-applied if an
+          // older backup is ever restored (audit SEC-10).
+          const now = new Date();
           await tx
-            .select({ id: s.bookingRequests.id })
-            .from(s.bookingRequests)
-            .where(filter)
-            .for('update');
-          await scrubRequestHistory(tx, filter);
-          const rows = await tx
-            .delete(s.bookingRequests)
-            .where(filter)
-            .returning({ id: s.bookingRequests.id });
+            .insert(s.privacyErasures)
+            .values({
+              phoneHash: erasureHash(phone, cfg.IP_HASH_SALT),
+              erasedAt: now,
+            })
+            .onConflictDoUpdate({
+              target: s.privacyErasures.phoneHash,
+              set: { erasedAt: now },
+            });
           await tx
             .delete(s.rateBuckets)
             .where(
@@ -650,7 +661,7 @@ export function registerAdmin(
   );
   // Trip dates are startDate + (dayIndex - 1): day_index is 1-based (public "My trip" builder).
   const requestFilters = (p: ReturnType<typeof paging>) => {
-    const like = p.q ? '%' + p.q + '%' : null;
+    const like = p.q ? containsPattern(p.q) : null;
     return and(
       p.status ? eq(s.bookingRequests.status, p.status) : undefined,
       like
@@ -917,7 +928,7 @@ export function registerAdmin(
               ? isNotNull(s.trips.archivedAt)
               : isNull(s.trips.archivedAt),
             p.q
-              ? sql`${s.trips.title}->>'en' ilike ${'%' + p.q + '%'}`
+              ? sql`${s.trips.title}->>'en' ilike ${containsPattern(p.q)}`
               : undefined,
             p.collection
               ? sql`${s.trips.collectionId} in (select id from collections where slug=${p.collection})`
@@ -2202,9 +2213,7 @@ export function registerAdmin(
       payload = Buffer.from(JSON.stringify({ path: b.path, expires })).toString(
         'base64url',
       ),
-      signature = createHmac('sha256', cfg.SESSION_SECRET)
-        .update(payload)
-        .digest('base64url');
+      signature = signPurpose('preview', payload, cfg.SESSION_SECRET);
     const token = payload + '.' + signature;
     return c.json({
       path: b.path,

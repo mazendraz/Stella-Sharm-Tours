@@ -16,6 +16,7 @@ import { applyRuntimePrivileges } from '../../../packages/db/src/runtime-privile
 import * as s from '../../../packages/db/src/schema';
 import { roles, can, permissions } from '@stella/shared/admin';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
+import { bookingStay } from '@stella/shared/i18n/booking-messages';
 import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
@@ -28,7 +29,7 @@ import {
 import { configSchema, type Config } from './config';
 import { createApp } from './app';
 import { createMediaImporter, processMedia, runTool } from './media';
-import { passwordHash, sha, seal, unseal, sessionHash } from './auth';
+import { passwordHash, sha, seal, unseal, sessionHash, aad } from './auth';
 import { generateSecret, generateSync } from 'otplib';
 import {
   fakeProvider,
@@ -49,6 +50,7 @@ import {
   queueRequestPush,
 } from './jobs';
 import { migrateQueues } from './migration-jobs';
+import { erasureHash, reapplyErasures } from './privacy';
 import { PgBoss } from 'pg-boss';
 import sharp from 'sharp';
 import { serveProcessed } from './serve-media';
@@ -300,6 +302,45 @@ afterAll(async () => {
   }
 });
 describe('runtime database privileges', () => {
+  it('creates the operational indexes from migration 0011', async () => {
+    const names = [
+      'sessions_user',
+      'rate_buckets_expiry',
+      'outbox_pending',
+      'outbox_delivered',
+      'booking_request_items_trip',
+      'audit_at',
+    ];
+    const { rows } = await connection.pool.query<{ indexname: string }>(
+      "SELECT indexname FROM pg_indexes WHERE schemaname='public' AND indexname = ANY($1)",
+      [names],
+    );
+    expect(rows.map((row) => row.indexname).sort()).toEqual([...names].sort());
+  });
+  it('sets server-side timeouts on both runtime roles', async () => {
+    const { rows } = await connection.pool.query<{
+      rolname: string;
+      rolconfig: string[] | null;
+    }>('SELECT rolname, rolconfig FROM pg_roles WHERE rolname = ANY($1)', [
+      [runtimeRoles.api, runtimeRoles.worker],
+    ]);
+    const config = Object.fromEntries(
+      rows.map((row) => [row.rolname, row.rolconfig ?? []]),
+    );
+    expect(config[runtimeRoles.api]).toEqual(
+      expect.arrayContaining([
+        'statement_timeout=30s',
+        'lock_timeout=10s',
+        'idle_in_transaction_session_timeout=60s',
+      ]),
+    );
+    expect(config[runtimeRoles.worker]).toEqual(
+      expect.arrayContaining([
+        'statement_timeout=5min',
+        'idle_in_transaction_session_timeout=5min',
+      ]),
+    );
+  });
   it('removes legacy table, column and default grants on repeat migration', async () => {
     const worker = '"' + runtimeRoles.worker + '"';
     await connection.pool.query(
@@ -1054,7 +1095,10 @@ describe('real PostgreSQL catalog and requests', () => {
       expect(response.status).toBe(201);
       const confirmation = await response.json();
       expect(confirmation.estimate_eur).toBe(revised.estimate_eur);
-      expect(confirmation.message).toContain(privateDate + ' → ' + finish);
+      // The WhatsApp hand-off is short: reference, name, stay and guests.
+      // Staff open the full request (tours, dates, prices) by its reference.
+      expect(confirmation.message).toContain(confirmation.ref);
+      expect(confirmation.message).toContain(bookingStay(start, finish, 'en'));
       const [request] = await connection.db
         .select()
         .from(s.bookingRequests)
@@ -1461,7 +1505,7 @@ describe('admin security and real mutations', () => {
     const token = unseal(
         Buffer.from(task.token, 'base64'),
         cfg.TOTP_ENC_KEY,
-        user!.id,
+        aad('auth-token', user!.id),
       ),
       password = 'new-' + randomBytes(24).toString('hex');
     expect(
@@ -3169,6 +3213,43 @@ describe('security-session regression cases', () => {
       },
     });
     expect(mail).toHaveLength(0);
+
+    // The ledger keeps only a keyed hash, never the phone number.
+    const ledger = await connection.db.select().from(s.privacyErasures);
+    expect(JSON.stringify(ledger)).not.toContain(phone);
+    expect(ledger.map((entry) => entry.phoneHash)).toContain(
+      erasureHash(phone, cfg.IP_HASH_SALT),
+    );
+    // Simulate restoring an older backup that still holds the erased request,
+    // plus a genuine new booking made after the erasure.
+    const restoredRef = 'STL-RESTORED' + randomBytes(4).toString('hex');
+    const newRef = 'STL-NEWBOOK' + randomBytes(4).toString('hex');
+    const restoredRow = {
+      mode: 'single' as const,
+      locale: 'en',
+      startDate: '2027-01-10',
+      adults: 2,
+      name: 'Restored guest',
+      phone,
+    };
+    await connection.db.insert(s.bookingRequests).values([
+      {
+        ...restoredRow,
+        ref: restoredRef,
+        createdAt: new Date(Date.now() - 86400000),
+      },
+      { ...restoredRow, ref: newRef, createdAt: new Date(Date.now() + 60000) },
+    ]);
+    expect(await reapplyErasures(apiConnection.db, cfg.IP_HASH_SALT)).toBe(1);
+    const remaining = await connection.db
+      .select({ ref: s.bookingRequests.ref })
+      .from(s.bookingRequests)
+      .where(eq(s.bookingRequests.phone, phone));
+    expect(remaining.map((entry) => entry.ref)).toEqual([newRef]);
+    expect(await reapplyErasures(apiConnection.db, cfg.IP_HASH_SALT)).toBe(0);
+    await connection.db
+      .delete(s.bookingRequests)
+      .where(eq(s.bookingRequests.ref, newRef));
   });
   it('retains no direct identifiers or history when an expired booking used the removal marker as its real name', async () => {
     const result = await (

@@ -1,4 +1,4 @@
-import { randomUUID, createHmac } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import type { Hono } from 'hono';
 import {
   and,
@@ -28,7 +28,15 @@ import {
 import { locales, isCoreLocale } from '@stella/shared';
 import type { ApiEnv } from './types';
 import type { Config } from './config';
-import { authService, opaque, sha, seal, equal } from './auth';
+import {
+  authService,
+  opaque,
+  sha,
+  seal,
+  equal,
+  aad,
+  signPurpose,
+} from './auth';
 import {
   recordChange,
   tripListExtras,
@@ -122,7 +130,11 @@ export function registerMore(
         name: 'auth.invite',
         data: {
           userId: rows[0]!.id,
-          token: seal(raw, cfg.TOTP_ENC_KEY, rows[0]!.id).toString('base64'),
+          token: seal(
+            raw,
+            cfg.TOTP_ENC_KEY,
+            aad('auth-token', rows[0]!.id),
+          ).toString('base64'),
         },
       });
       await tx.insert(s.auditLog).values({
@@ -1174,9 +1186,7 @@ function registerBulkAndRestore(
       fingerprint: fingerprint(current),
     };
     const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url'),
-      signature = createHmac('sha256', cfg.SESSION_SECRET)
-        .update(encoded)
-        .digest('base64url');
+      signature = signPurpose('bulk-prices', encoded, cfg.SESSION_SECRET);
     return c.json({
       rows,
       requires_confirmation: rows.some((row) => large(row.before, row.after)),
@@ -1196,12 +1206,7 @@ function registerBulkAndRestore(
       !encoded ||
       !signature ||
       extra.length ||
-      !equal(
-        signature,
-        createHmac('sha256', cfg.SESSION_SECRET)
-          .update(encoded)
-          .digest('base64url'),
-      )
+      !equal(signature, signPurpose('bulk-prices', encoded, cfg.SESSION_SECRET))
     )
       fail(422, 'INVALID_PREVIEW');
     let raw: unknown;

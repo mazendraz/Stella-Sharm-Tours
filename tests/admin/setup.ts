@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto';
+import { rateLimitAddress } from '@stella/shared/ip';
 import { localDatabase } from '../real-api/setup';
 export default async function setup() {
   const verification = process.env.STELLA_INTEGRATION_VERIFY === '1',
@@ -12,7 +13,12 @@ export default async function setup() {
         "delete from rate_buckets where key like 'login-ip:%' or key like 'reset:%' or key like 'token:%'",
       );
     } else {
-      const keys = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].flatMap((ip) =>
+      const keys = [
+        '127.0.0.1',
+        '::1',
+        '::ffff:127.0.0.1',
+        rateLimitAddress('::1'),
+      ].flatMap((ip) =>
         ['login-ip:', 'reset:', 'token:'].map(
           (prefix) =>
             prefix +

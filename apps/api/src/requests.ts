@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { eq, inArray } from 'drizzle-orm';
+import { and, count, eq, gt, inArray, ne } from 'drizzle-orm';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
 import type { Config } from './config';
@@ -89,15 +89,21 @@ export async function createRequest(
     new Set(b.items.map((i) => i.trip_slug)).size !== b.items.length
   )
     fail(422, 'INVALID_REQUEST');
-  if (
-    !(await consume(
-      db,
-      'request-phone:' + hashPrivate(b.phone, cfg.IP_HASH_SALT),
-      20,
-      86400,
-    ))
-  )
-    fail(429, 'RATE_LIMITED');
+  // Per-phone cap: count saved requests from the last 24 hours that staff have
+  // not marked as spam. A counter that only ever grows would let someone
+  // flooding with a customer's number block that customer's real booking for a
+  // day. Marking the junk as spam now unblocks them at once (audit SEC-08).
+  const [recent] = await db
+    .select({ total: count() })
+    .from(s.bookingRequests)
+    .where(
+      and(
+        eq(s.bookingRequests.phone, b.phone),
+        ne(s.bookingRequests.status, 'spam'),
+        gt(s.bookingRequests.createdAt, new Date(Date.now() - 86400000)),
+      ),
+    );
+  if ((recent?.total ?? 0) >= 20) fail(429, 'RATE_LIMITED');
   try {
     return await persistRequest(db, cfg, b, ipHash, userAgent, submission);
   } catch (error) {

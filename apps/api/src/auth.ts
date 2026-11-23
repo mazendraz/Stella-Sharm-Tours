@@ -30,6 +30,7 @@ import { consume } from './rate';
 import { hashPrivate } from './requests';
 import { fail } from './errors';
 import { isIP } from 'node:net';
+import { rateLimitAddress } from '@stella/shared/ip';
 export const sha = (value: string) =>
   createHash('sha256').update(value).digest('hex');
 export const opaque = () => randomBytes(32).toString('base64url');
@@ -65,6 +66,33 @@ export function unseal(value: Buffer, key: string, aad: string) {
     cipher.final(),
   ]).toString('utf8');
 }
+/**
+ * Purpose-bound AAD and signatures (audit SEC-06). One key never produces a
+ * value that another feature would accept. Values sealed before this change
+ * used the bare user id as AAD; unsealPurpose still opens those.
+ */
+export const aad = (purpose: 'totp' | 'auth-token', userId: string) =>
+  purpose + ':' + userId;
+export function unsealPurpose(
+  value: Buffer,
+  key: string,
+  purpose: 'totp' | 'auth-token',
+  userId: string,
+): { value: string; legacy: boolean } {
+  try {
+    return { value: unseal(value, key, aad(purpose, userId)), legacy: false };
+  } catch {
+    return { value: unseal(value, key, userId), legacy: true };
+  }
+}
+export const signPurpose = (
+  purpose: 'preview' | 'bulk-prices',
+  encoded: string,
+  key: string,
+) =>
+  createHmac('sha256', key)
+    .update(purpose + ':' + encoded)
+    .digest('base64url');
 export function equal(a: string, b: string) {
   return (
     Buffer.byteLength(a) === Buffer.byteLength(b) &&
@@ -84,17 +112,20 @@ export const csrfToken = (raw: string, key: string) =>
     .digest('base64url');
 const mandatory = (role: string, required = false) =>
   required || role === 'owner' || role === 'manager';
+/**
+ * The caller's address for rate limits and privacy hashes. IPv6 callers are
+ * grouped by /64 (see rateLimitAddress), so the result is never a raw address.
+ */
 export function clientIp(c: Context<ApiEnv>, cfg: Config) {
   const direct =
     c.env?.incoming?.socket.remoteAddress ?? c.env?.remoteAddress ?? 'unknown';
   const forwarded = c.req.header('x-forwarded-for')?.trim();
-  return cfg.TRUSTED_PROXY_IPS.split(',')
-    .map((v) => v.trim())
-    .includes(direct) &&
-    forwarded &&
-    isIP(forwarded)
-    ? forwarded
-    : direct;
+  const proxies = cfg.TRUSTED_PROXY_IPS.split(',').map((v) => v.trim());
+  const fromProxy =
+    proxies.includes(direct) || proxies.includes(rateLimitAddress(direct));
+  return rateLimitAddress(
+    fromProxy && forwarded && isIP(forwarded) ? forwarded : direct,
+  );
 }
 export function authService(db: Database, cfg: Config) {
   // Local development only; config.ts rejects the flag elsewhere.
@@ -324,8 +355,14 @@ export function authService(db: Database, cfg: Config) {
     tx: Parameters<Parameters<Database['transaction']>[0]>[0],
   ) => {
     if (user.totpSecretEnc && /^\d{6}$/.test(code)) {
+      const totp = unsealPurpose(
+        user.totpSecretEnc,
+        cfg.TOTP_ENC_KEY,
+        'totp',
+        user.id,
+      );
       const result = await verifyOTP({
-        secret: unseal(user.totpSecretEnc, cfg.TOTP_ENC_KEY, user.id),
+        secret: totp.value,
         token: code,
         strategy: 'totp',
         epochTolerance: [30, 0],
@@ -340,7 +377,19 @@ export function authService(db: Database, cfg: Config) {
       ) {
         await tx
           .update(s.adminUsers)
-          .set({ lastTotpStep: result.timeStep })
+          .set({
+            lastTotpStep: result.timeStep,
+            // Move a secret sealed with the legacy AAD to the purpose-bound one.
+            ...(totp.legacy
+              ? {
+                  totpSecretEnc: seal(
+                    totp.value,
+                    cfg.TOTP_ENC_KEY,
+                    aad('totp', user.id),
+                  ),
+                }
+              : {}),
+          })
           .where(eq(s.adminUsers.id, user.id));
         return true;
       }
@@ -462,7 +511,12 @@ export function authService(db: Database, cfg: Config) {
         // Idempotent: a repeated setup call returns the pending secret.
         if (user.totpSecretEnc) {
           try {
-            secret = unseal(user.totpSecretEnc, cfg.TOTP_ENC_KEY, p.id);
+            secret = unsealPurpose(
+              user.totpSecretEnc,
+              cfg.TOTP_ENC_KEY,
+              'totp',
+              p.id,
+            ).value;
             return;
           } catch {
             // Unreadable pending secret: replace it below.
@@ -471,7 +525,7 @@ export function authService(db: Database, cfg: Config) {
         await tx
           .update(s.adminUsers)
           .set({
-            totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, p.id),
+            totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, aad('totp', p.id)),
             lastTotpStep: null,
           })
           .where(eq(s.adminUsers.id, p.id));
@@ -690,7 +744,11 @@ export function authService(db: Database, cfg: Config) {
             name: 'auth.reset',
             data: {
               userId: user.id,
-              token: seal(raw, cfg.TOTP_ENC_KEY, user.id).toString('base64'),
+              token: seal(
+                raw,
+                cfg.TOTP_ENC_KEY,
+                aad('auth-token', user.id),
+              ).toString('base64'),
             },
           });
         });

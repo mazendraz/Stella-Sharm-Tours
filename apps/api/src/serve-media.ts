@@ -23,6 +23,40 @@ export async function publicRenditionAllowed(db: Database, storageKey: string) {
   return !!match;
 }
 
+/**
+ * Caches publicRenditionAllowed decisions so that media traffic (every image,
+ * revalidation and video range request goes through Caddy's forward_auth)
+ * costs at most one query per key per TTL (audit INF-03). The API clears the
+ * cache after every admin write, so withdrawals made in the dashboard apply at
+ * once. Changes made by other processes (seed and sync scripts) apply within
+ * the TTL.
+ */
+export function createMediaAccess(
+  db: Database,
+  options: { ttlMs?: number; maxEntries?: number } = {},
+) {
+  const ttlMs = options.ttlMs ?? 10000,
+    maxEntries = options.maxEntries ?? 5000;
+  const cache = new Map<string, { allowed: boolean; until: number }>();
+  return {
+    async allowed(storageKey: string) {
+      if (!/^[a-f0-9]{2}\/[a-f0-9]{64}$/.test(storageKey)) return false;
+      const now = Date.now(),
+        hit = cache.get(storageKey);
+      if (hit && hit.until > now) return hit.allowed;
+      const allowed = await publicRenditionAllowed(db, storageKey);
+      cache.delete(storageKey);
+      if (cache.size >= maxEntries)
+        cache.delete(cache.keys().next().value as string);
+      cache.set(storageKey, { allowed, until: now + ttlMs });
+      return allowed;
+    },
+    clear() {
+      cache.clear();
+    },
+  };
+}
+
 export async function serveProcessed(
   root: string,
   path: string,

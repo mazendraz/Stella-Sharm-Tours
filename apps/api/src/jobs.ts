@@ -6,7 +6,7 @@ import { readdir, stat, rm } from 'node:fs/promises';
 import type { Database, connectDatabase } from '@stella/db';
 import * as s from '@stella/db/schema';
 import { inside, processMedia } from './media';
-import { unseal } from './auth';
+import { unsealPurpose } from './auth';
 import { operationsCopy } from '@stella/shared/i18n/operations';
 import { newDeviceCopy } from '@stella/shared/i18n/security-notifications';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
@@ -456,7 +456,7 @@ export async function startWorker(
   pool: ReturnType<typeof connectDatabase>['pool'],
   cfg: WorkerConfig,
   mailer: Mailer,
-  onError: (task: string) => void = () => {},
+  onError: (task: string, error?: unknown) => void = () => {},
   onHealthy: () => Promise<void> = async () => {},
 ) {
   const boss = new PgBoss({
@@ -464,7 +464,7 @@ export async function startWorker(
     migrate: false,
     createSchema: false,
   });
-  boss.on('error', () => onError('queue'));
+  boss.on('error', (error) => onError('queue', error));
   await boss.start();
   {
     const queues = await boss.getQueues();
@@ -481,116 +481,126 @@ export async function startWorker(
     );
   for (const name of queueNames)
     await boss.work<unknown>(name, { batchSize: 1 }, async (jobs) => {
-      for (const job of jobs) {
-        if (name === 'media.process') {
-          const b = z.strictObject({ mediaId: z.uuid() }).parse(job.data);
-          await processMedia(db, cfg, b.mediaId);
-          await revalidateWeb(db, cfg, ['site', 'collections']);
-        } else if (name === 'notify.request.created') {
-          const requestId = z
-            .strictObject({ requestId: z.uuid() })
-            .parse(job.data).requestId;
-          await notifyRequest(db, cfg, requestId, mailer);
-        } else if (name === 'notify.request.push') {
-          const { requestId } = z
-            .strictObject({ requestId: z.uuid() })
-            .parse(job.data);
-          await queueRequestPush(db, cfg, requestId, boss);
-        } else if (name === 'notify.request.push.device') {
-          const { requestId, subscriptionId } = z
-            .strictObject({ requestId: z.uuid(), subscriptionId: z.uuid() })
-            .parse(job.data);
-          await notifyPush(db, cfg, requestId, undefined, subscriptionId);
-        } else if (name === 'revalidate.web')
-          await revalidateWeb(
-            db,
-            cfg,
-            z
-              .strictObject({ tags: z.array(z.string()).min(1).max(5000) })
-              .parse(job.data).tags,
-          );
-        else if (name === 'auth.new_device') {
-          const data = z
-            .strictObject({ userId: z.uuid(), deviceId: z.uuid() })
-            .parse(job.data);
-          await notifyNewDevice(db, cfg, data.userId, data.deviceId, mailer);
-        } else if (name === 'auth.reset' || name === 'auth.invite') {
-          const b = z
-              .strictObject({ userId: z.uuid(), token: z.string().max(1000) })
-              .parse(job.data),
-            [user] = await db
-              .select({
-                id: s.adminUsers.id,
-                email: s.adminUsers.email,
-                disabledAt: s.adminUsers.disabledAt,
-              })
-              .from(s.adminUsers)
-              .where(eq(s.adminUsers.id, b.userId));
-          if (user && !user.disabledAt) {
-            const token = unseal(
-              Buffer.from(b.token, 'base64'),
-              cfg.TOTP_ENC_KEY,
-              user.id,
-            );
-            const [inviteSubject, inviteBody, resetSubject, resetBody] =
-              authMailCopy[cfg.OWNER_REPORT_LOCALE];
-            const invite = name === 'auth.invite';
-            const link = new URL(
-              '/auth/' + (invite ? 'setup' : 'reset'),
-              cfg.ADMIN_ORIGIN,
-            );
-            link.searchParams.set('token', token);
-            await mailer.sendMail({
-              from: cfg.SMTP_FROM,
-              to: user.email,
-              subject: invite ? inviteSubject : resetSubject,
-              text: (invite ? inviteBody : resetBody) + '\n\n' + link.href,
-            });
-          }
-        } else if (name === 'cleanup.sessions') await cleanupSessions(db);
-        else if (name === 'privacy.purge_requests') await purgeRequests(db);
-        else if (name === 'cleanup.media') await cleanupMedia(db, cfg);
-        else if (name === 'i18n.backfill_locale')
-          await translatePublic(
-            db,
-            cfg,
-            z
-              .strictObject({ locale: z.string().regex(/^[a-z]{2,3}$/) })
-              .parse(job.data),
-            providers,
-          );
-        else if (name === 'i18n.translate_entity')
-          await translatePublic(
-            db,
-            cfg,
-            z
-              .strictObject({
-                entity: z.string().max(40),
-                id: z.string().max(120),
-                locale: z
-                  .string()
-                  .regex(/^[a-z]{2,3}$/)
-                  .optional(),
-                fields: z.array(z.string().max(120)).max(100).optional(),
-              })
-              .parse(job.data),
-            providers,
-          );
-        else if (name === 'i18n.refresh_stale')
-          await translatePublic(db, cfg, {}, providers);
-        else if (name === 'notify.operations.weekly')
-          await notifyWeeklyOperations(db, cfg, mailer);
-        else if (name === 'notify.prices.weekly')
-          await notifyWeeklyPrices(db, cfg, mailer);
-        else if (name === 'notify.translation.budget')
-          await mailer.sendMail({
-            from: cfg.SMTP_FROM,
-            to: cfg.STAFF_NOTIFY_EMAIL,
-            subject: 'Stella translation paused',
-            text: 'The translation budget or free tier limit has been reached. Existing translations remain available. Review Languages in the admin.',
-          });
+      try {
+        await runJobs(name, jobs);
+      } catch (error) {
+        // pg-boss records the failure and retries; log it here as well.
+        onError(name, error);
+        throw error;
       }
     });
+  async function runJobs(name: string, jobs: { data: unknown }[]) {
+    for (const job of jobs) {
+      if (name === 'media.process') {
+        const b = z.strictObject({ mediaId: z.uuid() }).parse(job.data);
+        await processMedia(db, cfg, b.mediaId);
+        await revalidateWeb(db, cfg, ['site', 'collections']);
+      } else if (name === 'notify.request.created') {
+        const requestId = z
+          .strictObject({ requestId: z.uuid() })
+          .parse(job.data).requestId;
+        await notifyRequest(db, cfg, requestId, mailer);
+      } else if (name === 'notify.request.push') {
+        const { requestId } = z
+          .strictObject({ requestId: z.uuid() })
+          .parse(job.data);
+        await queueRequestPush(db, cfg, requestId, boss);
+      } else if (name === 'notify.request.push.device') {
+        const { requestId, subscriptionId } = z
+          .strictObject({ requestId: z.uuid(), subscriptionId: z.uuid() })
+          .parse(job.data);
+        await notifyPush(db, cfg, requestId, undefined, subscriptionId);
+      } else if (name === 'revalidate.web')
+        await revalidateWeb(
+          db,
+          cfg,
+          z
+            .strictObject({ tags: z.array(z.string()).min(1).max(5000) })
+            .parse(job.data).tags,
+        );
+      else if (name === 'auth.new_device') {
+        const data = z
+          .strictObject({ userId: z.uuid(), deviceId: z.uuid() })
+          .parse(job.data);
+        await notifyNewDevice(db, cfg, data.userId, data.deviceId, mailer);
+      } else if (name === 'auth.reset' || name === 'auth.invite') {
+        const b = z
+            .strictObject({ userId: z.uuid(), token: z.string().max(1000) })
+            .parse(job.data),
+          [user] = await db
+            .select({
+              id: s.adminUsers.id,
+              email: s.adminUsers.email,
+              disabledAt: s.adminUsers.disabledAt,
+            })
+            .from(s.adminUsers)
+            .where(eq(s.adminUsers.id, b.userId));
+        if (user && !user.disabledAt) {
+          const token = unsealPurpose(
+            Buffer.from(b.token, 'base64'),
+            cfg.TOTP_ENC_KEY,
+            'auth-token',
+            user.id,
+          ).value;
+          const [inviteSubject, inviteBody, resetSubject, resetBody] =
+            authMailCopy[cfg.OWNER_REPORT_LOCALE];
+          const invite = name === 'auth.invite';
+          const link = new URL(
+            '/auth/' + (invite ? 'setup' : 'reset'),
+            cfg.ADMIN_ORIGIN,
+          );
+          link.searchParams.set('token', token);
+          await mailer.sendMail({
+            from: cfg.SMTP_FROM,
+            to: user.email,
+            subject: invite ? inviteSubject : resetSubject,
+            text: (invite ? inviteBody : resetBody) + '\n\n' + link.href,
+          });
+        }
+      } else if (name === 'cleanup.sessions') await cleanupSessions(db);
+      else if (name === 'privacy.purge_requests') await purgeRequests(db);
+      else if (name === 'cleanup.media') await cleanupMedia(db, cfg);
+      else if (name === 'i18n.backfill_locale')
+        await translatePublic(
+          db,
+          cfg,
+          z
+            .strictObject({ locale: z.string().regex(/^[a-z]{2,3}$/) })
+            .parse(job.data),
+          providers,
+        );
+      else if (name === 'i18n.translate_entity')
+        await translatePublic(
+          db,
+          cfg,
+          z
+            .strictObject({
+              entity: z.string().max(40),
+              id: z.string().max(120),
+              locale: z
+                .string()
+                .regex(/^[a-z]{2,3}$/)
+                .optional(),
+              fields: z.array(z.string().max(120)).max(100).optional(),
+            })
+            .parse(job.data),
+          providers,
+        );
+      else if (name === 'i18n.refresh_stale')
+        await translatePublic(db, cfg, {}, providers);
+      else if (name === 'notify.operations.weekly')
+        await notifyWeeklyOperations(db, cfg, mailer);
+      else if (name === 'notify.prices.weekly')
+        await notifyWeeklyPrices(db, cfg, mailer);
+      else if (name === 'notify.translation.budget')
+        await mailer.sendMail({
+          from: cfg.SMTP_FROM,
+          to: cfg.STAFF_NOTIFY_EMAIL,
+          subject: 'Stella translation paused',
+          text: 'The translation budget or free tier limit has been reached. Existing translations remain available. Review Languages in the admin.',
+        });
+    }
+  }
   for (const [name, cron] of [
     ['cleanup.sessions', '0 * * * *'],
     ['cleanup.media', '0 3 * * 0'],
@@ -607,8 +617,8 @@ export async function startWorker(
     try {
       await dispatchOutbox(pool, boss);
       await onHealthy();
-    } catch {
-      onError('outbox');
+    } catch (error) {
+      onError('outbox', error);
     } finally {
       running = false;
     }

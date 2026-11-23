@@ -1,6 +1,7 @@
 import { parseEnv } from 'node:util';
 import { readFile } from 'node:fs/promises';
 import { createHmac } from 'node:crypto';
+import { rateLimitAddress } from '@stella/shared/ip';
 import { connectDatabase } from '../../packages/db/src/index';
 export async function localDatabase(
   mode: 'development' | 'verification' = 'development',
@@ -90,7 +91,12 @@ export default async function setup() {
   await assertRestrictedRuntime('development');
   const { pool, env } = await localDatabase();
   try {
-    const hashes = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].map(
+    const hashes = [
+      '127.0.0.1',
+      '::1',
+      '::ffff:127.0.0.1',
+      rateLimitAddress('::1'),
+    ].map(
       (ip) =>
         'request-ip:' +
         createHmac('sha256', env.IP_HASH_SALT!).update(ip).digest('hex'),
