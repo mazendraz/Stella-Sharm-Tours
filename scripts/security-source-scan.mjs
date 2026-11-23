@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { printScanSummary } from './scan-summary.mjs';
 import { mkdir, readFile, writeFile, lstat } from 'node:fs/promises';
 import { resolve, dirname, basename, extname, relative } from 'node:path';
 // Only publishable text sources enter the scanner. No workspace/env mount.
@@ -117,6 +118,8 @@ const scan = spawnSync(
     '/src',
     '--redact',
     '--no-banner',
+    // Findings stay redacted; verbose adds rule/file/line for the summary.
+    '--verbose',
     '--config',
     '/src/.gitleaks.toml',
   ],
@@ -135,4 +138,5 @@ console.log(
     network: 'none',
   }),
 );
+if (scan.status !== 0) printScanSummary(scan.stdout + scan.stderr);
 process.exitCode = scan.status ?? 1;
