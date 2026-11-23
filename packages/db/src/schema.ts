@@ -529,23 +529,30 @@ export const bookingRequestItems = pgTable(
     dayIndex: smallint('day_index'),
     priceSnapshot: jsonb('price_snapshot'),
   },
-  (t) => [primaryKey({ columns: [t.requestId, t.tripId] })],
+  (t) => [
+    primaryKey({ columns: [t.requestId, t.tripId] }),
+    index('booking_request_items_trip').on(t.tripId),
+  ],
 );
-export const sessions = pgTable('sessions', {
-  id: text('id').primaryKey(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => adminUsers.id, { onDelete: 'cascade' }),
-  createdAt: created(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  lastSeenAt: timestamp('last_seen_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  ipHash: text('ip_hash'),
-  userAgent: text('user_agent'),
-  mfaPassed: boolean('mfa_passed').notNull().default(false),
-  reauthAt: timestamp('reauth_at', { withTimezone: true }),
-});
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: text('id').primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => adminUsers.id, { onDelete: 'cascade' }),
+    createdAt: created(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    ipHash: text('ip_hash'),
+    userAgent: text('user_agent'),
+    mfaPassed: boolean('mfa_passed').notNull().default(false),
+    reauthAt: timestamp('reauth_at', { withTimezone: true }),
+  },
+  (t) => [index('sessions_user').on(t.userId)],
+);
 export const authTokens = pgTable('auth_tokens', {
   id: text('id').primaryKey(),
   userId: uuid('user_id')
@@ -568,7 +575,10 @@ export const auditLog = pgTable(
     after: jsonb('after'),
     ipHash: text('ip_hash'),
   },
-  (t) => [index('audit_entity').on(t.entity, t.entityId)],
+  (t) => [
+    index('audit_entity').on(t.entity, t.entityId),
+    index('audit_at').on(t.at),
+  ],
 );
 export const revisions = pgTable(
   'revisions',
@@ -610,18 +620,40 @@ export const contentTranslations = pgTable(
     check('translation_origin', sql`${t.origin} in ('machine','human')`),
   ],
 );
-export const rateBuckets = pgTable('rate_buckets', {
-  key: text('key').primaryKey(),
-  count: integer('count').notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+/** Keyed hashes of erased phone numbers; re-applied after a restore (SEC-10). */
+export const privacyErasures = pgTable('privacy_erasures', {
+  phoneHash: text('phone_hash').primaryKey(),
+  erasedAt: timestamp('erased_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 });
-export const outbox = pgTable('outbox', {
-  id: id(),
-  name: text('name').notNull(),
-  data: jsonb('data').notNull(),
-  createdAt: created(),
-  deliveredAt: timestamp('delivered_at', { withTimezone: true }),
-});
+export const rateBuckets = pgTable(
+  'rate_buckets',
+  {
+    key: text('key').primaryKey(),
+    count: integer('count').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  },
+  (t) => [index('rate_buckets_expiry').on(t.expiresAt)],
+);
+export const outbox = pgTable(
+  'outbox',
+  {
+    id: id(),
+    name: text('name').notNull(),
+    data: jsonb('data').notNull(),
+    createdAt: created(),
+    deliveredAt: timestamp('delivered_at', { withTimezone: true }),
+  },
+  (t) => [
+    index('outbox_pending')
+      .on(t.createdAt)
+      .where(sql`${t.deliveredAt} is null`),
+    index('outbox_delivered')
+      .on(t.deliveredAt)
+      .where(sql`${t.deliveredAt} is not null`),
+  ],
+);
 export const translationUsage = pgTable(
   'translation_usage',
   {

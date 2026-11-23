@@ -6,6 +6,7 @@ const apiGrants = [
   'SELECT, INSERT, UPDATE, DELETE ON admin_devices, booking_requests, content_drafts, content_translations, page_blocks, push_subscriptions, rate_buckets, sessions, trip_itinerary, trip_items, trip_prices',
   'SELECT, INSERT, DELETE ON auth_tokens, package_items, trip_media',
   'SELECT, INSERT ON audit_log, booking_request_items, booking_request_receipts, revisions',
+  'SELECT, INSERT, UPDATE ON privacy_erasures',
   'SELECT ON public_media_renditions, translation_usage',
   'INSERT ON outbox',
 ] as const;
@@ -22,6 +23,23 @@ const workerGrants = [
   'UPDATE (width, height, duration_s, variants, status) ON media',
   'SELECT, INSERT, UPDATE (delivered_at) ON outbox',
 ] as const;
+
+// Server-side limits for each runtime role (audit DB-02). A stuck query or an
+// abandoned transaction can no longer hold locks indefinitely. The worker's
+// limits are longer for reports, retention and translation batches. Media
+// encoding holds no transaction (see processMedia). New sessions pick these up.
+export const roleTimeouts = {
+  api: {
+    statement_timeout: '30s',
+    lock_timeout: '10s',
+    idle_in_transaction_session_timeout: '60s',
+  },
+  worker: {
+    statement_timeout: '5min',
+    lock_timeout: '60s',
+    idle_in_transaction_session_timeout: '5min',
+  },
+} as const;
 
 const quote = (identifier: string) =>
   '"' + identifier.replaceAll('"', '""') + '"';
@@ -72,6 +90,10 @@ export async function applyRuntimePrivileges(
           );
         }
       }
+      for (const [setting, value] of Object.entries(roleTimeouts[kind]))
+        await client.query(
+          `ALTER ROLE ${principal} SET ${setting} = '${value}'`,
+        );
       await client.query(`GRANT USAGE ON SCHEMA public TO ${principal}`);
       const grants = kind === 'api' ? apiGrants : workerGrants;
       for (const grant of grants) {
