@@ -460,25 +460,39 @@ export default function RequestSheet({
               />
               {children > 0 && field('child_ages', t('childAges'))}
               {quotedItem && quotedItem.price_options.length > 1 && (
-                <div className="field">
-                  <label htmlFor="booking-price">{t('priceOption')}</label>
-                  <select
-                    id="booking-price"
-                    value={activePriceId}
-                    onChange={(e) => setPriceId(e.target.value)}
-                  >
-                    {quotedItem.price_options.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.label?.text ??
-                          t(p.unit === 'group' ? 'groupUnit' : p.unit)}{' '}
-                        ·{' '}
-                        {p.amount_eur === null
-                          ? t('onRequest')
-                          : money(p.amount_eur, locale)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <fieldset className="price-options">
+                  <legend>{t('priceOption')}</legend>
+                  <div className="price-option-list">
+                    {quotedItem.price_options.map((p) => {
+                      const active = p.id === activePriceId;
+                      return (
+                        <button
+                          type="button"
+                          key={p.id}
+                          className={'price-option' + (active ? ' active' : '')}
+                          aria-pressed={active}
+                          onClick={() => setPriceId(p.id)}
+                        >
+                          <span
+                            className="price-option-mark"
+                            aria-hidden="true"
+                          />
+                          <span className="price-option-label">
+                            {p.label?.text ??
+                              t(p.unit === 'group' ? 'groupUnit' : p.unit)}
+                          </span>
+                          <strong>
+                            {p.amount_eur === null ? (
+                              t('onRequest')
+                            ) : (
+                              <bdi>{money(p.amount_eur, locale)}</bdi>
+                            )}
+                          </strong>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
               )}
               {quotedItem?.price_options.some(
                 (p) => p.id === activePriceId && p.unit === 'hour',
