@@ -12,16 +12,11 @@ import {
 import { normalizeBookingPhone } from '@stella/shared/phone';
 import {
   bookingStay,
-  scheduleNotice,
   staffBookingCopy,
   storedScheduleNotice,
 } from '@stella/shared/i18n/booking-messages';
 import { isCoreLocale } from '@stella/shared';
-import {
-  bookingGuests,
-  bookingArea,
-  bookingEstimate,
-} from '@stella/shared/i18n/guests';
+import { bookingGuests } from '@stella/shared/i18n/guests';
 import { calculateBookingQuote } from './booking-quote';
 import { consume } from './rate';
 import { fail } from './errors';
@@ -175,22 +170,19 @@ function persistRequest(
       };
       const ref = requestRef();
       const messageLocale = isCoreLocale(b.locale) ? b.locale : 'en';
+      // Short WhatsApp hand-off: staff open the full request (tours, dates,
+      // prices, pickup) in the dashboard by its reference.
+      const stayEnd =
+        b.end_date ??
+        selected
+          .map(({ details }) => details.service_end_date)
+          .sort()
+          .at(-1);
       const message = [
-        prefix[b.locale] ?? prefix.en,
-        ref,
+        '*' + (prefix[b.locale] ?? prefix.en) + ' · ' + ref + '*',
         b.name,
-        bookingStay(b.start_date, b.end_date, messageLocale),
+        bookingStay(b.start_date, stayEnd, messageLocale),
         bookingGuests(b.adults, b.children, b.locale),
-        ...selected.map(({ staffTitle, details }) => {
-          const { service_date: start, service_end_date: end } = details;
-          return (
-            staffTitle + ' · ' + (start === end ? start : start + ' → ' + end)
-          );
-        }),
-        bookingEstimate(quote.estimate_eur, quote.known_eur, messageLocale),
-        bookingArea(b.pickup_area, b.locale),
-        b.hotel ?? '',
-        scheduleReview ? scheduleNotice[messageLocale] : '',
       ]
         .filter(Boolean)
         .join('\n');

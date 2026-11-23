@@ -16,7 +16,6 @@ import { applyRuntimePrivileges } from '../../../packages/db/src/runtime-privile
 import * as s from '../../../packages/db/src/schema';
 import { roles, can, permissions } from '@stella/shared/admin';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
-import { bookingArea } from '@stella/shared/i18n/guests';
 import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
@@ -756,8 +755,10 @@ describe('real PostgreSQL catalog and requests', () => {
     const sent = await submit(body);
     expect(sent.status).toBe(201);
     const confirmation = await sent.json();
-    expect(confirmation.message).toContain('Estimated total: On request');
-    expect(confirmation.message).toContain('Subtotal for tours with prices:');
+    expect(confirmation.message.split('\n')[0]).toBe(
+      '*Booking request · ' + confirmation.ref + '*',
+    );
+    expect(confirmation.message).not.toContain('Estimated total');
     const [saved] = await connection.db
       .select()
       .from(s.bookingRequests)
@@ -860,10 +861,10 @@ describe('real PostgreSQL catalog and requests', () => {
       );
       expect(response.status).toBe(201);
       const confirmation = await response.json();
-      expect(confirmation.message).toContain(
+      expect(confirmation.message).toContain(confirmation.ref);
+      expect(confirmation.message).not.toContain(
         bundledCoreText('Quad Bike Safari', locale),
       );
-      expect(confirmation.message).toContain(bookingArea('Other', locale));
       expect(confirmation.estimate_eur).toBe(30);
     }
   });
@@ -1054,13 +1055,6 @@ describe('real PostgreSQL catalog and requests', () => {
       const confirmation = await response.json();
       expect(confirmation.estimate_eur).toBe(revised.estimate_eur);
       expect(confirmation.message).toContain(privateDate + ' → ' + finish);
-      expect(confirmation.message).toContain(
-        new Intl.NumberFormat('en', {
-          style: 'currency',
-          currency: 'EUR',
-          maximumFractionDigits: 0,
-        }).format(revised.estimate_eur!),
-      );
       const [request] = await connection.db
         .select()
         .from(s.bookingRequests)
