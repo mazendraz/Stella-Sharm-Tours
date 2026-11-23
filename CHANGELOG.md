@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
+
+- **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
+
+- **Security hardening** — sealed TOTP secrets and emailed setup/reset tokens use purpose-bound encryption context, and page-preview and bulk-price tokens use purpose-bound signatures; existing TOTP secrets keep working and are re-sealed on next use (audit SEC-06). The per-phone booking cap counts only recent requests not marked as spam, so marking junk as spam unblocks a customer at once (SEC-08). Admin search treats %, _ and \ literally (SEC-09). Media authorization decisions are cached for 10 s and cleared after every admin write, so dashboard withdrawals still apply immediately (INF-03). Caddy no longer matches `poster.webp`, which the API never serves (BUG-04).
+
+- **Database indexes** — migration `0011_operational_indexes` adds indexes for session revocation, rate-bucket and outbox cleanup, pending outbox dispatch, request items by trip and audit paging by time (audit DB-04).
+
+- **Database and media reliability** — the API and worker database roles get server-side `statement_timeout`, `lock_timeout` and `idle_in_transaction_session_timeout` limits (audit DB-02). Media encoding no longer runs inside an open transaction; it is serialized with a session advisory lock (BUG-02). A failed upload transaction removes the original it had already moved (BUG-03).
+
+- **Operations: no silent production gaps** — production health checks (and therefore deploys) fail when the encrypted off-site backup is overdue, unless the operator has explicitly set `OFFSITE_BACKUP=pending` in `compose.env`; a missing operator alert webhook is reported as a warning. Both opt-outs are temporary until restic and the webhook are configured on the server (TODO in `docs/RUNBOOK.md`; audit INF-01, INF-02). A production unit failure without a webhook is logged as critical and fails. The server setup guide adds an off-host uptime monitor. `deploy-release.sh` no longer trips shellcheck SC2174.
+
+- **CI/CD hardening** — GitHub Actions are pinned to commit SHAs (Renovate keeps them current), manual release runs can only deploy `develop`, and the standalone and release-called checks no longer share a concurrency group that could cancel a deploy (audit SEC-04, SEC-05, CI-01).
+
+- **Operations: diagnosable failures** — unexpected API errors now log the route pattern and a redacted error summary (class, message, PostgreSQL code and constraint, top stack frames). Worker job, queue and outbox failures log the same summary; previously job failures were not logged at all (audit OPS-01). Request bodies, headers and cookies are still never logged.
+
+- **Security: public read limits** — the web proxy routes (`/api/trips`, `/api/trip-story`) now have a per-visitor limit and their own API quota, so they can no longer exhaust the quota page rendering depends on (audit SEC-01). The public read limiter evicts its oldest entries instead of refusing everyone when full (SEC-02), and IPv6 callers are limited per /64 (SEC-03). Caddy overwrites `X-Forwarded-For` towards the web container and waits up to 10 s for it during a release.
+
 - Keep My trip reachable after adding tours and preserve the guest’s custom tour order in the itinerary, quote and request.
 - Open bookings from tomorrow in Cairo time, make the phone country picker searchable and validate pickup areas against the listed options.
 - Show the priced tours subtotal separately when the booking total is on request.

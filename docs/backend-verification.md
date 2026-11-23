@@ -80,6 +80,18 @@ screen-reader/device review, Linux font-preload behavior and staging Lighthouse
 also remain acceptance work. No performance or accessibility certification of
 an unbuilt admin UI is implied.
 
+## Migration history notes
+
+- `0004_tired_zombie.sql` and `0008_request_export_cursor.sql` are empty
+  (no-op) migrations listed in the journal. They are applied, so they must never
+  be edited or removed. Export paging uses the existing `requests_created_id`
+  index.
+- Drizzle snapshots stop at `0008`. Migrations `0009`–`0012` are hand-written
+  SQL with matching declarations in `schema.ts`. Do not run `drizzle-kit
+generate` until a fresh snapshot exists, or it will re-emit their DDL. Write
+  new migrations by hand with `IF NOT EXISTS` and add a journal entry with a
+  later `when`.
+
 ## Operational and source boundaries
 
 - Seed creates seven hero rows: six published, Beyond draft. Beyond has no cover

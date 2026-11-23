@@ -90,3 +90,17 @@ credentials were not supplied to it; remote Git/history CI remains unexecuted.
 References: [OWASP sessions](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html),
 [ZAP baseline behavior/exit codes](https://www.zaproxy.org/docs/docker/baseline-scan/),
 [EDPB individual rights](https://www.edpb.europa.eu/sme/be-compliant/respect-individuals-rights_en).
+
+## Accepted risks (production readiness audit, 2026-11-23)
+
+- **Booking timing check (SEC-07).** The 3-second "time to submit" check uses a
+  timestamp the browser sends, so a script can bypass it. It is kept as a cheap
+  filter for naive bots only. Real protection: 5 requests per 10 minutes per
+  address (IPv6 per /64), the per-phone cap of 20 non-spam requests per day,
+  staff marking requests as spam, and prices always recomputed on the server. A
+  signed form token would change the public booking contract. Revisit if spam
+  appears in practice.
+- **Single host, in-memory public read limits (ARCH-02).** Correct for one API
+  process. Running several API instances would need a shared limiter.
+- **`style-src 'unsafe-inline'`.** The ZAP Medium finding stays accepted while
+  scripts are nonce-only.

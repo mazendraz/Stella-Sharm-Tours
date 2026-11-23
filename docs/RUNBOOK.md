@@ -96,6 +96,28 @@ Local dumps are kept for 7 days; encrypted snapshots retain 7 daily, 4 weekly an
 monitoring fails until an off-site success exists within 26 hours. Track backup
 encryption keys separately in the owner's vault. Monitor failed systemd units.
 
+> **TODO (before relying on production — audit INF-01/INF-02).** The production
+> server has neither the off-site backup nor the operator alert webhook yet, so
+> `infra/monitoring/check.sh` (which `deploy.sh` runs and rolls back on) has two
+> temporary opt-outs:
+>
+> - `OFFSITE_BACKUP=pending` in `/srv/stella/production/compose.env` turns the
+>   off-site check into a warning. Without it the check fails.
+> - A missing `/etc/stella/alerts/webhook-url` only logs a warning.
+>
+> Once restic and the webhook are configured and one off-site backup has
+> succeeded, remove `OFFSITE_BACKUP=pending` from compose.env and make the
+> webhook check fatal again in `check.sh`.
+
+**Erasure after a restore.** Backups keep customer requests for up to 12 months,
+including requests later erased on request. Every erasure records a keyed hash
+of the phone number and its time in `privacy_erasures` (never the number). The
+API re-applies the ledger at start-up, removing restored requests created at or
+before each erasure and logging `Re-applied privacy erasures after a restore`.
+After a production recovery, confirm that log line (or that none was needed)
+before reopening the site. The privacy notice must state the backup retention
+period; the owner approves that wording with the legal text.
+
 ## Monitoring and maintenance
 
 Optional self-hosted tools are in `infra/monitoring/docker-compose.tools.yml`.
