@@ -3,27 +3,42 @@ import type { PublicStory } from '@stella/shared/story';
 import satellite from './journey-satellite.webp';
 import relief from './journey-relief.webp';
 import aqaba from './journey-aqaba.webp';
+import sinai from './journey-sinai.webp';
 
 type Scene = PublicStory['scenes'][number];
 type Point = Scene['route'][number];
-const gulf = { west: 34.6, east: 35.3, south: 29.2, north: 29.82 };
+type Bounds = { west: number; east: number; south: number; north: number };
+const sat: Bounds = { west: 27, east: 39, south: 24, north: 34 }; // journey-satellite.webp
+// Sentinel-2 cloudless close-ups for legs too short for the base imagery.
+const DETAILS = [
+  // Gulf of Aqaba head: 2048px over 0.7° of longitude.
+  {
+    src: aqaba.src,
+    bounds: { west: 34.6, east: 35.3, south: 29.2, north: 29.82 },
+    maxScale: 3300,
+  },
+  // St Catherine and Mount Sinai: 2048px over 0.35° of longitude.
+  {
+    src: sinai.src,
+    bounds: { west: 33.8, east: 34.15, south: 28.42, north: 28.68 },
+    maxScale: 9000,
+  },
+];
+const inside = (route: Point[], b: Bounds) =>
+  route.every(
+    ([lon, lat]) =>
+      lon >= b.west && lon <= b.east && lat >= b.south && lat <= b.north,
+  );
+const detailFor = (route: Point[]) =>
+  route.length > 1 ? DETAILS.find((d) => inside(route, d.bounds)) : undefined;
 const LON = 0.87; // cos(latitude) for Egypt / Sinai
 // Highest zoom (CSS px per degree of latitude) each image can take before
 // it visibly pixelates: ~2.6x the source resolution.
 const MAX_SCALE_SATELLITE = 600; // 2400px over 12° of longitude
-const MAX_SCALE_GULF = 3300; // 2048px over 0.7° of longitude
 
-export function usesGulfDetail(route: Point[]) {
-  return (
-    route.length > 1 &&
-    route.every(
-      ([lon, lat]) =>
-        lon >= gulf.west &&
-        lon <= gulf.east &&
-        lat >= gulf.south &&
-        lat <= gulf.north,
-    )
-  );
+/** Whether a scene's map uses a Sentinel-2 close-up (needs its credit). */
+export function usesDetailImagery(route: Point[]) {
+  return !!detailFor(route);
 }
 
 const near = (a?: Point, b?: Point) =>
@@ -65,7 +80,7 @@ export function RouteMap({
   const wrap = useRef<HTMLDivElement>(null);
   const frameBox = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const gulfImage = useRef<HTMLImageElement | null>(null);
+  const detailImages = useRef(new Map<string, HTMLImageElement>());
   const tiles = useRef<{
     imagery: HTMLImageElement;
     base: HTMLImageElement;
@@ -101,12 +116,18 @@ export function RouteMap({
       tiles.current = { imagery, base };
     }
     const { imagery, base } = tiles.current;
-    const showGulf = usesGulfDetail(points);
-    if (!gulfImage.current && scenes.some((s) => usesGulfDetail(s.route))) {
-      gulfImage.current = new Image();
-      gulfImage.current.src = aqaba.src;
+    // Start fetching every close-up this trip needs as soon as the story
+    // opens, so it is ready before the scene that uses it.
+    for (const s of scenes) {
+      const d = detailFor(s.route);
+      if (d && !detailImages.current.has(d.src)) {
+        const img = new Image();
+        img.src = d.src;
+        detailImages.current.set(d.src, img);
+      }
     }
-    const detail = showGulf ? gulfImage.current : null;
+    const close = detailFor(points);
+    const detail = close ? (detailImages.current.get(close.src) ?? null) : null;
     const backdrop = document.createElement('canvas');
     const background = backdrop.getContext('2d');
 
@@ -122,13 +143,16 @@ export function RouteMap({
       fx: number;
       fy: number;
       thumbScale: number;
+      ready: boolean;
     } | null = null;
     let redrawBackground = true;
     const layout = () => {
       const w = box.clientWidth,
         h = box.clientHeight;
       if (!w || !h) return false;
-      if (view && view.w === w && view.h === h) return true;
+      const ready = !!detail?.naturalWidth;
+      if (view && view.w === w && view.h === h && view.ready === ready)
+        return true;
       const fx = w / 2,
         fy = h * 0.42;
       const side = Math.min(w * 0.92, h * 0.78);
@@ -136,30 +160,39 @@ export function RouteMap({
         (0.74 * side) / (LON * Math.max(0.02, right - left)),
         (0.74 * side) / Math.max(0.02, top - bottom),
       );
-      let scale: number,
-        cx = (left + right) / 2,
-        cy = (top + bottom) / 2;
-      if (showGulf) {
-        // Never show past the edge of the detailed gulf image.
-        const cover = Math.max(
-          w / (LON * (gulf.east - gulf.west)),
-          h / (gulf.north - gulf.south),
-        );
-        scale = Math.max(cover, Math.min(fit, MAX_SCALE_GULF));
-        const westOf = fx / (LON * scale),
-          eastOf = (w - fx) / (LON * scale),
-          northOf = fy / scale,
-          southOf = (h - fy) / scale;
-        cx = Math.min(Math.max(cx, gulf.west + westOf), gulf.east - eastOf);
-        cy = Math.min(Math.max(cy, gulf.south + southOf), gulf.north - northOf);
-      } else scale = Math.min(fit, MAX_SCALE_SATELLITE);
+      // Never show past the edge of the imagery in use (the detailed gulf
+      // image, or the satellite image), so no seam or blurry fill shows.
+      // A close-up is only used once it has loaded, so nothing ever shows
+      // past its edges while it downloads.
+      const useDetail = close && detail?.naturalWidth ? close : null;
+      const edge = useDetail ? useDetail.bounds : sat;
+      const cover = Math.max(
+        w / (LON * (edge.east - edge.west)),
+        h / (edge.north - edge.south),
+      );
+      const scale = Math.max(
+        cover,
+        Math.min(fit, useDetail ? useDetail.maxScale : MAX_SCALE_SATELLITE),
+      );
+      const westOf = fx / (LON * scale),
+        eastOf = (w - fx) / (LON * scale),
+        northOf = fy / scale,
+        southOf = (h - fy) / scale;
+      const cx = Math.min(
+        Math.max((left + right) / 2, edge.west + westOf),
+        edge.east - eastOf,
+      );
+      const cy = Math.min(
+        Math.max((top + bottom) / 2, edge.south + southOf),
+        edge.north - northOf,
+      );
       // Thumbnail: a square around the focus, scaled into the corner.
       const small = h <= 530;
       const thumb = small ? 76 : Math.min(188, Math.max(106, w * 0.15));
       const tx = w * 0.04,
         ty = small ? 64 : 75;
       const s = thumb / side;
-      view = { w, h, scale, cx, cy, fx, fy, thumbScale: s };
+      view = { w, h, scale, cx, cy, fx, fy, thumbScale: s, ready };
       redrawBackground = true;
       const cl = fx - side / 2,
         ct = fy - side / 2;
@@ -266,14 +299,20 @@ export function RouteMap({
           }
         }
         tile(base, 20, 38, 24, 20);
-        tile(imagery, 27, 34, 12, 10);
-        if (detail)
+        tile(
+          imagery,
+          sat.west,
+          sat.north,
+          sat.east - sat.west,
+          sat.north - sat.south,
+        );
+        if (close && detail)
           tile(
             detail,
-            gulf.west,
-            gulf.north,
-            gulf.east - gulf.west,
-            gulf.north - gulf.south,
+            close.bounds.west,
+            close.bounds.north,
+            close.bounds.east - close.bounds.west,
+            close.bounds.north - close.bounds.south,
           );
         for (const s of scenes)
           stroke(s.route, '#fff1ccaa', 1.4, [], background);

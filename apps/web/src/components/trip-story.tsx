@@ -9,7 +9,7 @@ import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
 import { StoryStopPicker } from './story-stop-picker';
-import { RouteMap, travelsBetween, usesGulfDetail } from './story-route-map';
+import { RouteMap, travelsBetween, usesDetailImagery } from './story-route-map';
 import './trip-story.css';
 
 export default function TripStory({
@@ -348,7 +348,7 @@ export default function TripStory({
                       </button>
                     )}
                   </div>
-                  {(scene.credit || usesGulfDetail(scene.route)) && (
+                  {(scene.credit || usesDetailImagery(scene.route)) && (
                     <details key={scene.id} className="story-credits">
                       <summary>{t('storyCredits')}</summary>
                       <small>
@@ -367,7 +367,7 @@ export default function TripStory({
                           ),
                         )}
                       </small>
-                      {usesGulfDetail(scene.route) && (
+                      {usesDetailImagery(scene.route) && (
                         <small style={{ display: 'block' }}>
                           <a href="https://s2maps.eu">Sentinel-2 cloudless</a> —
                           EOX IT Services GmbH
