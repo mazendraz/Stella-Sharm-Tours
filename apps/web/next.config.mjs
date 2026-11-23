@@ -22,6 +22,12 @@ const config = {
   async headers() {
     return [
       {
+        // Trip-story map tiles never change in place; a new set gets a new
+        // folder, so browsers can keep them for a month.
+        source: '/journey-tiles/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=2592000' }],
+      },
+      {
         source: '/:path*',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },

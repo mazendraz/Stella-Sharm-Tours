@@ -121,7 +121,9 @@ export default async function Home({
                 ))}
               </div>
             </section>
-            <Suspense fallback={null}><HomeTripStories locale={locale} /></Suspense>
+            <Suspense fallback={null}>
+              <HomeTripStories locale={locale} />
+            </Suspense>
             <section className="section" id="journeys">
               <Reveal>
                 <p className="kicker section-kicker">{t('journeys')}</p>

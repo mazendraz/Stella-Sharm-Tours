@@ -18,10 +18,17 @@ export class ApiError extends Error {
     super('Catalog service unavailable');
   }
 }
+/**
+ * Which API quota a read uses. Page rendering uses 'catalog-reader'. The public
+ * /api/* proxy routes use 'proxy-reader', so callers of those routes cannot use
+ * up the quota that page rendering depends on.
+ */
+export type Reader = 'catalog-reader' | 'proxy-reader';
 async function read<T>(
   path: string,
   schema: z.ZodType<T>,
   tags: string[],
+  reader: Reader = 'catalog-reader',
 ): Promise<T> {
   let response: Response;
   try {
@@ -35,7 +42,7 @@ async function read<T>(
           ? {
               headers: {
                 'X-Stella-Catalog-Reader': createHmac('sha256', secret)
-                  .update('stella:public-catalog-reader:v1')
+                  .update(`stella:public-${reader}:v1`)
                   .digest('hex'),
               },
             }
@@ -50,11 +57,16 @@ async function read<T>(
   if (!result.success) throw new ApiError(502);
   return result.data;
 }
-export const getSavedTrips = (slugs: string[], locale: string) =>
+export const getSavedTrips = (
+  slugs: string[],
+  locale: string,
+  reader: Reader = 'catalog-reader',
+) =>
   read(
     'saved-trips?' + new URLSearchParams({ slugs: slugs.join(','), locale }),
     savedTripsSchema,
     ['locales', ...slugs.map((slug) => 'trip:' + slug)],
+    reader,
   );
 export const getSite = cache((locale: string) =>
   read('site?locale=' + encodeURIComponent(locale), siteSchema, [
@@ -79,7 +91,11 @@ export const getCollection = cache((slug: string, locale: string) =>
     ['collection:' + slug],
   ),
 );
-export const getStory = (slug: string, locale: string) =>
+export const getStory = (
+  slug: string,
+  locale: string,
+  reader: Reader = 'catalog-reader',
+) =>
   read(
     'trips/' +
       encodeURIComponent(slug) +
@@ -87,6 +103,7 @@ export const getStory = (slug: string, locale: string) =>
       new URLSearchParams({ locale }),
     publicStorySchema,
     ['trip:' + slug, 'locales'],
+    reader,
   );
 export const getTrip = cache((slug: string, locale: string) =>
   read(

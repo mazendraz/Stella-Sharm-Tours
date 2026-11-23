@@ -120,6 +120,6 @@ export async function middleware(request: NextRequest) {
 }
 export const config = {
   matcher: [
-    '/((?!api(?:/|$)|healthz(?:/|$)|readyz(?:/|$)|_next(?:/|$)|fonts(?:/|$)|brand(?:/|$)|map(?:/|$)|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|analytics-guard\\.js$).*)',
+    '/((?!api(?:/|$)|healthz(?:/|$)|readyz(?:/|$)|_next(?:/|$)|fonts(?:/|$)|brand(?:/|$)|map(?:/|$)|journey-tiles(?:/|$)|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|analytics-guard\\.js$).*)',
   ],
 };

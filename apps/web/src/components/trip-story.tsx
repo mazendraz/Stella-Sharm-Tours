@@ -9,7 +9,7 @@ import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
 import { StoryStopPicker } from './story-stop-picker';
-import { RouteMap, travelsBetween, usesDetailImagery } from './story-route-map';
+import { RouteMap, travelsBetween } from './story-route-map';
 import './trip-story.css';
 
 export default function TripStory({
@@ -348,39 +348,33 @@ export default function TripStory({
                       </button>
                     )}
                   </div>
-                  {(scene.credit || usesDetailImagery(scene.route)) && (
-                    <details key={scene.id} className="story-credits">
-                      <summary>{t('storyCredits')}</summary>
-                      <small>
-                        {scene.credit?.split(' · ').map((part, i) =>
-                          /^https?:\/\//.test(part) ? (
-                            <a
-                              key={i}
-                              href={part}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              {part.split('/')[2]} ↗{' '}
-                            </a>
-                          ) : (
-                            <span key={i}>{part} </span>
-                          ),
-                        )}
-                      </small>
-                      {usesDetailImagery(scene.route) && (
-                        <small style={{ display: 'block' }}>
-                          <a href="https://s2maps.eu">Sentinel-2 cloudless</a> —
-                          EOX IT Services GmbH
-                          {
-                            ' (Contains modified Copernicus Sentinel data 2016 & 2017) · '
-                          }
-                          <a href="https://creativecommons.org/licenses/by/4.0/">
-                            CC BY 4.0
+                  <details key={scene.id} className="story-credits">
+                    <summary>{t('storyCredits')}</summary>
+                    <small>
+                      {scene.credit?.split(' · ').map((part, i) =>
+                        /^https?:\/\//.test(part) ? (
+                          <a
+                            key={i}
+                            href={part}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {part.split('/')[2]} ↗{' '}
                           </a>
-                        </small>
+                        ) : (
+                          <span key={i}>{part} </span>
+                        ),
                       )}
-                    </details>
-                  )}
+                    </small>
+                    <small style={{ display: 'block' }}>
+                      <a href="https://s2maps.eu">Sentinel-2 cloudless</a> — EOX
+                      IT Services GmbH
+                      {' (Contains modified Copernicus Sentinel data 2016) · '}
+                      <a href="https://creativecommons.org/licenses/by/4.0/">
+                        CC BY 4.0
+                      </a>
+                    </small>
+                  </details>
                 </footer>
               </>
             )}

@@ -23,7 +23,12 @@ export default async function PreviewPage({
         {t('previewMode')}
       </p>
       {data.kind === 'trip' ? (
-        <TripView trip={data.data} whatsappUrl={null} previewStory={data.story??undefined} preview />
+        <TripView
+          trip={data.data}
+          whatsappUrl={null}
+          previewStory={data.story ?? undefined}
+          preview
+        />
       ) : (
         <CollectionView data={data.data} preview />
       )}
