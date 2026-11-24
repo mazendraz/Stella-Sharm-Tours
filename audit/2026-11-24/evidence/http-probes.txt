@@ -1,0 +1,19 @@
+Non-mutating HTTP probes — local verification stack API (127.0.0.1:4984, NODE_ENV=production), 2026-11-24
+All requests were rejected before any database write.
+
+POST /v1/requests cross-origin (Origin: https://attacker.example)   403 INVALID_ORIGIN
+POST /v1/requests Content-Type text/plain (CSRF simple request)    422 JSON_REQUIRED
+POST /v1/requests/quote 200 KB body                                 413 BODY_TOO_LARGE
+GET  /v1/openapi.json unauthenticated                               401
+GET  /v1/public/site?locale=en&locale=it (duplicate param)          422
+GET  /v1/public/site?locale=../../etc                               422
+GET  /v1/public/trips/..%2f..%2fetc                                 404
+GET  /media/../../etc/passwd (--path-as-is)                         404
+GET  /v1/admin/requests (no session)                                401
+POST /v1/admin/auth/login wrong Origin                              403
+OPTIONS /v1/admin/requests from attacker origin                     no Access-Control-Allow-Origin
+
+Response headers observed
+- web  /en  : single nonce-based CSP, X-Frame-Options DENY, Referrer-Policy strict-origin-when-cross-origin, Cache-Control private no-store
+- api  /healthz : CSP default-src 'none'; frame-ancestors 'none'
+- admin / : nonce CSP, no-store, X-Robots-Tag noindex,nofollow, Referrer-Policy no-referrer, X-Frame-Options DENY

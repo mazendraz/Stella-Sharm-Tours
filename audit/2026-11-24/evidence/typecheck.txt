@@ -1,0 +1,41 @@
+
+   • turbo 2.11.10
+   • Packages in scope: @stella/admin, @stella/api, @stella/db, @stella/shared, @stella/ui, @stella/web, @stella/worker
+   • Running typecheck in 7 packages
+   • Remote caching disabled
+
+@stella/shared:typecheck: cache bypass, force executing 619685c6810d3c70
+@stella/shared:typecheck: 
+@stella/shared:typecheck: > @stella/shared@0.0.0 typecheck F:\stella-project-kit\packages\shared
+@stella/shared:typecheck: > tsc --noEmit
+@stella/shared:typecheck: 
+@stella/db:typecheck: cache bypass, force executing 4372a2cf5a0a8960
+@stella/admin:typecheck: cache bypass, force executing 5d8851eeafa0e769
+@stella/web:typecheck: cache bypass, force executing 3c8906d23cd357ba
+@stella/db:typecheck: 
+@stella/db:typecheck: > @stella/db@0.0.0 typecheck F:\stella-project-kit\packages\db
+@stella/db:typecheck: > tsc --noEmit
+@stella/db:typecheck: 
+@stella/admin:typecheck: 
+@stella/admin:typecheck: > @stella/admin@0.0.0 typecheck F:\stella-project-kit\apps\admin
+@stella/admin:typecheck: > tsc --noEmit
+@stella/admin:typecheck: 
+@stella/web:typecheck: 
+@stella/web:typecheck: > @stella/web@0.0.0 typecheck F:\stella-project-kit\apps\web
+@stella/web:typecheck: > tsc --noEmit
+@stella/web:typecheck: 
+@stella/api:typecheck: cache bypass, force executing bb9301c76597622d
+@stella/api:typecheck: 
+@stella/api:typecheck: > @stella/api@0.0.0 typecheck F:\stella-project-kit\apps\api
+@stella/api:typecheck: > tsc --noEmit
+@stella/api:typecheck: 
+@stella/worker:typecheck: cache bypass, force executing 2cafa60b360f546e
+@stella/worker:typecheck: 
+@stella/worker:typecheck: > @stella/worker@0.0.0 typecheck F:\stella-project-kit\apps\worker
+@stella/worker:typecheck: > tsc --noEmit
+@stella/worker:typecheck: 
+
+ Tasks:    6 successful, 6 total
+Cached:    0 cached, 6 total
+  Time:    18.943s 
+

@@ -1,0 +1,6 @@
+
+> stella-sharm-tours@0.0.0 format:check F:\stella-project-kit
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!

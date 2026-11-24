@@ -1,0 +1,78 @@
+
+Running 16 tests using 1 worker
+
+  ok  1 [mobile] › tests\integration\handoff.spec.ts:6:1 › real trip content and WhatsApp remain usable without JavaScript (3.1s)
+  ok  2 [mobile] › tests\integration\handoff.spec.ts:46:1 › public handoff inventory uses real API content and matching image candidates (18.3s)
+  ok  3 [mobile] › tests\integration\private-booking.spec.ts:7:1 › seven-language Private discovery persists an on-request quote and local staff email (43.2s)
+  ok  4 [mobile] › tests\integration\runtime.spec.ts:6:1 › nonce CSP protects successful, redirect and dotted HTML responses (476ms)
+  ok  5 [mobile] › tests\integration\runtime.spec.ts:46:1 › production-like proxy, runtime URLs, sitemap, media negotiation and private boundaries (1.2s)
+  x   6 [mobile] › tests\integration\runtime.spec.ts:131:1 › the same built image serves the runtime canonical, API and sitemap URLs in a second environment (34ms)
+  ok  7 [mobile] › tests\integration\runtime.spec.ts:145:1 › signed previews work in all seven locales without enabling draft bookings or leaking the token in referrers (1.7s)
+  ok  8 [mobile] › tests\integration\runtime.spec.ts:183:1 › real booking uses the runtime API address and delivers only to isolated Mailpit (5.1s)
+  x   9 [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both (1.0m)
+  ok 10 [mobile] › tests\real-api\languages.spec.ts:14:3 › en actual translated content and language switch (6.0s)
+  ok 11 [mobile] › tests\real-api\languages.spec.ts:14:3 › it actual translated content and language switch (5.9s)
+  ok 12 [mobile] › tests\real-api\languages.spec.ts:14:3 › es actual translated content and language switch (5.9s)
+  ok 13 [mobile] › tests\real-api\languages.spec.ts:14:3 › fr actual translated content and language switch (5.9s)
+  ok 14 [mobile] › tests\real-api\languages.spec.ts:14:3 › de actual translated content and language switch (5.9s)
+  ok 15 [mobile] › tests\real-api\languages.spec.ts:14:3 › ru actual translated content and language switch (6.0s)
+  ok 16 [mobile] › tests\real-api\languages.spec.ts:14:3 › tr actual translated content and language switch (5.9s)
+
+
+  1) [mobile] › tests\integration\runtime.spec.ts:131:1 › the same built image serves the runtime canonical, API and sitemap URLs in a second environment 
+
+    AggregateError: apiRequestContext.get: connect ECONNREFUSED ::1:4990
+    connect ECONNREFUSED 127.0.0.1:4990
+    Call log:
+      - → GET http://localhost:4990/de
+        - user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/27.2 Mobile/15E148 Safari/604.1
+        - accept: */*
+        - accept-encoding: gzip,deflate,br
+
+        at apiRequestContext.get: connect ECONNREFUSED ::1:4990
+        at F:\stella-project-kit\tests\integration\runtime.spec.ts:135:34
+
+    Error Context: test-results\integration-runtime-the-sa-a4853-RLs-in-a-second-environment-mobile\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\integration-runtime-the-sa-a4853-RLs-in-a-second-environment-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\integration-runtime-the-sa-a4853-RLs-in-a-second-environment-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "40"
+    Received string:    "€35 / person"
+
+    Call Log:
+    - Timeout 60000ms exceeded while waiting on the predicate
+
+      110 |         { timeout: 60000 },
+      111 |       )
+    > 112 |       .toContain('40');
+          |        ^
+      113 |     const {
+      114 |       rows: [priceRevision],
+      115 |     } = await pool.query(
+        at F:\stella-project-kit\tests\real-api\admin.spec.ts:112:8
+
+    Error Context: test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [mobile] › tests\integration\runtime.spec.ts:131:1 › the same built image serves the runtime canonical, API and sitemap URLs in a second environment 
+    [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both 
+  14 passed (3.0m)
+exit 1

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Audit records** — adds the 2026-11-24 full-system audit (`audit/2026-11-24/`: reports, remediation log for PRs #3–#13, raw evidence and reproduction scripts) and the 2026-11-23 production-readiness reports (`reports/production-readiness-2026-11-23/`), which had only been committed on an unpushed local branch. Both were scanned with gitleaks; they contain no secrets or customer data.
+
 - **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
 
 - **Docs** — README covers the Node 22/pnpm/Playwright toolchain on machines with a newer default Node; the security plan records decisions on the audit's low-severity items (SEC-03 lockout, SEC-04 in-memory limits, SEC-06 FFmpeg), the Git-history media and narrow-phone calendar targets (audit 2026-11-24).

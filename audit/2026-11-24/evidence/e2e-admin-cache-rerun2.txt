@@ -1,0 +1,37 @@
+
+Running 1 test using 1 worker
+
+  x  1 [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both (1.0m)
+
+
+  1) [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "40"
+    Received string:    "€35 / person"
+
+    Call Log:
+    - Timeout 60000ms exceeded while waiting on the predicate
+
+      110 |         { timeout: 60000 },
+      111 |       )
+    > 112 |       .toContain('40');
+          |        ^
+      113 |     const {
+      114 |       rows: [priceRevision],
+      115 |     } = await pool.query(
+        at F:\stella-project-kit\tests\real-api\admin.spec.ts:112:8
+
+    Error Context: test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\real-api-admin-authenticat-2c2a2-ches-and-Undo-restores-both-mobile\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [mobile] › tests\real-api\admin.spec.ts:17:1 › authenticated API price and hero edits invalidate web caches, and Undo restores both 
