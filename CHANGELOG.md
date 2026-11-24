@@ -4,6 +4,8 @@
 
 - **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
 
+- **Smaller Docker build context** — `.dockerignore` excludes local media, reports, research notes and audit copies, and re-includes only the three stock files the API image needs (re-including whole directories brought back 399 MB of stock video). Build context 1.35 GB → 104 MB (audit 2026-11-24 BUG-04).
+
 - **Stable touch-target checks** — the 44 px assertions in the booking calendar tests allow for layout-unit rounding, which reported an exactly-44 px cell as 43.99994 px and failed at random (audit 2026-11-24 BUG-07).
 
 - **Tests leave the working tree clean** — browser tests write screenshots to `test-results/screens/` unless `UPDATE_SCREENS=1`, instead of overwriting the reviewed copies in `docs/screens/`; CI fails if any test step modifies tracked files (audit 2026-11-24 BUG-02).
