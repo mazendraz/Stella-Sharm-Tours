@@ -24,6 +24,19 @@ automatically reverses database migrations; migrations must remain compatible
 with the previous release. A first-deploy failure stops applications and keeps
 the DB. Previous/current release records update only after successful health.
 
+**Staging acceptance is enforced.** After checking a release in staging, record
+the acceptance; production refuses any SHA without it (rollback to the previous
+production release is exempt):
+
+```bash
+bash infra/accept-staging.sh 0123456789abcdef0123456789abcdef01234567
+```
+
+The script requires staging to run exactly that SHA and pass
+`check.sh staging`, then writes `staging/releases/accepted/<SHA>` with the time
+and the operator's user name. For a second safeguard, also add required
+reviewers to the `production` environment in the GitHub repository settings.
+
 The release entry point archives the exact commit’s `infra/` directory under
 `/srv/stella/release-checkouts/<SHA>`. It leaves the shared Git checkout in place.
 Each environment holds its own deploy lock for migrations, backup, health checks
