@@ -3,6 +3,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { locales } from '../../packages/shared/src/index';
 import { bundledCoreText } from '../../packages/shared/src/i18n/core-content';
 import { localDatabase } from '../real-api/setup';
+import { screenPath } from '../screens';
 
 test('seven-language Private discovery persists an on-request quote and local staff email', async ({
   page,
@@ -11,7 +12,7 @@ test('seven-language Private discovery persists an on-request quote and local st
   test.setTimeout(180000);
   const { pool } = await localDatabase('verification');
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const directory = `docs/screens/current/${info.project.name}`;
+  const directory = screenPath('current', info.project.name);
   await mkdir(directory, { recursive: true });
   try {
     for (const [index, locale] of locales.entries()) {

@@ -8,6 +8,10 @@ import * as s from '@stella/db/schema';
 import { inside, processMedia } from './media';
 import { unsealPurpose } from './auth';
 import { operationsCopy } from '@stella/shared/i18n/operations';
+import {
+  formatPriceChanges,
+  priceReportCopy,
+} from '@stella/shared/i18n/price-report';
 import { newDeviceCopy } from '@stella/shared/i18n/security-notifications';
 import { bundledCoreText } from '@stella/shared/i18n/core-content';
 import {
@@ -249,19 +253,35 @@ export async function notifyWeeklyPrices(
     .where(
       and(eq(s.adminUsers.role, 'owner'), isNull(s.adminUsers.disabledAt)),
     );
+  const tripIds = [
+    ...new Set(
+      changes
+        .map((row) => row.entity_id)
+        .filter((id): id is string =>
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            id ?? '',
+          ),
+        ),
+    ),
+  ];
+  const titles = new Map(
+    (tripIds.length
+      ? await db
+          .select({ id: s.trips.id, title: s.trips.title })
+          .from(s.trips)
+          .where(inArray(s.trips.id, tripIds))
+      : []
+    ).map((trip) => [trip.id, trip.title]),
+  );
+  const locale = cfg.OWNER_REPORT_LOCALE;
   const week = new Date().toISOString().slice(0, 10);
   for (const owner of owners)
     await mailer.sendMail({
       from: cfg.SMTP_FROM,
       to: owner.email,
       messageId: `<prices-${week}-${owner.id}@stella.local>`,
-      subject: 'Stella weekly price changes',
-      text: changes
-        .map(
-          (row) =>
-            `${new Date(row.at).toISOString()} | ${row.entity} | ${row.action} | ${row.entity_id}\nBefore: ${JSON.stringify(row.before)}\nAfter: ${JSON.stringify(row.after)}`,
-        )
-        .join('\n\n'),
+      subject: priceReportCopy[locale].subject,
+      text: formatPriceChanges(changes, titles, locale),
     });
 }
 export async function notifyRequest(
@@ -596,8 +616,8 @@ export async function startWorker(
         await mailer.sendMail({
           from: cfg.SMTP_FROM,
           to: cfg.STAFF_NOTIFY_EMAIL,
-          subject: 'Stella translation paused',
-          text: 'The translation budget or free tier limit has been reached. Existing translations remain available. Review Languages in the admin.',
+          subject: priceReportCopy[cfg.OWNER_REPORT_LOCALE].budgetSubject,
+          text: priceReportCopy[cfg.OWNER_REPORT_LOCALE].budgetBody,
         });
     }
   }
