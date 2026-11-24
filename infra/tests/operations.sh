@@ -30,6 +30,10 @@ case "$*" in
     fi
     if [[ "${RELEASE:-}" == "${FAKE_FAIL_RELEASE:-disabled}" && ! -f "$FAKE_ONCE" ]]; then touch "$FAKE_ONCE"; exit 1; fi
     exit 0 ;;
+  *' exec -T web node '*)
+    cat >/dev/null
+    if [[ "${RELEASE:-}" == "${FAKE_STALE_RELEASE:-disabled}" ]]; then exit 1; fi
+    exit 0 ;;
   *' ps -q '*) echo test-container; exit 0 ;;
 esac
 exit 0
@@ -56,7 +60,7 @@ new_case() {
   mkdir -p "$STELLA_ROOT/staging/env" "$STELLA_ROOT/staging/releases"
   export FAKE_TRACE="$STELLA_ROOT/trace" FAKE_ONCE="$STELLA_ROOT/once"
   : > "$FAKE_TRACE"
-  unset RELEASE PROXY_CONFIG_DIR FAKE_FAIL_RELEASE FAKE_MIGRATE_FAIL FAKE_SCRUB_FAIL
+  unset RELEASE PROXY_CONFIG_DIR FAKE_FAIL_RELEASE FAKE_MIGRATE_FAIL FAKE_SCRUB_FAIL FAKE_STALE_RELEASE
   cat > "$STELLA_ROOT/staging/compose.env" <<CONF
 COMPOSE_PROJECT_NAME=stella-staging
 DATA_DIR=$STELLA_ROOT/staging
@@ -77,6 +81,13 @@ if bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1; t
 grep -q "$sha_a|.*up -d --wait --wait-timeout 180 api" "$FAKE_TRACE"
 [[ -f "$STELLA_ROOT/staging/backups/last-success" ]]
 echo 'PASS: failed health restores previous images without advancing release.'
+new_case stale-website
+export FAKE_STALE_RELEASE=$sha_c
+if bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1; then echo 'Stale website was accepted'; exit 1; fi
+grep -Fq 'differs from the API' "$STELLA_ROOT/result"
+[[ $(cat "$STELLA_ROOT/staging/releases/current") == "$sha_a" ]]
+grep -q "$sha_a|.*up -d --wait --wait-timeout 180 api" "$FAKE_TRACE"
+echo 'PASS: a website that disagrees with the API fails the gate and restores the previous release.'
 new_case success
 bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1
 [[ $(cat "$STELLA_ROOT/staging/releases/current") == "$sha_c" ]]
@@ -85,6 +96,29 @@ bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1
 bash "$repo/infra/deploy.sh" staging --rollback >> "$STELLA_ROOT/result" 2>&1
 [[ $(cat "$STELLA_ROOT/staging/releases/current") == "$sha_a" ]]
 echo 'PASS: successful deploy and explicit rollback record exact releases.'
+new_case staging-acceptance
+mkdir -p "$STELLA_ROOT/production/env" "$STELLA_ROOT/production/releases"
+cat > "$STELLA_ROOT/production/compose.env" <<CONF
+COMPOSE_PROJECT_NAME=stella-production
+DATA_DIR=$STELLA_ROOT/production
+ENV_DIR=$STELLA_ROOT/production/env
+POSTGRES_DB=stella_prod
+IMAGE_PREFIX=ghcr.io/test
+WEB_HOST=www.stella-sharm.invalid-but-real
+RELEASE=$sha_a
+CONF
+chmod 600 "$STELLA_ROOT/production/compose.env"
+if bash "$repo/infra/deploy.sh" production "$sha_c" > "$STELLA_ROOT/result" 2>&1; then echo 'Unaccepted commit reached production'; exit 1; fi
+grep -Fq 'no staging acceptance' "$STELLA_ROOT/result"
+[[ ! -s "$FAKE_TRACE" ]]
+if bash "$repo/infra/accept-staging.sh" "$sha_c" > "$STELLA_ROOT/result" 2>&1; then echo 'Accepted a commit staging is not running'; exit 1; fi
+[[ ! -e "$STELLA_ROOT/staging/releases/accepted/$sha_c" ]]
+bash "$repo/infra/accept-staging.sh" "$sha_a" > "$STELLA_ROOT/result" 2>&1
+grep -Fq 'accepted_by=' "$STELLA_ROOT/staging/releases/accepted/$sha_a"
+bash "$repo/infra/deploy.sh" production "$sha_a" > "$STELLA_ROOT/result" 2>&1 || true
+if grep -Fq 'no staging acceptance' "$STELLA_ROOT/result"; then echo 'Accepted commit was refused'; exit 1; fi
+grep -q "$sha_a|.*up -d --wait postgres" "$FAKE_TRACE"
+echo 'PASS: production deploys only commits accepted while running in staging.'
 new_case failed-migration
 export FAKE_MIGRATE_FAIL=1
 if bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1; then exit 1; fi
@@ -180,4 +214,4 @@ grep -Fq 'stella-monitor@staging.service' "$STELLA_ROOT/alert-journal"
 grep -Fq 'https://alerts.example.test/hooks/synthetic-token' "$STELLA_ROOT/alert-config"
 if grep -Fq 'synthetic-token' "$STELLA_ROOT/alert-argv" "$STELLA_ROOT/alert-journal"; then exit 1; fi
 echo 'PASS: the alert sends only the unit event and keeps the webhook credential out of argv and logs.'
-echo '10 operational safety scenarios passed (simulated Docker and alert transport).'
+echo '12 operational safety scenarios passed (simulated Docker and alert transport).'

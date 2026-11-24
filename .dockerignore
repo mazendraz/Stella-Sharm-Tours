@@ -10,14 +10,17 @@
 **/.env.*
 **/*.log
 reference
+# Large local media, reports and research copies: never used by an image
+# (audit 2026-11-24 BUG-04, ~540 MB of build context).
+Stella-Videos
+reports
+research_notes
+audit
 assets/**
-!assets/journeys/
 !assets/journeys/**
-!assets/images/
-!assets/images/stock/
+# Re-include single files only: re-including a directory brings back all of it.
 !assets/images/stock/sphinx.jpg
 !assets/images/stock/sharm-bay.jpg
-!assets/video-stock/
 !assets/video-stock/stock-giza-pyramids-aerial.mp4
 docs/screens
 test-results

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { locales } from '../../packages/shared/src/index';
 import { bundledCoreText } from '../../packages/shared/src/i18n/core-content';
+import { screenPath } from '../screens';
 
 test('real trip content and WhatsApp remain usable without JavaScript', async ({
   browser,
@@ -48,7 +49,7 @@ test('public handoff inventory uses real API content and matching image candidat
   request,
 }, info) => {
   test.setTimeout(240000);
-  const screenshots = `docs/screens/current/${info.project.name}`;
+  const screenshots = screenPath('current', info.project.name);
   await mkdir(screenshots, { recursive: true });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const errors: string[] = [];

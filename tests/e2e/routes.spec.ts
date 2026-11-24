@@ -6,6 +6,8 @@ import fr from '../../apps/web/messages/fr.json' with { type: 'json' };
 import de from '../../apps/web/messages/de.json' with { type: 'json' };
 import ru from '../../apps/web/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/web/messages/tr.json' with { type: 'json' };
+import { screenPath } from '../screens';
+import { minTarget } from '../targets';
 
 test('a missing trip offers recovery in each core language', async ({
   page,
@@ -130,7 +132,7 @@ test('intercepted routes close by keyboard and restore navigation', async ({
   await expect(page).toHaveURL(/\/my-trip$/);
   await expect(page.locator('.panel-builder')).toBeVisible();
   await page.screenshot({
-    path: 'docs/screens/' + info.project.name + '-builder-drawer.png',
+    path: screenPath(info.project.name + '-builder-drawer.png'),
     scale: 'css',
   });
   await page.keyboard.press('Escape');
@@ -216,8 +218,8 @@ test('request validation, public boundaries and localized 404', async ({
   await expect(firstDay).toBeFocused();
   await expect(firstDay).toHaveAccessibleDescription(en.invalid);
   const { width, height } = (await firstDay.boundingBox())!;
-  expect(width).toBeGreaterThanOrEqual(44);
-  expect(height).toBeGreaterThanOrEqual(44);
+  expect(width).toBeGreaterThanOrEqual(minTarget);
+  expect(height).toBeGreaterThanOrEqual(minTarget);
   await page.keyboard.press('Enter');
   await expect(firstDay).toHaveAttribute('aria-pressed', 'true');
   await expect(sheet.locator('.range-field .field-error')).toHaveCount(0);
@@ -282,7 +284,7 @@ test('responsive screen inventory', async ({ page }, info) => {
       ),
     ).toBe(true);
     await page.screenshot({
-      path: 'docs/screens/' + info.project.name + '-' + name + '.png',
+      path: screenPath(info.project.name + '-' + name + '.png'),
       fullPage: true,
       scale: 'css',
     });
@@ -291,7 +293,7 @@ test('responsive screen inventory', async ({ page }, info) => {
   await page.getByRole('button', { name: 'Request', exact: true }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.screenshot({
-    path: 'docs/screens/' + info.project.name + '-request.png',
+    path: screenPath(info.project.name + '-request.png'),
     scale: 'css',
   });
 });

@@ -7,6 +7,7 @@ import {
   minBookingDate,
   type Quote,
 } from '../../packages/shared/src/booking';
+import { screenPath } from '../screens';
 
 const itineraryStorage = 'stella.mytrip.v1';
 const quad = 'quad-bike-safari';
@@ -644,8 +645,7 @@ test('home/trip accessibility, no overflow, screenshots', async ({
     ).toBe(true);
     await page.screenshot({
       path:
-        'docs/screens/' +
-        testInfo.project.name +
+        screenPath(testInfo.project.name) +
         (path === '/en' ? '-home' : '-trip') +
         '.png',
       fullPage: true,
