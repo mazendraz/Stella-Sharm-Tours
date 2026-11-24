@@ -150,6 +150,15 @@ Use `infra/caddy/tools.caddy.example` for public collection endpoints and an
 authenticated dashboard after changing defaults. Owner operational mail supports
 EN/IT/ES/FR/DE/RU/TR through `OWNER_REPORT_LOCALE`; scheduled Monday 09:05 Cairo.
 
+Every `check.sh` run (the 5-minute monitor and the post-deploy gate) also
+compares six trips per run, rotating through the catalog, between the API and
+the rendered website: availability and the priced offers. A difference that
+lasts past the 60-second cache window fails the check and alerts. Each
+accepted cache refresh is logged by the web container as a
+`{"event":"cache_revalidated",...}` line (tag names only). If the alert fires:
+compare `docker compose logs web | grep cache_revalidated` with the staff edit
+time; restarting the web container clears its cache safely.
+
 Quarterly: review dependency/image pins and runtime Node/Postgres minor versions,
 staff roles/keys, disk, dead content, secret rotation and restore evidence.
 
