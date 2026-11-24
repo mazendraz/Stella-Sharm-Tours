@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Owner e-mails in seven languages** — the weekly price report and the translation-budget notice follow `OWNER_REPORT_LOCALE` (EN/IT/ES/FR/DE/RU/TR); the price report lists readable changes ("Tiran Island by Boat — Price: €35 → €40") instead of raw audit JSON (audit BUG-03).
+
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
 
 - **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
