@@ -21,6 +21,7 @@ jobs:
       matrix: { service: [web, admin, api] }
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with: { persist-credentials: false }
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - id: image
         run: echo "prefix=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
@@ -48,7 +49,7 @@ jobs:
     environment: ${{ startsWith(github.ref, 'refs/tags/') && 'production' || 'staging' }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with: { fetch-depth: 0 }
+        with: { fetch-depth: 0, persist-credentials: false }
       - name: Select the exact tested commit
         id: release
         shell: bash

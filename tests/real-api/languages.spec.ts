@@ -9,6 +9,7 @@ import fr from '../../apps/web/messages/fr.json' with { type: 'json' };
 import de from '../../apps/web/messages/de.json' with { type: 'json' };
 import ru from '../../apps/web/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/web/messages/tr.json' with { type: 'json' };
+import { minTarget } from '../targets';
 const messages = { en, it, es, fr, de, ru, tr };
 for (const locale of locales)
   test(
@@ -87,8 +88,8 @@ for (const locale of locales)
       await expect(sheet).toHaveCSS('opacity', '1');
       const day = sheet.locator('.range-day:enabled').first();
       const target = await day.boundingBox();
-      expect(target?.width).toBeGreaterThanOrEqual(44);
-      expect(target?.height).toBeGreaterThanOrEqual(44);
+      expect(target?.width).toBeGreaterThanOrEqual(minTarget);
+      expect(target?.height).toBeGreaterThanOrEqual(minTarget);
       const send = sheet.getByRole('button', {
         name: messages[locale].sendRequest,
         exact: true,
