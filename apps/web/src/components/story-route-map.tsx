@@ -4,6 +4,17 @@ import satellite from './journey-satellite.webp';
 import relief from './journey-relief.webp';
 import aqaba from './journey-aqaba.webp';
 import sinai from './journey-sinai.webp';
+import tileManifest from './journey-tiles.json';
+import {
+  COVER,
+  REGION_MAX_ZOOM,
+  TILE,
+  computeView,
+  framedPoints,
+  project,
+  tilesFor,
+  type View,
+} from './story-map-view';
 
 type Scene = PublicStory['scenes'][number];
 type Point = Scene['route'][number];
@@ -35,6 +46,7 @@ const LON = 0.87; // cos(latitude) for Egypt / Sinai
 // Highest zoom (CSS px per degree of latitude) each image can take before
 // it visibly pixelates: ~2.6x the source resolution.
 const MAX_SCALE_SATELLITE = 600; // 2400px over 12° of longitude
+const detailTiles: Record<string, Record<string, number[][]>> = tileManifest;
 
 /** Whether a scene's map uses a Sentinel-2 close-up (needs its credit). */
 export function usesDetailImagery(route: Point[]) {
@@ -53,19 +65,6 @@ export function travelsBetween(from: Scene | undefined, to: Scene) {
   return !near(from?.route[from.route.length - 1], leg[leg.length - 1]);
 }
 
-/** The leg the map frames for a scene: its own route, or for a single stop
- * the last real leg before it so the view stays put between stops. */
-function framedPoints(scenes: Scene[], index: number): Point[] {
-  const own = scenes[index]!.route;
-  if (own.length > 1) return own;
-  for (let i = index - 1; i >= 0; i--) {
-    const r = scenes[i]!.route;
-    if (r.length > 1) return [...r, ...own];
-  }
-  const all = scenes.flatMap((s) => s.route);
-  return all.length ? all : own;
-}
-
 export function RouteMap({
   scenes,
   index,
@@ -81,7 +80,8 @@ export function RouteMap({
   const frameBox = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const detailImages = useRef(new Map<string, HTMLImageElement>());
-  const tiles = useRef<{
+  const tileImages = useRef(new Map<string, HTMLImageElement>());
+  const fallbackImages = useRef<{
     imagery: HTMLImageElement;
     base: HTMLImageElement;
   } | null>(null);
@@ -108,14 +108,14 @@ export function RouteMap({
         lengths[i - 1]! + Math.hypot((p[0] - prev[0]) * LON, p[1] - prev[1]),
       );
     }
-    if (!tiles.current) {
+    if (!fallbackImages.current) {
       const imagery = new Image(),
         base = new Image();
       imagery.src = satellite.src;
       base.src = relief.src;
-      tiles.current = { imagery, base };
+      fallbackImages.current = { imagery, base };
     }
-    const { imagery, base } = tiles.current;
+    const { imagery, base } = fallbackImages.current;
     // Start fetching every close-up this trip needs as soon as the story
     // opens, so it is ready before the scene that uses it.
     for (const s of scenes) {
@@ -130,6 +130,9 @@ export function RouteMap({
     const detail = close ? (detailImages.current.get(close.src) ?? null) : null;
     const backdrop = document.createElement('canvas');
     const background = backdrop.getContext('2d');
+    const tileCache = tileImages.current;
+    const pendingTiles = new Set<HTMLImageElement>();
+    const tiled = points.length > 0 && inside(points, COVER);
 
     // The view is computed once per viewport size, so the map never zooms or
     // drifts while the inset grows to full screen: the inset is only a scaled
@@ -144,6 +147,8 @@ export function RouteMap({
       fy: number;
       thumbScale: number;
       ready: boolean;
+      ratio: number;
+      tileView: View | null;
     } | null = null;
     let redrawBackground = true;
     const layout = () => {
@@ -151,7 +156,14 @@ export function RouteMap({
         h = box.clientHeight;
       if (!w || !h) return false;
       const ready = !!detail?.naturalWidth;
-      if (view && view.w === w && view.h === h && view.ready === ready)
+      const ratio = Math.min(devicePixelRatio || 1, 2);
+      if (
+        view &&
+        view.w === w &&
+        view.h === h &&
+        view.ready === ready &&
+        view.ratio === ratio
+      )
         return true;
       const fx = w / 2,
         fy = h * 0.42;
@@ -192,7 +204,19 @@ export function RouteMap({
       const tx = w * 0.04,
         ty = small ? 64 : 75;
       const s = thumb / side;
-      view = { w, h, scale, cx, cy, fx, fy, thumbScale: s, ready };
+      view = {
+        w,
+        h,
+        scale,
+        cx,
+        cy,
+        fx,
+        fy,
+        thumbScale: s,
+        ready,
+        ratio,
+        tileView: tiled ? computeView(points, w, h, ratio) : null,
+      };
       redrawBackground = true;
       const cl = fx - side / 2,
         ct = fy - side / 2;
@@ -222,10 +246,60 @@ export function RouteMap({
       redrawBackground = true;
       schedule();
     };
+    function drawTiles(
+      target: CanvasRenderingContext2D,
+      map: View,
+      ratio: number,
+    ) {
+      const regionalZoom = Math.min(map.z, REGION_MAX_ZOOM);
+      const levels = new Set([
+        regionalZoom,
+        Math.max(regionalZoom, map.z - 1),
+        map.z,
+      ]);
+      const snap = (value: number) => Math.round(value * ratio) / ratio;
+      for (const z of levels) {
+        const { x0, x1, y0, y1 } = tilesFor(map, z);
+        const size = TILE / 2 ** z;
+        for (let y = y0; y <= y1; y++) {
+          const runs = detailTiles[z]?.[y];
+          for (let x = x0; x <= x1; x++) {
+            if (
+              z > REGION_MAX_ZOOM &&
+              !runs?.some(([first, last]) => x >= first! && x <= last!)
+            )
+              continue;
+            const path = `/journey-tiles/${z}/${x}/${y}.webp`;
+            let image = tileCache.get(path);
+            if (!image) {
+              image = new Image();
+              image.src = path;
+              tileCache.set(path, image);
+            }
+            if (!image.complete) {
+              image.onload = invalidate;
+              pendingTiles.add(image);
+            }
+            if (!image.naturalWidth) continue;
+            const left = map.fx + (x * size - map.cx) * map.k;
+            const top = map.fy + (y * size - map.cy) * map.k;
+            const right = left + size * map.k;
+            const bottom = top + size * map.k;
+            target.drawImage(
+              image,
+              snap(left),
+              snap(top),
+              snap(right) - snap(left),
+              snap(bottom) - snap(top),
+            );
+          }
+        }
+      }
+    }
     function draw(now: number) {
       frame = 0;
       if (!ctx || !background || !layout() || !view) return;
-      const { w, h, scale, cx, cy, fx, fy, thumbScale } = view;
+      const { w, h, scale, cx, cy, fx, fy, thumbScale, ratio, tileView } = view;
       // Keep the route and marker the same size on screen whether the map is
       // the corner thumbnail or full screen, including mid-transition.
       const css = getComputedStyle(box).transform;
@@ -235,7 +309,6 @@ export function RouteMap({
       const settling =
         Math.abs(shown - (moving ? 1 : thumbScale)) > 0.002 &&
         now - start < 1500;
-      const ratio = Math.min(devicePixelRatio || 1, 2);
       if (
         el.width !== Math.round(w * ratio) ||
         el.height !== Math.round(h * ratio)
@@ -244,10 +317,17 @@ export function RouteMap({
         el.height = Math.round(h * ratio);
       }
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      const xy = ([lon, lat]: Point): Point => [
-        fx + (lon - cx) * LON * scale,
-        fy - (lat - cy) * scale,
-      ];
+      const xy = (point: Point): Point => {
+        if (tileView) {
+          const [x, y] = project(point);
+          return [
+            fx + (x - tileView.cx) * tileView.k,
+            fy + (y - tileView.cy) * tileView.k,
+          ];
+        }
+        const [lon, lat] = point;
+        return [fx + (lon - cx) * LON * scale, fy - (lat - cy) * scale];
+      };
       const stroke = (
         line: Point[],
         color: string,
@@ -289,13 +369,8 @@ export function RouteMap({
         ) {
           if (img.naturalWidth) {
             const [x, y] = xy([west, north]);
-            background!.drawImage(
-              img,
-              x,
-              y,
-              width * LON * scale,
-              height * scale,
-            );
+            const [right, bottom] = xy([west + width, north - height]);
+            background!.drawImage(img, x, y, right - x, bottom - y);
           }
         }
         tile(base, 20, 38, 24, 20);
@@ -314,6 +389,7 @@ export function RouteMap({
             close.bounds.east - close.bounds.west,
             close.bounds.north - close.bounds.south,
           );
+        if (tileView) drawTiles(background, tileView, ratio);
         for (const s of scenes)
           stroke(s.route, '#fff1ccaa', 1.4, [], background);
         redrawBackground = false;
@@ -363,6 +439,7 @@ export function RouteMap({
       observer.disconnect();
       imagery.onload = base.onload = null;
       if (detail) detail.onload = null;
+      for (const image of pendingTiles) image.onload = null;
       cancelAnimationFrame(frame);
     };
   }, [scenes, index, moving, onArrival]);
