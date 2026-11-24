@@ -96,6 +96,29 @@ bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1
 bash "$repo/infra/deploy.sh" staging --rollback >> "$STELLA_ROOT/result" 2>&1
 [[ $(cat "$STELLA_ROOT/staging/releases/current") == "$sha_a" ]]
 echo 'PASS: successful deploy and explicit rollback record exact releases.'
+new_case staging-acceptance
+mkdir -p "$STELLA_ROOT/production/env" "$STELLA_ROOT/production/releases"
+cat > "$STELLA_ROOT/production/compose.env" <<CONF
+COMPOSE_PROJECT_NAME=stella-production
+DATA_DIR=$STELLA_ROOT/production
+ENV_DIR=$STELLA_ROOT/production/env
+POSTGRES_DB=stella_prod
+IMAGE_PREFIX=ghcr.io/test
+WEB_HOST=www.stella-sharm.invalid-but-real
+RELEASE=$sha_a
+CONF
+chmod 600 "$STELLA_ROOT/production/compose.env"
+if bash "$repo/infra/deploy.sh" production "$sha_c" > "$STELLA_ROOT/result" 2>&1; then echo 'Unaccepted commit reached production'; exit 1; fi
+grep -Fq 'no staging acceptance' "$STELLA_ROOT/result"
+[[ ! -s "$FAKE_TRACE" ]]
+if bash "$repo/infra/accept-staging.sh" "$sha_c" > "$STELLA_ROOT/result" 2>&1; then echo 'Accepted a commit staging is not running'; exit 1; fi
+[[ ! -e "$STELLA_ROOT/staging/releases/accepted/$sha_c" ]]
+bash "$repo/infra/accept-staging.sh" "$sha_a" > "$STELLA_ROOT/result" 2>&1
+grep -Fq 'accepted_by=' "$STELLA_ROOT/staging/releases/accepted/$sha_a"
+bash "$repo/infra/deploy.sh" production "$sha_a" > "$STELLA_ROOT/result" 2>&1 || true
+if grep -Fq 'no staging acceptance' "$STELLA_ROOT/result"; then echo 'Accepted commit was refused'; exit 1; fi
+grep -q "$sha_a|.*up -d --wait postgres" "$FAKE_TRACE"
+echo 'PASS: production deploys only commits accepted while running in staging.'
 new_case failed-migration
 export FAKE_MIGRATE_FAIL=1
 if bash "$repo/infra/deploy.sh" staging "$sha_c" > "$STELLA_ROOT/result" 2>&1; then exit 1; fi
@@ -191,4 +214,4 @@ grep -Fq 'stella-monitor@staging.service' "$STELLA_ROOT/alert-journal"
 grep -Fq 'https://alerts.example.test/hooks/synthetic-token' "$STELLA_ROOT/alert-config"
 if grep -Fq 'synthetic-token' "$STELLA_ROOT/alert-argv" "$STELLA_ROOT/alert-journal"; then exit 1; fi
 echo 'PASS: the alert sends only the unit event and keeps the webhook credential out of argv and logs.'
-echo '11 operational safety scenarios passed (simulated Docker and alert transport).'
+echo '12 operational safety scenarios passed (simulated Docker and alert transport).'

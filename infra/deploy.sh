@@ -14,6 +14,12 @@ else
   rollback=false
 fi
 [[ "$requested" =~ ^[a-f0-9]{40}$ ]] || { echo 'Only 40-character commit SHAs are accepted' >&2; exit 1; }
+# Production runs only commits a person accepted in staging (infra/accept-staging.sh).
+# Rolling back to the previous production release needs no new acceptance.
+if [[ "$ENVIRONMENT" == production && "$rollback" == false && ! -f "$STELLA_ROOT/staging/releases/accepted/$requested" ]]; then
+  echo "Production refused: $requested has no staging acceptance (run infra/accept-staging.sh in staging first)" >&2
+  exit 1
+fi
 export RELEASE=$requested
 export PROXY_CONFIG_DIR="$STATE_DIR/$requested/proxy"
 if [[ ! -d "$PROXY_CONFIG_DIR" ]]; then
