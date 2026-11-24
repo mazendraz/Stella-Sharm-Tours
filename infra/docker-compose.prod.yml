@@ -97,7 +97,13 @@ services:
       - path: ${ENV_DIR}/web.env
         format: raw
     environment: { NODE_ENV: production, API_INTERNAL_URL: 'http://api:4000' }
-    volumes: [webcache:/app/apps/web/.next/cache]
+    # The Next data cache must not outlive the process: Next keeps tag
+    # invalidations in memory only and stores only 200 responses, so a
+    # persisted cache served withdrawn trips/pages again after every restart
+    # or deploy (audit 2026-11-24 BUG-05). Cold reads after a restart are cheap.
+    tmpfs:
+      - '/tmp:size=256m,mode=1777'
+      - '/app/apps/web/.next/cache:size=64m,uid=1000,gid=1000,mode=0700'
     networks: [edge]
     healthcheck:
       test: [CMD, node, /app/infra/healthcheck.mjs, web]
@@ -177,7 +183,6 @@ services:
       retries: 3
 volumes:
   pgdata:
-  webcache:
 networks:
   internal: { internal: true }
   edge:

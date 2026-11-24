@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Website: withdrawn content stays withdrawn after a deploy** — the web container's Next data cache now lives in memory (`tmpfs`) instead of the persistent `webcache` volume. Next records cache invalidations only in memory and stores only successful responses, so after every restart the old volume served unpublished trips, collections and legal pages (and listed them in the sitemap) indefinitely. A CI regression (`infra/tests/withdrawn-content-restart.sh`) unpublishes a trip, restarts the web container and expects 404. Remove the old volume after deploying (runbook) (audit 2026-11-24 BUG-05).
+
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
 
 - **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
