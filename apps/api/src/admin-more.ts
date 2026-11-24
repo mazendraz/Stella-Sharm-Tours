@@ -1037,7 +1037,7 @@ export function registerMore(
               value.field === f.field
             );
           });
-          if (human && !stale && !draft) return [];
+          if ((human || row?.origin === 'human') && !stale && !draft) return [];
           return [
             {
               entity: f.entity,

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Admin translations** — approved departure, return and itinerary times stay out of the translation queue after a reload.
+
 - **Trip Stories** — connects the map renderer to the bundled satellite tiles, with lower-zoom imagery available while detailed tiles load.
 
 - **Staging deployment** — leaves the unused LibreTranslate URL unset so the worker starts with the fake provider, and starts private Mailpit as a worker dependency.
