@@ -3643,7 +3643,11 @@ describe('media, notifications, jobs and translation privacy', () => {
       },
     });
     expect(sent.some((mail) => mail.to === cfg.SEED_OWNER_EMAIL)).toBe(true);
-    expect(JSON.stringify(sent)).toContain('trip_prices');
+    // Readable, localized report (audit BUG-03), never raw audit JSON.
+    const report = sent.find((mail) => mail.to === cfg.SEED_OWNER_EMAIL)!;
+    expect(report.text).toContain('→');
+    expect(report.text).not.toContain('trip_prices');
+    expect(report.text).not.toContain('"amountEur"');
     expect(JSON.stringify(sent)).not.toContain('Synthetic QA visitor');
   });
   it('rejects SVG/PDF/malformed images by content, ignores the filename and strips metadata', async () => {
