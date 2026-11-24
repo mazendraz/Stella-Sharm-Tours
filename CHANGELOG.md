@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Docs** — README covers the Node 22/pnpm/Playwright toolchain on machines with a newer default Node; the security plan records decisions on the audit's low-severity items (SEC-03 lockout, SEC-04 in-memory limits, SEC-06 FFmpeg), the Git-history media and narrow-phone calendar targets (audit 2026-11-24).
+
+- **Dependencies (PR #2)** — vitest 4.1.12 + scoped esbuild/minimatch/glob overrides; `pnpm audit` clean including dev dependencies (audit SEC-01).
+
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
 
 - **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
