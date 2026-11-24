@@ -514,6 +514,7 @@ export default function RequestSheet({
                           type="button"
                           key={p.id}
                           className={'price-option' + (active ? ' active' : '')}
+                          data-price-id={p.id}
                           aria-pressed={active}
                           onClick={() => setPriceId(p.id)}
                         >

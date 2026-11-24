@@ -291,10 +291,21 @@ test('shows the dated primary option and asks for review when the estimate chang
       sheet.getByText(messages.quoteChooseDate, { exact: true }),
     ).toBeVisible();
     await sheet.locator('.range-day:enabled').first().click();
-    const selection = sheet.getByLabel(messages.priceOption, { exact: true });
-    await expect(selection).toHaveValue(quad + '-0');
+    // Price options are toggle buttons in a labelled group: the dated primary
+    // option is pre-selected even though it is not listed first.
+    const options = sheet.getByRole('group', {
+      name: messages.priceOption,
+      exact: true,
+    });
+    await expect(options.locator('[aria-pressed="true"]')).toHaveAttribute(
+      'data-price-id',
+      quad + '-0',
+    );
     expect(
-      await selection.locator('option').first().getAttribute('value'),
+      await options
+        .locator('[data-price-id]')
+        .first()
+        .getAttribute('data-price-id'),
     ).not.toBe(quad + '-0');
     await expect(sheet.locator('.quote-items li')).toContainText(figure(15));
     await expect(sheet.locator('.estimate')).toContainText(figure(15));
