@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
+
 - **Website: withdrawn content stays withdrawn after a deploy** — the web container's Next data cache now lives in memory (`tmpfs`) instead of the persistent `webcache` volume. Next records cache invalidations only in memory and stores only successful responses, so after every restart the old volume served unpublished trips, collections and legal pages (and listed them in the sitemap) indefinitely. A CI regression (`infra/tests/withdrawn-content-restart.sh`) unpublishes a trip, restarts the web container and expects 404. Remove the old volume after deploying (runbook) (audit 2026-11-24 BUG-05).
 
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
