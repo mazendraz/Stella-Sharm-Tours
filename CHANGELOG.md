@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
+
 - **Owner e-mails in seven languages** — the weekly price report and the translation-budget notice follow `OWNER_REPORT_LOCALE` (EN/IT/ES/FR/DE/RU/TR); the price report lists readable changes ("Tiran Island by Boat — Price: €35 → €40") instead of raw audit JSON (audit BUG-03).
 
 - **Production requires staging acceptance** — `infra/accept-staging.sh <SHA>` records that staging ran and passed checks on that commit; `deploy.sh production` refuses unaccepted commits (rollback exempt) (audit SEC-02).
