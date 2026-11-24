@@ -92,6 +92,7 @@
   "pause": "Pausar historias",
   "play": "Reanudar historias",
   "galleryCount": "Foto {current} de {total}",
+  "galleryLabel": "Fotos del tour",
   "day": "Día {day}",
   "beachDay": "Día de playa",
   "beachSub": "Un día libre tras una excursión nocturna. Quítalo si no lo necesitas.",

@@ -92,6 +92,7 @@
   "pause": "Stories pausieren",
   "play": "Stories abspielen",
   "galleryCount": "Foto {current} von {total}",
+  "galleryLabel": "Fotos der Tour",
   "day": "Tag {day}",
   "beachDay": "Strandtag",
   "beachSub": "Ein freier Tag nach einem Nachtausflug. Entferne ihn, wenn du ihn nicht brauchst.",

@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { printScanSummary } from './scan-summary.mjs';
 import { mkdir, mkdtemp, copyFile, writeFile, chmod } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -58,6 +59,10 @@ const scan = spawnSync(
     'ALL',
     '--security-opt',
     'no-new-privileges',
+    // The scan copy is owner-only (0600); read it as the same user on Linux/macOS.
+    ...(process.getuid
+      ? ['--user', process.getuid() + ':' + process.getgid()]
+      : []),
     '--tmpfs',
     '/tmp:rw,noexec,nosuid,size=64m',
     '-e',
@@ -73,6 +78,8 @@ const scan = spawnSync(
     '/scan/history.git',
     '--redact',
     '--no-banner',
+    // Findings stay redacted; verbose adds rule/file/line for the summary.
+    '--verbose',
     '--log-opts=--all',
     '--config',
     '/scan/gitleaks.toml',
@@ -98,4 +105,5 @@ await writeFile(
   { mode: 0o600 },
 );
 console.log(JSON.stringify(result));
+if (result.exitCode !== 0) printScanSummary(scan.stdout + scan.stderr);
 process.exitCode = result.exitCode;

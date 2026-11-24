@@ -92,6 +92,7 @@
   "pause": "Hikâyeleri duraklat",
   "play": "Hikâyeleri oynat",
   "galleryCount": "Fotoğraf {current} / {total}",
+  "galleryLabel": "Tur fotoğrafları",
   "day": "{day}. gün",
   "beachDay": "Plaj günü",
   "beachSub": "Gece turundan sonra serbest bir gün. İhtiyacınız yoksa kaldırın.",

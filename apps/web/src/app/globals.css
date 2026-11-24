@@ -114,6 +114,11 @@ textarea:focus-visible {
   outline: 3px solid var(--history);
   outline-offset: 4px;
 }
+/* Edge-to-edge scroll region: draw the focus ring inside so it is not clipped. */
+.gallery:focus-visible {
+  outline: 3px solid var(--history);
+  outline-offset: -3px;
+}
 button,
 a,
 summary {

@@ -6,3 +6,13 @@ description = "Ignored local tools, generated credentials and third-party binari
 regexTarget = "secret"
 regexes = ['''^i18n_glossary$''']
 paths = ['''(^|/)\.local/''', '''(^|/)\.tools/''', '''(^|/)node_modules/''', '''(^|/)\.pnpm-store/''', '''(^|/)\.next/''', '''(^|/)\.git/''', '''\.(woff2?|ttf|png|jpg|mp4|ico)$''']
+
+# Extend the default generic-api-key rule only.
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "Video slugs (lowercase-hyphenated ids) in the film-review manifests, not credentials"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^[a-z0-9]+(?:-[a-z0-9]+)+$''']
+paths = ['''(^|/)(Stella-Videos|reports/stella-film-review)/(manifest\.json|index\.html)$''']

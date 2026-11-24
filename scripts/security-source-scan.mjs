@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { printScanSummary } from './scan-summary.mjs';
 import { mkdir, readFile, writeFile, lstat } from 'node:fs/promises';
 import { resolve, dirname, basename, extname, relative } from 'node:path';
 // Only publishable text sources enter the scanner. No workspace/env mount.
@@ -108,6 +109,10 @@ const scan = spawnSync(
     'ALL',
     '--security-opt',
     'no-new-privileges',
+    // The scan copy is owner-only (0600); read it as the same user on Linux/macOS.
+    ...(process.getuid
+      ? ['--user', process.getuid() + ':' + process.getgid()]
+      : []),
     '--tmpfs',
     '/tmp:rw,noexec,nosuid,size=64m',
     '-v',
@@ -117,6 +122,8 @@ const scan = spawnSync(
     '/src',
     '--redact',
     '--no-banner',
+    // Findings stay redacted; verbose adds rule/file/line for the summary.
+    '--verbose',
     '--config',
     '/src/.gitleaks.toml',
   ],
@@ -135,4 +142,5 @@ console.log(
     network: 'none',
   }),
 );
+if (scan.status !== 0) printScanSummary(scan.stdout + scan.stderr);
 process.exitCode = scan.status ?? 1;
