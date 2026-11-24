@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable touch-target checks** — the 44 px assertions in the booking calendar tests allow for layout-unit rounding, which reported an exactly-44 px cell as 43.99994 px and failed at random (audit 2026-11-24 BUG-07).
+
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
 
 - **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
