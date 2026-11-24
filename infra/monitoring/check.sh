@@ -8,6 +8,16 @@ for service in api worker web admin caddy postgres; do
   container=$(compose ps -q "$service")
   [[ -n "$container" && $(docker inspect --format '{{.State.Health.Status}}' "$container") == healthy ]] || { echo "Unhealthy service: $service" >&2; exit 1; }
 done
+# The website must show what the API serves: prices and withdrawn trips
+# (audit 2026-11-24 BUG-06). Exit 1 = stale beyond the cache window.
+consistency=0
+compose exec -T web node --input-type=module - <"$(dirname -- "$0")/cache-consistency.mjs" || consistency=$?
+if [[ "$consistency" -eq 1 ]]; then
+  echo 'Website shows content that differs from the API (cache not refreshing)' >&2
+  exit 1
+elif [[ "$consistency" -ne 0 ]]; then
+  echo 'WARNING: website/API consistency could not be checked.' >&2
+fi
 used=$(df -P "$DATA_DIR" | awk 'NR==2 {gsub(/%/,"",$5); print $5}')
 [[ "$used" -lt 80 ]] || { echo 'Disk utilization at or above 80%' >&2; exit 1; }
 if [[ "$ENVIRONMENT" == production ]]; then

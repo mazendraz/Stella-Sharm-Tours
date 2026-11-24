@@ -38,6 +38,15 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     parsed.data.tags.forEach((tag) => revalidateTag(tag));
+    // One line per invalidation so operators can match staff edits to cache
+    // refreshes (audit 2026-11-24 BUG-06). Tags are public slugs only.
+    console.info(
+      JSON.stringify({
+        event: 'cache_revalidated',
+        at: new Date().toISOString(),
+        tags: parsed.data.tags,
+      }),
+    );
     return Response.json({ revalidated: true });
   } catch (error) {
     if (error instanceof BodyReadError)
