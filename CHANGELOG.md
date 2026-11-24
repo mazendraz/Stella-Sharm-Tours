@@ -4,6 +4,10 @@
 
 - **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
 
+- **Docs** — README covers the Node 22/pnpm/Playwright toolchain on machines with a newer default Node; the security plan records decisions on the audit's low-severity items (SEC-03 lockout, SEC-04 in-memory limits, SEC-06 FFmpeg), the Git-history media and narrow-phone calendar targets (audit 2026-11-24).
+
+- **Dependencies (PR #2)** — vitest 4.1.12 + scoped esbuild/minimatch/glob overrides; `pnpm audit` clean including dev dependencies (audit SEC-01).
+
 - **Release jobs drop the checkout token** — the image build and deploy jobs check out with `persist-credentials: false`, as CI already did (audit 2026-11-24 SEC-05).
 
 - **Smaller Docker build context** — `.dockerignore` excludes local media, reports, research notes and audit copies, and re-includes only the three stock files the API image needs (re-including whole directories brought back 399 MB of stock video). Build context 1.35 GB → 104 MB (audit 2026-11-24 BUG-04).

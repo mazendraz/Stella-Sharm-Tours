@@ -40,6 +40,11 @@ Start here: `AGENTS.md` → `docs/00-overview.md`.
 Prerequisites: Node 22, pnpm 10.34.9, Docker Compose v2 and FFmpeg/ffprobe
 with H.264/HEVC support. On Windows set `FFMPEG_PATH`/`FFPROBE_PATH` if the
 tools are not in `.tools/ffmpeg/`; on Linux they can come from PATH.
+`engine-strict` refuses other Node majors: if your default Node is newer, put
+`.tools/node_modules/node-win-x64/bin` (Windows) first on `PATH`, and make sure a
+real `pnpm` executable is on `PATH` (Turbo cannot use a shell alias). Browser
+tests need Playwright's pinned Chromium: `pnpm exec playwright install chromium`
+(or set `PLAYWRIGHT_CHANNEL=chrome` to use an installed Chrome).
 Run from the repository root **only for a fresh checkout**:
 
 ```sh

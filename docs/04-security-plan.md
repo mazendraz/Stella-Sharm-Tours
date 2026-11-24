@@ -132,3 +132,30 @@ Covered in the backend plan §5. Extra: uploads go to a quarantine dir; only pro
 - [x] Calendar-based purge/history scrubbing + verified export/erase API; unpublished policy drafts in seven locales.
 - [ ] Approved privacy policy publication with legal identity/contact/processors/transfers/external retention.
 - [ ] Pre-launch: run OWASP ZAP baseline scan against staging, fix all medium+ findings
+
+## 11. Accepted risks and follow-ups (audit 2026-11-24)
+
+The full audit is in `audit/2026-11-24/` on the auditor's workstation. Decisions
+on its low/informational security items:
+
+- **Staff account lockout (SEC-03).** Anyone who knows a staff e-mail can keep the
+  account locked for up to an hour. Kept deliberately: the lockout also slows
+  password guessing for editors and sales staff, who may not use TOTP. Owner
+  decision pending on exempting TOTP-enabled accounts.
+- **In-memory public read limits (SEC-04).** Reset on restart and evict the
+  oldest callers above 10,000 keys. Accepted for a single VPS; booking, quote and
+  login limits are stored in PostgreSQL and unaffected. Add a Caddy rate limit
+  if abuse is observed.
+- **FFmpeg on uploads (SEC-06).** Only authenticated staff can upload; probing
+  runs with a protocol whitelist, timeouts, a scrubbed environment and a
+  read-only, capability-free container. Rebuild images when Debian publishes
+  FFmpeg security updates.
+- **Staging acceptance (SEC-02)** is now enforced by `infra/accept-staging.sh`
+  and `infra/deploy.sh`; GitHub environment reviewers remain a recommended
+  second control (repository settings, not code).
+- **Repository history (BUG-04).** ~585 MB of ignored media remains in Git
+  history. Removing it needs an owner-approved history rewrite; untracking alone
+  would delete the files from every checkout on the next pull.
+- **Calendar touch targets below 390 px.** Day cells are `1fr` of a 7-column grid,
+  so on phones narrower than 390 px they are under 44 px wide (still above the
+  WCAG 2.2 AA 24 px minimum). Needs a design decision on the sheet's padding.
