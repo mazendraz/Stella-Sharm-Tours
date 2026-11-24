@@ -41,6 +41,7 @@ jobs:
       - run: docker build -f infra/Dockerfile --target api -t stella-ci-media . && chmod +x infra/ci-*.sh
       - run: pnpm test:prepare && pnpm security:setup
       - run: pnpm typecheck && pnpm lint && pnpm test
+      - run: shellcheck scripts/check-schema-drift.sh && bash scripts/check-schema-drift.sh
       - run: pnpm test:integration
       - run: pnpm build
       - run: pnpm security:scan:source && pnpm security:scan:history
