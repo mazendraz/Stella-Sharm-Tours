@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
+
 - **Production requires staging acceptance** — `infra/accept-staging.sh <SHA>` records that staging ran and passed checks on that commit; `deploy.sh production` refuses unaccepted commits (rollback exempt) (audit SEC-02).
 
 - **Database: Drizzle snapshot** — adds the missing snapshot for the hand-written migrations 0009–0012, so `pnpm db:generate` no longer re-emits existing tables, columns and indexes. CI runs `scripts/check-schema-drift.sh` (audit BUG-01). No migration runs.
