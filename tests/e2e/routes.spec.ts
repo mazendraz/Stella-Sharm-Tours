@@ -225,6 +225,9 @@ test('request validation, public boundaries and localized 404', async ({
   await expect(sheet.locator('.range-field .field-error')).toHaveCount(0);
 });
 test('responsive screen inventory', async ({ page }, info) => {
+  // Many full-page screenshots: ~24 s on an idle runner, over the 30 s
+  // default when runners are busy.
+  test.setTimeout(60_000);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const width =
     info.project.name === 'mobile'

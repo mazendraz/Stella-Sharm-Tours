@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
+
 - **Release jobs drop the checkout token** — the image build and deploy jobs check out with `persist-credentials: false`, as CI already did (audit 2026-11-24 SEC-05).
 
 - **Smaller Docker build context** — `.dockerignore` excludes local media, reports, research notes and audit copies, and re-includes only the three stock files the API image needs (re-including whole directories brought back 399 MB of stock video). Build context 1.35 GB → 104 MB (audit 2026-11-24 BUG-04).
