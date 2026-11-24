@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Trip Stories** — connects the map renderer to the bundled satellite tiles, with lower-zoom imagery available while detailed tiles load.
+
+- **Staging deployment** — leaves the unused LibreTranslate URL unset so the worker starts with the fake provider, and starts private Mailpit as a worker dependency.
+
 - **Audit records** — adds the 2026-11-24 full-system audit (`audit/2026-11-24/`: reports, remediation log for PRs #3–#13, raw evidence and reproduction scripts) and the 2026-11-23 production-readiness reports (`reports/production-readiness-2026-11-23/`), which had only been committed on an unpushed local branch. Both were scanned with gitleaks; they contain no secrets or customer data.
 
 - **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
