@@ -41,6 +41,7 @@ jobs:
       - run: docker build -f infra/Dockerfile --target api -t stella-ci-media . && chmod +x infra/ci-*.sh
       - run: pnpm test:prepare && pnpm security:setup
       - run: pnpm typecheck && pnpm lint && pnpm test
+      - run: shellcheck scripts/check-schema-drift.sh && bash scripts/check-schema-drift.sh
       - run: pnpm test:integration
       - run: pnpm build
       - run: pnpm security:scan:source && pnpm security:scan:history
@@ -92,6 +93,9 @@ jobs:
           "${compose[@]}" up --detach --wait api worker web admin caddy
           pnpm test:e2e:integration languages.spec.ts private-booking.spec.ts admin.spec.ts --project mobile
           pnpm test:e2e:admin dashboard.spec.ts --project mobile
+          # Withdrawn content must stay withdrawn across a web restart (BUG-05).
+          shellcheck infra/tests/withdrawn-content-restart.sh
+          bash infra/tests/withdrawn-content-restart.sh
       - name: Production dependency audit
         if: ${{ !cancelled() }}
         run: pnpm audit --prod --audit-level moderate
