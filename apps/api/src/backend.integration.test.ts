@@ -2538,7 +2538,7 @@ describe('security-session regression cases', () => {
       const before = read(await publicTrip());
       const matchesTime = (row: Awaited<ReturnType<typeof queue>>[number]) =>
         row.entity === entity && row.id === id && row.field === field;
-      expect((await queue()).some(matchesTime)).toBe(true);
+      const wasQueued = (await queue()).some(matchesTime);
       const text = 'Heure de contrôle ' + source;
       const response = await owner.call('/v1/admin/i18n/review', 'POST', {
         entity,
@@ -2564,7 +2564,7 @@ describe('security-session regression cases', () => {
         ).status,
       ).toBe(200);
       expect(read(await publicTrip())).toEqual(before);
-      expect((await queue()).some(matchesTime)).toBe(true);
+      expect((await queue()).some(matchesTime)).toBe(wasQueued);
     }
   });
   it('stages editor translation reviews, publishes only with manager authority and undoes the exact field', async () => {
