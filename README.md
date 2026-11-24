@@ -104,6 +104,8 @@ frozen install/tooling/health checks. CI now enforces formatting and uses separa
 `pnpm security:scan:source` / `pnpm security:scan:history` commands; the latter
 requires full, committed Git history and fails on empty/shallow repositories.
 `pnpm test:security:history` verifies that boundary with synthetic local histories.
+Browser tests save screenshots in the ignored `test-results/screens/`; run them
+with `UPDATE_SCREENS=1` only to refresh the reviewed copies in `docs/screens/`.
 Generated Drizzle/OpenAPI snapshots remain owned by their generators.
 
 The original workflow below is retained as reference. The active user instruction
