@@ -92,6 +92,7 @@
   "pause": "Pause stories",
   "play": "Play stories",
   "galleryCount": "Photo {current} of {total}",
+  "galleryLabel": "Trip photos",
   "day": "Day {day}",
   "beachDay": "Beach day",
   "beachSub": "A free day after an overnight trip. Remove it if you don't need it.",

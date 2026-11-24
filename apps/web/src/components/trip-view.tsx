@@ -103,6 +103,11 @@ export function TripView({
     <article className="trip-view">
       <div
         className="gallery"
+        // A horizontally scrolling region must be reachable by keyboard so
+        // arrow keys can move between photos (WCAG 2.1.1).
+        role="region"
+        aria-label={t('galleryLabel')}
+        tabIndex={0}
         onScroll={(e) =>
           setSlide(
             Math.round(
