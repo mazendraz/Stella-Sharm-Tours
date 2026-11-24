@@ -2500,6 +2500,15 @@ describe('security-session regression cases', () => {
           await app.request('/v1/public/trips/' + trip!.slug + '?locale=fr')
         ).json(),
       );
+    const queue = async () => {
+      const response = await owner.call('/v1/admin/i18n/queue?locale=fr');
+      expect(response.status).toBe(200);
+      return (await response.json()) as Array<{
+        entity: string;
+        id: string;
+        field: string;
+      }>;
+    };
     for (const [entity, id, field, source, read] of [
       [
         'trip',
@@ -2527,6 +2536,9 @@ describe('security-session regression cases', () => {
       ],
     ] as const) {
       const before = read(await publicTrip());
+      const matchesTime = (row: Awaited<ReturnType<typeof queue>>[number]) =>
+        row.entity === entity && row.id === id && row.field === field;
+      expect((await queue()).some(matchesTime)).toBe(true);
       const text = 'Heure de contrôle ' + source;
       const response = await owner.call('/v1/admin/i18n/review', 'POST', {
         entity,
@@ -2538,6 +2550,7 @@ describe('security-session regression cases', () => {
       });
       expect(response.status).toBe(200);
       expect(read(await publicTrip())).toContain(text);
+      expect((await queue()).some(matchesTime)).toBe(false);
       const revision = response.headers
         .get('X-Stella-Revisions')!
         .split(',')[0];
@@ -2551,6 +2564,7 @@ describe('security-session regression cases', () => {
         ).status,
       ).toBe(200);
       expect(read(await publicTrip())).toEqual(before);
+      expect((await queue()).some(matchesTime)).toBe(true);
     }
   });
   it('stages editor translation reviews, publishes only with manager authority and undoes the exact field', async () => {
