@@ -14,6 +14,7 @@ import fr from '../../apps/admin/messages/fr.json' with { type: 'json' };
 import de from '../../apps/admin/messages/de.json' with { type: 'json' };
 import ru from '../../apps/admin/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/admin/messages/tr.json' with { type: 'json' };
+import { screenPath } from '../screens';
 const messages = { en, it, es, fr, de, ru, tr };
 const otp = createRequire(resolve('apps/api/package.json'))(
   'otplib',
@@ -56,7 +57,7 @@ test('seven-language login and authenticated navigation, accessibility and priva
       ],
     );
     await page.goto('/');
-    const handoffDirectory = `docs/screens/current/admin/${info.project.name}`;
+    const handoffDirectory = screenPath('current', 'admin', info.project.name);
     if (process.env.STELLA_INTEGRATION_VERIFY === '1')
       await mkdir(handoffDirectory, { recursive: true });
     for (const locale of locales) {
