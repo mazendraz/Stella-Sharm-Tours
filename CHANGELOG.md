@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Stable screen-inventory test** — the responsive screen inventory takes many full-page screenshots (~24 s on an idle CI runner) and timed out at the 30 s default on busy runners; it now has 60 s, like the other screenshot-heavy tests.
+
 - **Database: Drizzle snapshot** — adds the missing snapshot for the hand-written migrations 0009–0012, so `pnpm db:generate` no longer re-emits existing tables, columns and indexes. CI runs `scripts/check-schema-drift.sh` (audit BUG-01). No migration runs.
 
 - **Monitoring: website/API consistency** — `check.sh` (5-minute monitor and post-deploy gate) compares availability and priced offers between the API and the rendered pages, rotating through all trips; a difference lasting past the cache window alerts and fails a deploy. The web container logs each accepted cache refresh (tag names only) (audit BUG-06).
