@@ -1,0 +1,4 @@
+
+> stella-sharm-tours@0.0.0 lint F:\stella-project-kit
+> eslint . --max-warnings 0
+

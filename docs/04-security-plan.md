@@ -135,7 +135,7 @@ Covered in the backend plan §5. Extra: uploads go to a quarantine dir; only pro
 
 ## 11. Accepted risks and follow-ups (audit 2026-11-24)
 
-The full audit is in `audit/2026-11-24/` on the auditor's workstation. Decisions
+The full audit, evidence and reproduction scripts are in `audit/2026-11-24/`. Decisions
 on its low/informational security items:
 
 - **Staff account lockout (SEC-03).** Anyone who knows a staff e-mail can keep the

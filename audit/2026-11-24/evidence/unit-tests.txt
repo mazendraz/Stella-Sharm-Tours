@@ -1,0 +1,38 @@
+
+> stella-sharm-tours@0.0.0 test F:\stella-project-kit
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mF:/stella-project-kit[39m
+
+ [32m✓[39m packages/shared/src/window-limiter.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m packages/shared/src/error-summary.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m packages/shared/src/operational-errors.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m packages/shared/src/csv.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m packages/shared/src/ip.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m packages/shared/src/card-trip.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m packages/shared/src/retention.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m packages/shared/src/bounded-body.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 58[2mms[22m[39m
+ [32m✓[39m packages/shared/src/readiness.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m packages/shared/src/analytics.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m packages/shared/src/env.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+ [32m✓[39m apps/admin/src/lib/loc.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m packages/shared/src/messages.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m packages/shared/src/i18n/core-content.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 136[2mms[22m[39m
+ [32m✓[39m apps/web/cache-revalidation.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m packages/shared/src/hero.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m packages/shared/src/story.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 333[2mms[22m[39m
+ [32m✓[39m packages/shared/src/frontend.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 71[2mms[22m[39m
+ [32m✓[39m apps/admin/src/lib/messages.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 184[2mms[22m[39m
+ [32m✓[39m apps/api/src/backend.test.ts [2m([22m[2m63 tests[22m[2m)[22m[33m 678[2mms[22m[39m
+   [33m[2m✓[22m[39m admin search patterns[2m > [22mmatches %, _ and backslash literally [33m 527[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m20 passed[39m[22m[90m (20)[39m
+[2m      Tests [22m [1m[32m150 passed[39m[22m[90m (150)[39m
+[2m   Start at [22m 03:29:01
+[2m   Duration [22m 2.68s[2m (transform 1.97s, setup 0ms, collect 7.01s, tests 1.58s, environment 5ms, prepare 3.87s)[22m
+
+
+real	0m3.680s
+user	0m0.000s
+sys	0m0.015s
