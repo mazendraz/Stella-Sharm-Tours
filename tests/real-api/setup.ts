@@ -1,7 +1,7 @@
 import { parseEnv } from 'node:util';
 import { readFile } from 'node:fs/promises';
 import { createHmac } from 'node:crypto';
-import { rateLimitAddress } from '@stella/shared/ip';
+import { rateLimitAddress } from '../../packages/shared/src/ip';
 import { connectDatabase } from '../../packages/db/src/index';
 export async function localDatabase(
   mode: 'development' | 'verification' = 'development',

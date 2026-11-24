@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto';
-import { rateLimitAddress } from '@stella/shared/ip';
+import { rateLimitAddress } from '../../packages/shared/src/ip';
 import { localDatabase } from '../real-api/setup';
 export default async function setup() {
   const verification = process.env.STELLA_INTEGRATION_VERIFY === '1',
