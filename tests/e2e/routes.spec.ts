@@ -7,6 +7,7 @@ import de from '../../apps/web/messages/de.json' with { type: 'json' };
 import ru from '../../apps/web/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/web/messages/tr.json' with { type: 'json' };
 import { screenPath } from '../screens';
+import { minTarget } from '../targets';
 
 test('a missing trip offers recovery in each core language', async ({
   page,
@@ -217,8 +218,8 @@ test('request validation, public boundaries and localized 404', async ({
   await expect(firstDay).toBeFocused();
   await expect(firstDay).toHaveAccessibleDescription(en.invalid);
   const { width, height } = (await firstDay.boundingBox())!;
-  expect(width).toBeGreaterThanOrEqual(44);
-  expect(height).toBeGreaterThanOrEqual(44);
+  expect(width).toBeGreaterThanOrEqual(minTarget);
+  expect(height).toBeGreaterThanOrEqual(minTarget);
   await page.keyboard.press('Enter');
   await expect(firstDay).toHaveAttribute('aria-pressed', 'true');
   await expect(sheet.locator('.range-field .field-error')).toHaveCount(0);
