@@ -12,6 +12,8 @@ services:
         ipv4_address: 172.30.19.3
         aliases: [stella-staging-gateway]
   worker:
+    depends_on:
+      mailpit: { condition: service_started }
     # NEVER point staging at a customer/staff SMTP server.
     environment:
       NODE_ENV: test
@@ -23,7 +25,8 @@ services:
       TRANSLATE_PROVIDER: fake
       DEEPL_API_KEY: ''
       GOOGLE_TRANSLATE_KEY: ''
-      LIBRETRANSLATE_URL: ''
+      # The worker validates this optional setting as a URL when present.
+      LIBRETRANSLATE_URL: !reset null
   mailpit:
     image: axllent/mailpit:v1.33.1
     restart: unless-stopped
