@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Database: Drizzle snapshot** — adds the missing snapshot for the hand-written migrations 0009–0012, so `pnpm db:generate` no longer re-emits existing tables, columns and indexes. CI runs `scripts/check-schema-drift.sh` (audit BUG-01). No migration runs.
+
 - **Toolchain** — pnpm overrides and the Next.js patch move from `package.json` to `pnpm-workspace.yaml`, where every pnpm version reads them, and `.npmrc` enforces the Node 22 engine (audit QUAL-02).
 
 - **Privacy: erasure survives restores** — each erasure records a keyed hash of the phone number in a new `privacy_erasures` ledger (migration 0012). The API re-applies it at start-up, so restoring a backup cannot bring erased requests back; later bookings by the same customer are kept (audit SEC-10, DB-01). Runbook updated.
