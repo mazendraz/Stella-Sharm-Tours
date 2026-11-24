@@ -95,6 +95,9 @@ jobs:
       - name: Production dependency audit
         if: ${{ !cancelled() }}
         run: pnpm audit --prod --audit-level moderate
+      - name: Tests leave tracked files unchanged
+        # Screenshots belong in test-results/ unless UPDATE_SCREENS=1 (BUG-02).
+        run: git diff --exit-code --stat
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
