@@ -24,7 +24,6 @@ export type Localized = { en: string } & Partial<
   Record<Locale, string | undefined>
 >;
 const citext = customType<{ data: string }>({ dataType: () => 'citext' });
-const bytea = customType<{ data: Buffer }>({ dataType: () => 'bytea' });
 const id = () => uuid('id').primaryKey().defaultRandom();
 const created = () =>
   timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
@@ -43,11 +42,6 @@ export const adminUsers = pgTable(
     role: text('role', {
       enum: ['owner', 'manager', 'editor', 'sales'],
     }).notNull(),
-    totpSecretEnc: bytea('totp_secret_enc'),
-    totpEnabled: boolean('totp_enabled').notNull().default(false),
-    mfaRequired: boolean('mfa_required').notNull().default(false),
-    recoveryCodesHash: text('recovery_codes_hash').array(),
-    lastTotpStep: bigint('last_totp_step', { mode: 'number' }),
     failedLogins: integer('failed_logins').notNull().default(0),
     lockedUntil: timestamp('locked_until', { withTimezone: true }),
     lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
@@ -548,7 +542,6 @@ export const sessions = pgTable(
       .defaultNow(),
     ipHash: text('ip_hash'),
     userAgent: text('user_agent'),
-    mfaPassed: boolean('mfa_passed').notNull().default(false),
     reauthAt: timestamp('reauth_at', { withTimezone: true }),
   },
   (t) => [index('sessions_user').on(t.userId)],

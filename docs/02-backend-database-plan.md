@@ -295,7 +295,7 @@ Body (zod): `{ mode, items:[{ trip_slug, price_id?, hours?, day_index? }], start
 ## 8. Tests
 
 - Unit: price calculator, day ordering, ref generator, zod schemas.
-- Integration (Testcontainers Postgres): seed, public endpoints, request creation, auth + 2FA, RBAC matrix, upload rejection cases.
+- Integration (Testcontainers Postgres): seed, public endpoints, request creation, auth, RBAC matrix, upload rejection cases.
 - Contract: OpenAPI snapshot.
 
 ## 9. Tasks

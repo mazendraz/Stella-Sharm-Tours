@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Check, Minus } from 'lucide-react';
 import type { Role } from '@stella/shared/admin';
 import { useAdmin, useData } from '../lib/admin-context';
 import { type Row } from '../lib/content';
@@ -64,22 +63,6 @@ export function Team() {
       cell: (row) => String(row.email),
     },
     { key: 'role', header: t('role'), cell: (row) => t(String(row.role)) },
-    {
-      key: 'mfa',
-      header: t('twoStepShort'),
-      cell: (row) =>
-        row.totpEnabled ? (
-          <span className="yes">
-            <Check size={16} aria-hidden />
-            <span className="sr-only">{t('yes')}</span>
-          </span>
-        ) : (
-          <span className="muted">
-            <Minus size={16} aria-hidden />
-            <span className="sr-only">{t('no')}</span>
-          </span>
-        ),
-    },
     {
       key: 'login',
       header: t('lastLogin'),
@@ -320,18 +303,6 @@ export function Member({ id }: { id: string }) {
                 t('roleChanged', { name: String(row.name), role: t(role) }),
               );
           }}
-        />
-        <Toggle
-          checked={!!row.mfaRequired}
-          disabled={busy}
-          onChange={(mfaRequired) =>
-            void patch(
-              { mfaRequired },
-              t(mfaRequired ? 'mfaNowRequired' : 'mfaNoLongerRequired'),
-            )
-          }
-          label={t('requireTwoStep')}
-          hint={row.totpEnabled ? t('twoStepOn') : t('twoStepOff')}
         />
         <Toggle
           checked={!!row.disabledAt}

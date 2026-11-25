@@ -94,8 +94,6 @@ export function registerMore(
         email: s.adminUsers.email,
         name: s.adminUsers.name,
         role: s.adminUsers.role,
-        totpEnabled: s.adminUsers.totpEnabled,
-        mfaRequired: s.adminUsers.mfaRequired,
         disabledAt: s.adminUsers.disabledAt,
         lastLoginAt: s.adminUsers.lastLoginAt,
       })
@@ -111,7 +109,6 @@ export function registerMore(
           email: z.email().max(254),
           name: z.string().trim().min(1).max(80),
           role: z.enum(roles),
-          mfaRequired: z.boolean().optional(),
         }),
       ),
       raw = opaque();
@@ -157,7 +154,6 @@ export function registerMore(
           name: z.string().trim().min(1).max(80).optional(),
           role: z.enum(roles).optional(),
           disabled: z.boolean().optional(),
-          mfaRequired: z.boolean().optional(),
         }),
       );
     await db.transaction(async (tx) => {
@@ -195,15 +191,12 @@ export function registerMore(
         .set({
           ...(b.name ? { name: b.name } : {}),
           ...(b.role ? { role: b.role } : {}),
-          ...(b.mfaRequired !== undefined
-            ? { mfaRequired: b.mfaRequired }
-            : {}),
           ...(b.disabled !== undefined
             ? { disabledAt: b.disabled ? new Date() : null }
             : {}),
         })
         .where(eq(s.adminUsers.id, id));
-      if (b.role || b.disabled !== undefined || b.mfaRequired !== undefined)
+      if (b.role || b.disabled !== undefined)
         await tx.delete(s.sessions).where(eq(s.sessions.userId, id));
       await tx.insert(s.auditLog).values({
         userId: c.get('principal').id,

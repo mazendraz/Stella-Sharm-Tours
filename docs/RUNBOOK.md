@@ -180,8 +180,8 @@ staff roles/keys, disk, dead content, secret rotation and restore evidence.
 File-04 security upgrade: run the additive DB migration before starting new
 API/workers. Session IDs now use HMAC-SHA-256 keyed by `SESSION_SECRET`; existing
 staff cookies need a fresh login. Rotating that secret invalidates all active
-cookies immediately. Never rotate `TOTP_ENC_KEY` without a planned encrypted-secret
-migration/recovery procedure. Device recognition is notification-only (90 days),
+cookies immediately. Rotating `TOTP_ENC_KEY` only voids setup/reset links that are
+still queued for email; reissue them afterwards. Device recognition is notification-only (90 days),
 not a trusted login factor. New-device email uses `OWNER_REPORT_LOCALE` and the
 actual account email; test delivery before launch. Dashboard routes arrive in 05.
 
@@ -213,9 +213,9 @@ The original owner link is written privately during seed. Never reseed to reset 
 password. On generated localhost development only, `pnpm admin:setup-link`
 refreshes an unfinished owner's one-use setup token; an established password is
 preserved. Use dashboard reset/invite flows and the configured mail transport for
-other accounts. Owners/managers always need MFA; the owner can require it for
-other roles. Role/MFA policy changes revoke existing sessions. Recovery codes
-are displayed once and must be stored privately by their owner.
+other accounts. Staff sign in with email + password only (no two-step
+verification, owner decision 2026-11-25). Role changes and disabling an account
+revoke its existing sessions.
 
 Optional push: generate a VAPID pair with the installed `web-push` library in a
 trusted terminal, store the private output outside Git, and set

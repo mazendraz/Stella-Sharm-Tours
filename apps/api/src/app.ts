@@ -480,7 +480,7 @@ export function createApp(
       await next();
     };
     if (contract.anonymous) return validate();
-    return auth.guard(contract.permission, contract.pending)(c, validate);
+    return auth.guard(contract.permission)(c, validate);
   });
   auth.register(app);
   registerAdmin(app, db, cfg, auth);

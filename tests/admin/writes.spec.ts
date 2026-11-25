@@ -1,22 +1,17 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
-import { passwordHash, seal } from '../../apps/api/src/auth';
+import { passwordHash } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import { locales } from '../../packages/shared/src/index';
 import { bundledCoreText } from '../../packages/shared/src/i18n/core-content';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
-const otp = createRequire(resolve('apps/api/package.json'))(
-  'otplib',
-) as typeof import('../../apps/api/node_modules/otplib');
 
 // TODO(admin-rebuild): rewrite against the new full-page editors (see REBUILD_NOTES.md).
 test.fixme('real price, request and hero edits save and Undo through accessible sheets', async ({
   page,
 }, info) => {
-  const { pool, env } = await localDatabase(
+  const { pool } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
       : 'development',
@@ -25,8 +20,7 @@ test.fixme('real price, request and hero edits save and Undo through accessible 
     tripId = randomUUID(),
     requestId = randomUUID(),
     email = id + '@example.test',
-    password = 'QA-' + randomBytes(24).toString('base64url'),
-    secret = otp.generateSecret();
+    password = 'QA-' + randomBytes(24).toString('base64url');
   const {
     rows: [source],
   } = await pool.query(
@@ -46,15 +40,8 @@ test.fixme('real price, request and hero edits save and Undo through accessible 
   );
   try {
     await pool.query(
-      'insert into admin_users(id,email,name,role,password_hash,totp_enabled,totp_secret_enc) values($1,$2,$3,$4,$5,true,$6)',
-      [
-        id,
-        email,
-        'Admin write QA',
-        'owner',
-        await passwordHash(password),
-        seal(secret, env.TOTP_ENC_KEY!, id),
-      ],
+      'insert into admin_users(id,email,name,role,password_hash) values($1,$2,$3,$4,$5)',
+      [id, email, 'Admin write QA', 'owner', await passwordHash(password)],
     );
     await pool.query(
       'insert into trips(id,slug,collection_id,title,format) values($1,$2,$3,$4,$5)',
@@ -94,8 +81,6 @@ test.fixme('real price, request and hero edits save and Undo through accessible 
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
-    await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
     await expect(page.locator('main h1')).toHaveText(en.requests);
     await page.goto('/prices');
     await page.getByRole('searchbox').fill(String(title.en));

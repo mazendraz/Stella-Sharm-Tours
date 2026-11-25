@@ -5,7 +5,6 @@ export type Principal = {
   name: string;
   role: 'owner' | 'manager' | 'editor' | 'sales';
   sessionId: string;
-  mfaPassed: boolean;
   reauthAt: Date | null;
 };
 export type ApiEnv = {

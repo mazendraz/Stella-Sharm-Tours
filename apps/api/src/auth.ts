@@ -8,7 +8,6 @@ import {
 } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { hash, verify as verifyPassword } from '@node-rs/argon2';
-import { generateSecret, generateURI, verify as verifyOTP } from 'otplib';
 import { getCookie, setCookie, deleteCookie } from 'hono/cookie';
 import type { Context, MiddlewareHandler, Hono } from 'hono';
 import { and, eq, gt, isNull, lte, sql } from 'drizzle-orm';
@@ -19,7 +18,6 @@ import {
   can,
   type Permission,
   loginSchema,
-  otpSchema,
   resetRequestSchema,
   passwordTokenSchema,
   reauthSchema,
@@ -71,12 +69,12 @@ export function unseal(value: Buffer, key: string, aad: string) {
  * value that another feature would accept. Values sealed before this change
  * used the bare user id as AAD; unsealPurpose still opens those.
  */
-export const aad = (purpose: 'totp' | 'auth-token', userId: string) =>
+export const aad = (purpose: 'auth-token', userId: string) =>
   purpose + ':' + userId;
 export function unsealPurpose(
   value: Buffer,
   key: string,
-  purpose: 'totp' | 'auth-token',
+  purpose: 'auth-token',
   userId: string,
 ): { value: string; legacy: boolean } {
   try {
@@ -110,8 +108,6 @@ export const csrfToken = (raw: string, key: string) =>
   createHmac('sha256', key)
     .update('csrf:' + raw)
     .digest('base64url');
-const mandatory = (role: string, required = false) =>
-  required || role === 'owner' || role === 'manager';
 /**
  * The caller's address for rate limits and privacy hashes. IPv6 callers are
  * grouped by /64 (see rateLimitAddress), so the result is never a raw address.
@@ -128,9 +124,6 @@ export function clientIp(c: Context<ApiEnv>, cfg: Config) {
   );
 }
 export function authService(db: Database, cfg: Config) {
-  // Local development only; config.ts rejects the flag elsewhere.
-  const mfaMandatory = (role: string, required = false) =>
-    cfg.DEV_SIMPLE_ADMIN_LOGIN !== 'true' && mandatory(role, required);
   type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0];
   const recognizeDevice = async (
     tx: Transaction,
@@ -284,7 +277,6 @@ export function authService(db: Database, cfg: Config) {
         name: row.user.name,
         role: row.user.role,
         sessionId: row.session.id,
-        mfaPassed: row.session.mfaPassed,
         reauthAt: row.session.reauthAt,
       } satisfies Principal,
     };
@@ -294,10 +286,7 @@ export function authService(db: Database, cfg: Config) {
     ReturnType<typeof readPrincipal>
   >();
   const guard =
-    (
-      permission?: Permission,
-      allowPending = false,
-    ): MiddlewareHandler<ApiEnv> =>
+    (permission?: Permission): MiddlewareHandler<ApiEnv> =>
     async (c, next) => {
       if (
         c.req.header('origin') &&
@@ -306,15 +295,8 @@ export function authService(db: Database, cfg: Config) {
         fail(403, 'INVALID_ORIGIN');
       const pending = principals.get(c) ?? readPrincipal(c);
       principals.set(c, pending);
-      const { raw, row, principal } = await pending;
+      const { raw, principal } = await pending;
       c.set('principal', principal);
-      if (
-        !allowPending &&
-        (!principal.mfaPassed ||
-          (mfaMandatory(principal.role, row.user.mfaRequired) &&
-            !row.user.totpEnabled))
-      )
-        fail(403, 'MFA_REQUIRED');
       if (permission && !can(principal.role, permission))
         fail(403, 'FORBIDDEN');
       if (!['GET', 'HEAD', 'OPTIONS'].includes(c.req.method)) {
@@ -348,64 +330,6 @@ export function authService(db: Database, cfg: Config) {
     const parsed = schema.safeParse(body);
     if (!parsed.success) fail(422, 'INVALID_INPUT');
     return parsed.data;
-  };
-  const verifyCode = async (
-    user: typeof s.adminUsers.$inferSelect,
-    code: string,
-    tx: Parameters<Parameters<Database['transaction']>[0]>[0],
-  ) => {
-    if (user.totpSecretEnc && /^\d{6}$/.test(code)) {
-      const totp = unsealPurpose(
-        user.totpSecretEnc,
-        cfg.TOTP_ENC_KEY,
-        'totp',
-        user.id,
-      );
-      const result = await verifyOTP({
-        secret: totp.value,
-        token: code,
-        strategy: 'totp',
-        epochTolerance: [30, 0],
-        ...(user.lastTotpStep === null
-          ? {}
-          : { afterTimeStep: user.lastTotpStep }),
-      });
-      if (
-        result.valid &&
-        'timeStep' in result &&
-        typeof result.timeStep === 'number'
-      ) {
-        await tx
-          .update(s.adminUsers)
-          .set({
-            lastTotpStep: result.timeStep,
-            // Move a secret sealed with the legacy AAD to the purpose-bound one.
-            ...(totp.legacy
-              ? {
-                  totpSecretEnc: seal(
-                    totp.value,
-                    cfg.TOTP_ENC_KEY,
-                    aad('totp', user.id),
-                  ),
-                }
-              : {}),
-          })
-          .where(eq(s.adminUsers.id, user.id));
-        return true;
-      }
-    }
-    const digest = sha(code),
-      codes = user.recoveryCodesHash ?? [];
-    if (codes.some((value) => equal(value, digest))) {
-      await tx
-        .update(s.adminUsers)
-        .set({
-          recoveryCodesHash: codes.filter((value) => !equal(value, digest)),
-        })
-        .where(eq(s.adminUsers.id, user.id));
-      return true;
-    }
-    return false;
   };
   function register(app: Hono<ApiEnv>) {
     app.post('/v1/admin/auth/login', async (c) => {
@@ -447,9 +371,7 @@ export function authService(db: Database, cfg: Config) {
             .where(eq(s.adminUsers.id, user.id));
         fail(401, 'INVALID_CREDENTIALS');
       }
-      const raw = opaque(),
-        passed =
-          !user.totpEnabled && !mfaMandatory(user.role, user.mfaRequired);
+      const raw = opaque();
       const recognized = await db.transaction(async (tx) => {
         const [current] = await tx
           .select()
@@ -461,156 +383,25 @@ export function authService(db: Database, cfg: Config) {
           current.disabledAt ||
           current.passwordHash !== user.passwordHash ||
           current.role !== user.role ||
-          current.totpEnabled !== user.totpEnabled ||
-          current.mfaRequired !== user.mfaRequired ||
           (current.lockedUntil && current.lockedUntil > new Date())
         )
           fail(401, 'INVALID_CREDENTIALS');
         await tx.insert(s.sessions).values({
           id: sessionHash(raw, cfg.SESSION_SECRET),
           userId: user.id,
-          expiresAt: new Date(Date.now() + (passed ? 2592000000 : 600000)),
+          expiresAt: new Date(Date.now() + 2592000000),
           ipHash,
           userAgent: (c.req.header('user-agent') ?? '').slice(0, 300),
-          mfaPassed: passed,
         });
         await tx
           .update(s.adminUsers)
           .set({ failedLogins: 0, lockedUntil: null, lastLoginAt: new Date() })
           .where(eq(s.adminUsers.id, user.id));
-        return passed ? recognizeDevice(tx, c, user.id) : null;
-      });
-      cookies(c, raw, passed ? 2592000 : 600);
-      if (recognized) rememberDevice(c, recognized);
-      return c.json(
-        {
-          mfa_required: !passed,
-          enrollment_required:
-            mfaMandatory(user.role, user.mfaRequired) && !user.totpEnabled,
-          csrf_token: csrfToken(raw, cfg.SESSION_SECRET),
-        },
-        200,
-      );
-    });
-    app.post('/v1/admin/auth/2fa/setup', guard(undefined, true), async (c) => {
-      const p = c.get('principal');
-      if (p.mfaPassed) recent(c);
-      if (!(await consume(db, 'mfa-setup:' + p.id, 5, 900)))
-        fail(429, 'RATE_LIMITED');
-      let secret = generateSecret();
-      await db.transaction(async (tx) => {
-        const [user] = await tx
-          .select()
-          .from(s.adminUsers)
-          .where(eq(s.adminUsers.id, p.id))
-          .for('update');
-        const session = await activeSession(tx, p);
-        if (session.mfaPassed) recent(c);
-        if (!user || user.disabledAt) fail(401, 'UNAUTHENTICATED');
-        if (user.totpEnabled) fail(409, 'MFA_ALREADY_ENABLED');
-        // Idempotent: a repeated setup call returns the pending secret.
-        if (user.totpSecretEnc) {
-          try {
-            secret = unsealPurpose(
-              user.totpSecretEnc,
-              cfg.TOTP_ENC_KEY,
-              'totp',
-              p.id,
-            ).value;
-            return;
-          } catch {
-            // Unreadable pending secret: replace it below.
-          }
-        }
-        await tx
-          .update(s.adminUsers)
-          .set({
-            totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, aad('totp', p.id)),
-            lastTotpStep: null,
-          })
-          .where(eq(s.adminUsers.id, p.id));
-      });
-      return c.json({
-        uri: generateURI({
-          issuer: 'Stella Sharm Tours',
-          label: p.email,
-          secret,
-        }),
-      });
-    });
-    app.post('/v1/admin/auth/2fa/enable', guard(undefined, true), async (c) => {
-      const b = await parse(c, otpSchema),
-        p = c.get('principal');
-      if (!(await consume(db, 'mfa:' + p.id, 5, 900)))
-        fail(429, 'RATE_LIMITED');
-      const codes = Array.from({ length: 10 }, () =>
-          randomBytes(10).toString('hex'),
-        ),
-        raw = opaque();
-      const recognized = await db.transaction(async (tx) => {
-        const [user] = await tx
-          .select()
-          .from(s.adminUsers)
-          .where(eq(s.adminUsers.id, p.id))
-          .for('update');
-        const session = await activeSession(tx, p);
-        if (!user || user.disabledAt) fail(401, 'UNAUTHENTICATED');
-        if (session.mfaPassed) recent(c);
-        if (user!.totpEnabled || !user!.totpSecretEnc)
-          fail(409, 'MFA_SETUP_REQUIRED');
-        if (!(await verifyCode(user!, b.code, tx))) fail(401, 'INVALID_CODE');
-        await tx
-          .update(s.adminUsers)
-          .set({ totpEnabled: true, recoveryCodesHash: codes.map(sha) })
-          .where(eq(s.adminUsers.id, p.id));
-        await tx.delete(s.sessions).where(eq(s.sessions.userId, p.id));
-        await tx.insert(s.sessions).values({
-          id: sessionHash(raw, cfg.SESSION_SECRET),
-          userId: p.id,
-          mfaPassed: true,
-          expiresAt: new Date(Date.now() + 2592000000),
-        });
-        return recognizeDevice(tx, c, p.id);
+        return recognizeDevice(tx, c, user.id);
       });
       cookies(c, raw);
       rememberDevice(c, recognized);
-      return c.json({
-        recovery_codes: codes,
-        csrf_token: csrfToken(raw, cfg.SESSION_SECRET),
-      });
-    });
-    app.post('/v1/admin/auth/2fa/verify', guard(undefined, true), async (c) => {
-      const b = await parse(c, otpSchema),
-        p = c.get('principal');
-      if (!(await consume(db, 'mfa:' + p.id, 5, 900)))
-        fail(429, 'RATE_LIMITED');
-      const raw = opaque();
-      const recognized = await db.transaction(async (tx) => {
-        const [user] = await tx
-          .select()
-          .from(s.adminUsers)
-          .where(eq(s.adminUsers.id, p.id))
-          .for('update');
-        const session = await activeSession(tx, p);
-        if (!user || user.disabledAt) fail(401, 'UNAUTHENTICATED');
-        if (session.mfaPassed) fail(409, 'MFA_ALREADY_VERIFIED');
-        if (!user!.totpEnabled || !(await verifyCode(user!, b.code, tx)))
-          fail(401, 'INVALID_CODE');
-        await tx.delete(s.sessions).where(eq(s.sessions.id, p.sessionId));
-        await tx.insert(s.sessions).values({
-          id: sessionHash(raw, cfg.SESSION_SECRET),
-          userId: p.id,
-          mfaPassed: true,
-          expiresAt: new Date(Date.now() + 2592000000),
-        });
-        return recognizeDevice(tx, c, p.id);
-      });
-      cookies(c, raw);
-      rememberDevice(c, recognized);
-      return c.json({
-        ok: true,
-        csrf_token: csrfToken(raw, cfg.SESSION_SECRET),
-      });
+      return c.json({ csrf_token: csrfToken(raw, cfg.SESSION_SECRET) }, 200);
     });
     app.post('/v1/admin/auth/reauth', guard(), async (c) => {
       const b = await parse(c, reauthSchema),
@@ -625,11 +416,7 @@ export function authService(db: Database, cfg: Config) {
           .for('update');
         await activeSession(tx, p);
         if (!user || user.disabledAt) fail(401, 'UNAUTHENTICATED');
-        if (
-          !(await verifyPassword(user!.passwordHash, b.password)) ||
-          (user!.totpEnabled &&
-            (!b.code || !(await verifyCode(user!, b.code, tx))))
-        )
+        if (!(await verifyPassword(user!.passwordHash, b.password)))
           fail(401, 'INVALID_CREDENTIALS');
         await tx
           .update(s.sessions)
@@ -638,7 +425,7 @@ export function authService(db: Database, cfg: Config) {
       });
       return c.json({ ok: true });
     });
-    app.post('/v1/admin/auth/logout', guard(undefined, true), async (c) => {
+    app.post('/v1/admin/auth/logout', guard(), async (c) => {
       await db
         .delete(s.sessions)
         .where(eq(s.sessions.id, c.get('principal').sessionId));
@@ -797,19 +584,13 @@ export function authService(db: Database, cfg: Config) {
         });
         return c.json({ ok: true });
       });
-    app.get('/v1/admin/me', guard(undefined, true), async (c) => {
+    app.get('/v1/admin/me', guard(), async (c) => {
       const p = c.get('principal');
-      const [user] = await db
-        .select({ totpEnabled: s.adminUsers.totpEnabled })
-        .from(s.adminUsers)
-        .where(eq(s.adminUsers.id, p.id));
       return c.json({
         id: p.id,
         email: p.email,
         name: p.name,
         role: p.role,
-        mfa_passed: p.mfaPassed,
-        totp_enabled: user!.totpEnabled,
         csrf_token: csrfToken(getCookie(c, cookie)!, cfg.SESSION_SECRET),
       });
     });

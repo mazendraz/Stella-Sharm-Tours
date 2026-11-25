@@ -103,7 +103,7 @@ See `docs/build-order-verification.md` and `docs/screens/README.md`.
 - [x] Trips editor sections (Basics incl. format & private surcharge, Schedule, Prices, Day plan, Items, Media, SEO) + preview link.
 - [x] Prices screen + bulk change preview/apply + history/undo.
 - [x] Collections (incl. Private block perks) + Packages.
-      **Gate:** e2e on a 390px viewport: owner logs in with TOTP → changes Tiran price to €40 → site shows €40 within 60 s → Undo restores €35. Editor role gets 403 on price change via API.
+      **Gate:** e2e on a 390px viewport: owner logs in with email + password → changes Tiran price to €40 → site shows €40 within 60 s → Undo restores €35. Editor role gets 403 on price change via API.
 
 ## M6 · Admin content, media, settings
 

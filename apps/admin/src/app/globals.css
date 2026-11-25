@@ -625,9 +625,6 @@ details.advanced[open] > summary {
   font-size: 12px;
   font-weight: 700;
 }
-.yes {
-  color: var(--green);
-}
 .pill-count {
   display: inline-grid;
   place-items: center;
@@ -2306,19 +2303,6 @@ a.simple-row:hover {
 .role-option input {
   margin-block-start: 2px;
 }
-.steps {
-  margin: 0 0 12px;
-  padding-inline-start: 20px;
-}
-.qr-box {
-  display: grid;
-  justify-items: start;
-  gap: 8px;
-  margin-block-end: 16px;
-}
-.qr-box code {
-  overflow-wrap: anywhere;
-}
 
 /* ---------- Media ---------- */
 .media-grid {
@@ -2855,24 +2839,6 @@ a.activity-link:hover .activity-text {
   .auth-layout label {
     margin-block: 10px;
   }
-}
-.qr {
-  display: grid;
-  justify-items: center;
-  gap: 16px;
-  margin-block: 24px;
-}
-.qr code {
-  overflow-wrap: anywhere;
-}
-.recovery-codes {
-  list-style: none;
-  padding: 0;
-  margin: 8px 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  overflow-wrap: anywhere;
 }
 .password-field {
   position: relative;

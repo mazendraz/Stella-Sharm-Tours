@@ -8056,15 +8056,6 @@
     "Работает только с заявками.",
     "Yalnızca rezervasyon taleplerini yönetir."
   ],
-  "twoStepShort": [
-    "2-step",
-    "2 passaggi",
-    "2 pasos",
-    "2 étapes",
-    "2-Schritt",
-    "2FA",
-    "2 adım"
-  ],
   "lastLogin": [
     "Last sign-in",
     "Ultimo accesso",
@@ -8190,51 +8181,6 @@
     "{name} ist jetzt {role}",
     "{name}: новая роль — {role}",
     "{name} artık {role}"
-  ],
-  "requireTwoStep": [
-    "Require two-step verification",
-    "Richiedi verifica in due passaggi",
-    "Exigir verificación en dos pasos",
-    "Exiger la vérification en deux étapes",
-    "Zwei-Schritt-Verifizierung verlangen",
-    "Требовать двухэтапную проверку",
-    "İki adımlı doğrulama zorunlu"
-  ],
-  "twoStepOn": [
-    "Two-step verification is on for this account.",
-    "La verifica in due passaggi è attiva per questo account.",
-    "La verificación en dos pasos está activada en esta cuenta.",
-    "La vérification en deux étapes est active pour ce compte.",
-    "Zwei-Schritt-Verifizierung ist für dieses Konto aktiv.",
-    "Двухэтапная проверка включена.",
-    "Bu hesapta iki adımlı doğrulama açık."
-  ],
-  "twoStepOff": [
-    "Not set up yet.",
-    "Non ancora configurata.",
-    "Aún no configurada.",
-    "Pas encore configurée.",
-    "Noch nicht eingerichtet.",
-    "Пока не настроена.",
-    "Henüz kurulmadı."
-  ],
-  "mfaNowRequired": [
-    "Two-step verification is now required",
-    "Verifica in due passaggi ora obbligatoria",
-    "La verificación en dos pasos ahora es obligatoria",
-    "La vérification en deux étapes est désormais obligatoire",
-    "Zwei-Schritt-Verifizierung ist jetzt Pflicht",
-    "Двухэтапная проверка теперь обязательна",
-    "İki adımlı doğrulama artık zorunlu"
-  ],
-  "mfaNoLongerRequired": [
-    "Two-step verification is no longer required",
-    "Verifica in due passaggi non più obbligatoria",
-    "La verificación en dos pasos ya no es obligatoria",
-    "La vérification en deux étapes n’est plus obligatoire",
-    "Zwei-Schritt-Verifizierung ist nicht mehr Pflicht",
-    "Двухэтапная проверка больше не обязательна",
-    "İki adımlı doğrulama artık zorunlu değil"
   ],
   "disableAccount": [
     "Disable account",
@@ -8506,15 +8452,6 @@
     "Неверный пароль.",
     "Yanlış parola."
   ],
-  "wrongPasswordOrCode": [
-    "Wrong password or code.",
-    "Password o codice errati.",
-    "Contraseña o código incorrectos.",
-    "Mot de passe ou code incorrect.",
-    "Falsches Passwort oder falscher Code.",
-    "Неверный пароль или код.",
-    "Yanlış parola veya kod."
-  ],
   "reauth": [
     "Enter your password to continue",
     "Inserisci la password per continuare",
@@ -8532,132 +8469,6 @@
     "Diese Aktion ist geschützt. Wir fragen alle paar Minuten erneut.",
     "Действие защищено — пароль запрашивается раз в несколько минут.",
     "Bu işlem korumalıdır. Birkaç dakikada bir tekrar sorarız."
-  ],
-  "code6": [
-    "6-digit code from your authenticator app",
-    "Codice a 6 cifre dall’app di autenticazione",
-    "Código de 6 dígitos de tu app de autenticación",
-    "Code à 6 chiffres de votre application d’authentification",
-    "6-stelliger Code aus deiner Authenticator-App",
-    "6-значный код из приложения-аутентификатора",
-    "Doğrulama uygulamanızdaki 6 haneli kod"
-  ],
-  "code6Invalid": [
-    "Enter the 6-digit code.",
-    "Inserisci il codice a 6 cifre.",
-    "Escribe el código de 6 dígitos.",
-    "Saisissez le code à 6 chiffres.",
-    "Gib den 6-stelligen Code ein.",
-    "Введите 6-значный код.",
-    "6 haneli kodu girin."
-  ],
-  "code6Wrong": [
-    "That code didn’t work. Check the time on your phone and try a new code.",
-    "Codice non valido. Controlla l’ora del telefono e prova un nuovo codice.",
-    "Ese código no funcionó. Revisa la hora del móvil y prueba otro código.",
-    "Ce code n’a pas fonctionné. Vérifiez l’heure du téléphone et réessayez.",
-    "Der Code hat nicht funktioniert. Prüfe die Uhrzeit am Handy und nimm einen neuen Code.",
-    "Код не подошёл. Проверьте время на телефоне и введите новый код.",
-    "Kod çalışmadı. Telefonunuzun saatini kontrol edip yeni bir kod deneyin."
-  ],
-  "mfa": [
-    "Two-step verification",
-    "Verifica in due passaggi",
-    "Verificación en dos pasos",
-    "Vérification en deux étapes",
-    "Zwei-Schritt-Verifizierung",
-    "Двухэтапная проверка",
-    "İki adımlı doğrulama"
-  ],
-  "twoStepOnShort": [
-    "On",
-    "Attiva",
-    "Activada",
-    "Activée",
-    "Aktiv",
-    "Включена",
-    "Açık"
-  ],
-  "twoStepOffShort": [
-    "Off",
-    "Disattivata",
-    "Desactivada",
-    "Désactivée",
-    "Aus",
-    "Выключена",
-    "Kapalı"
-  ],
-  "setup2fa": [
-    "Set up two-step verification",
-    "Configura la verifica in due passaggi",
-    "Configurar verificación en dos pasos",
-    "Configurer la vérification en deux étapes",
-    "Zwei-Schritt-Verifizierung einrichten",
-    "Настроить двухэтапную проверку",
-    "İki adımlı doğrulamayı kur"
-  ],
-  "scan": [
-    "Scan the QR code with your authenticator app.",
-    "Scansiona il codice QR con l’app di autenticazione.",
-    "Escanea el código QR con tu app de autenticación.",
-    "Scannez le code QR avec votre application d’authentification.",
-    "Scanne den QR-Code mit deiner Authenticator-App.",
-    "Отсканируйте QR-код приложением-аутентификатором.",
-    "QR kodunu doğrulama uygulamanızla tarayın."
-  ],
-  "enterCode": [
-    "Enter the 6-digit code it shows.",
-    "Inserisci il codice a 6 cifre mostrato.",
-    "Escribe el código de 6 dígitos que muestra.",
-    "Saisissez le code à 6 chiffres affiché.",
-    "Gib den angezeigten 6-stelligen Code ein.",
-    "Введите показанный 6-значный код.",
-    "Gösterilen 6 haneli kodu girin."
-  ],
-  "qrLabel": [
-    "QR code for your authenticator app",
-    "Codice QR per l’app di autenticazione",
-    "Código QR para tu app de autenticación",
-    "Code QR pour votre application d’authentification",
-    "QR-Code für deine Authenticator-App",
-    "QR-код для приложения-аутентификатора",
-    "Doğrulama uygulamanız için QR kodu"
-  ],
-  "cantScan": [
-    "Can’t scan? Enter this key:",
-    "Non riesci a scansionare? Inserisci questa chiave:",
-    "¿No puedes escanear? Escribe esta clave:",
-    "Impossible de scanner ? Saisissez cette clé :",
-    "Scannen klappt nicht? Gib diesen Schlüssel ein:",
-    "Не сканируется? Введите ключ:",
-    "Tarayamıyor musunuz? Bu anahtarı girin:"
-  ],
-  "verify": [
-    "Verify",
-    "Verifica",
-    "Verificar",
-    "Vérifier",
-    "Bestätigen",
-    "Подтвердить",
-    "Doğrula"
-  ],
-  "recovery": [
-    "Save these recovery codes somewhere private. Each works once.",
-    "Conserva questi codici di recupero in un posto sicuro. Ognuno funziona una volta.",
-    "Guarda estos códigos de recuperación en un lugar privado. Cada uno sirve una vez.",
-    "Conservez ces codes de secours en lieu sûr. Chacun ne sert qu’une fois.",
-    "Bewahre diese Wiederherstellungscodes sicher auf. Jeder funktioniert einmal.",
-    "Сохраните эти резервные коды в надёжном месте. Каждый работает один раз.",
-    "Bu kurtarma kodlarını gizli bir yerde saklayın. Her biri bir kez çalışır."
-  ],
-  "savedCodes": [
-    "I saved my codes",
-    "Ho salvato i codici",
-    "He guardado mis códigos",
-    "J’ai enregistré mes codes",
-    "Ich habe meine Codes gespeichert",
-    "Я сохранил(а) коды",
-    "Kodlarımı kaydettim"
   ],
   "signOutOthers": [
     "Sign out others",
@@ -9999,15 +9810,6 @@
     "E-Mail oder Passwort ist falsch.",
     "Неверная почта или пароль.",
     "E-posta veya parola yanlış."
-  ],
-  "codeIncorrect": [
-    "The code is incorrect or has expired. Enter the current code from your app.",
-    "Il codice non è corretto o è scaduto. Inserisci il codice attuale dell’app.",
-    "El código es incorrecto o ha caducado. Introduce el código actual de la app.",
-    "Code incorrect ou expiré. Saisissez le code actuel de l’application.",
-    "Der Code ist falsch oder abgelaufen. Bitte den aktuellen Code aus der App eingeben.",
-    "Код неверный или устарел. Введите текущий код из приложения.",
-    "Kod yanlış veya süresi dolmuş. Uygulamadaki güncel kodu girin."
   ],
   "serverUnreachable": [
     "Can’t reach the server. Check your connection and try again.",

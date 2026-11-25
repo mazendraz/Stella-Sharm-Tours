@@ -16,6 +16,8 @@ export const configSchema = apiEnvSchema
       .string()
       .regex(/^[A-Za-z0-9_-]{87}$/)
       .optional(),
+    // Name kept for existing deployments; it now only encrypts the one-use
+    // setup/reset links queued for email (two-step sign-in was removed).
     TOTP_ENC_KEY: z
       .string()
       .refine((v) => Buffer.from(v, 'base64').length === 32),
@@ -53,9 +55,8 @@ export const configSchema = apiEnvSchema
     OWNER_REPORT_LOCALE: z
       .enum(['en', 'it', 'es', 'fr', 'de', 'ru', 'tr'])
       .default('en'),
-    // Owner request (2026-11-14): on a developer's own machine the admin login
-    // is email + password only. Refused outside NODE_ENV=development, so
-    // staging and production keep mandatory 2FA (docs/04-security-plan.md).
+    // Local development only: no login rate limits or account lockout on a
+    // developer's own machine. Refused outside NODE_ENV=development.
     DEV_SIMPLE_ADMIN_LOGIN: z.enum(['true', 'false']).default('false'),
   })
   .superRefine((config, ctx) => {

@@ -32,7 +32,6 @@ export const loginSchema = z.strictObject({
   email: z.email().max(254),
   password: z.string().min(1).max(256),
 });
-export const otpSchema = z.strictObject({ code: z.string().min(6).max(64) });
 export const resetRequestSchema = z.strictObject({ email: z.email().max(254) });
 export const privacyRequestSchema = z.strictObject({
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/),
@@ -44,10 +43,7 @@ export const passwordTokenSchema = z.strictObject({
   token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
   password: z.string().min(12).max(256),
 });
-export const reauthSchema = loginSchema
-  .pick({ password: true })
-  .extend({ code: z.string().min(6).max(64).optional() })
-  .strict();
+export const reauthSchema = loginSchema.pick({ password: true }).strict();
 export const basicsSchema = z.strictObject({
   title: localizedSchema.optional(),
   slug: z

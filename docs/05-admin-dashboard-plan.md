@@ -109,7 +109,7 @@ WhatsApp numbers (primary for requests), phone, email, office address, hours, ma
 
 ### 3.8 Users & Activity
 
-- Invite by email (link valid 48 h), set role, force 2FA, disable user, see sessions and sign them out.
+- Invite by email (link valid 48 h), set role, disable user, see sessions and sign them out.
 - Activity log: filter by user/entity/date; each line readable ("Ahmed changed price of Tiran Island from €35 to €40").
 
 ### 3.9 Languages & translation queue
@@ -120,13 +120,13 @@ WhatsApp numbers (primary for requests), phone, email, office address, hours, ma
 
 ### 3.10 My account
 
-Change password, 2FA setup (QR + recovery codes), active sessions, request notifications, language (EN/IT/ES/FR/DE/RU/TR).
+Change password, active sessions, request notifications, language (EN/IT/ES/FR/DE/RU/TR).
 
 ## 4. Admin API (all under `/v1/admin`, cookie + CSRF + RBAC)
 
 ```
-POST   /auth/login            POST /auth/2fa/verify      POST /auth/logout
-POST   /auth/2fa/setup        POST /auth/2fa/enable      POST /auth/password/reset-request|reset
+POST   /auth/login            POST /auth/logout
+POST   /auth/password/reset-request|reset
 GET    /me                    GET  /me/sessions          DELETE /me/sessions/:id
 
 GET    /requests?status=&q=&page=        GET /requests/:id
@@ -164,7 +164,7 @@ POST   /preview-link {path}
 
 ## 6. Tasks
 
-- [x] M5.1 auth screens (login, 2FA, setup link, reset) + session handling
+- [x] M5.1 auth screens (login, setup link, reset) + session handling (2FA removed 2026-11-25)
 - [x] M5.2 shell: tab bar/sidebar, PWA manifest, offline banner, i18n
 - [x] M5.3 Requests list/detail/actions + WhatsApp reply template + push implementation (real delivery remains external acceptance)
 - [x] M5.4 Trips list + editor sections + preview link

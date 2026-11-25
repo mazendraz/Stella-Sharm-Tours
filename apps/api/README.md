@@ -52,14 +52,14 @@ passwords are never reset by seed. There is no default password.
 
 The dashboard setup screen calls
 `POST /v1/admin/auth/password/setup` with `{token,password}` and the exact
-configured admin Origin. Then login, enroll TOTP and store the ten recovery codes
-offline. Owner/manager sessions cannot use protected operations before MFA.
+configured admin Origin. Then log in with email and password; there is no
+two-step code (owner decision, 2026-11-25).
 The password policy requires at least 12 characters and the verified local
 100,000-entry blocklist. `security:setup` pins its SHA256 and fails if upstream
 changes; review the source before changing that pin.
 
 Session cookies are Secure/HttpOnly/SameSite=Strict, API-host-only `__Host-`
-cookies. Login/MFA/me return `csrf_token` for a separate admin host. Send it in
+cookies. Login and /me return `csrf_token` for a separate admin host. Send it in
 `X-CSRF-Token` and use credentialed requests plus the exact admin Origin. Do not
 add a parent-domain session cookie. Sensitive settings/users/export require
 recent reauthentication. OpenAPI is admin-session protected in production.
@@ -121,7 +121,7 @@ Integration tests start disposable PostgreSQL 16 via Testcontainers and delete
 their own containers. FFmpeg and the password list must exist. The browser suite
 requires the generated local configs, the production web build/start, API and
 worker; it rejects a different DB/SMTP environment, submits synthetic bookings
-and delivers only to local Mailpit. It also verifies login/TOTP, price/hero cache
+and delivers only to local Mailpit. It also verifies login, price/hero cache
 invalidation and Undo. It never clicks the WhatsApp send link.
 
 See [verification](../../docs/backend-verification.md) for evidence and open

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Admin sign-in** — staff sign in with email and password only (owner decision). Two-step verification, recovery codes, the "require two-step" switch and their screens and strings in all seven languages are removed; migration `0013` drops the stored secrets and ends sessions that were waiting for a code. Confirming a protected action now asks for the password alone.
+
 - **Admin translations** — approved departure, return and itinerary times stay out of the translation queue after a reload.
 
 - **Trip Stories** — connects the map renderer to the bundled satellite tiles, with lower-zoom imagery available while detailed tiles load.

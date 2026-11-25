@@ -34,7 +34,7 @@ The real data (38 trips with prices, schedules, inclusions and itineraries + 7 c
 - **Admin**: Next.js 15 (separate app, separate subdomain), Tailwind, shadcn/ui-style primitives (Radix), installable PWA.
 - **API**: Node 22 + **Hono** (REST, JSON), **Drizzle ORM**, **zod** validation, **pino** logging.
 - **DB**: PostgreSQL 16 (Docker volume). Migrations by drizzle-kit, committed to git.
-- **Auth**: own implementation — argon2id passwords, server-side sessions in Postgres, TOTP 2FA (otplib), RBAC.
+- **Auth**: own implementation — argon2id passwords, server-side sessions in Postgres, RBAC. No 2FA (owner decision, 2026-11-25).
 - **Jobs**: `pg-boss` (queue in Postgres — no Redis needed) for image/video processing, notifications and machine translation.
 - **Translation**: provider adapters — DeepL (default), Google Cloud Translation (fallback, widest language coverage), optional self-hosted LibreTranslate. Called only from the worker, only with public content.
 - **Media**: `sharp` (images → AVIF/WebP/JPEG variants), `ffmpeg` (video → H.264 MP4 + poster).
@@ -123,7 +123,7 @@ The next file is `01-frontend-plan.md`, after the user authorizes that handoff.
 | M2  | Public site — mobile           | home, collection, trip, my-trip, request sheet, contact; EN/IT/ES/FR/DE/RU/TR + auto languages   | 6–8 days   |
 | M3  | Public site — desktop & polish | desktop layouts, animations, SEO, performance                                                    | 3–4 days   |
 | M4  | Requests                       | request endpoint, anti-spam, email notify, WhatsApp handoff                                      | 2 days     |
-| M5  | Admin — core                   | auth + 2FA, requests inbox, trips & prices, collections                                          | 6–8 days   |
+| M5  | Admin — core                   | auth, requests inbox, trips & prices, collections                                                | 6–8 days   |
 | M6  | Admin — content & media        | uploads, homepage editor + **hero videos order**, languages screen, settings, users, audit, undo | 4–5 days   |
 | M7  | Production                     | VPS hardening, compose prod, backups, monitoring, go-live checklist                              | 2–3 days   |
 
