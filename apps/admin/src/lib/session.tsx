@@ -134,7 +134,12 @@ export function Session({
         : await response.blob();
       if (!response.ok) {
         if (value.error?.code === 'UNAUTHENTICATED') clear();
-        throw new ApiError(value.error?.code ?? 'ERROR', response.status);
+        const details = value.error?.details;
+        throw new ApiError(
+          value.error?.code ?? 'ERROR',
+          response.status,
+          details && typeof details === 'object' ? details : {},
+        );
       }
       if (typeof value.csrf_token === 'string') csrf.current = value.csrf_token;
       return {

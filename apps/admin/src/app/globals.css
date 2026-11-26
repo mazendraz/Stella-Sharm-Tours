@@ -674,6 +674,15 @@ details.advanced[open] > summary {
 .callout > div {
   min-width: 0;
 }
+.callout p {
+  margin: 4px 0 0;
+}
+.callout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
 .inline-prompt {
   align-items: center;
   flex-wrap: wrap;

@@ -6,6 +6,8 @@
 
 - **Home hero: tap the video to open it** (owner request) — tapping anywhere on the story video (or its title) opens the slide's link, like its button. Swipe, the chips and the arrows still change slides.
 
+- **Admin publishing feedback** — when a trip can't be published because of a photo or video, the trip editor keeps a red panel on screen (instead of a toast that disappears) naming the file, where the trip uses it (cover, gallery, video or a Trip story stop), why it was refused (unknown rights, archived, still processing, missing, or a story stop with no media) and how to fix it, with an "Open file" link. The API adds `details: { mediaId, reason }` (or `{ reason: 'no_media', sceneId }`) to `MEDIA_NOT_PUBLISHABLE`. The pending-changes banner now names the sections waiting to go live and matches the viewer's role: owners and managers are told to publish, editors that an owner or manager will. All new strings are in EN/IT/ES/FR/DE/RU/TR.
+
 - **Admin sign-in** — staff sign in with email and password only (owner decision). Two-step verification, recovery codes, the "require two-step" switch and their screens and strings in all seven languages are removed; migration `0013` drops the stored secrets and ends sessions that were waiting for a code. Confirming a protected action now asks for the password alone.
 
 - **Admin translations** — approved departure, return and itinerary times stay out of the translation queue after a reload.

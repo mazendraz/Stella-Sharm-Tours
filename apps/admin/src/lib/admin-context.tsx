@@ -35,6 +35,8 @@ export class ApiError extends Error {
   constructor(
     public code: string,
     public status: number,
+    /** Facts the API attached to a refusal, e.g. { mediaId, reason }. */
+    public details: Record<string, unknown> = {},
   ) {
     super(code);
   }
