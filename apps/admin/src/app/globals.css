@@ -3677,3 +3677,16 @@ input:-webkit-autofill:focus {
   box-shadow: 0 0 0 1000px white inset;
   transition: background-color 9999s ease-out 0s;
 }
+
+/* Search keywords (trip / package / collection editors). */
+.search-keywords {
+  margin-block-start: 24px;
+}
+.search-keywords h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+.search-keywords .inline-add input {
+  flex: 1;
+  min-inline-size: 0;
+}

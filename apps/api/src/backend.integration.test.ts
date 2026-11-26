@@ -21,6 +21,13 @@ import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
 import {
+  createSearch,
+  normalize,
+  searchIndexSchema,
+} from '@stella/shared/search';
+import { gzipSync } from 'node:zlib';
+import { estimateTrip } from '@stella/shared/price';
+import {
   addCalendarDays,
   cairoDate,
   minBookingDate,
@@ -611,6 +618,155 @@ describe('real PostgreSQL catalog and requests', () => {
     expect(
       (await app.request('/v1/public/site?locale=en&unexpected=1')).status,
     ).toBe(422);
+  });
+  it('serves one multilingual search index of published content', async () => {
+    const response = await app.request('/v1/public/search-index?locale=en');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    const index = searchIndexSchema.parse(JSON.parse(body));
+    expect(gzipSync(body).length).toBeLessThanOrEqual(80 * 1024);
+    const slugs = index.entries.map((e) => e.slug);
+    expect(slugs).toContain('tiran-island-boat');
+    expect(slugs).toContain('sea');
+    expect(slugs).not.toContain('egypt-in-4-days'); // draft package
+    const site = siteSchema.parse(
+      await (await app.request('/v1/public/site?locale=en')).json(),
+    );
+    expect(index.suggested).toEqual(site.featured_trips.map((t) => t.slug));
+    // Every core language the site shows is searchable from the EN index.
+    const ru = tripSchema.parse(
+      await (
+        await app.request('/v1/public/trips/tiran-island-boat?locale=ru')
+      ).json(),
+    );
+    expect(ru.title.lang).toBe('ru');
+    const tiran = index.entries.find((e) => e.slug === 'tiran-island-boat')!;
+    expect(tiran.fields.title).toContain(normalize(ru.title.text));
+    expect(tiran.fields.keywords).toContain('جزيره تيران');
+    expect(tiran.title).toEqual({ text: 'Tiran Island by Boat', lang: 'en' });
+    // Prices come from the database, computed exactly as the trip card does
+    // (one adult, group unless the trip is private-only; null on request).
+    const everyTrip = (
+      await loadCatalog(connection.db, 'en', cfg.MEDIA_PUBLIC_URL)
+    ).trips;
+    expect(everyTrip.length).toBeGreaterThan(30);
+    for (const en of everyTrip) {
+      const slug = en.slug;
+      const card = estimateTrip(
+        en,
+        1,
+        0,
+        en.format === 'private' ? 'private' : 'group',
+      );
+      expect(index.entries.find((e) => e.slug === slug)!.from_price_eur).toBe(
+        card.onRequest ? null : card.amount,
+      );
+    }
+    const [primary] = await connection.db
+      .select()
+      .from(s.tripPrices)
+      .where(
+        and(
+          eq(s.tripPrices.isPrimary, true),
+          eq(
+            s.tripPrices.tripId,
+            sql`(select id from trips where slug = 'tiran-island-boat')`,
+          ),
+        ),
+      );
+    await connection.db
+      .update(s.tripPrices)
+      .set({ amountEur: '999' })
+      .where(eq(s.tripPrices.id, primary!.id));
+    try {
+      const repriced = searchIndexSchema.parse(
+        await (await app.request('/v1/public/search-index?locale=en')).json(),
+      );
+      expect(
+        repriced.entries.find((e) => e.slug === 'tiran-island-boat')!
+          .from_price_eur,
+      ).toBe(999);
+    } finally {
+      await connection.db
+        .update(s.tripPrices)
+        .set({ amountEur: primary!.amountEur })
+        .where(eq(s.tripPrices.id, primary!.id));
+    }
+    expect(tiran.thumb?.video).toBeUndefined();
+    expect(JSON.stringify(index)).not.toMatch(/editorial|original_path/);
+    const search = createSearch(index);
+    expect(search('isola di tiran')[0]?.slug).toBe('tiran-island-boat');
+    expect(
+      (await app.request('/v1/public/search-index?locale=zz')).status,
+    ).toBe(404);
+    expect(
+      (await app.request('/v1/public/search-index?locale=en&q=tiran')).status,
+    ).toBe(422);
+    expect(
+      (await app.request('/v1/public/search-index?locale=en&locale=it')).status,
+    ).toBe(422);
+  });
+  it('saves search keywords from the admin and searches them without a deploy', async () => {
+    const [trip] = await connection.db
+      .select()
+      .from(s.trips)
+      .where(eq(s.trips.slug, 'glass-bottom-boat'));
+    const [sea] = await connection.db
+      .select()
+      .from(s.collections)
+      .where(eq(s.collections.slug, 'sea'));
+    try {
+      const saved = await owner.call(
+        '/v1/admin/trips/' + trip!.id + '/seo',
+        'PATCH',
+        { searchKeywords: { it: ['barca di vetro'], extra: ['قارب قزاز'] } },
+      );
+      expect(saved.status).toBe(200);
+      const tooMany = await owner.call(
+        '/v1/admin/trips/' + trip!.id + '/seo',
+        'PATCH',
+        {
+          searchKeywords: {
+            en: Array.from({ length: 31 }, (_, i) => 'word' + i),
+          },
+        },
+      );
+      expect(tooMany.status).toBe(422);
+      const duplicate = await owner.call(
+        '/v1/admin/collections/' + sea!.id,
+        'PATCH',
+        { searchKeywords: { en: ['Reef', 'reef'] } },
+      );
+      expect(duplicate.status).toBe(422);
+      expect(
+        (
+          await owner.call('/v1/admin/collections/' + sea!.id, 'PATCH', {
+            searchKeywords: { en: ['underwater world'] },
+          })
+        ).status,
+      ).toBe(200);
+      const after = await owner.call('/v1/admin/trips/' + trip!.id, 'GET');
+      expect((await after.json()).trip.searchKeywords).toEqual({
+        it: ['barca di vetro'],
+        extra: ['قارب قزاز'],
+      });
+      const search = createSearch(
+        searchIndexSchema.parse(
+          await (await app.request('/v1/public/search-index?locale=en')).json(),
+        ),
+      );
+      expect(search('قارب قزاز')[0]?.slug).toBe('glass-bottom-boat');
+      expect(search('underwater world').map((e) => e.slug)).toContain('sea');
+    } finally {
+      await connection.db
+        .update(s.trips)
+        .set({ searchKeywords: trip!.searchKeywords })
+        .where(eq(s.trips.id, trip!.id));
+      await connection.db
+        .update(s.collections)
+        .set({ searchKeywords: sea!.searchKeywords })
+        .where(eq(s.collections.id, sea!.id));
+    }
   });
   it('rejects an incomplete live hero edit and keeps legacy slides from blocking bookings', async () => {
     const [hero] = await connection.db
@@ -3648,6 +3804,15 @@ describe('media, notifications, jobs and translation privacy', () => {
     expect(
       payloads.every(({ locale }) => locale === 'pl' || locale === 'ar'),
     ).toBe(true);
+    // Enabled auto languages become searchable, and show in their language.
+    const autoIndex = searchIndexSchema.parse(
+      await (await app.request('/v1/public/search-index?locale=pl')).json(),
+    );
+    const autoTiran = autoIndex.entries.find(
+      (e) => e.slug === 'tiran-island-boat',
+    )!;
+    expect(autoTiran.title.lang).toBe('pl');
+    expect(autoTiran.fields.title).toContain('pl tiran island by boat');
     const [privateCollection] = await connection.db
       .select()
       .from(s.collections)

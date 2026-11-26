@@ -39,6 +39,8 @@ import { createHmac } from 'node:crypto';
 import { registerAdmin } from './admin';
 import { matchAdminContract, registerAdminOpenApi } from './admin-contracts';
 import { registerHomepage } from './homepage';
+import { loadSearchSource } from './search-index';
+import { buildSearchIndex, searchIndexSchema } from '@stella/shared/search';
 import { registerAdminUi } from './admin-ui';
 import { registerPush } from './push';
 import { fail } from './errors';
@@ -336,6 +338,14 @@ export function createApp(
   app.get('/v1/public/collections', async (c) =>
     c.json((await catalog(c)).collections),
   );
+  app.get('/v1/public/search-index', async (c) => {
+    const result = await catalog(c);
+    return c.json(
+      buildSearchIndex(
+        await loadSearchSource(db, result, c.req.query('locale') ?? 'en'),
+      ),
+    );
+  });
   app.get('/v1/public/collections/:slug', async (c) => {
     if (!slug.safeParse(c.req.param('slug')).success) fail(404, 'NOT_FOUND');
     const result = (await catalog(c)).collection(c.req.param('slug'));
@@ -493,6 +503,7 @@ export function createApp(
     site: siteSchema,
     locales: z.array(localeSchema),
     collections: z.array(collectionSchema),
+    'search-index': searchIndexSchema,
     'collections/{slug}': collectionDetailSchema,
     'trips/{slug}': tripSchema,
     'trips/{slug}/story': publicStorySchema,

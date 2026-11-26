@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **Trip search** (owner request) — a search button in the header opens a search panel: before typing it shows the collections and the admin's featured trips; while typing, results update on every key with photo, collection, duration and the same "from" price as the trip card. It finds a trip whatever language the visitor types in (all seven core languages, enabled automatic languages, and Arabic through keywords), and forgives typos, missing accents and Arabic spelling variants (أ/ا, ة/ه, ى/ي, "ال"). Staff can add **search keywords** per trip, package and collection in the admin (Search appearance / new collection section), per language plus "Other languages & spellings"; they are never shown on the site. Migration `0015` adds the nullable `search_keywords` columns and fills them for existing trips and collections from `data/search-keywords.json` (only where empty; no rows added or removed). The search index is a new public endpoint (`/v1/public/search-index`, proxied as `/api/search-index`) and loads only when the button is first touched; the query never leaves the browser. Quality is pinned by a golden set of 250+ real queries. New UI strings in all seven languages (web and admin).
+
+- **Home hero: tap the video to open it** (owner request) — tapping anywhere on the story video (or its title) opens the slide's link, like its button. Swipe, the chips and the arrows still change slides.
+
 - **Admin sign-in** — staff sign in with email and password only (owner decision). Two-step verification, recovery codes, the "require two-step" switch and their screens and strings in all seven languages are removed; migration `0013` drops the stored secrets and ends sessions that were waiting for a code. Confirming a protected action now asks for the password alone.
 
 - **Admin translations** — approved departure, return and itinerary times stay out of the translation queue after a reload.

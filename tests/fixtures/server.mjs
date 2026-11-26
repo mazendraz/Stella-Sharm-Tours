@@ -17,6 +17,14 @@ const { estimateTrip, primaryPrice } = await tsImport(
   '../../packages/shared/src/price.ts',
   import.meta.url,
 );
+const { buildSearchIndex } = await tsImport(
+  '../../packages/shared/src/search.ts',
+  import.meta.url,
+);
+const { buildRepoSearchSource } = await tsImport(
+  '../../packages/shared/src/search-golden.fixture.ts',
+  import.meta.url,
+);
 const require = createRequire(
   new URL('../../apps/web/package.json', import.meta.url),
 );
@@ -172,6 +180,37 @@ const server = createServer(async (req, res) => {
   if (url.pathname.startsWith('/v1/public/trips/')) {
     const result = trip(url.pathname.split('/').at(-1), locale);
     return json(result ?? {}, result ? 200 : 404);
+  }
+  if (url.pathname === '/v1/public/search-index') {
+    if (!locales.some((item) => item.code === locale)) return json({}, 404);
+    // Same builder and repo data as the golden search test; display fields
+    // come from this fixture's localized DTOs.
+    const source = buildRepoSearchSource();
+    const cs = collections(locale);
+    const name = (slug) => cs.find((c) => c.slug === slug)?.name ?? null;
+    source.locale = locale;
+    source.suggested = site(locale).featured_trips.map((t) => t.slug);
+    for (const c of source.collections) {
+      const dto = cs.find((x) => x.slug === c.slug);
+      c.display = { title: dto.name, thumb: dto.cover };
+    }
+    for (const t of source.trips) {
+      const dto = trip(t.slug, locale);
+      const e = estimateTrip(
+        dto,
+        1,
+        0,
+        dto.format === 'private' ? 'private' : 'group',
+      );
+      t.display = {
+        title: dto.title,
+        collection_name: name(dto.collection),
+        thumb: dto.cover,
+        from_price_eur: e.onRequest ? null : e.amount,
+        duration: dto.duration_label,
+      };
+    }
+    return json(buildSearchIndex(source));
   }
   if (url.pathname === '/v1/public/faq') return json([]);
   if (url.pathname === '/v1/public/messages') return json({});

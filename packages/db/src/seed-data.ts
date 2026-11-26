@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { searchKeywordsSchema } from '@stella/shared/admin';
 import { createHash, randomBytes } from 'node:crypto';
 import { eq, and, gt, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
@@ -109,6 +110,32 @@ const featured = [
   'cairo-plane-1-day',
   'glass-bottom-boat',
 ];
+const keywordFile = z.strictObject({
+  collections: z.record(z.string(), searchKeywordsSchema),
+  trips: z.record(z.string(), searchKeywordsSchema),
+});
+/**
+ * Applies data/search-keywords.json. Fills only empty columns, so keywords
+ * staff edited in the admin survive a seed rerun.
+ */
+export async function seedSearchKeywords(
+  db: Pick<Database, 'update'>,
+  file: URL,
+) {
+  const data = keywordFile.parse(JSON.parse(await readFile(file, 'utf8')));
+  for (const [slug, searchKeywords] of Object.entries(data.collections))
+    await db
+      .update(s.collections)
+      .set({ searchKeywords })
+      .where(
+        and(eq(s.collections.slug, slug), isNull(s.collections.searchKeywords)),
+      );
+  for (const [slug, searchKeywords] of Object.entries(data.trips))
+    await db
+      .update(s.trips)
+      .set({ searchKeywords })
+      .where(and(eq(s.trips.slug, slug), isNull(s.trips.searchKeywords)));
+}
 export async function seedCatalog(db: Database, options: Options) {
   const catalog = catalogSchema.parse(
     JSON.parse(await readFile(options.catalogPath, 'utf8')),
@@ -376,6 +403,10 @@ export async function seedCatalog(db: Database, options: Options) {
           })
           .onConflictDoNothing();
     }
+    await seedSearchKeywords(
+      db,
+      new URL('search-keywords.json', options.catalogPath),
+    );
     const privateCollection = catalog.collections.find(
       (c) => c.id === 'private',
     )!;

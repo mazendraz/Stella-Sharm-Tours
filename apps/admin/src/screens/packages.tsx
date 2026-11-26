@@ -34,6 +34,7 @@ import {
   TripMediaSection,
   type TripState,
 } from './trip-editor';
+import { keywordsFrom, keywordsOut } from '../components/search-keywords';
 import { TranslationMeter } from './trips';
 
 const packagePriceText = (
@@ -389,6 +390,7 @@ export function PackageEditor({ id }: { id: string }) {
       seo: {
         seoTitle: tl('seoTitle', 'seo_title'),
         seoDescription: tl('seoDescription', 'seo_description'),
+        searchKeywords: keywordsFrom(trip.searchKeywords),
       },
     };
   }, [
@@ -494,6 +496,7 @@ export function PackageEditor({ id }: { id: string }) {
           await write('/v1/admin/trips/' + id + '/seo', 'PATCH', {
             seoTitle: locOut(v.seoTitle),
             seoDescription: locOut(v.seoDescription),
+            searchKeywords: keywordsOut(v.searchKeywords),
           })
         ).revisions,
     },

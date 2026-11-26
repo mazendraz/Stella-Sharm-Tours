@@ -1248,5 +1248,11 @@
   "storyLongitude": "Längengrad",
   "storyLatitude": "Breitengrad",
   "storyFocalX": "Horizontaler Fokus (%)",
-  "storyFocalY": "Vertikaler Fokus (%)"
+  "storyFocalY": "Vertikaler Fokus (%)",
+  "searchKeywords": "Suchbegriffe",
+  "searchKeywordsHelp": "Wörter, die Besucher eingeben könnten, um dies zu finden. Werden auf der Website nicht angezeigt.",
+  "searchKeywordsOther": "Andere Sprachen & Schreibweisen",
+  "searchKeywordAdd": "Suchbegriff hinzufügen",
+  "searchKeywordRemove": "„{word}“ entfernen",
+  "searchKeywordsLimit": "Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate."
 }

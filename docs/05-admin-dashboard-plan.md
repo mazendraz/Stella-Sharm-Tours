@@ -55,7 +55,7 @@ Bottom tab bar (mobile) / left sidebar (desktop):
   4. Day plan — itinerary rows (time + text), reorder by drag.
   5. Included / Not included / Optional / Bring — chip lists, tap to add.
   6. Photos & video — pick from Media or upload from camera; set cover; reorder gallery; set focal point by tapping the photo.
-  7. SEO — optional overrides.
+  7. SEO — optional overrides, plus **Search keywords** (2026-11-26): words visitors might type to find the trip on the site search, one list per core language (follows the language bar) and "Other languages & spellings" for Arabic, transliterations and typos. Never shown on the site; saved with the SEO section.
 - **Language tabs EN · IT · ES · FR · DE · RU · TR** (horizontally scrollable). Desktop shows EN beside the selected translation; mobile shows one language at a time. Changed meaning requires all seven plus review acknowledgement; EN source and current-language inputs have explicit provenance/freshness labels. No core auto-translate/provider button is added under the standing owner rule. Extra languages retain the optional worker workflow in `docs/08-i18n-plan.md` §11.
 - "Preview" opens the real site page via a signed preview link.
 - Duplicate trip (for seasonal variants).
@@ -78,7 +78,7 @@ Bottom tab bar (mobile) / left sidebar (desktop):
 
 ### 3.5 Collections & Packages
 
-- Collections: name/headline/sub (language tabs), colour picker (preset swatches), cover, collection-page hero video, order, publish. (The home page hero is managed separately in **Hero videos**, §3.6.)
+- Collections: name/headline/sub (language tabs), colour picker (preset swatches), cover, collection-page hero video, order, publish, and a **Search keywords** section (same editor as trips). (The home page hero is managed separately in **Hero videos**, §3.6.)
 - Packages: pick trips (search + add), order them by day, set package price or leave as "sum of trips", publish. Shows the sum next to the package price so staff see the discount.
 
 ### 3.6 Homepage

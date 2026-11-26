@@ -83,7 +83,27 @@ export const scheduleSchema = z.strictObject({
   overnight: z.boolean().optional(),
   onRequest: z.boolean().optional(),
 });
+const keywordList = z
+  .array(z.string().trim().min(1).max(60))
+  .max(30)
+  .refine(
+    (words) =>
+      new Set(words.map((w) => w.toLocaleLowerCase())).size === words.length,
+    { message: 'DUPLICATE_KEYWORD' },
+  );
+/** Words visitors type to find a trip; matching aid only, never shown. */
+export const searchKeywordsSchema = z.strictObject({
+  en: keywordList.optional(),
+  it: keywordList.optional(),
+  es: keywordList.optional(),
+  fr: keywordList.optional(),
+  de: keywordList.optional(),
+  ru: keywordList.optional(),
+  tr: keywordList.optional(),
+  extra: keywordList.optional(),
+});
 export const seoSchema = z.strictObject({
+  searchKeywords: searchKeywordsSchema.nullable().optional(),
   seoTitle: localizedSchema.nullable().optional(),
   seoDescription: localizedSchema.nullable().optional(),
 });
@@ -210,4 +230,5 @@ export const collectionEditSchema = z.strictObject({
     .array(z.strictObject({ title: localizedSchema, sub: localizedSchema }))
     .max(4)
     .optional(),
+  searchKeywords: searchKeywordsSchema.nullable().optional(),
 });

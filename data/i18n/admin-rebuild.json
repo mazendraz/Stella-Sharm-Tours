@@ -9855,5 +9855,11 @@
     "Paket „{name}“ braucht ein Titelbild, bevor es online gehen kann",
     "Пакету «{name}» нужна обложка перед публикацией",
     "“{name}” paketinin yayına girmeden önce kapak görseline ihtiyacı var"
-  ]
+  ],
+  "searchKeywords": ["Search keywords","Parole chiave di ricerca","Palabras clave de búsqueda","Mots-clés de recherche","Suchbegriffe","Ключевые слова для поиска","Arama anahtar kelimeleri"],
+  "searchKeywordsHelp": ["Words visitors might type to find this. Not shown on the site.","Parole che i visitatori potrebbero digitare per trovarla. Non compaiono sul sito.","Palabras que los visitantes podrían escribir para encontrarla. No se muestran en la web.","Mots que les visiteurs pourraient taper pour la trouver. Non affichés sur le site.","Wörter, die Besucher eingeben könnten, um dies zu finden. Werden auf der Website nicht angezeigt.","Слова, которые посетители могут ввести, чтобы найти это. На сайте не показываются.","Ziyaretçilerin bunu bulmak için yazabileceği kelimeler. Sitede gösterilmez."],
+  "searchKeywordsOther": ["Other languages & spellings","Altre lingue e grafie","Otros idiomas y grafías","Autres langues et orthographes","Andere Sprachen & Schreibweisen","Другие языки и написания","Diğer diller ve yazımlar"],
+  "searchKeywordAdd": ["Add keyword","Aggiungi parola chiave","Añadir palabra clave","Ajouter un mot-clé","Suchbegriff hinzufügen","Добавить ключевое слово","Anahtar kelime ekle"],
+  "searchKeywordRemove": ["Remove “{word}”","Rimuovi “{word}”","Quitar «{word}»","Retirer « {word} »","„{word}“ entfernen","Удалить «{word}»","“{word}” kaldır"],
+  "searchKeywordsLimit": ["Up to 30 keywords of up to 60 characters each, without duplicates.","Fino a 30 parole chiave di massimo 60 caratteri, senza duplicati.","Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados.","Jusqu’à 30 mots-clés de 60 caractères maximum, sans doublons.","Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate.","До 30 ключевых слов длиной до 60 символов, без повторов.","En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."]
 }

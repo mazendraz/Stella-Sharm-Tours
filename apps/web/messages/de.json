@@ -174,5 +174,16 @@
   "summaryRef": "Anfragenummer",
   "summaryDates": "Daten",
   "summaryGuests": "Gäste",
-  "summaryTours": "Ausflüge"
+  "summaryTours": "Ausflüge",
+  "search": "Ausflüge suchen",
+  "searchPlaceholder": "Ausflüge, Orte, Aktivitäten suchen",
+  "searchClear": "Suche löschen",
+  "searchClose": "Suche schließen",
+  "searchSuggested": "Empfohlen",
+  "searchCollections": "Kategorien",
+  "searchCollection": "Kategorie",
+  "searchResults": "{count, plural, =0 {Keine Ergebnisse} one {# Ergebnis} other {# Ergebnisse}}",
+  "searchNoResults": "Kein Ausflug passt zu „{query}“",
+  "searchAskWhatsapp": "Frag uns auf WhatsApp",
+  "searchLoadFailed": "Die Suche konnte nicht geladen werden."
 }

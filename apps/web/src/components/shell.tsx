@@ -27,6 +27,7 @@ import { useTripStore } from './store';
 import { officeMap, track, whatsapp } from '@/lib/links';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
+import { SearchButton } from './search-button';
 import { coreLocaleOptions, isCoreLocale } from '@stella/shared';
 // In-site page history, so Back returns to the previous Stella page and a
 // guest who landed here from a link or search gets a sensible parent page.
@@ -223,6 +224,7 @@ export function Shell({
               ))}
             </nav>
             <div className="nav-tools">
+              <SearchButton collections={collections} whatsappUrl={wa} />
               <details className="languages">
                 <summary
                   aria-label={

@@ -60,6 +60,16 @@ to that compatible release before applying the narrower grants. Earlier
 workers use direct queries that require the old broad permissions. Keep a
 compatible image available for rollback once the new grants are in force.
 
+**Migration `0015` (search keywords).** Additive and backward compatible: two
+nullable `jsonb` columns, then a backfill that only fills empty columns of
+existing trips/collections by slug. Its journal timestamp sits between `0013`
+and `0014_request_display_currency` on purpose, so environments at `0013`
+(production) apply both in later releases. Drizzle skips a migration whose
+timestamp is older than the newest one already applied, so a development
+database that already ran `0014` or later must apply it once by hand (safe to
+repeat): `psql "$DATABASE_URL" -f packages/db/drizzle/0015_search_keywords.sql`.
+Branches adding new migrations after it must be generated on top of it.
+
 To inspect an environment safely without printing secrets:
 
 ```bash

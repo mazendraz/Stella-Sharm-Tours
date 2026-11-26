@@ -1248,5 +1248,11 @@
   "storyLongitude": "Longitud",
   "storyLatitude": "Latitud",
   "storyFocalX": "Foco horizontal (%)",
-  "storyFocalY": "Foco vertical (%)"
+  "storyFocalY": "Foco vertical (%)",
+  "searchKeywords": "Palabras clave de búsqueda",
+  "searchKeywordsHelp": "Palabras que los visitantes podrían escribir para encontrarla. No se muestran en la web.",
+  "searchKeywordsOther": "Otros idiomas y grafías",
+  "searchKeywordAdd": "Añadir palabra clave",
+  "searchKeywordRemove": "Quitar «{word}»",
+  "searchKeywordsLimit": "Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados."
 }

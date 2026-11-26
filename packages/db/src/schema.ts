@@ -20,6 +20,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import type { Locale } from '@stella/shared';
 import type { Confirmation } from '@stella/shared/booking';
+import type { SearchKeywords } from '@stella/shared/search';
 export type Localized = { en: string } & Partial<
   Record<Locale, string | undefined>
 >;
@@ -165,6 +166,7 @@ export const collections = pgTable(
     headline: localized('headline'),
     subline: localized('subline'),
     perks: jsonb('perks').$type<{ title: Localized; sub: Localized }[]>(),
+    searchKeywords: jsonb('search_keywords').$type<SearchKeywords>(),
     color: text('color').notNull().default('#1B1712'),
     coverMediaId: uuid('cover_media_id').references(() => media.id),
     heroVideoId: uuid('hero_video_id').references(() => media.id),
@@ -224,6 +226,7 @@ export const trips = pgTable(
     editorialNotes: jsonb('editorial_notes').$type<string[]>(),
     seoTitle: localized('seo_title'),
     seoDescription: localized('seo_description'),
+    searchKeywords: jsonb('search_keywords').$type<SearchKeywords>(),
     featuredOrder: smallint('featured_order'),
     sort: integer('sort').notNull().default(0),
     status: text('status', { enum: ['draft', 'published', 'hidden'] })

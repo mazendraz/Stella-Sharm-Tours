@@ -1,0 +1,19 @@
+/* Header search button (loads with the shell). */
+.nav-search {
+  inline-size: 44px;
+  block-size: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.nav-search:hover {
+  background: rgb(27 23 18 / 0.06);
+}
+.nav.over-hero:not(.scrolled) .nav-search:hover {
+  background: rgb(255 255 255 / 0.16);
+}
