@@ -595,12 +595,11 @@ body:has(.panel-with-footer) .trip-navigation-page {
 [dir='rtl'] .story-bar > span {
   transform-origin: 100% 50%;
 }
-.hero-tap-zones {
+.hero-tap-link {
   position: absolute;
-  inset: 100px 0 60%;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  inset: 0;
   z-index: 1;
+  -webkit-tap-highlight-color: transparent;
 }
 .hero-copy {
   position: absolute;
@@ -611,7 +610,7 @@ body:has(.panel-with-footer) .trip-navigation-page {
 }
 .hero-text {
   max-inline-size: 640px;
-  pointer-events: auto;
+  pointer-events: none;
   animation: hero-text 0.9s cubic-bezier(0.16, 0.84, 0.24, 1);
 }
 .hero-copy .kicker {
@@ -638,6 +637,7 @@ body:has(.panel-with-footer) .trip-navigation-page {
 }
 .hero .button-row {
   gap: 10px;
+  pointer-events: auto;
 }
 .hero-bottom {
   position: absolute;

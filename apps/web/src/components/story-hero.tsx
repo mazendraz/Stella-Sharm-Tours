@@ -311,10 +311,15 @@ export function StoryHero({
           </span>
         ))}
       </div>
-      <div className="hero-tap-zones" aria-hidden="true">
-        <div onClick={() => go(index - 1)} />
-        <div onClick={() => go(index + 1)} />
-      </div>
+      {/* Tapping the video opens the slide's link, same as its button. The
+          button stays the accessible way in; this is a pointer shortcut. */}
+      <Link
+        className="hero-tap-link"
+        href={internalHref(active.href, locale)}
+        aria-hidden="true"
+        tabIndex={-1}
+        draggable={false}
+      />
       <div className="hero-copy wrap" ref={copy}>
         <div className="hero-text" key={active.id}>
           <p className="kicker">
