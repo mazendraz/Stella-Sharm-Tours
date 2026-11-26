@@ -5,6 +5,8 @@
  * expectation is wrong for a visitor.
  */
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { searchKeywordsSchema } from './admin';
 import { buildSearchIndex, createSearch, CORE_SEARCH_LOCALES } from './search';
 import {
@@ -231,6 +233,15 @@ describe('keyword coverage', () => {
     expect(
       Object.keys(repoKeywords.collections).filter((s) => !ids.has(s)),
     ).toEqual([]);
+  });
+  it('keyword file ships in the API image the seed runs in', () => {
+    const dockerfile = readFileSync(
+      fileURLToPath(new URL('../../../infra/Dockerfile', import.meta.url)),
+      'utf8',
+    );
+    expect(dockerfile).toMatch(
+      /COPY[^\n]*data\/search-keywords\.json[^\n]*\/app\/data\//,
+    );
   });
   it('golden set has at least 120 queries', () => {
     expect(
