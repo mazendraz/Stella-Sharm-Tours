@@ -516,6 +516,408 @@
         }
       }
     },
+    "/v1/admin/seo": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/seo/page": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "slug": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{1,120}$"
+                  },
+                  "locale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "it",
+                      "es",
+                      "fr",
+                      "de",
+                      "ru",
+                      "tr"
+                    ]
+                  }
+                },
+                "required": [
+                  "slug",
+                  "locale"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/seo/check": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/admin/package-parts": {
       "get": {
         "tags": [
