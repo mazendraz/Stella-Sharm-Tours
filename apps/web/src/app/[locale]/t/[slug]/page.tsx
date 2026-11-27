@@ -1,9 +1,16 @@
 import { TripView } from '@/components/trip-view';
 import { tripData } from '@/lib/route-data';
-import { getSite } from '@/lib/api';
+import { getSite, getCollections } from '@/lib/api';
 import { metadataFor, JsonLd } from '@/lib/seo';
 import { whatsapp } from '@/lib/links';
 import { siteOrigin } from '@/lib/env';
+import {
+  breadcrumbs,
+  collectionName,
+  graph,
+  touristTrip,
+  webPage,
+} from '@/lib/structured-data';
 export async function generateMetadata({
   params,
 }: {
@@ -29,7 +36,26 @@ export default async function TripPage({
   const { locale, slug } = await params,
     trip = await tripData(slug, locale),
     site = await getSite(locale),
+    collections = await getCollections(locale).catch(() => []),
     requestedPrivate = (await searchParams).format === 'private';
+  const url = siteOrigin + '/' + locale + '/t/' + slug,
+    home = siteOrigin + '/' + locale,
+    inCollection = collectionName(collections, trip.collection);
+  const jsonLd = graph([
+    webPage('WebPage', url, siteOrigin, locale, trip.title.text, {
+      mainEntity: { '@id': url + '#trip' },
+      breadcrumb: { '@id': url + '#breadcrumb' },
+      ...(trip.cover ? { primaryImageOfPage: trip.cover.url } : {}),
+    }),
+    touristTrip(trip, url, siteOrigin),
+    breadcrumbs(url, [
+      { name: site.name, url: home },
+      ...(inCollection
+        ? [{ name: inCollection, url: home + '/c/' + trip.collection }]
+        : []),
+      { name: trip.title.text, url },
+    ]),
+  ]);
   return (
     <main id="main" className="trip-page">
       <TripView
@@ -37,24 +63,7 @@ export default async function TripPage({
         whatsappUrl={whatsapp(site.contacts.whatsapp_primary)}
         requestedPrivate={requestedPrivate}
       />
-      <JsonLd
-        value={{
-          '@context': 'https://schema.org',
-          '@type': 'TouristTrip',
-          name: trip.title.text,
-          inLanguage: locale,
-          url: siteOrigin + '/' + locale + '/t/' + slug,
-          provider: { '@type': 'TravelAgency', name: site.name },
-          offers: trip.prices
-            .filter((p) => p.amount_eur !== null)
-            .map((p) => ({
-              '@type': 'Offer',
-              price: p.amount_eur,
-              priceCurrency: 'EUR',
-            })),
-          itinerary: trip.itinerary.map((p) => p.text.text),
-        }}
-      />
+      <JsonLd value={jsonLd} />
     </main>
   );
 }

@@ -2,7 +2,9 @@ import { getTranslations } from 'next-intl/server';
 import { getFaq } from '@/lib/api';
 import { Content } from '@/components/text';
 import { Markdown } from '@/components/markdown';
-import { metadataFor } from '@/lib/seo';
+import { metadataFor, JsonLd } from '@/lib/seo';
+import { siteOrigin } from '@/lib/env';
+import { faqEntities, graph, webPage } from '@/lib/structured-data';
 import { Unavailable } from '@/components/unavailable';
 export async function generateMetadata({
   params,
@@ -11,7 +13,7 @@ export async function generateMetadata({
 }) {
   const { locale } = await params,
     t = await getTranslations();
-  return metadataFor(locale, '/faq', t('faq'));
+  return metadataFor(locale, '/faq', t('faq'), t('seoFaqDescription'));
 }
 export default async function FaqPage({
   params,
@@ -43,6 +45,23 @@ export default async function FaqPage({
         ))
       ) : (
         <p>{t('contentPending')}</p>
+      )}
+      {items.length > 0 && (
+        // Valid FAQPage markup; Google shows FAQ rich results only for
+        // authoritative government and health sites, so this is for meaning,
+        // not for a rich result.
+        <JsonLd
+          value={graph([
+            webPage(
+              'FAQPage',
+              siteOrigin + '/' + locale + '/faq',
+              siteOrigin,
+              locale,
+              t('faq'),
+              { mainEntity: faqEntities(items) },
+            ),
+          ])}
+        />
       )}
     </main>
   );

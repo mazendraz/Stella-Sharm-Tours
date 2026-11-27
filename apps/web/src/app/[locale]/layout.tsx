@@ -7,6 +7,9 @@ import { isCoreLocale } from '@stella/shared';
 import { getSite, getCollections } from '@/lib/api';
 import { Shell } from '@/components/shell';
 import { navCollection, shellSite } from '@stella/shared/card-trip';
+import { JsonLd } from '@/lib/seo';
+import { siteOrigin } from '@/lib/env';
+import { graph, organization, website } from '@/lib/structured-data';
 export default async function LocaleLayout({
   children,
   modal,
@@ -46,6 +49,20 @@ export default async function LocaleLayout({
         {children}
         {modal}
       </Shell>
+      {site && (
+        // The business and website entities, once per page; page-level nodes
+        // refer to them by @id.
+        <JsonLd
+          value={graph([
+            organization(site, siteOrigin),
+            website(
+              site,
+              siteOrigin,
+              site.locales.filter((l) => l.indexable).map((l) => l.code),
+            ),
+          ])}
+        />
+      )}
     </NextIntlClientProvider>
   );
 }
