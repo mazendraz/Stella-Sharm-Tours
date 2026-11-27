@@ -7,6 +7,12 @@ const config = {
   output: 'standalone',
   outputFileTracingRoot: path.resolve(import.meta.dirname, '../..'),
   poweredByHeader: false,
+  // Put <title>, canonical, hreflang and robots in <head> for every user
+  // agent. Next otherwise streams them into <body> for agents missing from
+  // its built-in bot list, which includes OAI-SearchBot, PerplexityBot and
+  // other AI search crawlers that read the raw HTML (SEO audit 2026-11-27).
+  // Pages already await the same cached data for their content.
+  htmlLimitedBots: /.*/,
   experimental: { cpus: 2 },
   // Load the checked-in messages without the experimental extraction plugin.
   turbopack: {
