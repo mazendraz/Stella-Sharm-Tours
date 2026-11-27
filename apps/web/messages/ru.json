@@ -174,5 +174,16 @@
   "summaryRef": "Номер запроса",
   "summaryDates": "Даты",
   "summaryGuests": "Гости",
-  "summaryTours": "Экскурсии"
+  "summaryTours": "Экскурсии",
+  "search": "Поиск экскурсий",
+  "searchPlaceholder": "Экскурсии, места, развлечения",
+  "searchClear": "Очистить поиск",
+  "searchClose": "Закрыть поиск",
+  "searchSuggested": "Рекомендуем",
+  "searchCollections": "Категории",
+  "searchCollection": "Категория",
+  "searchResults": "{count, plural, =0 {Ничего не найдено} one {# результат} few {# результата} many {# результатов} other {# результата}}",
+  "searchNoResults": "По запросу «{query}» экскурсий не найдено",
+  "searchAskWhatsapp": "Спросите нас в WhatsApp",
+  "searchLoadFailed": "Не удалось загрузить поиск."
 }

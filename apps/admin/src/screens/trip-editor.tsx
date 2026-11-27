@@ -33,6 +33,12 @@ import { useConfirm } from '../components/ui/dialog';
 import { LoadError, Callout } from '../components/ui/states';
 import { HistorySection } from '../components/history';
 import { useMediaMap } from '../lib/catalog';
+import type { SearchKeywords } from '@stella/shared/search';
+import {
+  SearchKeywordsField,
+  keywordsFrom,
+  keywordsOut,
+} from '../components/search-keywords';
 
 let keySeq = 0;
 const newKey = () => 'k' + ++keySeq;
@@ -115,7 +121,7 @@ export type TripState = {
   plan: { rows: PlanRow[] };
   included: { rows: ItemRow[] };
   media: { cover: string | null; gallery: string[]; videos: string[] };
-  seo: { seoTitle: Loc; seoDescription: Loc };
+  seo: { seoTitle: Loc; seoDescription: Loc; searchKeywords: SearchKeywords };
 };
 
 /** Generated per-locale labels (runs on / duration) from structured data. */
@@ -282,6 +288,7 @@ function build(
     seo: {
       seoTitle: tl('seoTitle', 'seo_title'),
       seoDescription: tl('seoDescription', 'seo_description'),
+      searchKeywords: keywordsFrom(trip.searchKeywords),
     },
   };
 }
@@ -546,6 +553,7 @@ export function TripEditor({ id }: { id: string }) {
         patch('seo', {
           seoTitle: locOut(v.seoTitle),
           seoDescription: locOut(v.seoDescription),
+          searchKeywords: keywordsOut(v.searchKeywords),
         }),
     },
   });
@@ -1685,7 +1693,13 @@ export function TripMediaSection({
   );
 }
 
-export function SeoSection({
+export function SeoSection<
+  V extends {
+    seoTitle: Loc;
+    seoDescription: Loc;
+    searchKeywords?: SearchKeywords;
+  },
+>({
   v,
   set,
   title,
@@ -1693,8 +1707,8 @@ export function SeoSection({
   slug,
   kind,
 }: {
-  v: { seoTitle: Loc; seoDescription: Loc };
-  set: (v: { seoTitle: Loc; seoDescription: Loc }) => void;
+  v: V;
+  set: (v: V) => void;
   title: Loc;
   summary: Loc;
   slug: string;
@@ -1725,6 +1739,12 @@ export function SeoSection({
         kind={kind}
         origin={webOrigin}
       />
+      {v.searchKeywords && (
+        <SearchKeywordsField
+          value={v.searchKeywords}
+          onChange={(searchKeywords) => set({ ...v, searchKeywords })}
+        />
+      )}
     </>
   );
 }

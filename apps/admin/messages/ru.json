@@ -1248,5 +1248,11 @@
   "storyLongitude": "Долгота",
   "storyLatitude": "Широта",
   "storyFocalX": "Фокус по горизонтали (%)",
-  "storyFocalY": "Фокус по вертикали (%)"
+  "storyFocalY": "Фокус по вертикали (%)",
+  "searchKeywords": "Ключевые слова для поиска",
+  "searchKeywordsHelp": "Слова, которые посетители могут ввести, чтобы найти это. На сайте не показываются.",
+  "searchKeywordsOther": "Другие языки и написания",
+  "searchKeywordAdd": "Добавить ключевое слово",
+  "searchKeywordRemove": "Удалить «{word}»",
+  "searchKeywordsLimit": "До 30 ключевых слов длиной до 60 символов, без повторов."
 }

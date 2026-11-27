@@ -99,6 +99,13 @@
       "when": 1795608629074,
       "tag": "0013_remove_two_step_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795711100000,
+      "tag": "0015_search_keywords",
+      "breakpoints": true
     }
   ]
 }

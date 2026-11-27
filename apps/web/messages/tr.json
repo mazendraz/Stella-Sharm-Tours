@@ -174,5 +174,16 @@
   "summaryRef": "Talep numarası",
   "summaryDates": "Tarihler",
   "summaryGuests": "Misafirler",
-  "summaryTours": "Turlar"
+  "summaryTours": "Turlar",
+  "search": "Tur ara",
+  "searchPlaceholder": "Tur, yer veya aktivite ara",
+  "searchClear": "Aramayı temizle",
+  "searchClose": "Aramayı kapat",
+  "searchSuggested": "Önerilenler",
+  "searchCollections": "Kategoriler",
+  "searchCollection": "Kategori",
+  "searchResults": "{count, plural, =0 {Sonuç yok} one {# sonuç} other {# sonuç}}",
+  "searchNoResults": "“{query}” ile eşleşen tur yok",
+  "searchAskWhatsapp": "WhatsApp’tan bize sorun",
+  "searchLoadFailed": "Arama yüklenemedi."
 }

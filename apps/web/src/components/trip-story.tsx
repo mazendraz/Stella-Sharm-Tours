@@ -8,6 +8,7 @@ import type { Trip } from '@stella/shared/public-contract';
 import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
+import { createHistoryEntry } from '@/lib/history-entry';
 import { StoryStopPicker } from './story-stop-picker';
 import { RouteMap, travelsBetween } from './story-route-map';
 import './trip-story.css';
@@ -36,7 +37,8 @@ export default function TripStory({
     [paused, setPaused] = useState(true),
     [broken, setBroken] = useState(false);
   const pointer = useRef<{ x: number; y: number } | null>(null),
-    requestAfter = useRef(false);
+    requestAfter = useRef(false),
+    storyEntry = useRef<ReturnType<typeof createHistoryEntry> | null>(null);
   const ready = useTripStore((state) => state.ready);
   const scene = story?.scenes[index];
   const cover = trip.story_cover ?? trip.cover;
@@ -44,15 +46,26 @@ export default function TripStory({
     if (!open) return;
     const d = dialog.current!,
       controller = new AbortController();
-    d.showModal();
-    const marker =
-      Date.now().toString(36) + Math.random().toString(36).slice(2);
-    history.pushState({ ...history.state, stellaStory: marker }, '');
-    const back = () => setOpen(false);
+    if (!d.open) d.showModal();
     const pause = () => {
       if (document.hidden) video.current?.pause();
     };
-    window.addEventListener('popstate', back);
+    const finish = () => {
+      entry.current?.focus({ preventScroll: true });
+      if (requestAfter.current) {
+        requestAfter.current = false;
+        useTripStore
+          .getState()
+          .openRequest(
+            [trip],
+            privateMode ? 'private' : 'group',
+            1,
+            entry.current ?? undefined,
+          );
+      }
+    };
+    storyEntry.current ??= createHistoryEntry('stellaStory');
+    const detach = storyEntry.current.attach(() => setOpen(false), finish);
     document.addEventListener('visibilitychange', pause);
     if (previewStory) setStory(previewStory);
     else
@@ -72,27 +85,9 @@ export default function TripStory({
         });
     return () => {
       controller.abort();
-      window.removeEventListener('popstate', back);
+      detach();
       document.removeEventListener('visibilitychange', pause);
       d.close();
-      const finish = () => {
-        entry.current?.focus({ preventScroll: true });
-        if (requestAfter.current) {
-          requestAfter.current = false;
-          useTripStore
-            .getState()
-            .openRequest(
-              [trip],
-              privateMode ? 'private' : 'group',
-              1,
-              entry.current ?? undefined,
-            );
-        }
-      };
-      if (history.state?.stellaStory === marker) {
-        window.addEventListener('popstate', finish, { once: true });
-        history.back();
-      } else finish();
     };
   }, [open, locale, trip, privateMode, previewStory]);
   const arrive = useCallback(() => setMoving(false), []);

@@ -1248,5 +1248,11 @@
   "storyLongitude": "Boylam",
   "storyLatitude": "Enlem",
   "storyFocalX": "Yatay odak (%)",
-  "storyFocalY": "Dikey odak (%)"
+  "storyFocalY": "Dikey odak (%)",
+  "searchKeywords": "Arama anahtar kelimeleri",
+  "searchKeywordsHelp": "Ziyaretçilerin bunu bulmak için yazabileceği kelimeler. Sitede gösterilmez.",
+  "searchKeywordsOther": "Diğer diller ve yazımlar",
+  "searchKeywordAdd": "Anahtar kelime ekle",
+  "searchKeywordRemove": "“{word}” kaldır",
+  "searchKeywordsLimit": "En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."
 }

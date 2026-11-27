@@ -174,5 +174,16 @@
   "summaryRef": "Numéro de demande",
   "summaryDates": "Dates",
   "summaryGuests": "Voyageurs",
-  "summaryTours": "Excursions"
+  "summaryTours": "Excursions",
+  "search": "Rechercher une excursion",
+  "searchPlaceholder": "Excursions, lieux, activités",
+  "searchClear": "Effacer la recherche",
+  "searchClose": "Fermer la recherche",
+  "searchSuggested": "Suggestions",
+  "searchCollections": "Catégories",
+  "searchCollection": "Catégorie",
+  "searchResults": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
+  "searchNoResults": "Aucune excursion ne correspond à « {query} »",
+  "searchAskWhatsapp": "Demandez-nous sur WhatsApp",
+  "searchLoadFailed": "Impossible de charger la recherche."
 }

@@ -1248,5 +1248,11 @@
   "storyLongitude": "Longitude",
   "storyLatitude": "Latitude",
   "storyFocalX": "Horizontal focus (%)",
-  "storyFocalY": "Vertical focus (%)"
+  "storyFocalY": "Vertical focus (%)",
+  "searchKeywords": "Search keywords",
+  "searchKeywordsHelp": "Words visitors might type to find this. Not shown on the site.",
+  "searchKeywordsOther": "Other languages & spellings",
+  "searchKeywordAdd": "Add keyword",
+  "searchKeywordRemove": "Remove “{word}”",
+  "searchKeywordsLimit": "Up to 30 keywords of up to 60 characters each, without duplicates."
 }

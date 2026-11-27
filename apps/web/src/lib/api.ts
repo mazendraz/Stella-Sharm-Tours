@@ -12,6 +12,7 @@ import {
   pageSchema,
   savedTripsSchema,
 } from '@stella/shared/public-contract';
+import { searchIndexSchema } from '@stella/shared/search';
 import { env } from './env';
 export class ApiError extends Error {
   constructor(public status: number) {
@@ -66,6 +67,16 @@ export const getSavedTrips = (
     'saved-trips?' + new URLSearchParams({ slugs: slugs.join(','), locale }),
     savedTripsSchema,
     ['locales', ...slugs.map((slug) => 'trip:' + slug)],
+    reader,
+  );
+export const getSearchIndex = (
+  locale: string,
+  reader: Reader = 'catalog-reader',
+) =>
+  read(
+    'search-index?locale=' + encodeURIComponent(locale),
+    searchIndexSchema,
+    ['site', 'collections', 'locales'],
     reader,
   );
 export const getSite = cache((locale: string) =>
