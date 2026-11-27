@@ -2,6 +2,7 @@ import { TripView } from '@/components/trip-view';
 import { tripData } from '@/lib/route-data';
 import { getSite, getCollections } from '@/lib/api';
 import { metadataFor, JsonLd } from '@/lib/seo';
+import { tripSeo } from '@/lib/trip-seo';
 import { whatsapp } from '@/lib/links';
 import { siteOrigin } from '@/lib/env';
 import {
@@ -17,12 +18,13 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const trip = await tripData(slug, locale);
+  const trip = await tripData(slug, locale),
+    seo = tripSeo(trip, locale);
   return metadataFor(
     locale,
     '/t/' + slug,
-    trip.seo_title?.text ?? trip.title.text,
-    trip.seo_description?.text ?? trip.summary?.text,
+    seo.title,
+    seo.description,
     trip.cover?.url,
   );
 }
