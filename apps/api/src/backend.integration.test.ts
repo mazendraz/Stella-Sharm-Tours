@@ -19,6 +19,7 @@ import { bundledCoreText } from '@stella/shared/i18n/core-content';
 import { bookingStay } from '@stella/shared/i18n/booking-messages';
 import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
+import { usableMedia } from './admin';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
 import {
   createSearch,
@@ -2421,6 +2422,28 @@ describe('security-session regression cases', () => {
       .update(s.heroSlides)
       .set({ archivedAt: new Date(), status: 'draft' })
       .where(eq(s.heroSlides.id, slide.id));
+  });
+  it('names the file and the reason when media blocks publishing', async () => {
+    const [media] = await connection.db
+      .insert(s.media)
+      .values({
+        kind: 'video',
+        originalPath: 'qa/unknown-rights-blocker.mp4',
+        status: 'ready',
+        rightsStatus: 'unknown',
+      })
+      .returning();
+    await expect(usableMedia(connection.db, [media!.id])).rejects.toMatchObject(
+      {
+        status: 422,
+        message: 'MEDIA_NOT_PUBLISHABLE',
+        details: { mediaId: media!.id, reason: 'unknown_rights' },
+      },
+    );
+    const missing = randomUUID();
+    await expect(usableMedia(connection.db, [missing])).rejects.toMatchObject({
+      details: { mediaId: missing, reason: 'missing' },
+    });
   });
   it('restores an initially empty media alt value together with unknown rights', async () => {
     const owner = await dashboardAccount(),
