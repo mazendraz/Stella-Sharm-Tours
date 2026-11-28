@@ -4,10 +4,10 @@
 //
 //   pnpm db:seed-content
 import { readFile } from 'node:fs/promises';
-import { inArray } from 'drizzle-orm';
 import { connectDatabase } from '../packages/db/src/index';
 import { contentPages } from '../packages/db/src/schema';
 import { contentPageInput } from '../packages/shared/src/content';
+import { verifiedFaqFile } from '../packages/shared/src/faq-verified';
 
 const url = process.env.MIGRATION_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!url) throw new Error('Set DATABASE_URL');
@@ -19,19 +19,23 @@ export async function seedContentDrafts(
   const { pages } = JSON.parse(await readFile(file, 'utf8')) as {
     pages: unknown[];
   };
+  // Re-verified FAQ answers whose home is one of these drafts (7 languages).
+  const { items } = verifiedFaqFile.parse(
+    JSON.parse(
+      await readFile(
+        new URL('../data/content/faq-verified.json', import.meta.url),
+        'utf8',
+      ),
+    ),
+  );
   const parsed = pages.map((p) => contentPageInput.parse(p));
+  // drizzle-orm is not a root dependency, so no query operators here; the
+  // table is small and only the slugs are read.
+  const wanted = new Set(parsed.map((p) => p.slug));
   const existing = new Set(
-    (
-      await db
-        .select({ slug: contentPages.slug })
-        .from(contentPages)
-        .where(
-          inArray(
-            contentPages.slug,
-            parsed.map((p) => p.slug),
-          ),
-        )
-    ).map((r) => r.slug),
+    (await db.select({ slug: contentPages.slug }).from(contentPages))
+      .map((r) => r.slug)
+      .filter((slug) => wanted.has(slug)),
   );
   const fresh = parsed.filter((p) => !existing.has(p.slug));
   if (fresh.length)
@@ -45,6 +49,12 @@ export async function seedContentDrafts(
         body: p.body ?? null,
         relatedTrips: p.relatedTrips ?? [],
         relatedPages: p.relatedPages ?? [],
+        faqs: [
+          ...(p.faqs ?? []),
+          ...items
+            .filter((item) => item.home === p.slug)
+            .map((item) => ({ q: item.q, a: item.a })),
+        ],
         sort,
         status: 'draft' as const,
       })),
