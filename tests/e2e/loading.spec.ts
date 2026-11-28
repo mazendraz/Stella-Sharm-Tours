@@ -3,24 +3,28 @@ import en from '../../apps/web/messages/en.json' with { type: 'json' };
 import type { Page } from '@playwright/test';
 
 /**
- * Holds client-side navigation payloads (React Server Component requests)
- * until `release` is called, and refuses prefetches so the click really waits
- * on the network. Full document loads pass through.
+ * Simulates a slow network for one page: every React Server Component
+ * request for `path` (prefetch and navigation) is held until `release`.
+ * Refusing prefetches instead would make Next fall back to a full page load,
+ * which is not the client navigation under test. Other requests pass.
  */
-async function slowNavigation(page: Page) {
+async function slowNavigation(page: Page, path = '/en/contact') {
   let release!: () => void;
   const gate = new Promise<void>((done) => (release = done));
   await page.route('**/*', async (route) => {
-    const headers = route.request().headers();
-    if (headers['next-router-prefetch']) return route.abort();
-    if (headers['rsc']) {
+    const request = route.request();
+    if (request.headers()['rsc'] && new URL(request.url()).pathname === path) {
       await gate;
-      return route.continue();
+      return route.continue().catch(() => {});
     }
     return route.continue();
   });
   return () => release();
 }
+
+/** The footer link is visible at every width (the phone menu is closed). */
+const contactLink = (page: Page) =>
+  page.locator('footer a[href="/en/contact"]').first();
 
 // The loading layer must only appear for genuinely slow work, never cover
 // server-rendered content, and never be needed to see a page.
@@ -58,7 +62,7 @@ test('slow navigation shows the bar, then the slow-connection notice, and clears
   const release = await slowNavigation(page);
   await page.goto('/en');
   await page.clock.install();
-  await page.locator('a[href^="/en/c/"]').first().click();
+  await contactLink(page).click();
   await page.clock.runFor(300);
   await expect(page.locator('.nav-progress')).toHaveClass(/pending/);
   await expect(page.locator('.nav-slow')).toHaveCount(0);
@@ -69,7 +73,7 @@ test('slow navigation shows the bar, then the slow-connection notice, and clears
     notice.getByRole('button', { name: en.retry, exact: true }),
   ).toBeVisible();
   release();
-  await expect(page).toHaveURL(/\/en\/c\//);
+  await expect(page).toHaveURL(/\/en\/contact/);
   await expect(page.locator('.nav-progress')).toHaveClass(/idle/);
   await expect(notice).toHaveCount(0);
 });
@@ -86,8 +90,8 @@ test('fast navigation never flashes the bar', async ({ page }) => {
       ),
     ).observe(bar, { attributes: true });
   });
-  await page.locator('a[href^="/en/c/"]').first().click();
-  await expect(page).toHaveURL(/\/en\/c\//);
+  await contactLink(page).click();
+  await expect(page).toHaveURL(/\/en\/contact/);
   // Same-page links and in-page history (search panel) never start it.
   expect(states.filter((s) => s.includes('slow'))).toEqual([]);
 });
@@ -98,7 +102,7 @@ test('reduced motion: a calm static bar, no animation', async ({ browser }) => {
   await slowNavigation(page);
   await page.goto('/en');
   await page.clock.install();
-  await page.locator('a[href^="/en/c/"]').first().click();
+  await contactLink(page).click();
   await page.clock.runFor(300);
   const span = page.locator('.nav-progress span');
   await expect(span).toHaveCSS('animation-name', 'none');

@@ -636,6 +636,17 @@ test('home/trip accessibility, no overflow, screenshots', async ({
   for (const path of ['/en', '/en/t/quad-bike-safari']) {
     await page.goto(path);
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Off-screen sections use content-visibility: auto and report a 720 px
+    // placeholder until rendered, so axe would measure placeholder geometry
+    // (e.g. a sticky card deck over the next section). Scroll through once,
+    // as a visitor does; `auto` then keeps every section's real size.
+    await page.evaluate(async () => {
+      for (let y = 0; y < document.body.scrollHeight; y += innerHeight / 2) {
+        scrollTo(0, y);
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+      }
+      scrollTo(0, 0);
+    });
     await page.waitForTimeout(400);
     const violations = (
       await new AxeBuilder({ page })
