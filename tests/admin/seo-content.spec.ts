@@ -334,6 +334,11 @@ test.describe('SEO content admin', () => {
       await expect(
         ready.getByText(en.contentReady, { exact: true }),
       ).toBeVisible();
+      // save() shows its toast only after refetching every query, so wait for
+      // it before auditing (the audit then waits for it to leave).
+      await expect(page.getByText(en.contentSaved).first()).toBeVisible({
+        timeout: 30000,
+      });
       // Long body: the scrolling preview must still pass axe (keyboard access).
       await axe(page);
       await shot(page, 'guide-ready', info.project.name);
