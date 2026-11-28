@@ -232,5 +232,7 @@
   "waMsgMyTrip": "Merhaba Stella Sharm Tours! Tatilimi şu turlarla planlıyorum: {trips}. Bana yardımcı olabilir misiniz?",
   "waMsgRequest": "Merhaba Stella Sharm Tours! {ref} numaralı talebimle ilgili bir sorum var.",
   "waMsgFaq": "Merhaba Stella Sharm Tours! Sık sorulan sorularda yanıtını bulamadığım bir sorum var.",
-  "waMsgGeneral": "Merhaba Stella Sharm Tours! Turlarınız hakkında bir sorum var."
+  "waMsgGeneral": "Merhaba Stella Sharm Tours! Turlarınız hakkında bir sorum var.",
+  "navSlow": "Bu, her zamankinden uzun sürüyor; bağlantınız yavaş olabilir.",
+  "myTripLoading": "Seyahatiniz yükleniyor…"
 }

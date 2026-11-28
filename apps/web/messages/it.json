@@ -232,5 +232,7 @@
   "waMsgMyTrip": "Buongiorno Stella Sharm Tours! Sto organizzando la mia vacanza con queste escursioni: {trips}. Potete aiutarmi?",
   "waMsgRequest": "Buongiorno Stella Sharm Tours! Ho una domanda sulla mia richiesta {ref}.",
   "waMsgFaq": "Buongiorno Stella Sharm Tours! Ho una domanda che non trovo nelle domande frequenti.",
-  "waMsgGeneral": "Buongiorno Stella Sharm Tours! Ho una domanda sulle vostre escursioni."
+  "waMsgGeneral": "Buongiorno Stella Sharm Tours! Ho una domanda sulle vostre escursioni.",
+  "navSlow": "Ci vuole più del solito: la connessione potrebbe essere lenta.",
+  "myTripLoading": "Caricamento del tuo viaggio…"
 }

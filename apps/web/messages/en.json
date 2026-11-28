@@ -232,5 +232,7 @@
   "waMsgMyTrip": "Hello Stella Sharm Tours! I am planning my holiday with these trips: {trips}. Can you help me?",
   "waMsgRequest": "Hello Stella Sharm Tours! I have a question about my request {ref}.",
   "waMsgFaq": "Hello Stella Sharm Tours! I have a question that is not answered in the FAQ.",
-  "waMsgGeneral": "Hello Stella Sharm Tours! I have a question about your trips."
+  "waMsgGeneral": "Hello Stella Sharm Tours! I have a question about your trips.",
+  "navSlow": "This is taking longer than usual — your connection may be slow.",
+  "myTripLoading": "Loading your trip…"
 }

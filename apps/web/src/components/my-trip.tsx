@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { DayCardSkeleton, SkeletonGroup } from './skeleton';
 import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -96,7 +97,11 @@ export function MyTrip({ overlay = false }: { overlay?: boolean }) {
       <p className="kicker">{t('myTrip')}</p>
       <h1>{t(ids.length ? 'build' : 'emptyTrip')}</h1>
       {!ready ? (
-        <div className="skeleton" aria-busy="true" />
+        <SkeletonGroup label={t('myTripLoading')} className="day-list">
+          <DayCardSkeleton />
+          <DayCardSkeleton />
+          <DayCardSkeleton />
+        </SkeletonGroup>
       ) : !ids.length ? (
         <>
           {lastRequest && (

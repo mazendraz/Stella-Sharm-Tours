@@ -1,6 +1,7 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { TripNavigation } from './tab-bar';
+import { NavigationProgress } from './navigation-progress';
 import { recordPanelLink, restorePanelPath } from './panel-history';
 
 import Link from 'next/link';
@@ -182,6 +183,7 @@ export function Shell({
     <>
       <>
         <div onClickCapture={capture} data-enhanced={enhanced}>
+          <NavigationProgress />
           <a className="skip-link" href="#main">
             {t('skip')}
           </a>
