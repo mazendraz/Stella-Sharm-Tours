@@ -9861,5 +9861,176 @@
   "searchKeywordsOther": ["Other languages & spellings","Altre lingue e grafie","Otros idiomas y grafías","Autres langues et orthographes","Andere Sprachen & Schreibweisen","Другие языки и написания","Diğer diller ve yazımlar"],
   "searchKeywordAdd": ["Add keyword","Aggiungi parola chiave","Añadir palabra clave","Ajouter un mot-clé","Suchbegriff hinzufügen","Добавить ключевое слово","Anahtar kelime ekle"],
   "searchKeywordRemove": ["Remove “{word}”","Rimuovi “{word}”","Quitar «{word}»","Retirer « {word} »","„{word}“ entfernen","Удалить «{word}»","“{word}” kaldır"],
-  "searchKeywordsLimit": ["Up to 30 keywords of up to 60 characters each, without duplicates.","Fino a 30 parole chiave di massimo 60 caratteri, senza duplicati.","Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados.","Jusqu’à 30 mots-clés de 60 caractères maximum, sans doublons.","Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate.","До 30 ключевых слов длиной до 60 символов, без повторов.","En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."]
+  "searchKeywordsLimit": ["Up to 30 keywords of up to 60 characters each, without duplicates.","Fino a 30 parole chiave di massimo 60 caratteri, senza duplicati.","Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados.","Jusqu’à 30 mots-clés de 60 caractères maximum, sans doublons.","Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate.","До 30 ключевых слов длиной до 60 символов, без повторов.","En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."],
+  "pendingDraftsPublish": [
+    "Saved changes to {sections} aren’t live yet. Publish the trip to put them on the website.",
+    "Le modifiche salvate a {sections} non sono ancora online. Pubblica il viaggio per metterle sul sito.",
+    "Los cambios guardados en {sections} aún no están publicados. Publica el viaje para llevarlos al sitio web.",
+    "Les modifications enregistrées dans {sections} ne sont pas encore en ligne. Publiez l’excursion pour les mettre sur le site.",
+    "Gespeicherte Änderungen an {sections} sind noch nicht online. Veröffentliche den Ausflug, um sie auf die Website zu bringen.",
+    "Сохранённые изменения ({sections}) ещё не на сайте. Опубликуйте поездку, чтобы они появились на сайте.",
+    "{sections} bölümündeki kaydedilmiş değişiklikler henüz yayında değil. Siteye çıkması için turu yayınlayın."
+  ],
+  "pendingDraftsManager": [
+    "Saved changes to {sections} wait for an owner or manager to publish them.",
+    "Le modifiche salvate a {sections} attendono che un titolare o un responsabile le pubblichi.",
+    "Los cambios guardados en {sections} esperan a que un propietario o responsable los publique.",
+    "Les modifications enregistrées dans {sections} attendent qu’un propriétaire ou un responsable les publie.",
+    "Gespeicherte Änderungen an {sections} warten darauf, dass ein Inhaber oder Manager sie veröffentlicht.",
+    "Сохранённые изменения ({sections}) ждут публикации владельцем или менеджером.",
+    "{sections} bölümündeki kaydedilmiş değişikliklerin bir sahip veya yönetici tarafından yayınlanması bekleniyor."
+  ],
+  "publishBlockedTitle": [
+    "This trip wasn’t published",
+    "Questo viaggio non è stato pubblicato",
+    "Este viaje no se ha publicado",
+    "Cette excursion n’a pas été publiée",
+    "Dieser Ausflug wurde nicht veröffentlicht",
+    "Эта поездка не опубликована",
+    "Bu tur yayınlanmadı"
+  ],
+  "publishBlockedFile": [
+    "Blocking file: “{name}”",
+    "File che blocca: “{name}”",
+    "Archivo que lo impide: «{name}»",
+    "Fichier bloquant : « {name} »",
+    "Blockierende Datei: „{name}“",
+    "Файл, который мешает: «{name}»",
+    "Engelleyen dosya: “{name}”"
+  ],
+  "publishBlockedUsedAs": [
+    "Used in this trip as: {where}",
+    "Usato in questo viaggio come: {where}",
+    "Se usa en este viaje como: {where}",
+    "Utilisé dans cette excursion comme : {where}",
+    "In diesem Ausflug verwendet als: {where}",
+    "Используется в этой поездке как: {where}",
+    "Bu turda kullanıldığı yer: {where}"
+  ],
+  "publishBlockedStoryStop": [
+    "Trip story stop “{name}”",
+    "tappa del racconto “{name}”",
+    "parada de la historia «{name}»",
+    "étape du récit « {name} »",
+    "Station der Reisegeschichte „{name}“",
+    "остановка истории поездки «{name}»",
+    "tur hikâyesi durağı “{name}”"
+  ],
+  "publishBlockedReason_unknown_rights": [
+    "Reason: its usage rights are Unknown, so it can’t appear on the website.",
+    "Motivo: i diritti d’uso sono Sconosciuti, quindi non può comparire sul sito.",
+    "Motivo: sus derechos de uso son Desconocidos, así que no puede aparecer en el sitio web.",
+    "Raison : ses droits d’utilisation sont Inconnus, il ne peut donc pas apparaître sur le site.",
+    "Grund: Die Nutzungsrechte sind Unbekannt, daher darf die Datei nicht auf der Website erscheinen.",
+    "Причина: права на использование не указаны («Неизвестно»), поэтому файл не может появиться на сайте.",
+    "Neden: kullanım hakları Bilinmiyor, bu yüzden sitede görünemez."
+  ],
+  "publishBlockedFix_unknown_rights": [
+    "How to fix: open the file and set its usage rights (Owned, Licensed or Permission obtained). If you don’t have the rights, remove it from this trip and use a licensed file instead.",
+    "Come risolvere: apri il file e imposta i diritti d’uso (Di proprietà, Con licenza o Permesso ottenuto). Se non hai i diritti, toglilo da questo viaggio e usa un file con licenza.",
+    "Cómo solucionarlo: abre el archivo e indica sus derechos de uso (Propio, Con licencia o Permiso obtenido). Si no tienes los derechos, quítalo de este viaje y usa un archivo con licencia.",
+    "Comment corriger : ouvrez le fichier et indiquez ses droits (Propriété, Sous licence ou Autorisation obtenue). Si vous n’avez pas les droits, retirez-le de cette excursion et utilisez un fichier sous licence.",
+    "So behebst du es: Öffne die Datei und lege die Nutzungsrechte fest (Eigene, Lizenziert oder Erlaubnis erteilt). Wenn du die Rechte nicht hast, entferne sie aus diesem Ausflug und nutze eine lizenzierte Datei.",
+    "Как исправить: откройте файл и укажите права (Собственный, По лицензии или Разрешение получено). Если прав нет, уберите файл из поездки и используйте лицензированный.",
+    "Nasıl düzeltilir: dosyayı açıp kullanım haklarını belirleyin (Bize ait, Lisanslı veya İzin alındı). Haklara sahip değilseniz dosyayı bu turdan kaldırıp lisanslı bir dosya kullanın."
+  ],
+  "publishBlockedReason_archived": [
+    "Reason: the file is archived.",
+    "Motivo: il file è archiviato.",
+    "Motivo: el archivo está archivado.",
+    "Raison : le fichier est archivé.",
+    "Grund: Die Datei ist archiviert.",
+    "Причина: файл в архиве.",
+    "Neden: dosya arşivlenmiş."
+  ],
+  "publishBlockedFix_archived": [
+    "How to fix: restore the file in Media, or replace it in this trip with another file.",
+    "Come risolvere: ripristina il file in Media oppure sostituiscilo in questo viaggio con un altro file.",
+    "Cómo solucionarlo: restaura el archivo en Medios o reemplázalo en este viaje por otro archivo.",
+    "Comment corriger : restaurez le fichier dans Médias ou remplacez-le dans cette excursion par un autre fichier.",
+    "So behebst du es: Stelle die Datei unter Medien wieder her oder ersetze sie in diesem Ausflug durch eine andere Datei.",
+    "Как исправить: восстановите файл в разделе «Медиа» или замените его в поездке другим файлом.",
+    "Nasıl düzeltilir: dosyayı Medya bölümünde geri yükleyin veya bu turda başka bir dosyayla değiştirin."
+  ],
+  "publishBlockedReason_not_ready": [
+    "Reason: the file is still processing or its processing failed.",
+    "Motivo: il file è ancora in elaborazione oppure l’elaborazione non è riuscita.",
+    "Motivo: el archivo todavía se está procesando o su procesamiento falló.",
+    "Raison : le fichier est encore en cours de traitement ou son traitement a échoué.",
+    "Grund: Die Datei wird noch verarbeitet oder die Verarbeitung ist fehlgeschlagen.",
+    "Причина: файл ещё обрабатывается или обработка не удалась.",
+    "Neden: dosya hâlâ işleniyor veya işlenemedi."
+  ],
+  "publishBlockedFix_not_ready": [
+    "How to fix: wait a few minutes and publish again. If it still fails, upload the file again or replace it in this trip.",
+    "Come risolvere: attendi qualche minuto e pubblica di nuovo. Se non funziona ancora, carica di nuovo il file o sostituiscilo in questo viaggio.",
+    "Cómo solucionarlo: espera unos minutos y vuelve a publicar. Si sigue fallando, sube de nuevo el archivo o reemplázalo en este viaje.",
+    "Comment corriger : attendez quelques minutes puis publiez à nouveau. Si cela échoue encore, importez de nouveau le fichier ou remplacez-le dans cette excursion.",
+    "So behebst du es: Warte ein paar Minuten und veröffentliche erneut. Wenn es weiter fehlschlägt, lade die Datei neu hoch oder ersetze sie in diesem Ausflug.",
+    "Как исправить: подождите несколько минут и опубликуйте снова. Если не получится, загрузите файл заново или замените его в поездке.",
+    "Nasıl düzeltilir: birkaç dakika bekleyip yeniden yayınlayın. Yine olmazsa dosyayı tekrar yükleyin veya bu turda değiştirin."
+  ],
+  "publishBlockedReason_missing": [
+    "Reason: the file no longer exists.",
+    "Motivo: il file non esiste più.",
+    "Motivo: el archivo ya no existe.",
+    "Raison : le fichier n’existe plus.",
+    "Grund: Die Datei existiert nicht mehr.",
+    "Причина: файла больше нет.",
+    "Neden: dosya artık mevcut değil."
+  ],
+  "publishBlockedFix_missing": [
+    "How to fix: remove it from this trip and choose another file.",
+    "Come risolvere: toglilo da questo viaggio e scegli un altro file.",
+    "Cómo solucionarlo: quítalo de este viaje y elige otro archivo.",
+    "Comment corriger : retirez-le de cette excursion et choisissez un autre fichier.",
+    "So behebst du es: Entferne sie aus diesem Ausflug und wähle eine andere Datei.",
+    "Как исправить: уберите его из поездки и выберите другой файл.",
+    "Nasıl düzeltilir: bu turdan kaldırıp başka bir dosya seçin."
+  ],
+  "publishBlockedNoMedia": [
+    "The Trip story stop “{name}” has no photo or video.",
+    "La tappa del racconto “{name}” non ha foto né video.",
+    "La parada de la historia «{name}» no tiene foto ni vídeo.",
+    "L’étape du récit « {name} » n’a ni photo ni vidéo.",
+    "Die Station „{name}“ der Reisegeschichte hat kein Foto und kein Video.",
+    "У остановки истории поездки «{name}» нет фото или видео.",
+    "Tur hikâyesindeki “{name}” durağının fotoğrafı veya videosu yok."
+  ],
+  "publishBlockedNoMediaFix": [
+    "How to fix: add a photo or video to that stop in the Trip story section, or remove the stop.",
+    "Come risolvere: aggiungi una foto o un video a quella tappa nella sezione Racconto del viaggio, oppure elimina la tappa.",
+    "Cómo solucionarlo: añade una foto o vídeo a esa parada en la sección Historia del viaje o elimina la parada.",
+    "Comment corriger : ajoutez une photo ou une vidéo à cette étape dans la section Récit de l’excursion, ou supprimez l’étape.",
+    "So behebst du es: Füge der Station im Bereich Reisegeschichte ein Foto oder Video hinzu oder entferne die Station.",
+    "Как исправить: добавьте фото или видео к этой остановке в разделе «История поездки» или удалите остановку.",
+    "Nasıl düzeltilir: Tur hikâyesi bölümünde o durağa fotoğraf veya video ekleyin ya da durağı kaldırın."
+  ],
+  "openFile": [
+    "Open file",
+    "Apri file",
+    "Abrir archivo",
+    "Ouvrir le fichier",
+    "Datei öffnen",
+    "Открыть файл",
+    "Dosyayı aç"
+  ],
+  "goToStory": [
+    "Go to Trip story",
+    "Vai al racconto",
+    "Ir a la historia",
+    "Aller au récit",
+    "Zur Reisegeschichte",
+    "К истории поездки",
+    "Tur hikâyesine git"
+  ],
+  "dismiss": [
+    "Dismiss",
+    "Chiudi",
+    "Descartar",
+    "Masquer",
+    "Ausblenden",
+    "Скрыть",
+    "Kapat"
+  ]
 }

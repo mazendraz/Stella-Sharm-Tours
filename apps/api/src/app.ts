@@ -51,7 +51,7 @@ import {
   publicContentListSchema,
   publicContentPageSchema,
 } from '@stella/shared/content';
-import { fail } from './errors';
+import { ApiFailure, fail } from './errors';
 import {
   processedPath,
   createMediaAccess,
@@ -626,6 +626,9 @@ export function createApp(
                 : status === 403
                   ? 'Access denied'
                   : 'The request could not be completed',
+            ...(error instanceof ApiFailure && error.details
+              ? { details: error.details }
+              : {}),
           },
         },
         status,

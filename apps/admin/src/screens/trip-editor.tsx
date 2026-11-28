@@ -31,6 +31,7 @@ import {
 } from '../components/ui/media-picker';
 import { useConfirm } from '../components/ui/dialog';
 import { LoadError, Callout } from '../components/ui/states';
+import { PublishBlocker } from '../components/publish-blocker';
 import { HistorySection } from '../components/history';
 import { useMediaMap } from '../lib/catalog';
 import type { SearchKeywords } from '@stella/shared/search';
@@ -306,7 +307,9 @@ export function TripEditor({ id }: { id: string }) {
     confirm = useConfirm(),
     { navigate } = useGuard(),
     role = me!.role,
-    canPrices = can(role, 'prices');
+    canPrices = can(role, 'prices'),
+    canPublish = can(role, 'publish'),
+    [publishError, setPublishError] = useState<unknown>(null);
   const home = obj(homepage.data?.draft ?? homepage.data);
   const privateSlugs = useMemo(() => {
     const slugs = obj(home.home).private_trip_slugs;
@@ -704,6 +707,44 @@ export function TripEditor({ id }: { id: string }) {
       ]
     : [];
   const drafts = rows(query.data?.drafts);
+  // API draft sections -> the editor section names people see.
+  const draftSection: Record<string, keyof typeof labels> = {
+    basics: 'basics',
+    schedule: 'schedule',
+    seo: 'seo',
+    story: 'story',
+    itinerary: 'plan',
+    items: 'included',
+    media: 'media',
+  };
+  const draftNames = new Intl.ListFormat(locale, {
+    type: 'conjunction',
+  }).format([
+    ...new Set(
+      drafts.map((d) => labels[draftSection[String(d.section)] ?? 'basics']),
+    ),
+  ]);
+  // Where this trip uses each file, so a refused publish can name the place.
+  const mediaUses: Record<string, string[]> = {};
+  const useAs = (mediaId: unknown, label: string) => {
+    if (typeof mediaId !== 'string' || !mediaId) return;
+    (mediaUses[mediaId] ??= []).push(label);
+  };
+  for (const m of rows(query.data?.media))
+    useAs(
+      m.mediaId,
+      m.role === 'cover'
+        ? t('coverImage')
+        : m.role === 'video'
+          ? t('video')
+          : t('gallery'),
+    );
+  const storyScenes: Record<string, string> = {};
+  for (const scene of v?.story.story?.scenes ?? []) {
+    const title = content(scene.title, locale) || scene.id;
+    storyScenes[scene.id] = title;
+    useAs(scene.mediaId, t('publishBlockedStoryStop', { name: title }));
+  }
   return (
     <EditorLayout
       back={{ href: '/trips', label: t('trips') }}
@@ -719,8 +760,20 @@ export function TripEditor({ id }: { id: string }) {
           {status === 'archived' && (
             <Callout tone="warning">{t('archivedBanner')}</Callout>
           )}
+          {publishError != null && (
+            <PublishBlocker
+              error={publishError}
+              uses={mediaUses}
+              scenes={storyScenes}
+              onDismiss={() => setPublishError(null)}
+            />
+          )}
           {drafts.length > 0 && (
-            <Callout tone="info">{t('pendingDrafts')}</Callout>
+            <Callout tone="info">
+              {t(canPublish ? 'pendingDraftsPublish' : 'pendingDraftsManager', {
+                sections: draftNames,
+              })}
+            </Callout>
           )}
           {role === 'editor' && status === 'published' && (
             <Callout tone="info">{t('editorDraftNote')}</Callout>
@@ -745,7 +798,14 @@ export function TripEditor({ id }: { id: string }) {
           missingLocales={missing.map((code) => languageName(code, locale))}
           onPublish={async () => {
             if (editor.dirty.length && !(await editor.save())) return;
-            await actions.publish(id);
+            setPublishError(null);
+            try {
+              await actions.publish(id);
+            } catch (error) {
+              // Keep the reason on screen; a toast alone vanishes too fast.
+              setPublishError(error);
+              throw error;
+            }
           }}
           onUnpublish={() => actions.unpublish(id)}
           onArchive={
