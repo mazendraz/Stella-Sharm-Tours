@@ -68,7 +68,16 @@ async function login(page: Page, user: Staff) {
   await expect(page.locator('main h1')).toHaveText(en.overview);
 }
 
-const axe = async (page: Page) =>
+const axe = async (page: Page) => {
+  // Toasts fade in and out; auditing one mid-animation measures its
+  // half-transparent text. Audit the settled page.
+  await page.mouse.move(1, 1);
+  await expect(page.locator('[data-sonner-toast]')).toHaveCount(0, {
+    timeout: 30000,
+  });
+  return axeNow(page);
+};
+const axeNow = async (page: Page) =>
   expect(
     (
       await new AxeBuilder({ page })
@@ -770,15 +779,19 @@ test.describe('SEO content admin', () => {
           { timeout: 90000, intervals: [3000] },
         )
         .toContain(title + ' IT');
-      // Live check reads the public page like a crawler.
-      await page
-        .getByRole('button', { name: en.seoCheckPage, exact: true })
-        .click();
-      await expect(page.getByText(en.seoMetadataInHead)).toBeVisible({
-        timeout: 60000,
-      });
-      await page.getByText(en.seoStructuredData).click();
-      await expect(page.locator('pre').first()).toContainText('TouristTrip');
+      // Live check reads the public page like a crawler. In the container
+      // stack the API's WEB_ORIGIN (localhost:4983) is not reachable from
+      // inside the API container, so only the local stack can run it.
+      if (!verify) {
+        await page
+          .getByRole('button', { name: en.seoCheckPage, exact: true })
+          .click();
+        await expect(page.getByText(en.seoMetadataInHead)).toBeVisible({
+          timeout: 60000,
+        });
+        await page.getByText(en.seoStructuredData).click();
+        await expect(page.locator('pre').first()).toContainText('TouristTrip');
+      }
       await axe(page);
       await shot(page, 'seo-trip', info.project.name);
       // Reset: clearing every language returns to the automatic texts.
