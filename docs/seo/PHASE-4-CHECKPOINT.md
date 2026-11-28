@@ -22,17 +22,28 @@ Final report: [PHASE-4-RELEASE-READINESS.md](PHASE-4-RELEASE-READINESS.md).
 
 ## Status
 
-| Step                                  | State                         |
-| ------------------------------------- | ----------------------------- |
-| CI PR #19 / PR #20                    | success / in progress         |
-| Recovery snapshot                     | done                          |
-| Conflict resolution (31 files)        | done, committed `dd48bd3`     |
-| Unit / lint / typecheck / format      | 523 passed / ok / 6 of 6 / ok |
-| Premium loading experience            | next                          |
-| Migrations on disposable DBs          | to do                         |
-| Integration, admin, public e2e, crawl | to do                         |
-| Linux build (Docker), performance     | to do                         |
-| Release readiness report              | to do                         |
+| Step                                | State                                                                         |
+| ----------------------------------- | ----------------------------------------------------------------------------- |
+| CI PR #19 / #18                     | success / success                                                             |
+| CI PR #20                           | re-running on `2d35f4c` (earlier failures were admin-spec test timing; fixed) |
+| Recovery snapshot                   | done                                                                          |
+| Conflict resolution (31 files)      | done (`dd48bd3`)                                                              |
+| Migration re-stamp 0019/0020        | done; drizzle-kit check OK; no drift; 7 combined scenarios OK                 |
+| Loading experience                  | done (`f27c84c`), tests in `loading.spec.ts`                                  |
+| Unit / lint / typecheck / format    | 523 / ok / 6 of 6 / ok                                                        |
+| Integration                         | 77/77                                                                         |
+| Admin browser (3 widths)            | 15 passed, 6 skipped, 0 failed                                                |
+| Public e2e (3 widths)               | 108 passed, 12 skipped, 0 failed                                              |
+| SEO crawl                           | 350 URLs, 0 errors, 1 warning                                                 |
+| Linux Docker images (api/web/admin) | built, inspected (local only)                                                 |
+| Performance                         | measured; small regression documented; 2.5 s target not met                   |
+| Release readiness report            | done                                                                          |
+
+## Known gaps
+
+- Google Reviews plan tasks 2–6 (import, API, admin moderation, reviews
+  section) were never implemented in the source worktree.
+- Staging unreachable; `develop` branch missing; no SSH/DB access here.
 
 ## Authorizations still required (do not do without them)
 
@@ -41,5 +52,7 @@ production deploys, production migrations. See the readiness report §17.
 
 ## Next exact action
 
-Implement the loading experience in `F:\stella-integration`, then run the
-combined QA list in the readiness report.
+Wait for the owner's single approval (readiness report §17). Then: commit
+the Google Reviews/WhatsApp work as reviewed, open its PR, merge in the
+order of §13, create `develop`, deploy to staging, accept, tag for
+production. Until then, keep `F:\stella-integration` as is (local).
