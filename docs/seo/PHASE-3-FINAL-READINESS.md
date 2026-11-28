@@ -38,6 +38,10 @@ whoever integrates Google Reviews.
 
 ## 4. Browser test results (actual runs this session)
 
+**Static checks (final):** format, lint (0 warnings), typecheck 6/6, unit
+**503 passed** (35 files), integration **74 passed** (real PostgreSQL 16,
+fresh DB), secret scan exit 0 (638 files).
+
 **Admin (isolated stack), final run:** 15 tests → **9 passed, 6 skipped, 0
 failed** (3.7 min). The 6 skips are by design: the four mutating workflows
 (guide lifecycle, AI visibility writes, tour SEO texts, verification answers
@@ -249,7 +253,32 @@ measurements). FAQ drafts are ordinary `faqs` rows with `status='draft'`.
 
 ## 16. Protected Google Reviews worktree
 
-PROTECTED_RESULT
+`F:\stella-project-kit` (`feat/google-reviews`) was only read in this
+session: `git --no-optional-locks status/diff/ls-files`, `cat`, and copying
+its changed files **into** a separate scratch clone for the dry-run merge.
+Every write of this session went to `F:\stella-seo`, ignored `.local/` paths
+or the session scratchpad; its running `stella-integration-verify`
+containers were not stopped or reused.
+
+| Check (start 15:37 → end 17:51 local)  | Start                             | End                                                 |
+| -------------------------------------- | --------------------------------- | --------------------------------------------------- |
+| Branch / HEAD                          | `feat/google-reviews` / `6f59b11` | same                                                |
+| Status entries                         | 136                               | **139**: the same 136 paths + 3 new untracked files |
+| Content fingerprint (diff + untracked) | `3c10cbff…f9b211`                 | changed; tracked diff 5 364 → 5 507 insertions      |
+
+**The worktree did not stay unchanged — but not because of this session.**
+Between 17:37 and 17:42 someone else (the owner or another agent session)
+made a coherent feature edit there: a floating WhatsApp button
+(`apps/web/src/components/whatsapp-float.tsx`,
+`apps/web/src/lib/whatsapp-page.ts` + test, and changes to the seven web
+dictionaries, `store.ts`, `shell.tsx`, `tab-bar.tsx`, `collection-view.tsx`,
+`trip-view.tsx`, `globals.css`, `CHANGELOG.md`). At that time this session
+was running its own public test suite against `F:\stella-seo`; none of its
+commands target those paths. Nothing there was reverted or touched.
+Consequence: the conflict matrix (§11) was computed from a snapshot taken
+before those edits; recompute it once Google Reviews is committed
+(`trip-view.tsx`, `shell.tsx`, `collection-view.tsx`, `globals.css` and the
+dictionaries are files this branch also changes).
 
 ## Classification of remaining items
 
