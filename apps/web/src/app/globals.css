@@ -3835,3 +3835,67 @@ input[type='search']::-webkit-search-decoration {
     gap: 2px;
   }
 }
+
+/* Travel guides (/guides): reading layout on the existing tokens. */
+.guide-page,
+.guides-index {
+  max-inline-size: 760px;
+}
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.breadcrumb li + li::before {
+  content: '›';
+  margin-inline-end: 8px;
+  color: var(--ink-2);
+}
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  color: var(--ink-2);
+}
+.guide-page > h1 {
+  margin-block-end: 16px;
+}
+.guide-page .lead,
+.guides-index .lead {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+.guide-meta {
+  margin-block: 8px 32px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.guide-body {
+  line-height: 1.7;
+}
+.guide-body h2,
+.guide-page section > h2,
+.guides-index section > h2 {
+  margin-block: 40px 12px;
+}
+.guide-body ul,
+.guide-links,
+.guide-sources {
+  padding-inline-start: 1.2em;
+}
+.guide-links li,
+.guide-sources li {
+  margin-block: 6px;
+}
+.guide-links a,
+.guide-sources a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  color: var(--history);
+  text-decoration: underline;
+}

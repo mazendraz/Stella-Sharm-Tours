@@ -3,6 +3,7 @@ import {
   getCollections,
   getCollection,
   getPage,
+  getContentList,
   ApiError,
 } from '@/lib/api';
 import { siteOrigin } from '@/lib/env';
@@ -38,12 +39,21 @@ async function approvedLegalPaths() {
 }
 
 export async function GET() {
+  const addImageLater: [string, string | undefined][] = [];
   try {
-    const [site, collections, legal] = await Promise.all([
+    const [site, collections, legal, content] = await Promise.all([
       getSite('en'),
       getCollections('en'),
       approvedLegalPaths(),
+      getContentList('en'),
     ]);
+    // Published guides only; lastmod is the page's real update time.
+    const lastmod = new Map(
+      content.map((page) => ['/guides/' + page.slug, page.updated_at]),
+    );
+    content.forEach((page) =>
+      addImageLater.push(['/guides/' + page.slug, page.cover?.url]),
+    );
     const details = await Promise.all(
       collections.map((collection) => getCollection(collection.slug, 'en')),
     );
@@ -56,6 +66,7 @@ export async function GET() {
       if (!list.includes(url)) images.set(path, [...list, url]);
     };
     collections.forEach((c) => addImage('/c/' + c.slug, c.cover?.url));
+    addImageLater.forEach(([path, url]) => addImage(path, url));
     details.forEach((detail) =>
       detail.trips.forEach((trip) => {
         addImage('/t/' + trip.slug, trip.cover?.url);
@@ -75,6 +86,8 @@ export async function GET() {
           detail.trips.map((trip) => '/t/' + trip.slug),
         ),
       ),
+      ...(content.length ? ['/guides'] : []),
+      ...content.map((page) => '/guides/' + page.slug),
     ];
     const locales = site.locales
       .filter((locale) => locale.indexable)
@@ -96,7 +109,7 @@ export async function GET() {
         .join('');
       return locales.map(
         (locale) =>
-          `<url><loc>${href(locale)}</loc>${alternates}${imageTags}</url>`,
+          `<url><loc>${href(locale)}</loc>${lastmod.has(path) ? `<lastmod>${escapeXml(lastmod.get(path)!)}</lastmod>` : ''}${alternates}${imageTags}</url>`,
       );
     });
     return new Response(

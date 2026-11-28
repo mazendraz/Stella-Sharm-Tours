@@ -13,6 +13,10 @@ import {
   savedTripsSchema,
 } from '@stella/shared/public-contract';
 import { searchIndexSchema } from '@stella/shared/search';
+import {
+  publicContentListSchema,
+  publicContentPageSchema,
+} from '@stella/shared/content';
 import { env } from './env';
 export class ApiError extends Error {
   constructor(public status: number) {
@@ -137,3 +141,26 @@ export const getPage = (key: string, locale: string) =>
     pageSchema,
     ['page:' + key],
   );
+/** Published guides/destination/activity pages; [] where the API predates them. */
+export const getContentList = cache(async (locale: string) => {
+  try {
+    return await read(
+      'content?locale=' + encodeURIComponent(locale),
+      publicContentListSchema,
+      ['content'],
+    );
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return [];
+    throw error;
+  }
+});
+export const getContentPage = cache((slug: string, locale: string) =>
+  read(
+    'content/' +
+      encodeURIComponent(slug) +
+      '?locale=' +
+      encodeURIComponent(locale),
+    publicContentPageSchema,
+    ['content'],
+  ),
+);

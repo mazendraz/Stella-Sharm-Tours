@@ -212,6 +212,54 @@ const server = createServer(async (req, res) => {
     }
     return json(buildSearchIndex(source));
   }
+  // One synthetic published guide (test data only) exercising the guide route,
+  // sitemap, JSON-LD and related-trip links.
+  const fixtureGuide = {
+    slug: 'fixture-ras-mohammed-guide',
+    kind: 'guide',
+    category: 'sea',
+    title: {
+      text: 'Fixture guide: Ras Mohammed by boat or by bus',
+      lang: 'en',
+    },
+    summary: { text: 'Test-only guide used by the e2e suite.', lang: 'en' },
+    cover: null,
+    updated_at: '2026-11-28T10:00:00.000Z',
+  };
+  if (url.pathname === '/v1/public/content') return json([fixtureGuide]);
+  if (url.pathname === '/v1/public/content/' + fixtureGuide.slug)
+    return json({
+      ...fixtureGuide,
+      body: {
+        text: [
+          '## By boat',
+          'A full day with two snorkelling stops.',
+          '',
+          '## By bus',
+          '- About five hours',
+          '- Departure 08:30',
+        ].join(String.fromCharCode(10)),
+        lang: 'en',
+      },
+      seo_title: null,
+      seo_description: null,
+      author: { name: 'Fixture Author', role: 'QA' },
+      sources: [{ title: 'Fixture source', url: 'https://example.com/source' }],
+      faqs: [
+        {
+          q: { text: 'Is this a test?', lang: 'en' },
+          a: { text: 'Yes, fixture data only.', lang: 'en' },
+        },
+      ],
+      related_trips: ['ras-mohammed-white-island-boat', 'ras-mohammed-bus'],
+      related_pages: [],
+      published_at: '2026-11-28T10:00:00.000Z',
+    });
+  if (url.pathname.startsWith('/v1/public/content/'))
+    return json(
+      { error: { code: 'NOT_FOUND', message: 'Resource not found' } },
+      404,
+    );
   if (url.pathname === '/v1/public/faq') return json([]);
   if (url.pathname === '/v1/public/messages') return json({});
   return json({ error: { code: 'NOT_FOUND' } }, 404);

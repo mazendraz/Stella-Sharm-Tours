@@ -244,3 +244,48 @@ export function collectionName(
 ): string | undefined {
   return collections.find((c) => c.slug === slug)?.name.text;
 }
+
+/**
+ * A guide, destination or activity page. The author is a Person only when the
+ * page names one; dates are the real publish/update times from the database.
+ */
+export function article(
+  page: {
+    title: { text: string };
+    summary: { text: string } | null;
+    author: { name: string; role: string | null } | null;
+    cover: { url: string } | null;
+    published_at: string | null;
+    updated_at: string;
+    kind: 'guide' | 'destination' | 'activity';
+  },
+  url: string,
+  origin: string,
+  locale: string,
+): Node {
+  return clean({
+    '@type': page.kind === 'destination' ? 'TouristDestination' : 'Article',
+    '@id': url + '#article',
+    ...(page.kind === 'destination'
+      ? { name: page.title.text }
+      : {
+          headline: page.title.text,
+          inLanguage: locale,
+          datePublished: page.published_at ?? undefined,
+          dateModified: page.updated_at,
+          author: page.author
+            ? {
+                '@type': 'Person',
+                name: page.author.name,
+                jobTitle: page.author.role ?? undefined,
+                worksFor: { '@id': orgId(origin) },
+              }
+            : { '@id': orgId(origin) },
+          publisher: { '@id': orgId(origin) },
+        }),
+    description: page.summary ? plain(page.summary.text) : undefined,
+    image: page.cover?.url,
+    url,
+    mainEntityOfPage: { '@id': url + '#webpage' },
+  });
+}

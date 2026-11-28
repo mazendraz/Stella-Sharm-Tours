@@ -190,5 +190,21 @@
   "seoHomeDescription": "Escursioni da Sharm El Sheikh: Ras Mohammed e Tiran in barca, safari nel deserto, Il Cairo, Luxor e Petra — in gruppo o in privato, con trasferimento dall’hotel.",
   "seoCollectionTitle": "{name}: escursioni da Sharm El Sheikh",
   "seoFaqDescription": "Risposte alle domande più frequenti su come prenotare escursioni a Sharm El Sheikh con Stella Sharm Tours.",
-  "seoContactDescription": "Contatta Stella Sharm Tours su WhatsApp o per telefono, oppure vieni nel nostro ufficio all’Old Market di Sharm El Sheikh."
+  "seoContactDescription": "Contatta Stella Sharm Tours su WhatsApp o per telefono, oppure vieni nel nostro ufficio all’Old Market di Sharm El Sheikh.",
+  "breadcrumb": "Percorso",
+  "guides": "Guide di viaggio",
+  "guidesIntro": "Guide pratiche alle escursioni da Sharm El Sheikh, scritte dal nostro team e collegate alle escursioni che descrivono.",
+  "seoGuidesDescription": "Guide alle escursioni da Sharm El Sheikh: Ras Mohammed, Il Cairo, Monte Sinai, safari nel deserto ed escursioni private — come funzionano e come scegliere.",
+  "guideBy": "Di {name}",
+  "guideUpdated": "Aggiornato il {date}",
+  "guideRelatedTrips": "Escursioni di questa guida",
+  "guideQuestions": "Domande",
+  "guideRelatedPages": "Guide correlate",
+  "guideSources": "Fonti",
+  "guideKind_guide": "Guida",
+  "guideKind_destination": "Destinazione",
+  "guideKind_activity": "Attività",
+  "guideKinds_guide": "Guide",
+  "guideKinds_destination": "Destinazioni",
+  "guideKinds_activity": "Attività"
 }
