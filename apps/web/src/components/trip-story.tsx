@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Play, X } from 'lucide-react';
-import { publicStorySchema, type PublicStory } from '@stella/shared/story';
+import type { PublicStory } from '@stella/shared/story';
 import type { Trip } from '@stella/shared/public-contract';
 import { Media } from './media';
 import { useTripStore } from './store';
@@ -75,7 +75,13 @@ export default function TripStory({
       )
         .then(async (r) => {
           if (!r.ok) throw Error();
-          return publicStorySchema.parse(await r.json());
+          // The schema (and Zod) loads only when a story is opened, so it is
+          // not part of the home page's first JavaScript (mobile LCP).
+          const [{ publicStorySchema }, body] = await Promise.all([
+            import('@stella/shared/story'),
+            r.json(),
+          ]);
+          return publicStorySchema.parse(body);
         })
         .then((s) => {
           if (!controller.signal.aborted) setStory(s);

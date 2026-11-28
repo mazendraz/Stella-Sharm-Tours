@@ -121,6 +121,10 @@ export function TripView({
             <Media
               media={media}
               priority={i === 0}
+              // Chrome fetches lazy images in a horizontal scroller early, so
+              // later slides would compete with the first (LCP) image; they
+              // load just after hydration instead (<noscript> fallback kept).
+              defer={i > 0}
               sizes="(min-width:1024px) 620px, 100vw"
             />
             {media.video && media.rights_status !== 'unknown' && (
