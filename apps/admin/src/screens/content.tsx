@@ -424,10 +424,12 @@ function ContentEditor({ id }: { id: string }) {
             />
           )}
         </FormField>
+        {/* Scrolls once the text is long: reachable by keyboard (WCAG 2.1.1). */}
         <section
           className="content-preview"
           aria-labelledby="content-preview-h"
           lang={lang}
+          tabIndex={0}
         >
           <h3 id="content-preview-h">{t('contentPreview')}</h3>
           {preview.length ? (

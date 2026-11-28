@@ -109,6 +109,16 @@
 /* Phase 3: content pages, Verification Center, AI visibility. */
 .seo-scroll {
   overflow-x: auto;
+  /* Containing block for absolutely positioned children (.sr-only header
+     labels): without it they escape the clip and widen the whole page on
+     phones, which then zooms out. */
+  position: relative;
+}
+.content-preview:focus-visible,
+.seo-json:focus-visible,
+.seo-scroll:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 .seo-form-grid {
   display: grid;

@@ -160,7 +160,14 @@ export function Visibility() {
                 body={t('visibilityEmptyBody')}
               />
             ) : (
-              <div className="seo-scroll">
+              // Wide tables scroll sideways on phones: the scroll area must be
+              // reachable by keyboard (WCAG 2.1.1, axe scrollable-region).
+              <div
+                className="seo-scroll"
+                role="region"
+                tabIndex={0}
+                aria-label={t('visibilityTrend')}
+              >
                 <table className="seo-table">
                   <caption className="sr-only">{t('visibilityTrend')}</caption>
                   <thead>
@@ -212,7 +219,12 @@ export function Visibility() {
                   {t('visibilityHistory', { n: data.length })}
                 </h2>
               </div>
-              <div className="seo-scroll">
+              <div
+                className="seo-scroll"
+                role="region"
+                tabIndex={0}
+                aria-label={t('visibilityHistory', { n: data.length })}
+              >
                 <table className="seo-table">
                   <caption className="sr-only">
                     {t('visibilityHistory', { n: data.length })}

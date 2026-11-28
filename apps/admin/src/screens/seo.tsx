@@ -749,7 +749,12 @@ function TourSeo({ data, id }: { data: SeoData; id: string }) {
           {live.page && (
             <details>
               <summary>{t('seoStructuredData')}</summary>
-              <pre className="seo-json">
+              {/* Scrolls on phones: keyboard users must reach it (WCAG 2.1.1). */}
+              <pre
+                className="seo-json"
+                tabIndex={0}
+                aria-label={t('seoStructuredData')}
+              >
                 {JSON.stringify(live.page.jsonld, null, 2)}
               </pre>
             </details>
