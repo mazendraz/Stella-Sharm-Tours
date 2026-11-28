@@ -297,7 +297,9 @@ export function registerContent(
 
   app.get('/v1/public/content', async (c) => {
     const result = await catalog(c),
-      rows = await published();
+      rows = await published(),
+      // Only published trips: trip pages use this to link back to guides.
+      liveTrips = new Set(result.trips.map((x) => x.slug));
     return c.json(
       rows.map((r) => ({
         slug: r.slug,
@@ -306,6 +308,7 @@ export function registerContent(
         title: result.text('content_page', r.id, 'title', r.title)!,
         summary: result.text('content_page', r.id, 'summary', r.summary),
         cover: result.media(r.coverMediaId),
+        related_trips: r.relatedTrips.filter((x) => liveTrips.has(x)),
         updated_at: r.updatedAt.toISOString(),
       })),
     );
@@ -340,18 +343,30 @@ export function registerContent(
       })),
       cover: result.media(page.coverMediaId),
       related_trips: page.relatedTrips.filter((x) => liveTrips.has(x)),
-      related_pages: page.relatedPages.flatMap((rel) => {
-        const r = rows.find((x) => x.slug === rel);
-        return r
-          ? [
-              {
-                slug: r.slug,
-                kind: r.kind,
-                title: result.text('content_page', r.id, 'title', r.title)!,
-              },
-            ]
-          : [];
-      }),
+      // Links work both ways: published pages that list this one are related
+      // too (a destination page shows the guides that point to it).
+      related_pages: [
+        ...new Set([
+          ...page.relatedPages,
+          ...rows
+            .filter((r) => r.relatedPages.includes(page.slug))
+            .map((r) => r.slug),
+        ]),
+      ]
+        .filter((rel) => rel !== page.slug)
+        .slice(0, 12)
+        .flatMap((rel) => {
+          const r = rows.find((x) => x.slug === rel);
+          return r
+            ? [
+                {
+                  slug: r.slug,
+                  kind: r.kind,
+                  title: result.text('content_page', r.id, 'title', r.title)!,
+                },
+              ]
+            : [];
+        }),
       published_at: page.publishedAt?.toISOString() ?? null,
       updated_at: page.updatedAt.toISOString(),
     });

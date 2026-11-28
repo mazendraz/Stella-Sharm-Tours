@@ -184,6 +184,7 @@ export const publicContentListSchema = z.array(
     title: true,
     summary: true,
     cover: true,
+    related_trips: true,
     updated_at: true,
   }),
 );

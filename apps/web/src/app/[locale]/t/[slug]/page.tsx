@@ -1,4 +1,5 @@
 import { TripView } from '@/components/trip-view';
+import { TripGuides } from '@/components/trip-guides';
 import { tripData } from '@/lib/route-data';
 import { getSite, getCollections } from '@/lib/api';
 import { metadataFor, JsonLd } from '@/lib/seo';
@@ -65,6 +66,7 @@ export default async function TripPage({
         whatsappUrl={whatsapp(site.contacts.whatsapp_primary)}
         requestedPrivate={requestedPrivate}
       />
+      <TripGuides slug={slug} locale={locale} />
       <JsonLd value={jsonLd} />
     </main>
   );

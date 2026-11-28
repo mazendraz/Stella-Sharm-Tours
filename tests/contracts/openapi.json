@@ -30410,6 +30410,12 @@
                           "height"
                         ]
                       },
+                      "related_trips": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
                       "updated_at": {
                         "type": "string"
                       }
@@ -30421,6 +30427,7 @@
                       "title",
                       "summary",
                       "cover",
+                      "related_trips",
                       "updated_at"
                     ]
                   }

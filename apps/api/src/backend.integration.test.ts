@@ -3971,6 +3971,7 @@ describe('travel guides, verification answers and visibility records', () => {
   const publicList = async () =>
     (await (await app.request('/v1/public/content?locale=en')).json()) as {
       slug: string;
+      related_trips: string[];
     }[];
   const post = (client: Client, path: string) =>
     client.call('/v1/admin/content-pages/' + path, 'POST', {});
@@ -4077,6 +4078,11 @@ describe('travel guides, verification answers and visibility records', () => {
     expect(italian.title).toEqual({ text: 'QA guide (it)', lang: 'it' });
     expect(italian.related_trips).toEqual(['quad-bike-safari']);
     expect(italian.faqs).toHaveLength(1);
+    // The list carries the related trips so trip pages can link back.
+    expect(
+      (await publicList()).find((p) => p.slug === 'qa-ready-guide')
+        ?.related_trips,
+    ).toEqual(['quad-bike-safari']);
 
     // A live page: editors cannot change it, nobody can save it back into an
     // unpublishable state, and its address cannot change while live.
@@ -4115,6 +4121,10 @@ describe('travel guides, verification answers and visibility records', () => {
     expect(
       (await app.request('/v1/public/content/qa-ready-guide?locale=en')).status,
     ).toBe(404);
+    // Unpublished pages also leave the list, so no trip links to them.
+    expect((await publicList()).map((p) => p.slug)).not.toContain(
+      'qa-ready-guide',
+    );
     expect((await post(await ownerClient(), thinId + '/archive')).status).toBe(
       200,
     );

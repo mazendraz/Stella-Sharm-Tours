@@ -3899,3 +3899,16 @@ input[type='search']::-webkit-search-decoration {
   color: var(--history);
   text-decoration: underline;
 }
+/* Guides that link to this trip, below the trip and its booking bar. */
+.trip-guides {
+  max-inline-size: 900px;
+  margin-inline: auto;
+  padding-block: 32px 48px;
+}
+.trip-guides h2 {
+  margin-block-end: 8px;
+}
+.trip-guides p {
+  margin-block: 0 8px;
+  color: var(--ink-2);
+}

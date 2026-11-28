@@ -132,3 +132,19 @@ test('published guides render server-side with breadcrumbs, links and JSON-LD', 
     '/en/guides/' + slug,
   );
 });
+
+test('trip pages link back to the published guides that list them', async ({
+  request,
+}) => {
+  const slug = 'fixture-ras-mohammed-guide';
+  // A related trip: crawlable link in the server HTML, in the page's locale.
+  const related = await (
+    await request.get('/it/t/ras-mohammed-white-island-boat')
+  ).text();
+  expect(related).toContain('id="trip-guides-h"');
+  expect(related).toContain('href="/it/guides/' + slug + '"');
+  // An unrelated trip renders no empty section.
+  const other = await (await request.get('/en/t/quad-bike-safari')).text();
+  expect(other).not.toContain('id="trip-guides-h"');
+  expect(other).not.toContain('/guides/' + slug);
+});

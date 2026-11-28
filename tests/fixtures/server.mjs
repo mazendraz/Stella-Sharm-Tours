@@ -224,6 +224,7 @@ const server = createServer(async (req, res) => {
     },
     summary: { text: 'Test-only guide used by the e2e suite.', lang: 'en' },
     cover: null,
+    related_trips: ['ras-mohammed-white-island-boat', 'ras-mohammed-bus'],
     updated_at: '2026-11-28T10:00:00.000Z',
   };
   if (url.pathname === '/v1/public/content') return json([fixtureGuide]);
@@ -251,7 +252,6 @@ const server = createServer(async (req, res) => {
           a: { text: 'Yes, fixture data only.', lang: 'en' },
         },
       ],
-      related_trips: ['ras-mohammed-white-island-boat', 'ras-mohammed-bus'],
       related_pages: [],
       published_at: '2026-11-28T10:00:00.000Z',
     });
