@@ -149,3 +149,39 @@ and AI answers out of context). Publish in all seven languages together.
   which already render on the page and in structured data.
 - FAQ rich results are not shown for this kind of site; the value is clear
   answers for travellers and for AI answers, not a SERP feature.
+
+## Re-verification of the 18 "Site" candidates (2026-11-28)
+
+Each answer was checked again against the catalogue (`data/catalog.json`),
+the booking code (request sheet, My trip, confirmation, `apps/api/src/requests.ts`)
+and the website texts in all seven languages. Verified answers are in
+`data/content/faq-verified.json` (EN/IT/ES/FR/DE/RU/TR, no prices, no
+`[CONFIRM]`; enforced by `packages/shared/src/faq-verified.test.ts`).
+
+| #   | Result                      | Correction made to the draft above                                                                                                                   | Home (one only)                          | Publication                 |
+| --- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | --------------------------- |
+| 1   | Already published           | —                                                                                                                                                    | FAQ                                      | live                        |
+| 2   | Verified                    | "pickup time" added (the site's own `noPayment` text)                                                                                                | FAQ                                      | FAQ draft (owner publishes) |
+| 3   | Verified, corrected         | The site does not open WhatsApp by itself: the confirmation screen has a "Continue on WhatsApp" button with the message prefilled                    | FAQ                                      | FAQ draft                   |
+| 7   | Verified, corrected         | "we confirm each day" removed (not stated anywhere); now "confirms the whole plan"                                                                   | FAQ                                      | FAQ draft                   |
+| 9   | Verified, corrected         | Units are person, car, group, hour, quad, buggy (there is no "per boat" or "per vehicle" price today)                                                | FAQ                                      | FAQ draft                   |
+| 14  | Verified, corrected         | The reasons ("group size, date, private vehicle") are not stated anywhere; removed                                                                   | FAQ                                      | FAQ draft                   |
+| 15  | Verified                    | Wording aligned with the "Private on request" label                                                                                                  | FAQ                                      | FAQ draft                   |
+| 17  | Verified                    | —                                                                                                                                                    | FAQ                                      | FAQ draft                   |
+| 27  | Verified, corrected         | "confirmed the day before" removed (not documented); pickup confirmed on WhatsApp from the hotel details in the request                              | FAQ                                      | FAQ draft                   |
+| 28  | Verified, corrected         | Question reworded: the drive time is not published; answer says overnight bus, pickup shortly after midnight, window on the page                     | Guide `cairo-from-sharm-plane-or-bus`    | guide draft                 |
+| 29  | Verified, corrected         | Prices removed (prices live in the database only); inclusions listed instead                                                                         | Guide `cairo-from-sharm-plane-or-bus`    | guide draft                 |
+| 31  | Verified, corrected         | No hard-coded trip list (the family flag can change in the admin); points to the "Family" filter (all collections except Packages)                   | Guide `sharm-excursions-for-families`    | guide draft                 |
+| 44  | Verified, completed         | Bus inclusions confirmed (licensed guide, entrance fees); private-car version added; no prices                                                       | Guide `ras-mohammed-boat-bus-or-private` | guide draft                 |
+| 48  | Verified, corrected         | Prices removed                                                                                                                                       | Guide `cairo-from-sharm-plane-or-bus`    | guide draft                 |
+| 49  | Verified                    | Trip names kept descriptive in other languages                                                                                                       | FAQ                                      | FAQ draft                   |
+| 58  | Verified, question reworded | "What is included in a private trip?" invites inclusion claims; now "What does a private trip mean?" (site copy: own car, own guide, own start time) | FAQ                                      | FAQ draft                   |
+| 59  | Verified                    | All 38 trips are private-only (8) or private on request (30) in the catalogue                                                                        | FAQ                                      | FAQ draft                   |
+| 60  | Verified                    | "write your preferred time in the request" — the request has a notes field                                                                           | FAQ                                      | FAQ draft                   |
+
+**Result:** 17 publishable answers (12 for the FAQ page, 5 inside three guide
+drafts) + #1 already live. None needed the owner, but the FAQ rule above
+("publish only after the owner has read it in all seven languages") still
+applies, so they are loaded as **drafts**: `pnpm db:seed-faq` (FAQ page) and
+`pnpm db:seed-content` (guide drafts). Both skip existing items and never
+publish. The 42 Owner/Legal candidates remain unanswered.

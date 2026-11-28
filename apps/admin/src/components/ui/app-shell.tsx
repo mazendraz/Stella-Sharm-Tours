@@ -19,6 +19,9 @@ import {
   Grid2X2,
   ChevronRight,
   SearchCheck,
+  BookOpen,
+  ClipboardCheck,
+  Radar,
   type LucideIcon,
 } from 'lucide-react';
 import { can, type Permission } from '@stella/shared/admin';
@@ -88,6 +91,24 @@ export const navGroups: {
         icon: SearchCheck,
         permission: 'content',
       },
+      {
+        id: 'travelContent',
+        href: '/content',
+        icon: BookOpen,
+        permission: 'content',
+      },
+      {
+        id: 'verificationCenter',
+        href: '/verification',
+        icon: ClipboardCheck,
+        permission: 'content',
+      },
+      {
+        id: 'aiVisibility',
+        href: '/visibility',
+        icon: Radar,
+        permission: 'content',
+      },
     ],
   },
   {
@@ -154,6 +175,9 @@ export function activeNav(path: string) {
         languages: 'languageSettings',
         users: 'team',
         seo: 'seoSearch',
+        content: 'travelContent',
+        verification: 'verificationCenter',
+        visibility: 'aiVisibility',
       } as Record<string, string>
     )[first] ?? first
   );

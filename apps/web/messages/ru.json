@@ -190,5 +190,22 @@
   "seoHomeDescription": "Экскурсии из Шарм-эль-Шейха: Рас-Мохаммед и Тиран на лодке, сафари в пустыне, Каир, Луксор и Петра — в группе или индивидуально, с трансфером от отеля.",
   "seoCollectionTitle": "{name}: экскурсии из Шарм-эль-Шейха",
   "seoFaqDescription": "Ответы на частые вопросы о бронировании экскурсий в Шарм-эль-Шейхе в Stella Sharm Tours.",
-  "seoContactDescription": "Свяжитесь со Stella Sharm Tours через WhatsApp или по телефону либо приходите в наш офис в районе Old Market в Шарм-эль-Шейхе."
+  "seoContactDescription": "Свяжитесь со Stella Sharm Tours через WhatsApp или по телефону либо приходите в наш офис в районе Old Market в Шарм-эль-Шейхе.",
+  "breadcrumb": "Навигационная цепочка",
+  "guides": "Путеводители",
+  "guidesIntro": "Практические путеводители по экскурсиям из Шарм-эль-Шейха от нашей команды со ссылками на описанные экскурсии.",
+  "seoGuidesDescription": "Путеводители по экскурсиям из Шарм-эль-Шейха: Рас-Мохаммед, Каир, гора Синай, сафари и индивидуальные туры — как проходят и как выбрать.",
+  "guideBy": "Автор: {name}",
+  "guideUpdated": "Обновлено {date}",
+  "guideRelatedTrips": "Экскурсии из этого путеводителя",
+  "guideQuestions": "Вопросы",
+  "guideRelatedPages": "Похожие путеводители",
+  "tripGuides": "Путеводители к этой экскурсии",
+  "guideSources": "Источники",
+  "guideKind_guide": "Путеводитель",
+  "guideKind_destination": "Направление",
+  "guideKind_activity": "Активность",
+  "guideKinds_guide": "Путеводители",
+  "guideKinds_destination": "Направления",
+  "guideKinds_activity": "Активности"
 }

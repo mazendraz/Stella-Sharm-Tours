@@ -1,4 +1,9 @@
-import { getSite, getCollections, getCollection } from '@/lib/api';
+import {
+  getSite,
+  getCollections,
+  getCollection,
+  getContentList,
+} from '@/lib/api';
 import { siteOrigin } from '@/lib/env';
 import { clip } from '@/lib/seo';
 
@@ -12,9 +17,10 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
-    const [site, collections] = await Promise.all([
+    const [site, collections, guides] = await Promise.all([
       getSite('en'),
       getCollections('en'),
+      getContentList('en'),
     ]);
     const details = await Promise.all(
       collections
@@ -43,6 +49,20 @@ export async function GET() {
       ...collections.map((c) =>
         line(c.name.text, `${siteOrigin}/en/c/${c.slug}`, c.subline?.text),
       ),
+      // Published guides only (the API never returns drafts).
+      ...(guides.length
+        ? [
+            '',
+            '## Travel guides',
+            ...guides.map((page) =>
+              line(
+                page.title.text,
+                `${siteOrigin}/en/guides/${page.slug}`,
+                page.summary?.text,
+              ),
+            ),
+          ]
+        : []),
       ...details.flatMap((detail) => [
         '',
         `## ${detail.collection.name.text}`,

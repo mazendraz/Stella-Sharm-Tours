@@ -60,6 +60,19 @@ to that compatible release before applying the narrower grants. Earlier
 workers use direct queries that require the old broad permissions. Keep a
 compatible image available for rollback once the new grants are in force.
 
+**Migrations `0017`/`0018` (SEO phase 3).** Additive: new tables
+`content_pages`, `visibility_measurements` and `verification_facts`; no existing
+table changes. Since phase 3, `pnpm db:migrate` first compares the database's
+applied migrations with the journal and stops with an error naming any
+unapplied file older than the newest applied one (Drizzle would skip it
+silently). This protects the Google Reviews branch: its `0014`/`0016` carry
+older timestamps than `0017`/`0018`. Deploy Google Reviews first, or re-stamp
+its migrations after `0018` (new numbers and journal `when`) before merging.
+The error message prints the alternative: apply each file by hand and record
+its hash and timestamp in `drizzle.__drizzle_migrations`. Rollback after
+reverting the code: `DROP TABLE verification_facts, visibility_measurements,
+content_pages;` and delete their two rows from `drizzle.__drizzle_migrations`.
+
 **Migration `0015` (search keywords).** Additive and backward compatible: two
 nullable `jsonb` columns, then a backfill that only fills empty columns of
 existing trips/collections by slug. Its journal timestamp sits between `0013`

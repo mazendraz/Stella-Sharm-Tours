@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import type { Collection } from '@stella/shared/public-contract';
 import { isCoreLocale } from '@stella/shared';
-import { getSite, getCollections } from '@/lib/api';
+import { getSite, getCollections, getContentList } from '@/lib/api';
 import { Shell } from '@/components/shell';
 import { navCollection, shellSite } from '@stella/shared/card-trip';
 import { JsonLd } from '@/lib/seo';
@@ -22,10 +22,16 @@ export default async function LocaleLayout({
   const { locale } = await params;
   let site = null;
   let collections: Collection[] = [];
+  // The footer links to /guides only once a guide is published.
+  let guides = false;
   try {
-    [site, collections] = await Promise.all([
+    [site, collections, guides] = await Promise.all([
       getSite(locale),
       getCollections(locale),
+      getContentList(locale).then(
+        (pages) => pages.length > 0,
+        () => false,
+      ),
     ]);
     if (!site.locales.some((l) => l.code === locale)) notFound();
   } catch (error) {
@@ -45,6 +51,7 @@ export default async function LocaleLayout({
       <Shell
         site={site && shellSite(site)}
         collections={collections.map(navCollection)}
+        guides={guides}
       >
         {children}
         {modal}

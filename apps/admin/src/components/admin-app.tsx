@@ -72,6 +72,15 @@ const SettingsScreen = dynamic(() =>
 const Team = dynamic(() => import('../screens/team').then((m) => m.Team));
 const Member = dynamic(() => import('../screens/team').then((m) => m.Member));
 const Seo = dynamic(() => import('../screens/seo').then((m) => m.Seo));
+const ContentPages = dynamic(() =>
+  import('../screens/content').then((m) => m.ContentPages),
+);
+const Verification = dynamic(() =>
+  import('../screens/verification').then((m) => m.Verification),
+);
+const Visibility = dynamic(() =>
+  import('../screens/visibility').then((m) => m.Visibility),
+);
 const Activity = dynamic(() =>
   import('../screens/activity').then((m) => m.Activity),
 );
@@ -196,6 +205,15 @@ function Routes() {
         'content',
         <Seo {...(id ? { tab: id } : {})} {...(sub ? { id: sub } : {})} />,
       );
+      break;
+    case 'content':
+      screen = guard('content', <ContentPages {...(id ? { id } : {})} />);
+      break;
+    case 'verification':
+      screen = guard('content', <Verification />);
+      break;
+    case 'visibility':
+      screen = guard('content', <Visibility />);
       break;
     case 'activity':
       screen = guard('audit', <Activity />);

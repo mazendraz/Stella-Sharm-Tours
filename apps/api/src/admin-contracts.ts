@@ -30,6 +30,9 @@ import { homepageSchema } from './homepage';
 import { translationReviewSchema } from './translation-review';
 import { pushSubscriptionSchema } from './push';
 import { seoContracts } from './admin-seo';
+import { contentPageInput } from '@stella/shared/content';
+import { visibilityImport, visibilityRow } from '@stella/shared/visibility';
+import { verificationInput } from '@stella/shared/verification';
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 export type AdminContract = {
   method: Method;
@@ -172,6 +175,47 @@ export const adminContracts: AdminContract[] = [
     body: seoContracts.page,
   },
   { method: 'post', path: '/seo/check', permission: 'content', body: empty },
+  { method: 'get', path: '/visibility', permission: 'content' },
+  {
+    method: 'post',
+    path: '/visibility',
+    permission: 'content',
+    body: visibilityRow,
+  },
+  {
+    method: 'post',
+    path: '/visibility/import',
+    permission: 'content',
+    body: visibilityImport,
+  },
+  { method: 'delete', path: '/visibility/:id', permission: 'publish' },
+  { method: 'get', path: '/verification', permission: 'content' },
+  {
+    method: 'put',
+    path: '/verification',
+    permission: 'publish',
+    body: verificationInput,
+  },
+  { method: 'get', path: '/content-pages', permission: 'content' },
+  { method: 'get', path: '/content-pages/:id', permission: 'content' },
+  {
+    method: 'post',
+    path: '/content-pages',
+    permission: 'content',
+    body: contentPageInput,
+  },
+  {
+    method: 'put',
+    path: '/content-pages/:id',
+    permission: 'content',
+    body: contentPageInput,
+  },
+  ...(['publish', 'unpublish', 'archive'] as const).map((action) => ({
+    method: 'post' as const,
+    path: '/content-pages/:id/' + action,
+    permission: 'publish' as const,
+    body: empty,
+  })),
   {
     method: 'get',
     path: '/package-parts',

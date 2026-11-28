@@ -92,7 +92,7 @@ jobs:
             migrate node --import tsx scripts/seed.ts
           "${compose[@]}" up --detach --wait api worker web admin caddy
           pnpm test:e2e:integration languages.spec.ts private-booking.spec.ts admin.spec.ts --project mobile
-          pnpm test:e2e:admin dashboard.spec.ts --project mobile
+          pnpm test:e2e:admin dashboard.spec.ts seo-content.spec.ts --project mobile
           # Withdrawn content must stay withdrawn across a web restart (BUG-05).
           shellcheck infra/tests/withdrawn-content-restart.sh
           bash infra/tests/withdrawn-content-restart.sh

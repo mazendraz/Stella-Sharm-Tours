@@ -53,6 +53,9 @@ const errorKeys: Record<string, string> = {
   PREVIEW_STALE: 'errCatalogChanged',
   PREVIEW_EXPIRED: 'errCatalogChanged',
   CORE_TRANSLATIONS_REQUIRED: 'coreTranslationsRequired',
+  SLUG_TAKEN: 'errSlugTaken',
+  UNPUBLISH_FIRST: 'errUnpublishPageFirst',
+  PUBLISH_BLOCKED: 'contentPublishBlocked',
   REPOSITORY_MANAGED_TRANSLATION: 'repositoryManaged',
 };
 

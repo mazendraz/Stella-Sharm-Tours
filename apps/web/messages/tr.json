@@ -190,5 +190,22 @@
   "seoHomeDescription": "Şarm El-Şeyh’ten turlar: tekneyle Ras Mohammed ve Tiran, çöl safarileri, Kahire, Luksor ve Petra — grupla ya da özel, otelden alınarak.",
   "seoCollectionTitle": "{name}: Şarm El-Şeyh’ten turlar",
   "seoFaqDescription": "Stella Sharm Tours ile Şarm El-Şeyh’te tur rezervasyonu hakkında sık sorulan soruların yanıtları.",
-  "seoContactDescription": "Stella Sharm Tours’a WhatsApp’tan veya telefonla ulaşın ya da Şarm El-Şeyh’teki Old Market’te bulunan ofisimize uğrayın."
+  "seoContactDescription": "Stella Sharm Tours’a WhatsApp’tan veya telefonla ulaşın ya da Şarm El-Şeyh’teki Old Market’te bulunan ofisimize uğrayın.",
+  "breadcrumb": "İçerik yolu",
+  "guides": "Seyahat rehberleri",
+  "guidesIntro": "Şarm El-Şeyh’ten turlar hakkında, ekibimizin yazdığı ve anlattığı turlara bağlantı veren pratik rehberler.",
+  "seoGuidesDescription": "Şarm El-Şeyh’ten turlar için rehberler: Ras Muhammed, Kahire, Sina Dağı, çöl safarileri ve özel turlar — nasıl işler, nasıl seçilir.",
+  "guideBy": "Yazar: {name}",
+  "guideUpdated": "Güncellendi: {date}",
+  "guideRelatedTrips": "Bu rehberdeki turlar",
+  "guideQuestions": "Sorular",
+  "guideRelatedPages": "İlgili rehberler",
+  "tripGuides": "Bu tur için rehberler",
+  "guideSources": "Kaynaklar",
+  "guideKind_guide": "Rehber",
+  "guideKind_destination": "Destinasyon",
+  "guideKind_activity": "Aktivite",
+  "guideKinds_guide": "Rehberler",
+  "guideKinds_destination": "Destinasyonlar",
+  "guideKinds_activity": "Aktiviteler"
 }

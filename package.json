@@ -48,7 +48,9 @@
     "test:integration:native": "tsx scripts/test-native-postgres.ts",
     "test:e2e": "playwright test",
     "preview:fixture": "node tests/fixtures/server.mjs",
-    "seo:check": "node scripts/seo-check.mjs"
+    "seo:check": "node scripts/seo-check.mjs",
+    "db:seed-content": "tsx --env-file-if-exists=.env scripts/seed-content-drafts.ts",
+    "db:seed-faq": "tsx --env-file-if-exists=.env scripts/seed-faq-drafts.ts"
   },
   "dependencies": {
     "tsx": "4.23.15"

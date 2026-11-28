@@ -1,6 +1,87 @@
 # Integration with Google Reviews, deployment and rollback
 
-Prepared 2026-11-28. **Nothing has been pushed, merged or deployed.**
+Prepared 2026-11-28. **Nothing has been merged or deployed.** Sections 1–8
+were written for `feat/seo-foundation` (PR #19, no migrations). **Section 0
+supersedes them for the combined release** (PR #19 + PR #20, which adds
+migrations 0017/0018).
+
+## 0. Phase 3 completion update (2026-11-28)
+
+### 0.1 Migration scenarios — reproduced on disposable PostgreSQL 16
+
+Run with the repository's real `migrateDatabase` (including the skip guard)
+against a throwaway container (`stella-seo-migcheck`, removed afterwards).
+Folders: `main` (0000–0013, 0015), `seo-content` (+0017, 0018), `gr-rebased`
+(= Google Reviews rebased on `main`: main's 0015 + GR 0014 and 0016 with their
+current numbers and journal times), `combined-naive` (all of them, GR
+unchanged), `combined-restamped` (GR re-stamped as 0019/0020 with journal
+times after 0018). The Google Reviews files come from a snapshot of the
+uncommitted worktree, copied read-only into a separate scratch clone.
+
+| #   | Scenario                                             | Result                                                                                                            |
+| --- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | Fresh database → `main`                              | ok, 15 migrations                                                                                                 |
+| 2   | Fresh database → SEO content                         | ok, 17; content tables present                                                                                    |
+| 3   | `main` database with data → SEO content              | ok, 15 → 17; existing rows kept                                                                                   |
+| 4   | Google Reviews first, then SEO content (naive merge) | ok, 17 → 19; GR columns and content tables present                                                                |
+| 5   | SEO content first, then GR with its current numbers  | **guard stops the deploy**: "0014_request_display_currency, 0016_google_reviews would be skipped"                 |
+| 5b  | Same as 5 with plain Drizzle (no guard)              | **no error and GR's columns are missing** — the silent skip the guard exists for                                  |
+| 6a  | SEO content first, then GR re-stamped (0019/0020)    | ok, 17 → 19, everything present                                                                                   |
+| 6b  | Fresh database → re-stamped combined                 | ok, 19                                                                                                            |
+| 6c  | `main` database → re-stamped combined                | ok, 15 → 19                                                                                                       |
+| 6d  | GR already applied, then the re-stamped files        | **fails** on `ADD COLUMN "currency"` (GR's SQL is not idempotent); whole batch rolled back, 0017/0018 not applied |
+| 6e  | Re-stamped combined run twice                        | second run is a no-op                                                                                             |
+
+**Strategy (unchanged in substance, now evidenced):**
+
+- **Preferred:** commit Google Reviews, rebase it on `main`, merge and deploy
+  it **before** PR #19/#20 → scenario 4 (no renumbering needed).
+- **Only if** SEO content reaches a shared database first **and** Google
+  Reviews has never been applied anywhere: re-stamp GR's migrations as
+  0019/0020 with journal `when` values after 0018 and regenerate their
+  snapshots on top of 0018 → scenarios 6a–6c.
+- **Never** re-stamp where GR already ran (6d): its SQL adds columns without
+  `IF NOT EXISTS`. Never renumber applied migrations; never edit production
+  migration history.
+- Keep `main`'s `0015_search_keywords` (GR carries an older copy with a
+  different hash and timestamp).
+- Isolated successes are not proof of the final release: re-run the
+  integration suite and the scenarios on the real combined branch.
+
+### 0.2 Google Reviews conflict matrix (recomputed)
+
+Recomputed with `git merge-tree` in a separate scratch clone (alternates
+read-only) after copying the 136 uncommitted Google Reviews changes from the
+protected worktree (read-only) into a snapshot commit there. The protected
+worktree, its index and refs were not touched.
+
+**30 conflicting files** against the pushed `feat/seo-content` (22 already
+conflict with `main`; 8 come from the SEO branches) — identical to the earlier
+dry run. This session's additions touch two of those 8 again
+(`t/[slug]/page.tsx`: one import + one line; `lib/api.ts` is unchanged) and
+append to `apps/web/src/app/globals.css` and the dictionaries.
+
+| Path(s)                                                                                                                                                                 | `main` today                                    | Google Reviews                       | SEO branches                                                                | Intended combined behaviour                                                                                   | Migration dep. | Regression tests                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------- |
+| `packages/db/drizzle/0015_search_keywords.sql`, `meta/0015_snapshot.json`, `meta/_journal.json`                                                                         | merged trip search (0015, `when` 1795711100000) | older copy of 0015 + 0014 + 0016     | + 0017, 0018                                                                | main's 0015; GR 0014/0016 (or 0019/0020, see 0.1); SEO 0017/0018; one journal                                 | yes            | migration scenarios, `migration-order.test.ts`, integration |
+| `apps/web/src/components/search-panel.tsx`, `tests/e2e/search.spec.ts`, `packages/shared/src/search-golden.test.ts`, `docs/superpowers/plans/2026-11-26-trip-search.md` | newer trip search (PR #17)                      | older trip-search copy               | —                                                                           | **keep `main`** (do not overwrite newer search with the older copy)                                           | 0015           | `search.spec.ts`, search golden tests                       |
+| `apps/web/messages/*.json` (7), `apps/admin/messages/*.json` (7)                                                                                                        | base keys                                       | review, currency keys                | SEO, guides, `tripGuides`, admin content keys                               | union of keys; admin dictionaries regenerated with `node scripts/admin-messages.mjs`                          | —              | `messages.test.ts` (admin + web), 7-language check          |
+| `CHANGELOG.md`                                                                                                                                                          | —                                               | entries                              | entries                                                                     | keep both                                                                                                     | —              | —                                                           |
+| `apps/web/src/app/[locale]/layout.tsx`                                                                                                                                  | shell                                           | reviews/"why us" + currency          | metadata, `guides` footer flag                                              | keep GR components **and** SEO metadata/flag                                                                  | —              | `seo.spec.ts`, `frontend.spec.ts`                           |
+| `apps/web/src/app/[locale]/t/[slug]/page.tsx`                                                                                                                           | trip page                                       | reviews/currency on trip             | JSON-LD, `<TripGuides>` after `<TripView>`                                  | keep both; **no `Review`/`AggregateRating` markup** for first-party reviews                                   | —              | `seo.spec.ts` (guides back-links, JSON-LD), booking e2e     |
+| `apps/web/src/app/[locale]/contact/page.tsx`                                                                                                                            | contact                                         | reviews block                        | metadata/JSON-LD                                                            | keep both                                                                                                     | —              | `seo.spec.ts`                                               |
+| `apps/web/src/components/collection-view.tsx`                                                                                                                           | collection                                      | currency display                     | hidden `h2` heading-order fix                                               | keep both                                                                                                     | —              | `frontend.spec.ts`, axe                                     |
+| `apps/web/src/lib/api.ts`                                                                                                                                               | public API client                               | reviews fetchers                     | content list/page fetchers                                                  | keep both                                                                                                     | —              | typecheck, e2e                                              |
+| `packages/db/src/runtime-privileges.ts`                                                                                                                                 | grants                                          | grants for reviews columns/functions | grants for `content_pages`, `verification_facts`, `visibility_measurements` | union; re-run `applyRuntimePrivileges`                                                                        | yes            | integration (restricted API role)                           |
+| `tests/contracts/openapi.json`                                                                                                                                          | snapshot                                        | review routes                        | content/verification/visibility routes, `related_trips` in content list     | regenerate: `vitest run --config vitest.integration.config.ts -t "OpenAPI contract" -u`, then review the diff | —              | OpenAPI contract test                                       |
+| `tests/fixtures/server.mjs`                                                                                                                                             | fixture API                                     | reviews fixture                      | content fixture (`related_trips`)                                           | keep both                                                                                                     | —              | `pnpm test:e2e`                                             |
+
+Booking functionality: neither side changes the request flow except GR's
+display currency (`booking_requests.currency`, migration 0014). Run the
+booking e2e and integration request tests on the combined branch.
+
+**Blocked:** a real integration needs an authorised, committed Google Reviews
+version. Nothing was merged.
 
 ## 1. Branch situation
 

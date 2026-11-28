@@ -13,7 +13,7 @@ import { completenessChecks } from '@stella/shared/seo-health';
 import { useAdmin, useData } from '../lib/admin-context';
 import { PageHeader } from '../components/ui/page-header';
 import { EmptyState, LoadError, Skeleton } from '../components/ui/states';
-import { Segmented } from '../components/ui/field';
+import { FormField, Segmented } from '../components/ui/field';
 import { AppLink } from '../components/ui/link';
 
 type Loc = { en: string } & Partial<Record<Locale, string>>;
@@ -452,13 +452,57 @@ function TourSeo({ data, id }: { data: SeoData; id: string }) {
       (data.locales as string[]).includes(uiLocale) ? uiLocale : 'en',
     ),
     [live, setLive] = useState<PageCheck | null>(null),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    // Unsaved edits per language; untouched languages keep the stored value.
+    [edits, setEdits] = useState<{
+      title: Partial<Record<Locale, string>>;
+      description: Partial<Record<Locale, string>>;
+    }>({ title: {}, description: {} });
   if (!trip || !health)
     return <EmptyState title={t('notFoundTitle')} body={t('notFoundBody')} />;
-  const seo = health.seo[lang as keyof typeof health.seo],
+  const stored = health.seo[lang as keyof typeof health.seo],
+    ownTitle = edits.title[lang] ?? trip.seoTitle?.[lang] ?? '',
+    ownDescription =
+      edits.description[lang] ?? trip.seoDescription?.[lang] ?? '',
+    seo = {
+      ...stored,
+      title: ownTitle.trim() || stored.suggestion.title,
+      description: ownDescription.trim() || stored.suggestion.description,
+    },
+    dirty =
+      Object.keys(edits.title).length + Object.keys(edits.description).length >
+      0,
     url = `${data.origin}/${lang}/t/${trip.slug}`,
     href =
       trip.kind === 'package' ? '/packages/' + trip.id : '/trips/' + trip.id;
+  // Saves hand-written titles/descriptions in every language at once. The API
+  // needs English, so an empty English field keeps the automatic text.
+  const saveOwn = async () => {
+    const build = (field: 'title' | 'description') => {
+      const own = field === 'title' ? trip.seoTitle : trip.seoDescription,
+        edit = edits[field],
+        out: Record<string, string> = {};
+      for (const l of data.locales) {
+        const value = (edit[l] ?? own?.[l] ?? '').trim();
+        if (value) out[l] = value;
+      }
+      if (!Object.keys(out).length) return null;
+      out.en ||= health.seo.en.suggestion[field];
+      return out;
+    };
+    try {
+      await save(
+        '/v1/admin/trips/' + trip.id + '/seo',
+        'PATCH',
+        { seoTitle: build('title'), seoDescription: build('description') },
+        { success: t('seoSaved') },
+      );
+      setEdits({ title: {}, description: {} });
+      await client.invalidateQueries({ queryKey: ['/v1/admin/seo'] });
+    } catch (error) {
+      report(error);
+    }
+  };
   const issues = health.issues.filter((i) => !i.locale || i.locale === lang);
   // Copies the automatic texts into the admin overrides, keeping any
   // hand-written language. Editors on published trips create a draft.
@@ -556,6 +600,61 @@ function TourSeo({ data, id }: { data: SeoData; id: string }) {
           </button>
         </div>
         <p className="muted">{t('seoAdoptHint')}</p>
+        <h3>{t('seoEditTexts', { lang: lang.toUpperCase() })}</h3>
+        <FormField
+          label={t('seoTitleField')}
+          hint={t('seoTitleHint')}
+          aside={<span className="counter">{ownTitle.length}/60</span>}
+        >
+          {(p) => (
+            <input
+              {...p}
+              lang={lang}
+              maxLength={70}
+              value={ownTitle}
+              placeholder={stored.suggestion.title}
+              onChange={(e) =>
+                setEdits({
+                  ...edits,
+                  title: { ...edits.title, [lang]: e.target.value },
+                })
+              }
+            />
+          )}
+        </FormField>
+        <FormField
+          label={t('seoDescriptionField')}
+          hint={t('seoDescriptionHint')}
+          aside={<span className="counter">{ownDescription.length}/158</span>}
+        >
+          {(p) => (
+            <textarea
+              {...p}
+              lang={lang}
+              rows={3}
+              maxLength={170}
+              value={ownDescription}
+              placeholder={stored.suggestion.description}
+              onChange={(e) =>
+                setEdits({
+                  ...edits,
+                  description: { ...edits.description, [lang]: e.target.value },
+                })
+              }
+            />
+          )}
+        </FormField>
+        <p className="muted">{t('seoSocialNote')}</p>
+        <div className="dialog-actions">
+          <button
+            type="button"
+            className="btn btn-primary"
+            disabled={!dirty}
+            onClick={() => void saveOwn()}
+          >
+            {t('seoSaveTexts')}
+          </button>
+        </div>
       </section>
 
       <section className="panel" aria-labelledby="seo-complete-h">
@@ -650,7 +749,12 @@ function TourSeo({ data, id }: { data: SeoData; id: string }) {
           {live.page && (
             <details>
               <summary>{t('seoStructuredData')}</summary>
-              <pre className="seo-json">
+              {/* Scrolls on phones: keyboard users must reach it (WCAG 2.1.1). */}
+              <pre
+                className="seo-json"
+                tabIndex={0}
+                aria-label={t('seoStructuredData')}
+              >
                 {JSON.stringify(live.page.jsonld, null, 2)}
               </pre>
             </details>

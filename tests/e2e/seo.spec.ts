@@ -89,3 +89,62 @@ test('home metadata is localized and robots keeps private routes out', async ({
   expect(llms.status()).toBe(200);
   expect(await llms.text()).toMatch(/^# Stella Sharm Tours/);
 });
+
+test('published guides render server-side with breadcrumbs, links and JSON-LD', async ({
+  request,
+}) => {
+  const slug = 'fixture-ras-mohammed-guide',
+    response = await request.get('/en/guides/' + slug);
+  expect(response.status()).toBe(200);
+  const page = await response.text(),
+    head = page.slice(0, page.indexOf('</head>'));
+  expect(head).toContain(
+    'rel="canonical" href="' + origin + '/en/guides/' + slug + '"',
+  );
+  expect(head).toMatch(/hrefLang="it" href="[^"]*\/it\/guides\//);
+  // Content is in the HTML itself (works without JavaScript).
+  expect(page).toContain('aria-label="' + en.breadcrumb + '"');
+  expect(page).toMatch(/<h1[^>]*>(<span[^>]*>)?Fixture guide: Ras Mohammed/);
+  expect(page).toContain('href="/en/t/ras-mohammed-white-island-boat"');
+  expect(page).toContain('href="/en/guides"');
+  const nodes = [
+    ...page.matchAll(
+      /<script[^>]*application\/ld\+json[^>]*>(.*?)<\/script>/gs,
+    ),
+  ].flatMap((m) => JSON.parse(m[1]!)['@graph'] ?? []);
+  const types = nodes.map((n) => n['@type']);
+  expect(types).toEqual(
+    expect.arrayContaining(['Article', 'BreadcrumbList', 'FAQPage']),
+  );
+  const article = nodes.find((n) => n['@type'] === 'Article');
+  expect(article.author).toMatchObject({
+    '@type': 'Person',
+    name: 'Fixture Author',
+  });
+  expect(JSON.stringify(nodes)).not.toMatch(/aggregateRating|"review"/);
+  expect((await request.get('/en/guides/not-a-guide')).status()).toBe(404);
+  const index = await (await request.get('/en/guides')).text();
+  expect(index).toContain('href="/en/guides/' + slug + '"');
+  const sitemap = await (await request.get('/sitemap.xml')).text();
+  expect(sitemap).toContain(origin + '/en/guides/' + slug + '</loc>');
+  expect(sitemap).toContain('<lastmod>2026-11-28T10:00:00.000Z</lastmod>');
+  expect(await (await request.get('/llms.txt')).text()).toContain(
+    '/en/guides/' + slug,
+  );
+});
+
+test('trip pages link back to the published guides that list them', async ({
+  request,
+}) => {
+  const slug = 'fixture-ras-mohammed-guide';
+  // A related trip: crawlable link in the server HTML, in the page's locale.
+  const related = await (
+    await request.get('/it/t/ras-mohammed-white-island-boat')
+  ).text();
+  expect(related).toContain('id="trip-guides-h"');
+  expect(related).toContain('href="/it/guides/' + slug + '"');
+  // An unrelated trip renders no empty section.
+  const other = await (await request.get('/en/t/quad-bike-safari')).text();
+  expect(other).not.toContain('id="trip-guides-h"');
+  expect(other).not.toContain('/guides/' + slug);
+});
