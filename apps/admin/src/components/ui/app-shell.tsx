@@ -18,6 +18,7 @@ import {
   History,
   Grid2X2,
   ChevronRight,
+  SearchCheck,
   type LucideIcon,
 } from 'lucide-react';
 import { can, type Permission } from '@stella/shared/admin';
@@ -81,6 +82,12 @@ export const navGroups: {
       { id: 'hero', href: '/hero', icon: Film, permission: 'heroDraft' },
       { id: 'media', href: '/media', icon: Images, permission: 'content' },
       { id: 'pages', href: '/pages', icon: FileText, permission: 'content' },
+      {
+        id: 'seoSearch',
+        href: '/seo',
+        icon: SearchCheck,
+        permission: 'content',
+      },
     ],
   },
   {
@@ -146,6 +153,7 @@ export function activeNav(path: string) {
         queue: 'translations',
         languages: 'languageSettings',
         users: 'team',
+        seo: 'seoSearch',
       } as Record<string, string>
     )[first] ?? first
   );

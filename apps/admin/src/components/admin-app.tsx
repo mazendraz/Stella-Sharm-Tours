@@ -71,6 +71,7 @@ const SettingsScreen = dynamic(() =>
 );
 const Team = dynamic(() => import('../screens/team').then((m) => m.Team));
 const Member = dynamic(() => import('../screens/team').then((m) => m.Member));
+const Seo = dynamic(() => import('../screens/seo').then((m) => m.Seo));
 const Activity = dynamic(() =>
   import('../screens/activity').then((m) => m.Activity),
 );
@@ -190,6 +191,12 @@ function Routes() {
     case 'users':
       screen = guard('users', id ? <Member key={id} id={id} /> : <Team />);
       break;
+    case 'seo':
+      screen = guard(
+        'content',
+        <Seo {...(id ? { tab: id } : {})} {...(sub ? { id: sub } : {})} />,
+      );
+      break;
     case 'activity':
       screen = guard('audit', <Activity />);
       break;
@@ -202,7 +209,6 @@ function Routes() {
     default:
       screen = <NotFound />;
   }
-  void sub;
   const current = activeNav(path);
   return (
     <AppShell path={path} title={t(current === 'more' ? 'more' : current)}>

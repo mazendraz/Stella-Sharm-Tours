@@ -16,6 +16,7 @@ describe('admin authored languages and push boundaries', () => {
       ...JSON.parse(await readFile('data/i18n/admin-ui.json', 'utf8')),
       ...JSON.parse(await readFile('data/i18n/admin-fields.json', 'utf8')),
       ...JSON.parse(await readFile('data/i18n/admin-rebuild.json', 'utf8')),
+      ...JSON.parse(await readFile('data/i18n/admin-seo.json', 'utf8')),
     };
     for (const [index, locale] of locales.entries()) {
       const dictionary = JSON.parse(
