@@ -1,0 +1,135 @@
+{
+  "_note": "First ten content drafts (SEO phase 3). EN + IT only; other languages are added in the admin before publication. Facts come from the published catalogue; anything that needs the owner is marked [CONFIRM: ...], which blocks publication. No prices in prose: prices live in the database and show on the linked trips. Seeded as drafts only by scripts/seed-content-drafts.ts.",
+  "pages": [
+    {
+      "slug": "cairo-from-sharm-plane-or-bus",
+      "kind": "guide",
+      "category": "history",
+      "relatedTrips": ["cairo-bus-old-museum", "cairo-bus-gem", "cairo-plane-1-day", "cairo-bus-2-days", "cairo-alexandria-bus-2-days", "cairo-plane-2-days-private"],
+      "relatedPages": ["cairo-from-sharm"],
+      "title": { "en": "Cairo from Sharm El Sheikh: by plane or by bus?", "it": "Il Cairo da Sharm El Sheikh: in aereo o in pullman?" },
+      "summary": { "en": "How the six Cairo trips from Sharm differ: travel time, departure hours, one day or two, and which museum you visit.", "it": "Come si differenziano le sei escursioni al Cairo da Sharm: tempi di viaggio, orari di partenza, uno o due giorni e quale museo si visita." },
+      "body": {
+        "en": "## The short answer\nBy plane you spend less of the day travelling; by bus the trip costs less but starts in the night. Current prices are on each trip page.\n\n## By bus\nThe one-day bus trips leave Sharm between 00:30 and 01:00 and take one long day, with the overnight drive included. You choose between the Old Egyptian Museum and the Grand Egyptian Museum; both include the Giza Pyramids, the Great Sphinx and an Egyptian lunch.\n\n## By plane\nThe one-day plane trip departs between 04:30 and 06:00 and visits the Grand Egyptian Museum, the Giza Pyramids and the Great Sphinx, with lunch.\n\n## Two days\nTwo-day trips by bus (Cairo, or Cairo and Alexandria) and a private two-day trip by plane add a night in Cairo.\n\n## Before you book\n- [CONFIRM: which entry stamps or visas allow travel from Sharm to Cairo, with an official source]\n- [CONFIRM: which entrance tickets are included on each trip]\n- [CONFIRM: guide languages available]",
+        "it": "## In breve\nIn aereo si passa meno tempo in viaggio; in pullman l'escursione costa meno ma parte di notte. I prezzi aggiornati sono sulla pagina di ogni escursione.\n\n## In pullman\nLe escursioni di un giorno in pullman partono da Sharm tra le 00:30 e le 01:00 e durano una lunga giornata, viaggio notturno compreso. Si sceglie tra il Museo Egizio storico e il Grande Museo Egizio; entrambe includono le Piramidi di Giza, la Grande Sfinge e un pranzo egiziano.\n\n## In aereo\nL'escursione di un giorno in aereo parte tra le 04:30 e le 06:00 e visita il Grande Museo Egizio, le Piramidi di Giza e la Grande Sfinge, con pranzo.\n\n## Due giorni\nLe escursioni di due giorni in pullman (Il Cairo, oppure Il Cairo e Alessandria) e quella privata di due giorni in aereo aggiungono una notte al Cairo.\n\n## Prima di prenotare\n- [CONFIRM: quali timbri d'ingresso o visti permettono di andare da Sharm al Cairo, con fonte ufficiale]\n- [CONFIRM: quali biglietti d'ingresso sono inclusi in ogni escursione]\n- [CONFIRM: lingue delle guide disponibili]"
+      }
+    },
+    {
+      "slug": "ras-mohammed-boat-bus-or-private",
+      "kind": "guide",
+      "category": "sea",
+      "relatedTrips": ["ras-mohammed-white-island-boat", "ras-mohammed-bus", "ras-mohammed-private-car"],
+      "relatedPages": ["ras-mohammed"],
+      "title": { "en": "Ras Mohammed by boat, by bus or private: which to choose", "it": "Ras Mohammed in barca, in pullman o privato: quale scegliere" },
+      "summary": { "en": "Three ways to visit Ras Mohammed National Park from Sharm El Sheikh, compared by time, format and what is included.", "it": "Tre modi per visitare il Parco Nazionale di Ras Mohammed da Sharm El Sheikh, confrontati per durata, formula e servizi inclusi." },
+      "body": {
+        "en": "## By boat\nA full day at sea: departure 07:45, return around 17:30. The trip includes the hotel–marina transfer, marina fees, a yacht cruise with two snorkelling stops, a visit to White Island, lunch and soft drinks, snorkelling equipment (mask and life jackets) and professional guides. An introductory dive with an instructor is available as an extra.\n\n## By bus\nAbout five hours, departure 08:30, reaching the park by road.\n\n## Private by car\nAbout five and a half hours from around 08:00, with your own car and guide.\n\n## How to choose\n- Want to snorkel from a boat and see White Island: the boat trip.\n- Short on time: the bus or private trip.\n- Travelling as a family or group and want your own pace: the private trip.\n\n## Before you book\n- [CONFIRM: national park fee included or paid on the day]\n- [CONFIRM: minimum age and whether non-swimmers can join]\n- [CONFIRM: what to bring]",
+        "it": "## In barca\nUna giornata intera in mare: partenza alle 07:45, rientro verso le 17:30. Sono inclusi il trasferimento hotel–porto, le tasse del porto turistico, la crociera in yacht con due soste per lo snorkeling, la visita a White Island, pranzo e bevande analcoliche, l'attrezzatura da snorkeling (maschera e giubbotti salvagente) e guide professionali. L'immersione introduttiva con istruttore è un extra.\n\n## In pullman\nCirca cinque ore, partenza alle 08:30, si raggiunge il parco via terra.\n\n## Privato in auto\nCirca cinque ore e mezza dalle 08:00 circa, con auto e guida riservate.\n\n## Come scegliere\n- Per lo snorkeling dalla barca e White Island: l'escursione in barca.\n- Con poco tempo: pullman o privato.\n- In famiglia o in gruppo, con i propri tempi: privato.\n\n## Prima di prenotare\n- [CONFIRM: tassa del parco inclusa o da pagare sul posto]\n- [CONFIRM: età minima e partecipazione di chi non sa nuotare]\n- [CONFIRM: cosa portare]"
+      }
+    },
+    {
+      "slug": "group-or-private-excursions",
+      "kind": "guide",
+      "category": "private",
+      "relatedTrips": ["ras-mohammed-private-car", "nabq-private-morning", "arabian-night-safari", "cairo-plane-2-days-private"],
+      "relatedPages": [],
+      "title": { "en": "Group or private excursions in Sharm El Sheikh: what changes", "it": "Escursioni di gruppo o private a Sharm El Sheikh: cosa cambia" },
+      "summary": { "en": "What you get when you book a trip as private with Stella Sharm Tours, and which trips are private only.", "it": "Cosa offre un'escursione privata con Stella Sharm Tours e quali escursioni sono solo private." },
+      "body": {
+        "en": "## Private means your own car, your own guide and your start time\nMost trips can be booked in a group or as private: use the Group | Private switch on any collection. Some trips are private only, such as the Nabq National Park morning and afternoon tours, the Arabian Night safari and the two-day Cairo trip by plane.\n\n## How the price works\nPrivate prices are shown on each trip when they are set; otherwise they are on request and confirmed when we reply.\n\n## When private makes sense\n- Families with young children who need their own pace.\n- Groups of friends who want to choose the start time.\n- Travellers who prefer not to share a vehicle.\n\n## Booking\nYou send a request and we confirm on WhatsApp. The website never takes payment.\n\n[CONFIRM: what is included in every private trip — vehicle type, air conditioning, guide languages]",
+        "it": "## Privata significa auto, guida e orario solo per voi\nLa maggior parte delle escursioni si può prenotare in gruppo o privata: usate l'interruttore Gruppo | Privato in ogni collezione. Alcune sono solo private, come i tour nel Parco Nazionale di Nabq al mattino e al pomeriggio, il safari Notte araba e l'escursione di due giorni al Cairo in aereo.\n\n## Come funziona il prezzo\nI prezzi privati compaiono su ogni escursione quando sono impostati; altrimenti sono su richiesta e li confermiamo nella risposta.\n\n## Quando conviene\n- Famiglie con bambini piccoli che vogliono i propri tempi.\n- Gruppi di amici che vogliono scegliere l'orario.\n- Chi preferisce non condividere il mezzo.\n\n## Prenotazione\nInviate una richiesta e confermiamo su WhatsApp. Il sito non richiede mai pagamenti.\n\n[CONFIRM: cosa è incluso in ogni escursione privata — tipo di veicolo, aria condizionata, lingue delle guide]"
+      }
+    },
+    {
+      "slug": "what-to-bring-on-a-boat-trip",
+      "kind": "guide",
+      "category": "sea",
+      "relatedTrips": ["ras-mohammed-white-island-boat", "tiran-island-boat"],
+      "relatedPages": [],
+      "title": { "en": "What to bring on a boat trip from Sharm El Sheikh", "it": "Cosa portare in un'escursione in barca da Sharm El Sheikh" },
+      "summary": { "en": "A practical packing list for the Ras Mohammed and Tiran Island boat trips.", "it": "Una lista pratica per le escursioni in barca a Ras Mohammed e all'isola di Tiran." },
+      "body": {
+        "en": "## Already on board\nOn the Ras Mohammed and White Island boat trip, snorkelling equipment (mask and life jackets), lunch and soft drinks are included.\n\n## Bring\n[CONFIRM: owner's packing list — swimwear, towel, reef-safe sun protection, hat, ID or passport for the marina, cash for extras]\n\n## Good to know\n[CONFIRM: fins available? wetsuits? seasickness advice from the crew]",
+        "it": "## Già a bordo\nNell'escursione in barca a Ras Mohammed e White Island sono inclusi l'attrezzatura da snorkeling (maschera e giubbotti salvagente), il pranzo e le bevande analcoliche.\n\n## Da portare\n[CONFIRM: lista del titolare — costume, asciugamano, protezione solare reef-safe, cappello, documento per il porto, contanti per gli extra]\n\n## Utile sapere\n[CONFIRM: pinne disponibili? mute? consigli dell'equipaggio per il mal di mare]"
+      }
+    },
+    {
+      "slug": "sharm-excursions-for-families",
+      "kind": "guide",
+      "category": "family",
+      "relatedTrips": ["sea-scope-submarine", "glass-bottom-boat", "water-activities", "dolphin-show", "aqua-park"],
+      "relatedPages": [],
+      "title": { "en": "Sharm El Sheikh excursions for families with children", "it": "Escursioni a Sharm El Sheikh per famiglie con bambini" },
+      "summary": { "en": "The trips marked family-friendly on our website, and what to check before you book with children.", "it": "Le escursioni indicate come adatte alle famiglie sul nostro sito e cosa verificare prima di prenotare con bambini." },
+      "body": {
+        "en": "## Family-friendly trips\nFive trips are marked family-friendly: the Sea Scope submarine, the Glass Bottom Boat, the water activities, the Dolphin Show and the Aqua Park.\n\n## See the reef without getting wet\nThe Sea Scope and the Glass Bottom Boat let children see fish and coral through the glass.\n\n## Before you book\n- [CONFIRM: minimum ages per trip]\n- [CONFIRM: child prices and age bands]\n- [CONFIRM: life jackets in children's sizes]\n- Private trips let you choose the start time; see the Private collection.",
+        "it": "## Escursioni adatte alle famiglie\nCinque escursioni sono indicate come adatte alle famiglie: il sottomarino Sea Scope, la barca con fondo di vetro, le attività in acqua, il Dolphin Show e l'Aqua Park.\n\n## Vedere la barriera senza bagnarsi\nIl Sea Scope e la barca con fondo di vetro permettono ai bambini di vedere pesci e coralli attraverso il vetro.\n\n## Prima di prenotare\n- [CONFIRM: età minima per escursione]\n- [CONFIRM: prezzi bambini e fasce d'età]\n- [CONFIRM: giubbotti salvagente per bambini]\n- Le escursioni private permettono di scegliere l'orario; vedete la collezione Private."
+      }
+    },
+    {
+      "slug": "mount-sinai-sunrise-how-the-night-works",
+      "kind": "guide",
+      "category": "history",
+      "relatedTrips": ["mount-sinai-st-catherine", "st-catherine-monastery-dahab"],
+      "relatedPages": [],
+      "title": { "en": "Mount Sinai sunrise from Sharm: how the night works", "it": "Alba sul Monte Sinai da Sharm: come si svolge la notte" },
+      "summary": { "en": "The overnight Mount Sinai and St Catherine trip, step by step, and how it compares with the daytime monastery trip.", "it": "L'escursione notturna al Monte Sinai e Santa Caterina passo per passo, e il confronto con la visita diurna al monastero." },
+      "body": {
+        "en": "## Overnight trip\nDeparture from Sharm between 19:30 and 20:00. The trip climbs Mount Sinai in the night to see the sunrise and continues to St Catherine's Monastery.\n\n## Daytime alternative\nThe Monastery of Saint Catherine & Dahab trip leaves at 05:30 and combines the monastery with Dahab in one day.\n\n## Before you book\n- [CONFIRM: walking time, steps and camel option]\n- [CONFIRM: warm clothing advice by season]\n- [CONFIRM: days when the monastery is closed]\n- [CONFIRM: fitness requirements]",
+        "it": "## Escursione notturna\nPartenza da Sharm tra le 19:30 e le 20:00. Si sale sul Monte Sinai di notte per vedere l'alba e si prosegue al Monastero di Santa Caterina.\n\n## Alternativa di giorno\nL'escursione Monastero di Santa Caterina e Dahab parte alle 05:30 e unisce il monastero e Dahab in un giorno.\n\n## Prima di prenotare\n- [CONFIRM: tempo di cammino, gradini e opzione cammello]\n- [CONFIRM: abbigliamento caldo secondo la stagione]\n- [CONFIRM: giorni di chiusura del monastero]\n- [CONFIRM: preparazione fisica richiesta]"
+      }
+    },
+    {
+      "slug": "tiran-or-ras-mohammed-for-snorkelling",
+      "kind": "guide",
+      "category": "sea",
+      "relatedTrips": ["tiran-island-boat", "ras-mohammed-white-island-boat"],
+      "relatedPages": ["ras-mohammed"],
+      "title": { "en": "Tiran Island or Ras Mohammed for snorkelling?", "it": "Tiran o Ras Mohammed per lo snorkeling?" },
+      "summary": { "en": "Two full-day boat trips from Sharm El Sheikh compared: departure, inclusions and who each suits.", "it": "Due escursioni in barca di un giorno da Sharm El Sheikh a confronto: partenza, servizi inclusi e per chi sono adatte." },
+      "body": {
+        "en": "## Tiran Island\nFull day, departure 08:00.\n\n## Ras Mohammed and White Island\nFull day, departure 07:45, two snorkelling stops and a visit to White Island.\n\n## Which one\n[CONFIRM: owner's comparison — reef character, crossing time, sea conditions, suitability for beginners]\n\n## Before you book\n- [CONFIRM: park and marina fees on each trip]",
+        "it": "## Isola di Tiran\nGiornata intera, partenza alle 08:00.\n\n## Ras Mohammed e White Island\nGiornata intera, partenza alle 07:45, due soste per lo snorkeling e visita a White Island.\n\n## Quale scegliere\n[CONFIRM: confronto del titolare — barriera, tempo di traversata, condizioni del mare, adatta ai principianti]\n\n## Prima di prenotare\n- [CONFIRM: tasse del parco e del porto per ogni escursione]"
+      }
+    },
+    {
+      "slug": "desert-safaris-compared",
+      "kind": "activity",
+      "category": "desert",
+      "relatedTrips": ["quad-bike-safari", "buggy-car-safari", "super-safari-5in1", "stella-sharm-7in1", "arabian-night-safari", "camping-nabq"],
+      "relatedPages": [],
+      "title": { "en": "Desert safaris in Sharm El Sheikh compared", "it": "Safari nel deserto a Sharm El Sheikh a confronto" },
+      "summary": { "en": "Quad, buggy, the 5-in-1 and 7-in-1 safaris, the private Arabian Night and camping in Nabq: times and formats side by side.", "it": "Quad, buggy, safari 5 in 1 e 7 in 1, la Notte araba privata e il campeggio a Nabq: orari e formule a confronto." },
+      "body": {
+        "en": "## Short rides\nThe quad bike and buggy safaris last about three hours, at sunrise (04:00) or sunset (17:00). The quad safari includes Bedouin tea and mountain photo stops.\n\n## Longer combinations\nThe Super Safari 5 in 1 starts at 17:00 and lasts about five hours in the evening. The Stella Sharm 7 in 1 is a full day from 10:00.\n\n## Private and overnight\nThe Arabian Night safari is private and lasts about five hours from around 17:30. Camping in Nabq National Park is overnight, from 12:00.\n\n## Before you book\n- [CONFIRM: minimum ages and driving rules for quads and buggies]\n- [CONFIRM: safari fee included or paid on the day]\n- [CONFIRM: what to bring]",
+        "it": "## Giri brevi\nI safari in quad e in buggy durano circa tre ore, all'alba (04:00) o al tramonto (17:00). Il safari in quad include il tè beduino e soste per le foto in montagna.\n\n## Combinazioni più lunghe\nIl Super Safari 5 in 1 parte alle 17:00 e dura circa cinque ore di sera. Lo Stella Sharm 7 in 1 dura tutto il giorno dalle 10:00.\n\n## Privato e notturno\nIl safari Notte araba è privato e dura circa cinque ore dalle 17:30 circa. Il campeggio nel Parco Nazionale di Nabq è notturno, dalle 12:00.\n\n## Prima di prenotare\n- [CONFIRM: età minima e regole di guida per quad e buggy]\n- [CONFIRM: tassa del safari inclusa o da pagare sul posto]\n- [CONFIRM: cosa portare]"
+      }
+    },
+    {
+      "slug": "ras-mohammed",
+      "kind": "destination",
+      "category": "sea",
+      "relatedTrips": ["ras-mohammed-white-island-boat", "ras-mohammed-bus", "ras-mohammed-private-car"],
+      "relatedPages": ["ras-mohammed-boat-bus-or-private", "tiran-or-ras-mohammed-for-snorkelling"],
+      "title": { "en": "Ras Mohammed National Park", "it": "Parco Nazionale di Ras Mohammed" },
+      "summary": { "en": "Visiting Ras Mohammed National Park from Sharm El Sheikh: the three ways we go there.", "it": "Visitare il Parco Nazionale di Ras Mohammed da Sharm El Sheikh: i tre modi in cui ci andiamo." },
+      "body": {
+        "en": "## About the park\n[CONFIRM: sourced description from the national park authority — location, protected status, reefs]\n\n## Ways to visit with us\nBy boat for a full day with White Island, by bus in about five hours, or privately by car. See the comparison guide for details.\n\n## Practical\n- [CONFIRM: park fee]\n- [CONFIRM: passport needed?]",
+        "it": "## Il parco\n[CONFIRM: descrizione con fonte dell'ente parco — posizione, tutela, barriere coralline]\n\n## Come visitarlo con noi\nIn barca per una giornata intera con White Island, in pullman in circa cinque ore, oppure in privato in auto. Vedete la guida al confronto per i dettagli.\n\n## Informazioni pratiche\n- [CONFIRM: tassa del parco]\n- [CONFIRM: serve il passaporto?]"
+      }
+    },
+    {
+      "slug": "cairo-from-sharm",
+      "kind": "destination",
+      "category": "history",
+      "relatedTrips": ["cairo-bus-old-museum", "cairo-bus-gem", "cairo-plane-1-day", "cairo-bus-2-days", "cairo-alexandria-bus-2-days", "cairo-plane-2-days-private"],
+      "relatedPages": ["cairo-from-sharm-plane-or-bus"],
+      "title": { "en": "Cairo and Giza from Sharm El Sheikh", "it": "Il Cairo e Giza da Sharm El Sheikh" },
+      "summary": { "en": "The Pyramids, the Sphinx and Cairo's museums on a day or two-day trip from Sharm El Sheikh.", "it": "Le Piramidi, la Sfinge e i musei del Cairo in un'escursione di uno o due giorni da Sharm El Sheikh." },
+      "body": {
+        "en": "## What you see\nEvery Cairo trip from Sharm includes the Giza Pyramids and the Great Sphinx. One-day trips visit either the Grand Egyptian Museum or the Old Egyptian Museum.\n\n## How you travel\nBy overnight bus or by plane, in one day or two. The comparison guide explains the differences.\n\n## Before you go\n- [CONFIRM: entry stamp / visa requirement with official source]\n- [CONFIRM: what to wear and bring]",
+        "it": "## Cosa si vede\nOgni escursione al Cairo da Sharm include le Piramidi di Giza e la Grande Sfinge. Le escursioni di un giorno visitano il Grande Museo Egizio oppure il Museo Egizio storico.\n\n## Come si viaggia\nIn pullman notturno o in aereo, in uno o due giorni. La guida al confronto spiega le differenze.\n\n## Prima di partire\n- [CONFIRM: timbro d'ingresso / visto con fonte ufficiale]\n- [CONFIRM: cosa indossare e portare]"
+      }
+    }
+  ]
+}
