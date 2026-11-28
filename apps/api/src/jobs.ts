@@ -1,3 +1,4 @@
+import { isDisplayCurrency } from '@stella/shared/display-currency';
 import { PgBoss } from 'pg-boss';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
@@ -306,6 +307,7 @@ export async function notifyRequest(
       pickup_area: string | null;
       hotel: string | null;
       estimate_eur: string | null;
+      currency: string;
       notes: string | null;
     }>(
       sql`select * from public.worker_request_notification(${requestId}::uuid)`,
@@ -337,6 +339,7 @@ export async function notifyRequest(
           r.estimate_eur === null ? null : Number(r.estimate_eur),
           0,
           locale,
+          isDisplayCurrency(r.currency) ? r.currency : 'EUR',
         ),
         ...items.map(
           (i) =>

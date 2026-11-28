@@ -437,16 +437,29 @@ export const faqs = pgTable('faqs', {
     .default('published'),
   archivedAt: archived(),
 });
-export const reviews = pgTable('reviews', {
-  id: id(),
-  author: text('author'),
-  text: localized('text'),
-  source: text('source'),
-  sourceUrl: text('source_url').notNull(),
-  rating: smallint('rating'),
-  visitMonth: date('visit_month'),
-  status: text('status').notNull().default('hidden'),
-});
+// Real third-party reviews (Google). `text` holds one key: the original
+// language (or 'und'), verbatim — reviews are quoted, never translated.
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: id(),
+    author: text('author'),
+    text: jsonb('text').$type<Record<string, string>>(),
+    source: text('source'),
+    sourceUrl: text('source_url').notNull(),
+    rating: smallint('rating'),
+    visitMonth: date('visit_month'),
+    status: text('status').notNull().default('hidden'),
+    // Google review id; the import key. NULLs stay distinct in PostgreSQL.
+    externalId: text('external_id').unique(),
+    lang: text('lang'),
+    featured: boolean('featured').notNull().default(false),
+    sort: integer('sort').notNull().default(0),
+    edited: boolean('edited').notNull().default(false),
+    capturedAt: timestamp('captured_at', { withTimezone: true }),
+  },
+  (t) => [index('reviews_published_order').on(t.status, t.featured, t.sort)],
+);
 export const bookingRequests = pgTable(
   'booking_requests',
   {
@@ -467,6 +480,10 @@ export const bookingRequests = pgTable(
     email: text('email'),
     notes: text('notes'),
     estimateEur: numeric('estimate_eur', { precision: 10, scale: 2 }),
+    // Sign shown to the customer (owner 2026-11-26); the amount is unchanged.
+    currency: text('currency', { enum: ['EUR', 'GBP', 'USD'] })
+      .notNull()
+      .default('EUR'),
     status: text('status', {
       enum: ['new', 'contacted', 'confirmed', 'completed', 'cancelled', 'spam'],
     })
@@ -493,6 +510,7 @@ export const bookingRequests = pgTable(
     ),
     check('request_mode', sql`${t.mode} in ('single','multi')`),
     check('request_format', sql`${t.format} in ('group','private')`),
+    check('request_currency', sql`${t.currency} in ('EUR','GBP','USD')`),
   ],
 );
 export const bookingRequestReceipts = pgTable(

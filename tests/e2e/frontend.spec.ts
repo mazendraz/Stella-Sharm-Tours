@@ -7,6 +7,10 @@ import {
   minBookingDate,
   type Quote,
 } from '../../packages/shared/src/booking';
+import {
+  displayCurrencyFor,
+  formatPrice,
+} from '../../packages/shared/src/display-currency';
 import { screenPath } from '../screens';
 
 const itineraryStorage = 'stella.mytrip.v1';
@@ -213,12 +217,13 @@ test('shows the dated primary option and asks for review when the estimate chang
     const errors: string[] = [];
     const logError = (error: Error) => errors.push(error.message);
     page.on('pageerror', logError);
+    // The sign follows the display-currency rule: English pages use the
+    // browser's English region (en-US → $, en-GB → £), other languages €.
+    const acceptLanguage = await page.evaluate(() =>
+      navigator.languages.join(','),
+    );
     const figure = (amount: number) =>
-      new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0,
-      }).format(amount);
+      formatPrice(amount, locale, displayCurrencyFor(locale, acceptLanguage));
     let original: Quote | undefined;
     let submissions = 0;
     let outdatedSubmission: string | undefined;

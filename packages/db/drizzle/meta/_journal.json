@@ -120,6 +120,20 @@
       "when": 1795869502604,
       "tag": "0018_verification_facts",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795882741168,
+      "tag": "0019_request_display_currency",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795882769068,
+      "tag": "0020_google_reviews",
+      "breakpoints": true
     }
   ]
 }

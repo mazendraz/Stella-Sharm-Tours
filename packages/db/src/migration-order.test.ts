@@ -50,7 +50,7 @@ describe('migration order guard', () => {
 
   it('keeps this branch journal strictly increasing and in step with the files', () => {
     const files = migrationFiles();
-    expect(files.at(-1)!.tag).toBe('0018_verification_facts');
+    expect(files.at(-1)!.tag).toBe('0020_google_reviews');
     files.slice(1).forEach((m, i) => {
       expect(m.folderMillis).toBeGreaterThan(files[i]!.folderMillis);
     });

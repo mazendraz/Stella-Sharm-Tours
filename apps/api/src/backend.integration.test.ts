@@ -853,6 +853,40 @@ describe('real PostgreSQL catalog and requests', () => {
         .where(eq(s.heroSlides.id, hero!.id));
     }
   });
+  it('hands Italian, Russian and Turkish requests to the second WhatsApp line', async () => {
+    for (const [locale, digits] of [
+      ['it', '201008605904'],
+      ['ru', '201008605904'],
+      ['tr', '201008605904'],
+      ['de', '201069012881'],
+    ]) {
+      const response = await submit(booking({ locale }));
+      expect(response.status).toBe(201);
+      expect((await response.json()).whatsapp_url).toMatch(
+        new RegExp('^https://wa\\.me/' + digits + '\\?text='),
+      );
+    }
+  });
+  it('stores the currency an English visitor saw and euros for every other language', async () => {
+    for (const [locale, currency, stored] of [
+      ['en', 'GBP', 'GBP'],
+      ['en', 'USD', 'USD'],
+      ['en', undefined, 'EUR'],
+      ['it', 'USD', 'EUR'],
+    ] as const) {
+      const response = await submit(
+        booking({ locale, ...(currency ? { currency } : {}) }),
+      );
+      expect(response.status).toBe(201);
+      const { ref } = await response.json();
+      const [row] = await connection.db
+        .select({ currency: s.bookingRequests.currency })
+        .from(s.bookingRequests)
+        .where(eq(s.bookingRequests.ref, ref));
+      expect(row?.currency).toBe(stored);
+    }
+    expect((await submit(booking({ currency: 'EGP' }))).status).toBe(422);
+  });
   it('recomputes prices, ignores day hints, persists snapshots and queues an ID-only notification atomically', async () => {
     const response = await submit(booking());
     expect(response.status).toBe(201);

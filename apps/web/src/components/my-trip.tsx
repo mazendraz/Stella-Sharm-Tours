@@ -18,7 +18,9 @@ import { Content } from './text';
 import { Media } from './media';
 import { money } from '@/lib/links';
 import { useTripReorder } from './trip-reorder';
+import { useCurrency } from './currency';
 export function MyTrip({ overlay = false }: { overlay?: boolean }) {
+  const currency = useCurrency();
   const Root = overlay ? 'div' : 'main';
   const t = useTranslations(),
     locale = useLocale(),
@@ -26,6 +28,7 @@ export function MyTrip({ overlay = false }: { overlay?: boolean }) {
     order = useTripStore((s) => s.order),
     cache = useTripStore((s) => s.cache),
     ready = useTripStore((s) => s.ready),
+    lastRequest = useTripStore((s) => s.lastRequest),
     rest = useTripStore((s) => s.rest),
     lookup = useTripStore((s) => s.lookup),
     attempt = useTripStore((s) => s.lookupAttempt),
@@ -96,6 +99,16 @@ export function MyTrip({ overlay = false }: { overlay?: boolean }) {
         <div className="skeleton" aria-busy="true" />
       ) : !ids.length ? (
         <>
+          {lastRequest && (
+            <p>
+              <Link
+                className="text-link"
+                href={'/' + locale + '/request/done/' + lastRequest}
+              >
+                {t('requestSentShortcut')} <bdi>{lastRequest}</bdi>
+              </Link>
+            </p>
+          )}
           <p>{t('emptyTripSub')}</p>
           <Link className="button ink" href={'/' + locale + '#journeys'}>
             {t('journeys')}
@@ -269,7 +282,7 @@ export function MyTrip({ overlay = false }: { overlay?: boolean }) {
                 {estimate.onRequest && estimate.amount > 0 && (
                   <div className="estimate-subtotal">
                     <span>{t('pricedTripsSubtotal')}</span>
-                    <bdi>{money(estimate.amount, locale)}</bdi>
+                    <bdi>{money(estimate.amount, locale, currency)}</bdi>
                   </div>
                 )}
                 <div className="estimate">
@@ -278,7 +291,7 @@ export function MyTrip({ overlay = false }: { overlay?: boolean }) {
                     {estimate.onRequest ? (
                       t('onRequest')
                     ) : (
-                      <bdi>{money(estimate.amount, locale)}</bdi>
+                      <bdi>{money(estimate.amount, locale, currency)}</bdi>
                     )}
                   </strong>
                 </div>

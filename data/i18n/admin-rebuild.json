@@ -1,24 +1,184 @@
 {
-  "storyAdd": ["Add a stop","Aggiungi tappa","Añadir parada","Ajouter une étape","Station hinzufügen","Добавить остановку","Durak ekle"],
-  "storyLongitude": ["Longitude","Longitudine","Longitud","Longitude","Längengrad","Долгота","Boylam"],
-  "storyLatitude": ["Latitude","Latitudine","Latitud","Latitude","Breitengrad","Широта","Enlem"],
-  "storyFocalX": ["Horizontal focus (%)","Fuoco orizzontale (%)","Foco horizontal (%)","Point focal horizontal (%)","Horizontaler Fokus (%)","Фокус по горизонтали (%)","Yatay odak (%)"],
-  "storyFocalY": ["Vertical focus (%)","Fuoco verticale (%)","Foco vertical (%)","Point focal vertical (%)","Vertikaler Fokus (%)","Фокус по вертикали (%)","Dikey odak (%)"],
-  "tripStory": ["Trip story","Racconto di viaggio","Historia del viaje","Récit du voyage","Reisegeschichte","История поездки","Gezi hikâyesi"],
-  "storyLanguage": ["Editing language","Lingua di modifica","Idioma de edición","Langue de saisie","Bearbeitungssprache","Язык редактирования","Düzenleme dili"],
-  "storyCategory": ["Scene type","Tipo di scena","Tipo de escena","Type de scène","Szenentyp","Тип сцены","Sahne türü"],
-  "storyCredit": ["Image or film credit","Crediti foto o video","Créditos de la imagen o el vídeo","Crédit photo ou vidéo","Bild- oder Filmnachweis","Автор фото или видео","Fotoğraf veya video kaynağı"],
-  "storyFrame": ["Show the full frame","Mostra il fotogramma intero","Mostrar el encuadre completo","Afficher le cadre entier","Gesamtes Bild zeigen","Показать кадр целиком","Tüm kareyi göster"],
-  "story_included": ["Included visit","Visita inclusa","Visita incluida","Visite incluse","Besuch inklusive","Входит в программу","Programa dahil"],
-  "story_passage": ["Along the way","Lungo il percorso","Por el camino","En chemin","Unterwegs","По пути","Yol boyunca"],
-  "story_illustrative": ["A closer look","Da scoprire","Para descubrir","À découvrir","Zum Entdecken","Знакомство с местом","Yakından tanıyın"],
-  "story_optional": ["Optional visit","Visita facoltativa","Visita opcional","Visite en option","Optionaler Besuch","По желанию","İsteğe bağlı ziyaret"],
-  "repositoryManaged": ["Managed in the codebase","Gestito nel codice","Gestionado en el código","Géré dans le code","Im Code verwaltet","Управляется в коде","Kodda yönetilir"],
-  "coreTranslationsRequired": ["Review all seven core languages before publishing.","Rivedi tutte e sette le lingue principali prima di pubblicare.","Revisa los siete idiomas principales antes de publicar.","Vérifiez les sept langues principales avant de publier.","Prüfe alle sieben Hauptsprachen, bevor du veröffentlichst.","Проверьте все семь основных языков перед публикацией.","Yayımlamadan önce yedi ana dilin tamamını gözden geçirin."],
-  "exportFilteredCsv": ["Export filtered requests (CSV)","Esporta le richieste filtrate (CSV)","Exportar las solicitudes filtradas (CSV)","Exporter les demandes filtrées (CSV)","Gefilterte Anfragen exportieren (CSV)","Экспортировать отфильтрованные заявки (CSV)","Filtrelenen talepleri dışa aktar (CSV)"],
-  "exportAllCsv": ["Export all requests (CSV)","Esporta tutte le richieste (CSV)","Exportar todas las solicitudes (CSV)","Exporter toutes les demandes (CSV)","Alle Anfragen exportieren (CSV)","Экспортировать все заявки (CSV)","Tüm talepleri dışa aktar (CSV)"],
-  "requestsCsvDownloaded": ["CSV downloaded.","File CSV scaricato.","Archivo CSV descargado.","Fichier CSV téléchargé.","CSV heruntergeladen.","CSV-файл скачан.","CSV dosyası indirildi."],
-  "bulkScopeLimit": ["Choose fewer trips. A preview supports up to 5,000 prices across 200 trips.","Seleziona meno escursioni. L’anteprima supporta fino a 5.000 prezzi per 200 escursioni.","Selecciona menos excursiones. La vista previa admite hasta 5.000 precios de 200 excursiones.","Sélectionnez moins d’excursions. L’aperçu accepte jusqu’à 5 000 tarifs pour 200 excursions.","Wähle weniger Ausflüge. Eine Vorschau unterstützt bis zu 5.000 Preise für 200 Ausflüge.","Выберите меньше экскурсий. В предварительном просмотре поддерживается до 5 000 цен для 200 экскурсий.","Daha az tur seçin. Önizleme, 200 tur için en fazla 5.000 fiyatı destekler."],
+  "storyAdd": [
+    "Add a stop",
+    "Aggiungi tappa",
+    "Añadir parada",
+    "Ajouter une étape",
+    "Station hinzufügen",
+    "Добавить остановку",
+    "Durak ekle"
+  ],
+  "storyLongitude": [
+    "Longitude",
+    "Longitudine",
+    "Longitud",
+    "Longitude",
+    "Längengrad",
+    "Долгота",
+    "Boylam"
+  ],
+  "storyLatitude": [
+    "Latitude",
+    "Latitudine",
+    "Latitud",
+    "Latitude",
+    "Breitengrad",
+    "Широта",
+    "Enlem"
+  ],
+  "storyFocalX": [
+    "Horizontal focus (%)",
+    "Fuoco orizzontale (%)",
+    "Foco horizontal (%)",
+    "Point focal horizontal (%)",
+    "Horizontaler Fokus (%)",
+    "Фокус по горизонтали (%)",
+    "Yatay odak (%)"
+  ],
+  "storyFocalY": [
+    "Vertical focus (%)",
+    "Fuoco verticale (%)",
+    "Foco vertical (%)",
+    "Point focal vertical (%)",
+    "Vertikaler Fokus (%)",
+    "Фокус по вертикали (%)",
+    "Dikey odak (%)"
+  ],
+  "tripStory": [
+    "Trip story",
+    "Racconto di viaggio",
+    "Historia del viaje",
+    "Récit du voyage",
+    "Reisegeschichte",
+    "История поездки",
+    "Gezi hikâyesi"
+  ],
+  "storyLanguage": [
+    "Editing language",
+    "Lingua di modifica",
+    "Idioma de edición",
+    "Langue de saisie",
+    "Bearbeitungssprache",
+    "Язык редактирования",
+    "Düzenleme dili"
+  ],
+  "storyCategory": [
+    "Scene type",
+    "Tipo di scena",
+    "Tipo de escena",
+    "Type de scène",
+    "Szenentyp",
+    "Тип сцены",
+    "Sahne türü"
+  ],
+  "storyCredit": [
+    "Image or film credit",
+    "Crediti foto o video",
+    "Créditos de la imagen o el vídeo",
+    "Crédit photo ou vidéo",
+    "Bild- oder Filmnachweis",
+    "Автор фото или видео",
+    "Fotoğraf veya video kaynağı"
+  ],
+  "storyFrame": [
+    "Show the full frame",
+    "Mostra il fotogramma intero",
+    "Mostrar el encuadre completo",
+    "Afficher le cadre entier",
+    "Gesamtes Bild zeigen",
+    "Показать кадр целиком",
+    "Tüm kareyi göster"
+  ],
+  "story_included": [
+    "Included visit",
+    "Visita inclusa",
+    "Visita incluida",
+    "Visite incluse",
+    "Besuch inklusive",
+    "Входит в программу",
+    "Programa dahil"
+  ],
+  "story_passage": [
+    "Along the way",
+    "Lungo il percorso",
+    "Por el camino",
+    "En chemin",
+    "Unterwegs",
+    "По пути",
+    "Yol boyunca"
+  ],
+  "story_illustrative": [
+    "A closer look",
+    "Da scoprire",
+    "Para descubrir",
+    "À découvrir",
+    "Zum Entdecken",
+    "Знакомство с местом",
+    "Yakından tanıyın"
+  ],
+  "story_optional": [
+    "Optional visit",
+    "Visita facoltativa",
+    "Visita opcional",
+    "Visite en option",
+    "Optionaler Besuch",
+    "По желанию",
+    "İsteğe bağlı ziyaret"
+  ],
+  "repositoryManaged": [
+    "Managed in the codebase",
+    "Gestito nel codice",
+    "Gestionado en el código",
+    "Géré dans le code",
+    "Im Code verwaltet",
+    "Управляется в коде",
+    "Kodda yönetilir"
+  ],
+  "coreTranslationsRequired": [
+    "Review all seven core languages before publishing.",
+    "Rivedi tutte e sette le lingue principali prima di pubblicare.",
+    "Revisa los siete idiomas principales antes de publicar.",
+    "Vérifiez les sept langues principales avant de publier.",
+    "Prüfe alle sieben Hauptsprachen, bevor du veröffentlichst.",
+    "Проверьте все семь основных языков перед публикацией.",
+    "Yayımlamadan önce yedi ana dilin tamamını gözden geçirin."
+  ],
+  "exportFilteredCsv": [
+    "Export filtered requests (CSV)",
+    "Esporta le richieste filtrate (CSV)",
+    "Exportar las solicitudes filtradas (CSV)",
+    "Exporter les demandes filtrées (CSV)",
+    "Gefilterte Anfragen exportieren (CSV)",
+    "Экспортировать отфильтрованные заявки (CSV)",
+    "Filtrelenen talepleri dışa aktar (CSV)"
+  ],
+  "exportAllCsv": [
+    "Export all requests (CSV)",
+    "Esporta tutte le richieste (CSV)",
+    "Exportar todas las solicitudes (CSV)",
+    "Exporter toutes les demandes (CSV)",
+    "Alle Anfragen exportieren (CSV)",
+    "Экспортировать все заявки (CSV)",
+    "Tüm talepleri dışa aktar (CSV)"
+  ],
+  "requestsCsvDownloaded": [
+    "CSV downloaded.",
+    "File CSV scaricato.",
+    "Archivo CSV descargado.",
+    "Fichier CSV téléchargé.",
+    "CSV heruntergeladen.",
+    "CSV-файл скачан.",
+    "CSV dosyası indirildi."
+  ],
+  "bulkScopeLimit": [
+    "Choose fewer trips. A preview supports up to 5,000 prices across 200 trips.",
+    "Seleziona meno escursioni. L’anteprima supporta fino a 5.000 prezzi per 200 escursioni.",
+    "Selecciona menos excursiones. La vista previa admite hasta 5.000 precios de 200 excursiones.",
+    "Sélectionnez moins d’excursions. L’aperçu accepte jusqu’à 5 000 tarifs pour 200 excursions.",
+    "Wähle weniger Ausflüge. Eine Vorschau unterstützt bis zu 5.000 Preise für 200 Ausflüge.",
+    "Выберите меньше экскурсий. В предварительном просмотре поддерживается до 5 000 цен для 200 экскурсий.",
+    "Daha az tur seçin. Önizleme, 200 tur için en fazla 5.000 fiyatı destekler."
+  ],
   "overview": [
     "Overview",
     "Panoramica",
@@ -6239,13 +6399,13 @@
     "Yalnızca özel seçeneği olan yayınlanmış turlar eklenebilir."
   ],
   "featuredHint": [
-    "Up to four trips. If none are chosen, the featured order set on each trip is used.",
-    "Fino a quattro escursioni. Se non ne scegli, si usa l’ordine impostato su ogni escursione.",
-    "Hasta cuatro excursiones. Si no eliges ninguna, se usa el orden destacado de cada excursión.",
-    "Jusqu’à quatre excursions. Sinon, l’ordre de mise en avant de chaque excursion est utilisé.",
-    "Bis zu vier Ausflüge. Ohne Auswahl gilt die Highlight-Reihenfolge der Ausflüge.",
-    "До четырёх экскурсий. Если не выбрано, используется порядок из самих экскурсий.",
-    "En fazla dört tur. Hiçbiri seçilmezse her turdaki öne çıkan sırası kullanılır."
+    "Up to 12 trips. If none are chosen, the featured order set on each trip is used.",
+    "Fino a 12 escursioni. Se non ne scegli, si usa l’ordine impostato su ogni escursione.",
+    "Hasta 12 excursiones. Si no eliges ninguna, se usa el orden destacado de cada excursión.",
+    "Jusqu’à 12 excursions. Sinon, l’ordre de mise en avant de chaque excursion est utilisé.",
+    "Bis zu 12 Ausflüge. Ohne Auswahl gilt die Highlight-Reihenfolge der Ausflüge.",
+    "До 12 экскурсий. Если не выбрано, используется порядок из самих экскурсий.",
+    "En fazla 12 tur. Hiçbiri seçilmezse her turdaki öne çıkan sırası kullanılır."
   ],
   "howHint": [
     "Exactly three steps, in the order visitors read them.",
@@ -6291,15 +6451,6 @@
     "„So funktioniert’s“ braucht genau drei Schritte.",
     "В «Как это работает» должно быть ровно три шага.",
     "“Nasıl çalışır” bölümünde tam üç adım olmalı."
-  ],
-  "featuredMax4": [
-    "Choose at most four featured trips.",
-    "Scegli al massimo quattro escursioni in evidenza.",
-    "Elige como máximo cuatro destacadas.",
-    "Choisissez au plus quatre excursions mises en avant.",
-    "Höchstens vier empfohlene Ausflüge wählen.",
-    "Выберите не больше четырёх экскурсий.",
-    "En fazla dört öne çıkan tur seçin."
   ],
   "noTripsChosen": [
     "No trips chosen.",
@@ -7598,13 +7749,13 @@
     "WhatsApp (ana)"
   ],
   "whatsappMainHint": [
-    "Used for every “Message us” button and booking confirmations. Include the country code, e.g. +20…",
-    "Usato per tutti i pulsanti “Scrivici” e le conferme. Includi il prefisso, es. +20…",
-    "Se usa en todos los botones «Escríbenos» y en las confirmaciones. Incluye el prefijo, p. ej. +20…",
-    "Utilisé pour tous les boutons « Écrivez-nous » et les confirmations. Indiquez l’indicatif, ex. +20…",
-    "Für alle „Schreib uns“-Schaltflächen und Bestätigungen. Mit Ländervorwahl, z. B. +20…",
-    "Для всех кнопок «Написать нам» и подтверждений. С кодом страны, например +20…",
-    "Tüm “Bize yazın” düğmeleri ve onaylar için kullanılır. Ülke koduyla girin, ör. +20…"
+    "Used for English, French, Spanish, German and all other languages: “Message us” buttons and booking confirmations. Include the country code, e.g. +20…",
+    "Usato per inglese, francese, spagnolo, tedesco e tutte le altre lingue: pulsanti “Scrivici” e conferme. Includi il prefisso, es. +20…",
+    "Se usa para inglés, francés, español, alemán y todos los demás idiomas: botones «Escríbenos» y confirmaciones. Incluye el prefijo, p. ej. +20…",
+    "Utilisé pour l’anglais, le français, l’espagnol, l’allemand et toutes les autres langues : boutons « Écrivez-nous » et confirmations. Indiquez l’indicatif, ex. +20…",
+    "Für Englisch, Französisch, Spanisch, Deutsch und alle anderen Sprachen: „Schreib uns“-Schaltflächen und Bestätigungen. Mit Ländervorwahl, z. B. +20…",
+    "Для английского, французского, испанского, немецкого и всех остальных языков: кнопки «Написать нам» и подтверждения. С кодом страны, например +20…",
+    "İngilizce, Fransızca, İspanyolca, Almanca ve diğer tüm diller için: “Bize yazın” düğmeleri ve onaylar. Ülke koduyla girin, ör. +20…"
   ],
   "whatsappSecond": [
     "WhatsApp (second line, optional)",
@@ -7616,13 +7767,13 @@
     "WhatsApp (ikinci hat, isteğe bağlı)"
   ],
   "whatsappSecondHint": [
-    "Shown as an extra contact on the Contact page.",
-    "Mostrato come contatto aggiuntivo nella pagina Contatti.",
-    "Se muestra como contacto extra en la página de contacto.",
-    "Affiché comme contact supplémentaire sur la page Contact.",
-    "Wird als zusätzlicher Kontakt auf der Kontaktseite gezeigt.",
-    "Показывается как дополнительный контакт на странице «Контакты».",
-    "İletişim sayfasında ek iletişim olarak gösterilir."
+    "Used instead of the main line for Italian, Russian and Turkish visitors, and shown on the Contact page. Leave empty to use the main line for everyone.",
+    "Usato al posto del numero principale per i visitatori italiani, russi e turchi e mostrato nella pagina Contatti. Lascia vuoto per usare il numero principale per tutti.",
+    "Se usa en lugar de la línea principal para visitantes en italiano, ruso y turco, y se muestra en la página de contacto. Déjalo vacío para usar la línea principal con todos.",
+    "Utilisé à la place de la ligne principale pour les visiteurs en italien, russe et turc, et affiché sur la page Contact. Laissez vide pour utiliser la ligne principale pour tous.",
+    "Ersetzt die Hauptnummer für Besucher auf Italienisch, Russisch und Türkisch und wird auf der Kontaktseite gezeigt. Leer lassen, um für alle die Hauptnummer zu nutzen.",
+    "Заменяет основной номер для посетителей на итальянском, русском и турецком и показывается на странице «Контакты». Оставьте пустым, чтобы всем показывался основной номер.",
+    "İtalyanca, Rusça ve Türkçe ziyaretçiler için ana hattın yerine kullanılır ve İletişim sayfasında gösterilir. Herkes için ana hattı kullanmak üzere boş bırakın."
   ],
   "phoneFormat": [
     "Use the international format, e.g. +201234567890.",
@@ -9856,12 +10007,60 @@
     "Пакету «{name}» нужна обложка перед публикацией",
     "“{name}” paketinin yayına girmeden önce kapak görseline ihtiyacı var"
   ],
-  "searchKeywords": ["Search keywords","Parole chiave di ricerca","Palabras clave de búsqueda","Mots-clés de recherche","Suchbegriffe","Ключевые слова для поиска","Arama anahtar kelimeleri"],
-  "searchKeywordsHelp": ["Words visitors might type to find this. Not shown on the site.","Parole che i visitatori potrebbero digitare per trovarla. Non compaiono sul sito.","Palabras que los visitantes podrían escribir para encontrarla. No se muestran en la web.","Mots que les visiteurs pourraient taper pour la trouver. Non affichés sur le site.","Wörter, die Besucher eingeben könnten, um dies zu finden. Werden auf der Website nicht angezeigt.","Слова, которые посетители могут ввести, чтобы найти это. На сайте не показываются.","Ziyaretçilerin bunu bulmak için yazabileceği kelimeler. Sitede gösterilmez."],
-  "searchKeywordsOther": ["Other languages & spellings","Altre lingue e grafie","Otros idiomas y grafías","Autres langues et orthographes","Andere Sprachen & Schreibweisen","Другие языки и написания","Diğer diller ve yazımlar"],
-  "searchKeywordAdd": ["Add keyword","Aggiungi parola chiave","Añadir palabra clave","Ajouter un mot-clé","Suchbegriff hinzufügen","Добавить ключевое слово","Anahtar kelime ekle"],
-  "searchKeywordRemove": ["Remove “{word}”","Rimuovi “{word}”","Quitar «{word}»","Retirer « {word} »","„{word}“ entfernen","Удалить «{word}»","“{word}” kaldır"],
-  "searchKeywordsLimit": ["Up to 30 keywords of up to 60 characters each, without duplicates.","Fino a 30 parole chiave di massimo 60 caratteri, senza duplicati.","Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados.","Jusqu’à 30 mots-clés de 60 caractères maximum, sans doublons.","Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate.","До 30 ключевых слов длиной до 60 символов, без повторов.","En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."],
+  "searchKeywords": [
+    "Search keywords",
+    "Parole chiave di ricerca",
+    "Palabras clave de búsqueda",
+    "Mots-clés de recherche",
+    "Suchbegriffe",
+    "Ключевые слова для поиска",
+    "Arama anahtar kelimeleri"
+  ],
+  "searchKeywordsHelp": [
+    "Words visitors might type to find this. Not shown on the site.",
+    "Parole che i visitatori potrebbero digitare per trovarla. Non compaiono sul sito.",
+    "Palabras que los visitantes podrían escribir para encontrarla. No se muestran en la web.",
+    "Mots que les visiteurs pourraient taper pour la trouver. Non affichés sur le site.",
+    "Wörter, die Besucher eingeben könnten, um dies zu finden. Werden auf der Website nicht angezeigt.",
+    "Слова, которые посетители могут ввести, чтобы найти это. На сайте не показываются.",
+    "Ziyaretçilerin bunu bulmak için yazabileceği kelimeler. Sitede gösterilmez."
+  ],
+  "searchKeywordsOther": [
+    "Other languages & spellings",
+    "Altre lingue e grafie",
+    "Otros idiomas y grafías",
+    "Autres langues et orthographes",
+    "Andere Sprachen & Schreibweisen",
+    "Другие языки и написания",
+    "Diğer diller ve yazımlar"
+  ],
+  "searchKeywordAdd": [
+    "Add keyword",
+    "Aggiungi parola chiave",
+    "Añadir palabra clave",
+    "Ajouter un mot-clé",
+    "Suchbegriff hinzufügen",
+    "Добавить ключевое слово",
+    "Anahtar kelime ekle"
+  ],
+  "searchKeywordRemove": [
+    "Remove “{word}”",
+    "Rimuovi “{word}”",
+    "Quitar «{word}»",
+    "Retirer « {word} »",
+    "„{word}“ entfernen",
+    "Удалить «{word}»",
+    "“{word}” kaldır"
+  ],
+  "searchKeywordsLimit": [
+    "Up to 30 keywords of up to 60 characters each, without duplicates.",
+    "Fino a 30 parole chiave di massimo 60 caratteri, senza duplicati.",
+    "Hasta 30 palabras clave de hasta 60 caracteres, sin duplicados.",
+    "Jusqu’à 30 mots-clés de 60 caractères maximum, sans doublons.",
+    "Bis zu 30 Suchbegriffe mit je höchstens 60 Zeichen, ohne Duplikate.",
+    "До 30 ключевых слов длиной до 60 символов, без повторов.",
+    "En fazla 60 karakterlik, tekrarsız en fazla 30 anahtar kelime."
+  ],
   "pendingDraftsPublish": [
     "Saved changes to {sections} aren’t live yet. Publish the trip to put them on the website.",
     "Le modifiche salvate a {sections} non sono ancora online. Pubblica il viaggio per metterle sul sito.",
@@ -10032,5 +10231,14 @@
     "Ausblenden",
     "Скрыть",
     "Kapat"
+  ],
+  "featuredMax12": [
+    "Choose at most 12 featured trips.",
+    "Scegli al massimo 12 escursioni in evidenza.",
+    "Elige como máximo 12 destacadas.",
+    "Choisissez au plus 12 excursions mises en avant.",
+    "Höchstens 12 empfohlene Ausflüge wählen.",
+    "Выберите не больше 12 экскурсий.",
+    "En fazla 12 öne çıkan tur seçin."
   ]
 }

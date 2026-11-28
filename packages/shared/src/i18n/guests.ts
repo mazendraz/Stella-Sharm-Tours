@@ -1,3 +1,4 @@
+import type { DisplayCurrency } from '../display-currency';
 export function bookingArea(area: string, locale: string) {
   return area === 'Other'
     ? ((
@@ -45,6 +46,7 @@ export function bookingEstimate(
   amount: number | null,
   known: number,
   locale: string,
+  currency: DisplayCurrency = 'EUR',
 ) {
   const labels: Record<string, readonly [string, string, string]> = {
     en: ['Estimated total', 'On request', 'Subtotal for tours with prices'],
@@ -78,7 +80,7 @@ export function bookingEstimate(
   const [label, onRequest, subtotal] = labels[locale] ?? labels.en!;
   const money = new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'EUR',
+    currency,
     maximumFractionDigits: 0,
   });
   if (amount !== null) return label + ': ' + money.format(amount);

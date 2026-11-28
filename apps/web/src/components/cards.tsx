@@ -7,11 +7,13 @@ import { Content } from './text';
 import { money } from '@/lib/links';
 export { TripCard } from './trip-card';
 import { StackMotion } from './stack-motion';
+import { getCurrency } from '@/lib/currency';
 export async function CollectionCards({
   collections,
 }: {
   collections: Collection[];
 }) {
+  const currency = await getCurrency();
   const locale = await getLocale(),
     t = await getTranslations();
   return (
@@ -52,7 +54,9 @@ export async function CollectionCards({
                       {' '}
                       ·{' '}
                       <bdi>
-                        {t('from', { price: money(c.min_price_eur, locale) })}
+                        {t('from', {
+                          price: money(c.min_price_eur, locale, currency),
+                        })}
                       </bdi>
                     </>
                   )}

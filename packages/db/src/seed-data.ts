@@ -106,9 +106,16 @@ const businessSocial = [
 ];
 const featured = [
   'ras-mohammed-white-island-boat',
+  'ras-mohammed-bus',
   'quad-bike-safari',
-  'cairo-plane-1-day',
-  'glass-bottom-boat',
+  'red-canyon-three-pools',
+  'red-canyon-blue-hole',
+  'water-activities',
+  'private-speed-boat',
+  'sea-scope-submarine',
+  'dolphin-show',
+  'cairo-bus-gem',
+  'mount-sinai-st-catherine',
 ];
 const keywordFile = z.strictObject({
   collections: z.record(z.string(), searchKeywordsSchema),

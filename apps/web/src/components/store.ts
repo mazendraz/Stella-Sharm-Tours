@@ -1,7 +1,7 @@
 'use client';
 import { create } from 'zustand';
 import { requiresPrivateRequest } from '@stella/shared/days';
-import type { Trip } from '@stella/shared/public-contract';
+import type { Text, Trip } from '@stella/shared/public-contract';
 import { track } from '@/lib/links';
 import type { SavedTrip } from '@/lib/saved-trips';
 type RequestState = {
@@ -47,7 +47,19 @@ type Store = {
     preserveOrder?: boolean,
   ) => void;
   closeRequest: () => void;
+  // Reference of the last request sent from this device (no personal data).
+  lastRequest: string | null;
+  // After a request is sent: drop the requested trips and remember the ref.
+  completeRequest: (ref: string, slugs: string[]) => void;
+  // Floating WhatsApp button: the line for this language and the names of
+  // collections the guest has opened, so the message can say what they see.
+  whatsappNumber: string | null;
+  collectionNames: Record<string, Text>;
+  nameCollection: (slug: string, name: Text) => void;
 };
+const LAST_REQUEST_KEY = 'stella.lastrequest.v1';
+// The "Request STL-…" shortcut stays for a week, then the button goes away.
+const LAST_REQUEST_TTL = 7 * 24 * 60 * 60 * 1000;
 function persist(ids: string[], order: string[] | null) {
   try {
     localStorage.setItem(
@@ -117,7 +129,38 @@ export const useTripStore = create<Store>((set, get) => ({
     try {
       rest = localStorage.getItem('stella.mytrip.rest') !== 'off';
     } catch {}
-    set({ ids, order, rest, ready: true });
+    let lastRequest: string | null = null;
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(LAST_REQUEST_KEY) ?? 'null',
+      );
+      if (
+        typeof saved?.ref === 'string' &&
+        /^STL-[A-Z0-9]{3,30}$/.test(saved.ref) &&
+        typeof saved.at === 'number' &&
+        Date.now() - saved.at < LAST_REQUEST_TTL
+      )
+        lastRequest = saved.ref;
+      else localStorage.removeItem(LAST_REQUEST_KEY);
+    } catch {}
+    set({ ids, order, rest, lastRequest, ready: true });
+  },
+  lastRequest: null,
+  completeRequest: (ref, slugs) => {
+    const ids = get().ids.filter((id) => !slugs.includes(id));
+    const order = ids.length
+      ? (get().order?.filter((id) => !slugs.includes(id)) ?? null)
+      : null;
+    persist(ids, order);
+    try {
+      localStorage.setItem(
+        LAST_REQUEST_KEY,
+        JSON.stringify({ ref, at: Date.now() }),
+      );
+    } catch {
+      /* The shortcut still shows for this visit. */
+    }
+    set({ ids, order, lastRequest: ref });
   },
   sync: (trips) =>
     set((s) => ({
@@ -196,4 +239,12 @@ export const useTripStore = create<Store>((set, get) => ({
     set({ rest });
   },
   closeRequest: () => set({ request: null }),
+  whatsappNumber: null,
+  collectionNames: {},
+  nameCollection: (slug, name) =>
+    set((s) =>
+      s.collectionNames[slug]?.text === name.text
+        ? s
+        : { collectionNames: { ...s.collectionNames, [slug]: name } },
+    ),
 }));

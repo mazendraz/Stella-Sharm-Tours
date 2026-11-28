@@ -2,16 +2,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Compass, House, Map, MessageCircle } from 'lucide-react';
+import { Check, Compass, House, Map, MessageCircle } from 'lucide-react';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
-export function TripNavigation({ inPanel = false }: { inPanel?: boolean }) {
+import { WhatsAppFloat } from './whatsapp-float';
+export function TripNavigation({
+  inPanel = false,
+  whatsappNumber,
+}: {
+  inPanel?: boolean;
+  // Passed by the page shell so the button renders on the server; panels
+  // read the same number from the store.
+  whatsappNumber?: string | null;
+}) {
   const locale = useLocale(),
     t = useTranslations(),
     path = usePathname(),
     count = useTripStore((s) => s.ids.length),
+    lastRequest = useTripStore((s) => s.lastRequest),
     toast = useTripStore((s) => s.toast);
   const builder = '/' + locale + '/my-trip';
+  const requestPage = lastRequest
+    ? '/' + locale + '/request/done/' + lastRequest
+    : null;
   const items = [
     { key: 'home', href: '', icon: House },
     { key: 'journeys', href: '#journeys', icon: Compass },
@@ -22,6 +35,7 @@ export function TripNavigation({ inPanel = false }: { inPanel?: boolean }) {
     <div
       className={'trip-navigation' + (inPanel ? '' : ' trip-navigation-page')}
     >
+      <WhatsAppFloat whatsappNumber={whatsappNumber} />
       <div role="status" className={'toast' + (toast ? ' visible' : '')}>
         {toast ? t(toast.message) : ''}
       </div>
@@ -34,6 +48,14 @@ export function TripNavigation({ inPanel = false }: { inPanel?: boolean }) {
         >
           <Map size={19} aria-hidden="true" />
           {t('openMyTrip', { count })}
+        </Link>
+      )}
+      {count === 0 && requestPage && path !== requestPage && (
+        <Link href={requestPage} className="saved-trip-shortcut">
+          <Check size={19} aria-hidden="true" />
+          <span>
+            {t('requestSentShortcut')} <bdi>{lastRequest}</bdi>
+          </span>
         </Link>
       )}
       <nav className="tabbar" aria-label={t('journeys')}>

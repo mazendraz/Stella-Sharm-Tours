@@ -1,3 +1,4 @@
+import { displayCurrencies } from './display-currency';
 import { z } from 'zod';
 import { priceSchema } from './public-contract';
 export { requiresPrivateRequest } from './days';
@@ -110,6 +111,9 @@ export const bookingPayloadSchema = quoteFields
     phone: z.string().regex(/^\+[1-9]\d{6,14}$/),
     email: z.union([z.email().max(254), z.literal('')]).optional(),
     notes: z.string().trim().max(1000).optional(),
+    // The sign the customer saw next to the prices (display only; amounts are
+    // the same number in every currency).
+    currency: z.enum(displayCurrencies).optional(),
     hp: z.literal(''),
     t: z.number().int().positive(),
   })

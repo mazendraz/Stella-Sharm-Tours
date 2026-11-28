@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { locales } from '@stella/shared';
 import { analyticsConfig } from '@stella/shared/analytics';
+import { displayCurrencyFor } from '@stella/shared/display-currency';
 type Direction = 'ltr' | 'rtl';
 type LiveLocales = ReadonlyMap<string, Direction>;
 const core: LiveLocales = new Map(locales.map((code) => [code, 'ltr']));
@@ -109,8 +110,15 @@ export async function middleware(request: NextRequest) {
     });
   headers.set('x-stella-locale', segment);
   headers.set('x-stella-dir', direction);
+  // Always overwrite: a client-sent x-stella-currency must never be trusted.
+  headers.set(
+    'x-stella-currency',
+    displayCurrencyFor(segment, request.headers.get('accept-language')),
+  );
   const response = NextResponse.next({ request: { headers } });
   response.headers.set('Content-Security-Policy', csp);
+  // English pages show £/$/€ from the device region, so caches must split on it.
+  if (segment === 'en') response.headers.append('Vary', 'Accept-Language');
   if (path.endsWith('/preview')) {
     response.headers.set('Cache-Control', 'private, no-store');
     response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');

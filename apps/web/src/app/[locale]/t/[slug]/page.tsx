@@ -5,6 +5,7 @@ import { getSite, getCollections } from '@/lib/api';
 import { metadataFor, JsonLd } from '@/lib/seo';
 import { tripSeo } from '@/lib/trip-seo';
 import { whatsapp } from '@/lib/links';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import { siteOrigin } from '@/lib/env';
 import {
   breadcrumbs,
@@ -63,7 +64,7 @@ export default async function TripPage({
     <main id="main" className="trip-page">
       <TripView
         trip={trip}
-        whatsappUrl={whatsapp(site.contacts.whatsapp_primary)}
+        whatsappUrl={whatsapp(whatsappNumberFor(locale, site.contacts))}
         requestedPrivate={requestedPrivate}
       />
       <TripGuides slug={slug} locale={locale} />

@@ -25,6 +25,7 @@ import type { ShellSite } from '@stella/shared/card-trip';
 import dynamic from 'next/dynamic';
 import { useTripStore } from './store';
 import { officeMap, track, whatsapp } from '@/lib/links';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
 import { SearchButton } from './search-button';
@@ -131,7 +132,11 @@ export function Shell({
     ...coreLocaleOptions,
     ...(site?.locales.filter((l) => !isCoreLocale(l.code)) ?? []),
   ];
-  const wa = whatsapp(site?.contacts.whatsapp_primary ?? null);
+  const waNumber = whatsappNumberFor(locale, site?.contacts),
+    wa = whatsapp(waNumber);
+  useEffect(() => {
+    useTripStore.setState({ whatsappNumber: waNumber });
+  }, [waNumber]);
   useEffect(() => {
     useTripStore.getState().hydrate();
     try {
@@ -423,7 +428,7 @@ export function Shell({
               )}
             </div>
           </footer>
-          <TripNavigation />
+          <TripNavigation whatsappNumber={waNumber} />
           {request && <RequestSheet site={site} />}
         </div>
       </>

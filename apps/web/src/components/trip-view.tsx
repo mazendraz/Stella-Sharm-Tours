@@ -22,6 +22,7 @@ import { AddButton } from './add-button';
 import { useTripStore } from './store';
 import { estimateTrip } from '@stella/shared/price';
 import { money, track } from '@/lib/links';
+import { useCurrency } from './currency';
 const TripStory = dynamic(() => import('./trip-story'));
 const itemGroups = [
   { type: 'include', Icon: Check },
@@ -42,6 +43,7 @@ export function TripView({
   requestedPrivate?: boolean;
   previewStory?: import('@stella/shared/story').PublicStory | undefined;
 }) {
+  const currency = useCurrency();
   const locale = useLocale(),
     t = useTranslations();
   const enhanced = useTripStore((s) => s.ready);
@@ -57,6 +59,10 @@ export function TripView({
   useEffect(() => {
     track('trip_open', { slug: trip.slug });
   }, [trip.slug]);
+  // Lets the floating WhatsApp button name this trip in its message.
+  useEffect(() => {
+    if (!preview) useTripStore.getState().sync([trip]);
+  }, [trip, preview]);
   const facts = [
     { icon: Clock, k: 'duration', value: trip.duration_label },
     {
@@ -198,7 +204,7 @@ export function TripView({
                 <bdi>
                   {p.amount_eur === null
                     ? t('onRequest')
-                    : money(p.amount_eur, locale)}
+                    : money(p.amount_eur, locale, currency)}
                 </bdi>{' '}
                 <small>/ {t(p.unit === 'group' ? 'groupUnit' : p.unit)}</small>
               </strong>
@@ -303,7 +309,9 @@ export function TripView({
             <bdi>
               {onRequest
                 ? t('onRequest')
-                : t('from', { price: money(estimate.amount, locale) })}
+                : t('from', {
+                    price: money(estimate.amount, locale, currency),
+                  })}
             </bdi>
           </strong>
         </div>

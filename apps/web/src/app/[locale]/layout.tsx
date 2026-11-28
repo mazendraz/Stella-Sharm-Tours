@@ -6,6 +6,8 @@ import type { Collection } from '@stella/shared/public-contract';
 import { isCoreLocale } from '@stella/shared';
 import { getSite, getCollections, getContentList } from '@/lib/api';
 import { Shell } from '@/components/shell';
+import { CurrencyProvider } from '@/components/currency';
+import { getCurrency } from '@/lib/currency';
 import { navCollection, shellSite } from '@stella/shared/card-trip';
 import { JsonLd } from '@/lib/seo';
 import { siteOrigin } from '@/lib/env';
@@ -48,14 +50,16 @@ export default async function LocaleLayout({
       locale={locale}
       timeZone="Africa/Cairo"
     >
-      <Shell
-        site={site && shellSite(site)}
-        collections={collections.map(navCollection)}
-        guides={guides}
-      >
-        {children}
-        {modal}
-      </Shell>
+      <CurrencyProvider currency={await getCurrency()}>
+        <Shell
+          site={site && shellSite(site)}
+          collections={collections.map(navCollection)}
+          guides={guides}
+        >
+          {children}
+          {modal}
+        </Shell>
+      </CurrencyProvider>
       {site && (
         // The business and website entities, once per page; page-level nodes
         // refer to them by @id.
