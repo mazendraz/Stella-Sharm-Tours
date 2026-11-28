@@ -186,3 +186,10 @@ POST   /preview-link {path}
 - A staff member who has never seen the admin can change a price and reply to a request on their phone without help.
 - Every write can be undone or restored from history.
 - An `editor` cannot change prices or settings, even by calling the API directly (tested).
+
+## Search (SEO) section (added 2026-11-28)
+
+Website → Search (SEO), content roles: content health per trip and language,
+an on-demand live check of the public site, per-tour snippet preview and
+completeness checklist, and connection-required states for Search Console,
+Bing, GA4 and PageSpeed. Spec and limits: `docs/seo/SEO-IMPLEMENTATION-REPORT.md`.

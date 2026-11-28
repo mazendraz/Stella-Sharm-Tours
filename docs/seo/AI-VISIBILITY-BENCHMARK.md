@@ -1,8 +1,32 @@
 # AI visibility benchmark
 
-**Status: prompt set prepared, not yet run.** No ChatGPT, Gemini, Perplexity
-or Copilot session was available in this environment, so there are no
-results. Do not read anything below as a measurement.
+**Status (2026-11-28): system ready, no results yet.** No ChatGPT, Gemini,
+Perplexity, Copilot or Google AI Mode session was available in this
+environment, and these platforms must not be scraped. There are no
+measurements; nothing below is one.
+
+## Monthly system
+
+| Piece                                                                                                                                                | Where                                                                                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Prompt and query set (55 AI prompts in 7 languages + 29 classic search queries, branded flag)                                                        | `docs/seo/benchmark/prompts.json`                                                                                          |
+| Blank results sheet per month (one row per prompt × platform; 388 rows)                                                                              | `node scripts/visibility-benchmark.mjs template YYYY-MM` → `docs/seo/benchmark/results/YYYY-MM.csv` (refuses to overwrite) |
+| Summary per month and platform: rows tested, mention / citation / recommendation / top-3 organic rates on **non-branded** prompts, competitors named | `node scripts/visibility-benchmark.mjs summary`                                                                            |
+| First sheet                                                                                                                                          | `docs/seo/benchmark/results/2026-12.csv` (empty, ready)                                                                    |
+
+Rows left blank count as "not tested" and are excluded from every rate, so a
+partial month never shows as 0 %. Columns: `tested_on`, `tester`,
+`ai_answer_shown` (y/n, e.g. whether a Google AI Overview appeared),
+`mentioned` (y/n), `cited_url`, `recommended_position`, `organic_position`
+(classic results only), `competitors` (semicolon-separated), `sources`,
+`notes`.
+
+Workflow (about 3–4 hours a month for one person; split by platform if
+needed): create the sheet on the 1st, fill it in a spreadsheet, commit the
+CSV, run the summary and paste it into the monthly SEO note. Compare trends
+across months, not single answers. Referral visits from AI assistants are a
+separate, real metric from analytics (Admin → Search (SEO) → Search data,
+once connected).
 
 ## How to run it
 
