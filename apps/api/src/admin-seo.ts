@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import type { Hono } from 'hono';
 import type { Database } from '@stella/db';
 import * as s from '@stella/db/schema';
@@ -52,7 +52,7 @@ export const integrations = [
 ] as const;
 
 export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
-  const [trips, prices, items, itinerary, images] = await Promise.all([
+  const [trips, prices, items, itinerary, images, human] = await Promise.all([
     db
       .select({
         id: s.trips.id,
@@ -82,6 +82,7 @@ export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
       .from(s.tripPrices),
     db
       .select({
+        id: s.tripItems.id,
         tripId: s.tripItems.tripId,
         type: s.tripItems.type,
         text: s.tripItems.text,
@@ -97,6 +98,7 @@ export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
       .groupBy(s.tripItinerary.tripId),
     db
       .select({
+        id: s.media.id,
         tripId: s.tripMedia.tripId,
         role: s.tripMedia.role,
         kind: s.media.kind,
@@ -104,7 +106,47 @@ export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
       })
       .from(s.tripMedia)
       .innerJoin(s.media, eq(s.media.id, s.tripMedia.mediaId)),
+    // Core-language copy can also live here (written by people in the
+    // Translations screen); the public site uses it the same way.
+    db
+      .select({
+        entity: s.contentTranslations.entity,
+        entityId: s.contentTranslations.entityId,
+        field: s.contentTranslations.field,
+        locale: s.contentTranslations.locale,
+        text: s.contentTranslations.text,
+      })
+      .from(s.contentTranslations)
+      .where(
+        and(
+          eq(s.contentTranslations.origin, 'human'),
+          inArray(s.contentTranslations.locale, [...seoLocales]),
+          inArray(s.contentTranslations.entity, ['trip', 'trip_item', 'media']),
+        ),
+      ),
   ]);
+  const extra = new Map<string, Record<string, string>>();
+  for (const r of human)
+    if (r.text.trim()) {
+      const key = [r.entity, r.entityId, r.field].join('|');
+      extra.set(key, { ...extra.get(key), [r.locale]: r.text });
+    }
+  /** Column value first (as the public resolver does), then human rows. */
+  const loc = (
+    entity: string,
+    id: string,
+    field: string,
+    value: unknown,
+  ): Loc | null => {
+    if (!value) return null;
+    const own = value as Loc,
+      rows = extra.get([entity, id, field].join('|'));
+    if (!rows) return own;
+    const out: Record<string, string> = { ...own };
+    for (const [l, text] of Object.entries(rows))
+      if (!own[l as keyof Loc]?.trim()) out[l] = text;
+    return out as Loc;
+  };
   const by = <T extends { tripId: string }>(rows: T[]) => {
     const map = new Map<string, T[]>();
     for (const r of rows) map.set(r.tripId, [...(map.get(r.tripId) ?? []), r]);
@@ -116,12 +158,12 @@ export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
     it = new Map(itinerary.map((r) => [r.tripId, r.n]));
   return trips.map((t) => ({
     ...t,
-    title: t.title as Loc,
-    summary: t.summary as Loc | null,
-    description: t.description as Loc | null,
-    seoTitle: t.seoTitle as Loc | null,
-    seoDescription: t.seoDescription as Loc | null,
-    durationLabel: t.durationLabel as Loc | null,
+    title: loc('trip', t.id, 'title', t.title)!,
+    summary: loc('trip', t.id, 'summary', t.summary),
+    description: loc('trip', t.id, 'description', t.description),
+    seoTitle: loc('trip', t.id, 'seo_title', t.seoTitle),
+    seoDescription: loc('trip', t.id, 'seo_description', t.seoDescription),
+    durationLabel: loc('trip', t.id, 'duration_label', t.durationLabel),
     prices: (p.get(t.id) ?? []).map((r) => ({
       amountEur: r.amountEur === null ? null : Number(r.amountEur),
       unit: r.unit,
@@ -129,12 +171,12 @@ export async function loadSeoSources(db: Database): Promise<SeoTripSource[]> {
     })),
     items: (i.get(t.id) ?? []).map((r) => ({
       type: r.type,
-      text: r.text as Loc,
+      text: loc('trip_item', r.id, 'text', r.text)!,
     })),
     itineraryCount: it.get(t.id) ?? 0,
     images: (m.get(t.id) ?? [])
       .filter((r) => r.kind === 'image')
-      .map((r) => ({ role: r.role, alt: r.alt as Loc | null })),
+      .map((r) => ({ role: r.role, alt: loc('media', r.id, 'alt', r.alt) })),
   }));
 }
 
