@@ -1,7 +1,7 @@
 import { getLocale, getTranslations } from 'next-intl/server';
 import { ArrowUpRight, Bus, KeyRound, MapPin, Wallet } from 'lucide-react';
 import { Reveal } from '@/components/reveal';
-import { googleListingUrl, googleRating, quotesFor } from '@/lib/why-us-quotes';
+import { googleListingUrl, quotesFor } from '@/lib/why-us-quotes';
 import './why-us.css';
 
 /**
@@ -21,10 +21,6 @@ const facts = [
 export async function WhyUs() {
   const [t, locale] = await Promise.all([getTranslations(), getLocale()]);
   const quotes = quotesFor(locale);
-  const rating = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  }).format(googleRating.rating);
   return (
     <section className="section why-us" aria-labelledby="why-us-heading">
       <Reveal>
@@ -36,22 +32,9 @@ export async function WhyUs() {
       </Reveal>
       {quotes.length > 0 && (
         <>
-          <a
-            className="why-rating"
-            href={googleListingUrl}
-            target="_blank"
-            rel="noopener"
-          >
-            <strong aria-hidden="true">{rating}</strong>
-            <span className="why-stars" aria-hidden="true">
-              ★★★★★
-            </span>
-            <span className="sr-only">{t('whyRatingLabel', { rating })}. </span>
-            <span className="why-rating-count">
-              {t('whyRatingCount', { count: googleRating.count })}
-            </span>
-            <span className="sr-only"> {t('whyNewTab')}</span>
-          </a>
+          {/* The Google rating and review count were a dated capture
+              (2026-11-26) and are not shown until they can be kept current;
+              the verbatim quotes and the link to the live listing stay. */}
           <div
             className="why-quotes"
             // A horizontally scrolling region must be reachable by keyboard
