@@ -87,11 +87,19 @@ export function registerVisibility(
   );
   app.post('/v1/admin/visibility', auth.guard('content'), async (c) => {
     const row = visibilityRow.parse(await c.req.json());
-    const [created] = await db
-      .insert(s.visibilityMeasurements)
-      .values(toDb(row, c.get('principal').id))
-      .returning({ id: s.visibilityMeasurements.id });
-    return c.json({ id: created!.id }, 201);
+    // Every write to the measurement history is audited, like import/delete.
+    const id = await db.transaction(async (tx) => {
+      const [created] = await tx
+        .insert(s.visibilityMeasurements)
+        .values(toDb(row, c.get('principal').id))
+        .returning({ id: s.visibilityMeasurements.id });
+      await audit(tx, c, 'create', created!.id, {
+        platform: row.platform,
+        measuredOn: row.measuredOn,
+      });
+      return created!.id;
+    });
+    return c.json({ id }, 201);
   });
   app.post('/v1/admin/visibility/import', auth.guard('content'), async (c) => {
     const { rows } = visibilityImport.parse(await c.req.json());
