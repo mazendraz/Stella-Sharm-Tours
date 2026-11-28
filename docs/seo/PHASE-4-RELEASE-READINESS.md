@@ -27,6 +27,15 @@ work, deployed, or migrated on staging/production.**
 - Recovery snapshot of the original worktree (local, not uploaded):
   `F:\stella-seo\.local\recovery\gr-20261128-180550\` with SHA256SUMS.
 - The original `F:\stella-project-kit` worktree was not modified.
+- **The original worktree kept changing after the snapshot.** At 18:17
+  another session (or the owner) edited `AGENTS.md`, `docs/DECISIONS.md` and
+  `docs/backend-verification.md` there (owner decision of 2026-11-28: the
+  Private hero slide becomes the second slide, after "All of Egypt"); status
+  is now 141 entries. These edits are **not** in the candidate. Because the
+  tree is still being worked on, the publish step (§17, item 1) must take a
+  fresh snapshot of the final, committed Google Reviews/WhatsApp work and
+  re-run the conflict check (`git merge-tree`) and the test list in §9 before
+  anything is merged.
 
 ## 3. Conflict analysis (recomputed with current data)
 
