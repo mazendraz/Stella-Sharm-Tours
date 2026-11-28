@@ -41,6 +41,10 @@ Final report: [PHASE-4-RELEASE-READINESS.md](PHASE-4-RELEASE-READINESS.md).
 
 ## Known gaps
 
+- The source worktree changed again at 18:17 (AGENTS.md, DECISIONS.md,
+  backend-verification.md: Private hero slide second). Not in the candidate;
+  re-snapshot the final committed work before publishing.
+
 - Google Reviews plan tasks 2–6 (import, API, admin moderation, reviews
   section) were never implemented in the source worktree.
 - Staging unreachable; `develop` branch missing; no SSH/DB access here.
