@@ -167,3 +167,15 @@ any reviews-related structured data review.
 - Mobile LCP investigation (last lab value 3.2–3.6 s; target ≤ 2.5 s).
 - Machine translation of content pages for non-core languages (core 7 required
   for publication; other languages fall back to English).
+
+## Completion session (2026-11-28, later)
+
+The "Remaining work → E" list above was worked through; results, evidence and
+the remaining classification are in
+[PHASE-3-FINAL-READINESS.md](PHASE-3-FINAL-READINESS.md). In short: the admin
+browser suite now exists and passes on an isolated stack (6 defects found and
+fixed); trip pages link back to guides and page links are two-way; 17 FAQ
+answers are verified in seven languages and loaded as drafts; research is at
+51 queries / 45 competitors; LCP improved on every measured page but the
+2.5 s lab target is still not met (bottleneck documented); migrations were
+rehearsed in 11 scenarios; the Linux production artifact is confirmed by CI.

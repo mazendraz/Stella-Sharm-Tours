@@ -52,3 +52,36 @@ vs afternoon) and the two Red Canyon trips.
 | best time to visit Sharm El Sheikh / periodo migliore                 | informational            | Seasonal guide                                                        | first-hand, verified        |
 
 Do not create one page per query variant; one guide per real topic.
+
+## Update 2026-11-28 (phase 3 completion): queries 22–51
+
+Mapped from the 30 new queries in `COMPETITOR-ANALYSIS.md`. Still no volume
+data. "Guide draft" = an unpublished page in Admin → Travel guides
+(`data/content/guides-draft.json`); it stays a draft until its `[CONFIRM]`
+items are answered and all seven languages exist.
+
+| Query (#) / intent                                                 | Page that should answer it (one home)                                             | Status / condition                                                               |
+| ------------------------------------------------------------------ | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| things to do in Sharm (22), cosa fare a Sharm (23) — informational | New guide "Sharm El Sheikh by interest" linking to the 7 collections              | Not drafted; media own this result. Write only with first-hand content.          |
+| excursion prices (24), prezzi escursioni (25) — commercial         | Home `/en` + collections (prices come from the DB on every card)                  | No price-list page: a generated one would duplicate the cards. Revisit with GSC. |
+| best local excursion company (26) — commercial/navigational        | Home + Contact (identity, office, WhatsApp) + Google Business Profile             | Needs reviews/GBP (external, E4).                                                |
+| White Island boat trip (27), Isola Bianca (28)                     | `/t/ras-mohammed-white-island-boat`                                               | Live; guide `ras-mohammed-boat-bus-or-private` supports it (draft).              |
+| Ras Mohammed tour (29), via terra pullman (30), boat or land (38)  | Guide `ras-mohammed-boat-bus-or-private` (+ destination `ras-mohammed`)           | Draft; FAQ #44 attached (7 languages). Do not also target on the trip pages.     |
+| desert safari quad/buggy dinner (31, 32)                           | `/c/desert`; activity draft `desert-safaris-compared`                             | Draft; safari fee needs the owner.                                               |
+| escursioni private auto privata (33)                               | `/c/private`                                                                      | Live; FAQ #58–60 drafts.                                                         |
+| Cairo by plane GEM (34), Cairo in giornata guida italiana (48)     | Guide `cairo-from-sharm-plane-or-bus`; trips `cairo-plane-1-day`, `cairo-bus-gem` | Draft with FAQ #28, #29, #48. "guida italiana" blocked by D2.                    |
+| Luxor in aereo (35)                                                | `/t/luxor-plane-1-day`                                                            | Live.                                                                            |
+| Petra traghetto (36), Jerusalem day trip (42)                      | `/t/petra-bus-ferry`, `/t/jerusalem-bethlehem`; `/c/beyond`                       | Live; documents/border questions need the owner and an official source.          |
+| famiglie con bambini (37)                                          | Guide `sharm-excursions-for-families`                                             | Draft with FAQ #31.                                                              |
+| first time visitors (40) — conversational                          | FAQ page + home                                                                   | No separate page (would be thin); answered by the guides once published.         |
+| glass bottom / Sea Scope (41), dolphin show (46)                   | `/t/glass-bottom-boat`, `/t/sea-scope-submarine`, `/t/dolphin-show`               | Live.                                                                            |
+| Coloured Canyon Dahab (43)                                         | `/t/red-canyon-blue-hole`, `/t/dahab-day-trip`                                    | Live; FAQ #49 (FAQ page draft).                                                  |
+| book on WhatsApp / pay on the day (44), hotel or on the spot (45)  | FAQ page (#2, #3, #17)                                                            | FAQ drafts ready; payment timing/currency need the owner (#18–20).               |
+| Mount Sinai climb length (47)                                      | `/t/mount-sinai-st-catherine`; guide `mount-sinai-sunrise-how-the-night-works`    | Draft; walking time needs the owner (#47).                                       |
+| Nabq protected area (49)                                           | `/t/nabq-private-morning`, `/t/nabq-private-afternoon`, `/t/camping-nabq`         | Live; the two private Nabq trips must keep distinct titles (cannibalisation).    |
+| excursion agency Naama Bay (50) — local                            | Contact page + GBP                                                                | External (GBP, E4).                                                              |
+| Sinai-only stamp and Cairo (51)                                    | Cairo guide, only with an official dated source                                   | **Do not publish** from competitor claims; owner + official source (FAQ #42).    |
+
+Cannibalisation check: every new query has one home above. The guide drafts
+target comparison/informational intent ("by boat or by bus", "plane or bus"),
+while trip pages keep the transactional intent of their own trip name.

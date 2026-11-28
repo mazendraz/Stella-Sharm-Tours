@@ -83,3 +83,36 @@ where the company is genuinely listed.
 
 Never buy links, swap links at scale, or publish guest posts written only for
 links.
+
+## F. Integration readiness (verified in code, 2026-11-28)
+
+Admin → Search (SEO) → **Search data** lists six cards. In code
+(`apps/api/src/admin-seo.ts`, `integrations`) every one is a **static
+`notConnected` placeholder**: there is no OAuth flow, no credential storage,
+no data fetching and no sync job. Nothing shows numbers, so nothing is
+fabricated — but none of them is "integrated".
+
+| Integration               | Server-side implementation | What exists                                                    | What is needed (code side)                                                                                                                                                                                                                                                                                                   | Blocked by                                 |
+| ------------------------- | -------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Google Search Console     | **None (placeholder)**     | "Connection required" card                                     | Service account added as restricted user to the Domain property (no user OAuth needed); key file mounted as a secret, read only by the worker; daily job calling `searchanalytics.query` (dimensions page, query, country, device), stored per day; last-sync status, quota/429 back-off, disconnect = delete key + stop job | E2 (property + adding the service account) |
+| Bing Webmaster Tools      | **None (placeholder)**     | card                                                           | API key (per-user key from Bing Webmaster settings) as a worker secret; `GetQueryStats`/`GetPageStats` daily                                                                                                                                                                                                                 | E3                                         |
+| Google Analytics 4        | **None (placeholder)**     | card                                                           | Only if D5 = GA4 (consent banner first). Data API `runReport` with a service account granted Viewer                                                                                                                                                                                                                          | D5, E7                                     |
+| PageSpeed Insights / CrUX | **None (placeholder)**     | card; `pnpm verify:performance` (local Lighthouse) exists      | API key restricted to the PageSpeed API, as a server secret; monthly job for `/en`, `/it`, one collection, one trip; store LCP/INP/CLS p75 from `loadingExperience` only when present (never lab values as field data)                                                                                                       | E8                                         |
+| Organic conversions       | **None (placeholder)**     | card; site emits `request_submit_ok`, `whatsapp_click` (Umami) | Read from Umami (self-hosted) or GA4 by referrer = search engines                                                                                                                                                                                                                                                            | D5                                         |
+| AI referrals              | **None (placeholder)**     | card                                                           | Referrer grouping (chatgpt.com, perplexity.ai, gemini.google.com, copilot.microsoft.com, claude.ai) from analytics                                                                                                                                                                                                           | D5                                         |
+| Google Business Profile   | **None** (no card)         | `sameAs` from Admin → Settings → social links                  | Business Profile APIs require an approved Google Cloud project (access request) — do not build until the profile exists and access is granted                                                                                                                                                                                | E4                                         |
+
+**Decision this session:** no credential-handling code was added. Without the
+accounts it could not be validated end to end, and an unvalidated secret
+store/OAuth callback would add attack surface with no benefit
+(`docs/04-security-plan.md`). Design rules for when the accounts exist:
+credentials only as server/worker secrets (never in the DB in plain text,
+never sent to the browser), read-only scopes, one worker job per source with
+`last_success_at` / `last_error` shown on the card, exponential back-off on
+429/5xx, and a disconnect action that deletes the secret and stored data.
+
+**Manual workflow until then:** the monthly benchmark
+(`AI-VISIBILITY-BENCHMARK.md`) recorded in Admin → AI visibility (manual entry
+or CSV). It distinguishes brand mention, website citation, recommendation and
+its order (AI answers), organic position (Google/Bing only) and competitors;
+referral visits come from analytics, never from the benchmark sheet.

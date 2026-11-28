@@ -22,5 +22,7 @@ references.
 | [TOUR-VERIFICATION-CHECKLIST.md](TOUR-VERIFICATION-CHECKLIST.md) | Per tour: what is published, what the owner must confirm (generated)               |
 | [FAQ-CANDIDATES.md](FAQ-CANDIDATES.md)                           | 60 FAQ candidates with status and home page                                        |
 | [INTEGRATION-AND-DEPLOYMENT.md](INTEGRATION-AND-DEPLOYMENT.md)   | Merge with Google Reviews, deploy, verify, roll back                               |
+| [PHASE-3-FINAL-READINESS.md](PHASE-3-FINAL-READINESS.md)         | Phase 3 completion: test evidence, performance, migrations, what is still blocked  |
+| [PHASE-3-CHECKPOINT.md](PHASE-3-CHECKPOINT.md)                   | Recovery file for a new session                                                    |
 
 Tools: `pnpm seo:check --base <url>` (crawl), `node scripts/seo-tour-checklist.mjs --api <api>` (checklist), `node scripts/visibility-benchmark.mjs template|summary` (benchmark). In the admin: Website → Search (SEO).

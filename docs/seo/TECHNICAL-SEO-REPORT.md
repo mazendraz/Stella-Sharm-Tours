@@ -116,3 +116,61 @@ unchanged, HTML 300 KB. Reverted.
 4. Confirm CrUX field data once Search Console has enough traffic; the target
    (LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 at p75) is judged on field data, not
    on these lab numbers.
+
+## 7. Mobile performance work (2026-11-28, phase 3 completion)
+
+**Method.** Lighthouse 13.6 (repo dev dependency), mobile defaults (simulated
+slow 4G, 4× CPU, Moto G-class viewport), headless Chrome, same machine, same
+data, nothing else running. Target: a local **production build** of this
+branch (`next start`) against an isolated stack — real API, seeded catalogue
+(38 trips), media processed by the worker into renditions (the API serves
+AVIF/WebP by content negotiation). This is a **new baseline**: the earlier
+3.2–3.6 s figures were measured against the fixture API with stock JPEGs and
+are not comparable. Median of 3 runs (5 where noted). Lab data only — field
+LCP/INP/CLS at p75 can only come from CrUX/Search Console (E2, E8).
+
+| Page                                     | Baseline LCP | After E1 |                    After E1+E2 |    FCP |        TBT |    CLS |     TTFB |
+| ---------------------------------------- | -----------: | -------: | -----------------------------: | -----: | ---------: | -----: | -------: |
+| `/en` (home)                             |       3.93 s |   3.69 s |     3.69 s (5 runs: 3.42–3.70) | 1.21 s | 67 → 27 ms | 0.0015 | 58–85 ms |
+| `/en/c/sea` (collection)                 |       3.19 s |   2.94 s |                         2.94 s | 1.06 s | 19 → 15 ms |      0 | 42–59 ms |
+| `/en/t/ras-mohammed-white-island-boat`   |       3.10 s |   3.09 s | **2.64 s** (5 runs: 2.63–2.65) | 1.06 s | 14 → 12 ms | 0.0001 | 26–51 ms |
+| `/en/t/quad-bike-safari`                 |            — |        — |                         2.87 s | 1.06 s |      12 ms | 0.0001 |    52 ms |
+| `/en/guides/perf-test-guide` (synthetic) |       1.06 s |   1.06 s |                              — | 1.06 s |      15 ms | 0.0006 |    33 ms |
+
+Performance scores after: home 89, collection 95, trips 95–97, guide 100.
+
+**What the traces show.** The LCP element is the hero/cover `<img>` on every
+page. Lighthouse's own checks pass: discoverable in the HTML,
+`fetchpriority=high`, not lazy. The observed (unthrottled) LCP phases are
+small: TTFB 35–70 ms, load delay 13–31 ms, load duration 11–20 ms, render
+delay 130–220 ms. The 2.6–3.7 s values come from the **simulated** slow-4G
+download of everything that starts before the paint: the HTML (home 43 KB,
+including the React Server Components payload), ~19 KB render-blocking CSS
+(3 files, estimated saving 170–200 ms), ~150 KB of framework JavaScript and
+two preloaded fonts (40 KB). The LCP image itself is already small (home
+65 KB AVIF; trip 26 KB).
+
+**Experiments (each built and measured on its own):**
+
+| #   | Change                                                                                                                                              | Result                                                                                                               | Decision     |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------ |
+| E1  | `trip-story.tsx` loads the story schema (and Zod, a 28 KB chunk) only when a story is opened, instead of in the first bundle of home and collection | home −0.24 s, collection −0.25 s, TBT 67 → 32 ms; trip/guide unchanged; same validation                              | **kept**     |
+| E2  | Trip gallery: slides after the first use the existing deferred `Media` mode (load right after hydration, 200 px margin; `<noscript>` fallback)      | trip −0.45 s (3.09 → 2.64 s), CLS unchanged; gallery, swipe and video slides unchanged                               | **kept**     |
+| E3  | Do not preload the Marcellus display font                                                                                                           | 3 runs looked better on home (3.22 s) but 5-run recheck = 3.69 s (no change); trip noise ±0.15 s; risk of later swap | **reverted** |
+| —   | `experimental.inlineCss` (previous session)                                                                                                         | worse (home 3.78 s), not repeated without new evidence                                                               | not repeated |
+
+**Status against the target (LCP ≤ 2.5 s lab is a proxy only):** not met.
+Closest: trip pages 2.64–2.87 s, collection 2.94 s; home 3.4–3.7 s and
+bimodal between runs (the simulated graph changes with which requests start
+before the observed paint; the hero video request starts at ~0.9 s, after
+LCP, so it is not the cause). CLS ≤ 0.1 is met everywhere (≤ 0.0015). INP
+cannot be measured in the lab; TBT ≤ 32 ms everywhere.
+
+**Remaining bottleneck and next steps (not done; each needs its own
+measurement):** (1) home HTML/RSC payload — pass fewer trip/collection fields
+to the client widgets on the home page; (2) the three render-blocking CSS
+files — split route-specific CSS rather than inlining everything (inlining was
+measured worse); (3) confirm with field data: PageSpeed/CrUX (E8) after
+deploy, because Lighthouse's simulation is pessimistic for small pages served
+from a nearby VPS. Hero videos, stories, maps, animations, image quality and
+booking were not changed.
