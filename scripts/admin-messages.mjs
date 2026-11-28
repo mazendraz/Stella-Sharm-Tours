@@ -34,6 +34,16 @@ Object.assign(
     ),
   ),
 );
+// Travel guides, Verification Center, AI visibility (2026-11-28).
+Object.assign(
+  source,
+  JSON.parse(
+    await readFile(
+      new URL('../data/i18n/admin-content.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 const locales = ['en', 'it', 'es', 'fr', 'de', 'ru', 'tr'];
 for (const [key, values] of Object.entries(source))
   if (
