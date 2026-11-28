@@ -384,8 +384,11 @@ export function Requests({ id }: { id?: string }) {
                           {relative(String(row.createdAt), locale)}
                         </span>
                         <span className="strong">
-                          {money(row.estimateEur as string | null, locale) ??
-                            t('onRequest')}
+                          {money(
+                            row.estimateEur as string | null,
+                            locale,
+                            row.currency as string | undefined,
+                          ) ?? t('onRequest')}
                         </span>
                       </span>
                     </AppLink>
@@ -758,8 +761,11 @@ function RequestDetail({
                     {t('estimate')}
                   </th>
                   <td className="num strong">
-                    {money(row.estimateEur as string | null, locale) ??
-                      t('onRequest')}
+                    {money(
+                      row.estimateEur as string | null,
+                      locale,
+                      row.currency as string | undefined,
+                    ) ?? t('onRequest')}
                   </td>
                 </tr>
               </tfoot>

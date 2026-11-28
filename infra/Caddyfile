@@ -24,6 +24,12 @@ import /etc/caddy/stella/common.caddy
     lb_try_duration 10s
   }
 }
+# www is a DNS alias of the apex. Serve it with its own certificate and send
+# every request permanently to the one canonical host (SEO audit P2-2).
+www.{$WEB_HOST} {
+  import security
+  redir https://{$WEB_HOST}{uri} 308
+}
 {$ADMIN_HOST} {
   import security
   header X-Robots-Tag "noindex, nofollow"

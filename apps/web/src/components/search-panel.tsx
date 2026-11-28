@@ -19,6 +19,7 @@ import { createHistoryEntry } from '@/lib/history-entry';
 import { money, track } from '@/lib/links';
 import { Media } from './media';
 import { Content } from './text';
+import { useCurrency } from './currency';
 import { WhatsAppIcon } from './whatsapp-icon';
 import './search-panel.css';
 
@@ -36,6 +37,7 @@ export default function SearchPanel({
 }) {
   const t = useTranslations(),
     locale = useLocale(),
+    currency = useCurrency(),
     router = useRouter();
   const dialog = useRef<HTMLDialogElement>(null),
     input = useRef<HTMLInputElement>(null),
@@ -138,7 +140,7 @@ export default function SearchPanel({
       ? null
       : e.from_price_eur === null
         ? t('onRequest')
-        : t('from', { price: money(e.from_price_eur, locale) });
+        : t('from', { price: money(e.from_price_eur, locale, currency) });
 
   return (
     <dialog

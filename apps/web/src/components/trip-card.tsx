@@ -7,6 +7,7 @@ import { Content } from './text';
 import { AddButton } from './add-button';
 import { estimateTrip } from '@stella/shared/price';
 import { money } from '@/lib/links';
+import { useCurrency } from './currency';
 export function TripCard({
   trip,
   compact = false,
@@ -16,6 +17,7 @@ export function TripCard({
   compact?: boolean;
   privateMode?: boolean;
 }) {
+  const currency = useCurrency();
   const t = useTranslations(),
     locale = useLocale(),
     estimate = estimateTrip(
@@ -52,7 +54,7 @@ export function TripCard({
           <bdi>
             {estimate.onRequest
               ? t('onRequest')
-              : t('from', { price: money(estimate.amount, locale) })}
+              : t('from', { price: money(estimate.amount, locale, currency) })}
           </bdi>
         </span>
       </Link>

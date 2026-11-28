@@ -6,6 +6,10 @@ import { coreLocaleOptions } from '@stella/shared';
 import { resolveText } from '@stella/shared/i18n/resolve';
 import { cairoDate } from '@stella/shared/booking';
 import { estimateTrip } from '@stella/shared/price';
+import {
+  whatsappNumberFor,
+  type WhatsAppContacts,
+} from '@stella/shared/whatsapp';
 import { applyPreviewDrafts } from './preview-drafts';
 import {
   siteSchema,
@@ -416,18 +420,28 @@ export async function loadCatalog(
     return tripSchema.parse(result);
   };
   const dtos = publicTrips.map(toTrip);
+  // Trips shown in a collection. "All of Egypt" (kind packages) lists every
+  // trip on the site: its own ready-made packages first, then each normal
+  // collection in its admin order (owner, 2026-11-26).
+  const collectionRank = (slug: string) => cs.findIndex((c) => c.slug === slug);
+  const membersOf = (c: { slug: string; kind: string }) =>
+    c.kind === 'private_virtual'
+      ? dtos
+          .filter((t) => ['private', 'both'].includes(t.format))
+          .sort(
+            (a, b) =>
+              Number(b.format === 'private') - Number(a.format === 'private'),
+          )
+      : c.kind === 'packages'
+        ? [...dtos].sort(
+            (a, b) =>
+              Number(b.collection === c.slug) -
+                Number(a.collection === c.slug) ||
+              collectionRank(a.collection) - collectionRank(b.collection),
+          )
+        : dtos.filter((t) => t.collection === c.slug);
   const collections = cs.map((c) => {
-    const trips = dtos
-      .filter((t) =>
-        c.kind === 'private_virtual'
-          ? ['private', 'both'].includes(t.format)
-          : t.collection === c.slug,
-      )
-      .sort((a, b) =>
-        c.kind === 'private_virtual'
-          ? Number(b.format === 'private') - Number(a.format === 'private')
-          : 0,
-      );
+    const trips = membersOf(c);
     const prices = trips.flatMap((t) => {
       const price =
         t.prices.find((p) => p.is_primary) ??
@@ -522,7 +536,9 @@ export async function loadCatalog(
         if (slide.ctaType === 'whatsapp')
           href =
             'https://wa.me/' +
-            String(contacts.whatsapp_primary ?? '').replace(/\D/g, '');
+            (
+              whatsappNumberFor(locale, contacts as WhatsAppContacts) ?? ''
+            ).replace(/\D/g, '');
         const dto = slideSchema.safeParse({
           id: slide.id,
           title: slide.headline
@@ -567,7 +583,7 @@ export async function loadCatalog(
       : publicTrips
           .filter((t) => t.featuredOrder !== null)
           .sort((a, b) => a.featuredOrder! - b.featuredOrder!)
-          .slice(0, 4)
+          .slice(0, 12)
           .map(toTrip),
     private_trips: Array.isArray(home.private_trip_slugs)
       ? home.private_trip_slugs.flatMap((slug) =>
@@ -620,21 +636,12 @@ export async function loadCatalog(
       return trip ? storyFor(trip) : null;
     },
     text,
+    media,
     settings,
     collection: (slug: string) => {
       const collection = collections.find((c) => c.slug === slug);
       if (!collection) return null;
-      const list = dtos
-        .filter((t) =>
-          collection.kind === 'private_virtual'
-            ? ['private', 'both'].includes(t.format)
-            : t.collection === slug,
-        )
-        .sort((a, b) =>
-          collection.kind === 'private_virtual'
-            ? Number(b.format === 'private') - Number(a.format === 'private')
-            : 0,
-        );
+      const list = membersOf(collection);
       return {
         collection,
         trips: list,

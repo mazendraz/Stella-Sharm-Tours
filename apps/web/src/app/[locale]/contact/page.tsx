@@ -6,7 +6,10 @@ import { getSite } from '@/lib/api';
 import { Media } from '@/components/media';
 import { Content } from '@/components/text';
 import { displayPhone, officeMap, whatsapp } from '@/lib/links';
-import { metadataFor } from '@/lib/seo';
+import { metadataFor, JsonLd } from '@/lib/seo';
+import { siteOrigin } from '@/lib/env';
+import { graph, orgId, webPage } from '@/lib/structured-data';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import { Unavailable } from '@/components/unavailable';
 export async function generateMetadata({
   params,
@@ -15,7 +18,12 @@ export async function generateMetadata({
 }) {
   const { locale } = await params;
   const t = await getTranslations();
-  return metadataFor(locale, '/contact', t('contact'));
+  return metadataFor(
+    locale,
+    '/contact',
+    t('contact'),
+    t('seoContactDescription'),
+  );
 }
 export default async function ContactPage({
   params,
@@ -46,7 +54,14 @@ export default async function ContactPage({
             <Content value={site.home.contact_text} />
           </p>
           <div className="button-row">
-            {[site.contacts.whatsapp_primary, site.contacts.whatsapp_secondary]
+            {/* The line for this language comes first (owner, 2026-11-26). */}
+            {[
+              ...new Set([
+                whatsappNumberFor(locale, site.contacts),
+                site.contacts.whatsapp_primary,
+                site.contacts.whatsapp_secondary,
+              ]),
+            ]
               .filter(Boolean)
               .map((phone, i) => (
                 <a
@@ -148,6 +163,21 @@ export default async function ContactPage({
           )}
         </div>
       </div>
+      <JsonLd
+        value={graph([
+          webPage(
+            'ContactPage',
+            siteOrigin + '/' + locale + '/contact',
+            siteOrigin,
+            locale,
+            t('contact'),
+            {
+              description: t('seoContactDescription'),
+              mainEntity: { '@id': orgId(siteOrigin) },
+            },
+          ),
+        ])}
+      />
     </main>
   );
 }

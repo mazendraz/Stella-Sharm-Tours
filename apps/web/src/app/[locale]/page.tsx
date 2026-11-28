@@ -15,16 +15,20 @@ import { Content } from '@/components/text';
 import { Reveal } from '@/components/reveal';
 import { BuildWidget, PrivateTracker } from '@/components/home-widgets';
 import { whatsapp } from '@/lib/links';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import { metadataFor, JsonLd } from '@/lib/seo';
 import { Unavailable } from '@/components/unavailable';
+import { WhyUs } from '@/components/why-us';
 import { siteOrigin } from '@/lib/env';
+import { graph, orgId, webPage } from '@/lib/structured-data';
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return metadataFor(locale, '');
+  const t = await getTranslations({ locale });
+  return metadataFor(locale, '', t('seoHomeTitle'), t('seoHomeDescription'));
 }
 export default async function Home({
   params,
@@ -42,7 +46,7 @@ export default async function Home({
   } catch {
     return <Unavailable />;
   }
-  const wa = whatsapp(site.contacts.whatsapp_primary),
+  const wa = whatsapp(whatsappNumberFor(locale, site.contacts)),
     first = collections[0];
   const slides = eligibleSlides(site.hero_slides);
   const fallback: Slide | null = first
@@ -67,6 +71,35 @@ export default async function Home({
         <StoryHero slides={slides} whatsappUrl={wa} fallback={fallback} />
         <div className="content-sheet">
           <div className="wrap">
+            {site.featured_trips.length > 0 && (
+              <section className="section">
+                <Reveal>
+                  <div className="section-heading">
+                    <h2>{t('firstDays')}</h2>
+                    <p>{t('firstDaysSub')}</p>
+                  </div>
+                </Reveal>
+                <div className="featured-grid">
+                  {site.featured_trips.map((trip) => (
+                    <TripCard key={trip.slug} trip={cardTrip(trip)} />
+                  ))}
+                </div>
+              </section>
+            )}
+            <WhyUs />
+            <Suspense fallback={null}>
+              <HomeTripStories locale={locale} />
+            </Suspense>
+            <section className="section" id="journeys">
+              <Reveal>
+                <p className="kicker section-kicker">{t('journeys')}</p>
+                <div className="section-heading">
+                  <h2>{t('choose')}</h2>
+                  <p>{t('chooseSub')}</p>
+                </div>
+              </Reveal>
+              <CollectionCards collections={collections} />
+            </section>
             <section
               className="private-block section"
               aria-labelledby="private-heading"
@@ -121,34 +154,6 @@ export default async function Home({
                 ))}
               </div>
             </section>
-            <Suspense fallback={null}>
-              <HomeTripStories locale={locale} />
-            </Suspense>
-            <section className="section" id="journeys">
-              <Reveal>
-                <p className="kicker section-kicker">{t('journeys')}</p>
-                <div className="section-heading">
-                  <h2>{t('choose')}</h2>
-                  <p>{t('chooseSub')}</p>
-                </div>
-              </Reveal>
-              <CollectionCards collections={collections} />
-            </section>
-            {site.featured_trips.length > 0 && (
-              <section className="section">
-                <Reveal>
-                  <div className="section-heading">
-                    <h2>{t('firstDays')}</h2>
-                    <p>{t('firstDaysSub')}</p>
-                  </div>
-                </Reveal>
-                <div className="featured-grid">
-                  {site.featured_trips.map((trip) => (
-                    <TripCard key={trip.slug} trip={cardTrip(trip)} />
-                  ))}
-                </div>
-              </section>
-            )}
             <Reveal>
               <section className="build-block section">
                 <p className="kicker">{t('myTrip')}</p>
@@ -208,14 +213,19 @@ export default async function Home({
         </div>
       </main>
       <JsonLd
-        value={{
-          '@context': 'https://schema.org',
-          '@type': 'TravelAgency',
-          name: site.name,
-          url: siteOrigin,
-          inLanguage: locale,
-          ...(site.contacts.phone ? { telephone: site.contacts.phone } : {}),
-        }}
+        value={graph([
+          webPage(
+            'WebPage',
+            siteOrigin + '/' + locale,
+            siteOrigin,
+            locale,
+            t('seoHomeTitle'),
+            {
+              description: t('seoHomeDescription'),
+              mainEntity: { '@id': orgId(siteOrigin) },
+            },
+          ),
+        ])}
       />
     </>
   );

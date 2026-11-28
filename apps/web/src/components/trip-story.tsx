@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Play, X } from 'lucide-react';
-import { publicStorySchema, type PublicStory } from '@stella/shared/story';
+import type { PublicStory } from '@stella/shared/story';
 import type { Trip } from '@stella/shared/public-contract';
 import { Media } from './media';
 import { useTripStore } from './store';
 import { track } from '@/lib/links';
 import { createHistoryEntry } from '@/lib/history-entry';
 import { StoryStopPicker } from './story-stop-picker';
+import { SkeletonBlock, SkeletonGroup } from './skeleton';
 import { RouteMap, travelsBetween } from './story-route-map';
 import './trip-story.css';
 
@@ -32,6 +33,7 @@ export default function TripStory({
   const [open, setOpen] = useState(false),
     [story, setStory] = useState<PublicStory | null>(null),
     [error, setError] = useState(false),
+    [attempt, setAttempt] = useState(0),
     [index, setIndex] = useState(0),
     [moving, setMoving] = useState(false),
     [paused, setPaused] = useState(true),
@@ -68,21 +70,6 @@ export default function TripStory({
     const detach = storyEntry.current.attach(() => setOpen(false), finish);
     document.addEventListener('visibilitychange', pause);
     if (previewStory) setStory(previewStory);
-    else
-      fetch(
-        '/api/trip-story?' + new URLSearchParams({ slug: trip.slug, locale }),
-        { signal: controller.signal },
-      )
-        .then(async (r) => {
-          if (!r.ok) throw Error();
-          return publicStorySchema.parse(await r.json());
-        })
-        .then((s) => {
-          if (!controller.signal.aborted) setStory(s);
-        })
-        .catch(() => {
-          if (!controller.signal.aborted) setError(true);
-        });
     return () => {
       controller.abort();
       detach();
@@ -90,6 +77,34 @@ export default function TripStory({
       d.close();
     };
   }, [open, locale, trip, privateMode, previewStory]);
+  // Story data loads on its own, so Try again refetches without closing the
+  // dialog or touching its history entry.
+  useEffect(() => {
+    if (!open || previewStory) return;
+    const controller = new AbortController();
+    setError(false);
+    fetch(
+      '/api/trip-story?' + new URLSearchParams({ slug: trip.slug, locale }),
+      { signal: controller.signal },
+    )
+      .then(async (r) => {
+        if (!r.ok) throw Error();
+        // The schema (and Zod) loads only when a story is opened, so it is
+        // not part of the home page's first JavaScript (mobile LCP).
+        const [{ publicStorySchema }, body] = await Promise.all([
+          import('@stella/shared/story'),
+          r.json(),
+        ]);
+        return publicStorySchema.parse(body);
+      })
+      .then((s) => {
+        if (!controller.signal.aborted) setStory(s);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setError(true);
+      });
+    return () => controller.abort();
+  }, [open, attempt, locale, trip.slug, previewStory]);
   const arrive = useCallback(() => setMoving(false), []);
   const go = (next: number) => {
     if (
@@ -164,9 +179,33 @@ export default function TripStory({
               STELLA
             </b>
             {!story || !scene ? (
-              <p role="status">
-                {error ? t('storyUnavailable') : t('storyLoading')}
-              </p>
+              error ? (
+                <div className="story-state" role="alert">
+                  <p>{t('storyUnavailable')}</p>
+                  <button
+                    type="button"
+                    className="button"
+                    onClick={() => setAttempt((n) => n + 1)}
+                  >
+                    {t('retry')}
+                  </button>
+                </div>
+              ) : (
+                <SkeletonGroup
+                  label={t('storyLoading')}
+                  className="story-loading"
+                >
+                  <span className="story-loading-bars" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <SkeletonBlock className="story-loading-media" />
+                  <span className="story-loading-text" aria-hidden="true">
+                    {t('storyLoading')}
+                  </span>
+                </SkeletonGroup>
+              )
             ) : (
               <>
                 <div className="story-progress" aria-hidden="true">

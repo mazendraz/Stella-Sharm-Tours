@@ -4,6 +4,7 @@ import { CalendarDays, MapPin, Users } from 'lucide-react';
 import { bookingArea, bookingGuests } from '@stella/shared/i18n/guests';
 import { money } from '@/lib/links';
 import type { RequestSummary } from '@/lib/request-summary';
+import { useCurrency } from './currency';
 
 const at = (day: string) => new Date(day + 'T12:00:00Z');
 
@@ -14,6 +15,7 @@ export function RequestSummaryCard({
   reference: string;
   summary: RequestSummary;
 }) {
+  const currency = useCurrency();
   const t = useTranslations();
   const locale = useLocale();
   const short = new Intl.DateTimeFormat(locale, {
@@ -103,7 +105,7 @@ export function RequestSummaryCard({
               {item.amount === null ? (
                 t('onRequest')
               ) : (
-                <bdi>{money(item.amount, locale)}</bdi>
+                <bdi>{money(item.amount, locale, currency)}</bdi>
               )}
             </span>
           </li>
@@ -114,7 +116,7 @@ export function RequestSummaryCard({
         {onRequest && summary.known > 0 && (
           <div>
             <span>{t('pricedTripsSubtotal')}</span>
-            <bdi>{money(summary.known, locale)}</bdi>
+            <bdi>{money(summary.known, locale, currency)}</bdi>
           </div>
         )}
         <div className="grand">
@@ -123,7 +125,7 @@ export function RequestSummaryCard({
             {onRequest ? (
               t('onRequest')
             ) : (
-              <bdi>{money(summary.estimate!, locale)}</bdi>
+              <bdi>{money(summary.estimate!, locale, currency)}</bdi>
             )}
           </strong>
         </div>

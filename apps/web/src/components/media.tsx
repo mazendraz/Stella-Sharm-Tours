@@ -18,7 +18,10 @@ export function Media({
   defer?: boolean;
 }) {
   const ref = useRef<HTMLSpanElement>(null),
-    [visible, setVisible] = useState(!defer);
+    [visible, setVisible] = useState(!defer),
+    // A file that fails to load falls back to the brand placeholder instead
+    // of the browser's broken-image icon; the alt text stays available.
+    [failed, setFailed] = useState(false);
   useEffect(() => {
     if (!defer || visible) return;
     if (!('IntersectionObserver' in window)) {
@@ -37,9 +40,14 @@ export function Media({
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, [defer, visible]);
-  if (!media || media.rights_status === 'unknown')
+  if (!media || media.rights_status === 'unknown' || failed)
     return (
-      <span className={'media-placeholder ' + className} aria-hidden="true" />
+      <span
+        className={'media-placeholder ' + className}
+        {...(failed && media
+          ? { role: 'img', 'aria-label': media.alt.text }
+          : { 'aria-hidden': true })}
+      />
     );
   const candidates = Object.entries(media.variants ?? {})
     .map(([key, url]) => ({ width: Number(key), url }))
@@ -72,6 +80,7 @@ export function Media({
       fetchPriority={priority ? 'high' : undefined}
       decoding="async"
       onLoad={onReady}
+      onError={() => setFailed(true)}
     />
   );
   if (!defer) return picture;

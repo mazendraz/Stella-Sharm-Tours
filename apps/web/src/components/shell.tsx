@@ -1,6 +1,7 @@
 'use client';
 import { WhatsAppIcon } from '@/components/whatsapp-icon';
 import { TripNavigation } from './tab-bar';
+import { NavigationProgress } from './navigation-progress';
 import { recordPanelLink, restorePanelPath } from './panel-history';
 
 import Link from 'next/link';
@@ -25,6 +26,7 @@ import type { ShellSite } from '@stella/shared/card-trip';
 import dynamic from 'next/dynamic';
 import { useTripStore } from './store';
 import { officeMap, track, whatsapp } from '@/lib/links';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
 import { SearchButton } from './search-button';
@@ -48,10 +50,12 @@ export function Shell({
   site,
   children,
   collections,
+  guides = false,
 }: {
   site: ShellSite | null;
   children: ReactNode;
   collections: Collection[];
+  guides?: boolean;
 }) {
   const t = useTranslations(),
     locale = useLocale(),
@@ -129,7 +133,11 @@ export function Shell({
     ...coreLocaleOptions,
     ...(site?.locales.filter((l) => !isCoreLocale(l.code)) ?? []),
   ];
-  const wa = whatsapp(site?.contacts.whatsapp_primary ?? null);
+  const waNumber = whatsappNumberFor(locale, site?.contacts),
+    wa = whatsapp(waNumber);
+  useEffect(() => {
+    useTripStore.setState({ whatsappNumber: waNumber });
+  }, [waNumber]);
   useEffect(() => {
     useTripStore.getState().hydrate();
     try {
@@ -175,6 +183,7 @@ export function Shell({
     <>
       <>
         <div onClickCapture={capture} data-enhanced={enhanced}>
+          <NavigationProgress />
           <a className="skip-link" href="#main">
             {t('skip')}
           </a>
@@ -401,6 +410,9 @@ export function Shell({
                 </a>
               )}
               <Link href={'/' + locale + '/faq'}>{t('faq')}</Link>
+              {guides && (
+                <Link href={'/' + locale + '/guides'}>{t('guides')}</Link>
+              )}
             </nav>
             <div className="footer-bottom">
               <p className="small-text">{t('noPayment')}</p>
@@ -418,7 +430,7 @@ export function Shell({
               )}
             </div>
           </footer>
-          <TripNavigation />
+          <TripNavigation whatsappNumber={waNumber} />
           {request && <RequestSheet site={site} />}
         </div>
       </>

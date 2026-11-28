@@ -142,7 +142,7 @@ export function Homepage() {
           ? t('requiredEnglish')
           : null,
       how: (v) => (v.steps.length !== 3 ? t('stepsExactly3') : null),
-      featured: (v) => (v.slugs.length > 4 ? t('featuredMax4') : null),
+      featured: (v) => (v.slugs.length > 12 ? t('featuredMax12') : null),
     },
     saveAll: async (values) =>
       (

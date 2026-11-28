@@ -1,0 +1,397 @@
+{
+  "_note": "FAQ answers re-verified on 2026-11-28 against the published catalogue (data/catalog.json), the booking flow (request sheet, My trip, confirmation) and the website texts. No prices, no policies, no guide languages, no pickup promises: those need the owner (docs/seo/FAQ-CANDIDATES.md). home=faq items are seeded as DRAFT FAQ entries by scripts/seed-faq-drafts.ts and go live only when an owner/manager publishes them in the admin; other homes are added to that guide draft (data/content/guides-draft.json).",
+  "verifiedOn": "2026-11-28",
+  "items": [
+    {
+      "candidate": 2,
+      "home": "faq",
+      "source": "Request sheet (date, adults, children, hotel, name, WhatsApp number); message noPayment",
+      "q": {
+        "en": "How do I book an excursion with Stella Sharm Tours?",
+        "it": "Come si prenota un'escursione con Stella Sharm Tours?",
+        "es": "¿Cómo reservo una excursión con Stella Sharm Tours?",
+        "fr": "Comment réserver une excursion avec Stella Sharm Tours ?",
+        "de": "Wie buche ich einen Ausflug bei Stella Sharm Tours?",
+        "ru": "Как забронировать экскурсию в Stella Sharm Tours?",
+        "tr": "Stella Sharm Tours ile nasıl tur ayırtırım?"
+      },
+      "a": {
+        "en": "Open the trip, choose your date and the number of guests, and send the request form. Nothing is paid online: the team replies on WhatsApp to confirm availability, pickup time and price.",
+        "it": "Apri l'escursione, scegli la data e il numero di persone e invia il modulo di richiesta. Online non si paga nulla: il team risponde su WhatsApp per confermare disponibilità, orario di ritiro e prezzo.",
+        "es": "Abre la excursión, elige la fecha y el número de personas y envía el formulario de solicitud. No se paga nada en línea: el equipo responde por WhatsApp para confirmar disponibilidad, hora de recogida y precio.",
+        "fr": "Ouvrez l'excursion, choisissez la date et le nombre de personnes, puis envoyez le formulaire de demande. Rien n'est payé en ligne : l'équipe vous répond sur WhatsApp pour confirmer les disponibilités, l'heure de prise en charge et le prix.",
+        "de": "Öffnen Sie den Ausflug, wählen Sie Datum und Personenzahl und senden Sie das Anfrageformular. Online wird nichts bezahlt: Unser Team antwortet per WhatsApp und bestätigt Verfügbarkeit, Abholzeit und Preis.",
+        "ru": "Откройте экскурсию, выберите дату и количество человек и отправьте форму заявки. Онлайн ничего не оплачивается: команда ответит в WhatsApp и подтвердит наличие мест, время трансфера и цену.",
+        "tr": "Turu açın, tarihi ve kişi sayısını seçin ve talep formunu gönderin. İnternetten ödeme alınmaz: ekibimiz WhatsApp üzerinden müsaitliği, alınış saatini ve fiyatı teyit eder."
+      }
+    },
+    {
+      "candidate": 3,
+      "home": "faq",
+      "source": "Confirmation screen button openWhatsapp with a prefilled wa.me message (apps/api/src/requests.ts); WhatsApp link on the Contact page",
+      "q": {
+        "en": "Can I book on WhatsApp?",
+        "it": "Posso prenotare su WhatsApp?",
+        "es": "¿Puedo reservar por WhatsApp?",
+        "fr": "Puis-je réserver sur WhatsApp ?",
+        "de": "Kann ich per WhatsApp buchen?",
+        "ru": "Можно ли забронировать через WhatsApp?",
+        "tr": "WhatsApp üzerinden rezervasyon yapabilir miyim?"
+      },
+      "a": {
+        "en": "Yes. After you send a request, the confirmation screen has a “Continue on WhatsApp” button that opens a message with your request already written, and the team confirms there. You can also write to us on WhatsApp from the Contact page.",
+        "it": "Sì. Dopo l'invio della richiesta, la schermata di conferma ha il pulsante “Continua su WhatsApp”, che apre un messaggio con la tua richiesta già scritta: il team conferma lì. Puoi anche scriverci su WhatsApp dalla pagina Contatti.",
+        "es": "Sí. Después de enviar la solicitud, la pantalla de confirmación tiene el botón “Continuar en WhatsApp”, que abre un mensaje con tu solicitud ya escrita, y el equipo confirma allí. También puedes escribirnos por WhatsApp desde la página de Contacto.",
+        "fr": "Oui. Après l'envoi de votre demande, l'écran de confirmation propose le bouton « Continuer sur WhatsApp », qui ouvre un message où votre demande est déjà rédigée ; l'équipe confirme ensuite sur WhatsApp. Vous pouvez aussi nous écrire sur WhatsApp depuis la page Contact.",
+        "de": "Ja. Nach dem Absenden Ihrer Anfrage finden Sie auf der Bestätigungsseite die Schaltfläche „Weiter zu WhatsApp“. Sie öffnet eine Nachricht, in der Ihre Anfrage bereits steht, und unser Team bestätigt dort. Sie können uns auch über die Kontaktseite per WhatsApp schreiben.",
+        "ru": "Да. После отправки заявки на экране подтверждения есть кнопка «Продолжить в WhatsApp»: она открывает сообщение, в котором ваша заявка уже написана, и команда подтверждает её там. Также можно написать нам в WhatsApp со страницы «Контакты».",
+        "tr": "Evet. Talebinizi gönderdikten sonra onay ekranındaki “WhatsApp ile devam et” düğmesi, talebinizin hazır yazılı olduğu bir mesaj açar ve ekibimiz teyidi orada yapar. İletişim sayfasından da bize WhatsApp ile yazabilirsiniz."
+      }
+    },
+    {
+      "candidate": 7,
+      "home": "faq",
+      "source": "Add to my trip / My trip page sends one request for several trips (apps/web/src/components/my-trip.tsx)",
+      "q": {
+        "en": "Can I combine several trips into one request?",
+        "it": "Posso richiedere più escursioni insieme?",
+        "es": "¿Puedo combinar varias excursiones en una sola solicitud?",
+        "fr": "Puis-je regrouper plusieurs excursions dans une seule demande ?",
+        "de": "Kann ich mehrere Ausflüge in einer Anfrage zusammenfassen?",
+        "ru": "Можно ли объединить несколько экскурсий в одну заявку?",
+        "tr": "Birden fazla turu tek bir talepte birleştirebilir miyim?"
+      },
+      "a": {
+        "en": "Yes. Tap “Add to my trip” on each excursion, open “My trip” and send one request for all of them. The team then confirms the whole plan with you on WhatsApp.",
+        "it": "Sì. Tocca “Aggiungi al viaggio” su ogni escursione, apri “Il mio viaggio” e invia un'unica richiesta per tutte. Il team conferma poi l'intero programma con te su WhatsApp.",
+        "es": "Sí. Pulsa “Añadir a mi viaje” en cada excursión, abre “Mi viaje” y envía una sola solicitud para todas. El equipo confirma después todo el plan contigo por WhatsApp.",
+        "fr": "Oui. Touchez « Ajouter à mon séjour » sur chaque excursion, ouvrez « Mon séjour » et envoyez une seule demande pour l'ensemble. L'équipe confirme ensuite tout le programme avec vous sur WhatsApp.",
+        "de": "Ja. Tippen Sie bei jedem Ausflug auf „Zu meiner Reise hinzufügen“, öffnen Sie „Meine Reise“ und senden Sie eine Anfrage für alle. Unser Team bestätigt dann den gesamten Plan per WhatsApp.",
+        "ru": "Да. Нажмите «Добавить в маршрут» у каждой экскурсии, откройте «Мой маршрут» и отправьте одну заявку на все сразу. Затем команда подтвердит весь план с вами в WhatsApp.",
+        "tr": "Evet. Her turda “Seyahatime ekle”ye dokunun, “Seyahatim”i açın ve hepsi için tek bir talep gönderin. Ekibimiz ardından tüm planı sizinle WhatsApp üzerinden teyit eder."
+      }
+    },
+    {
+      "candidate": 9,
+      "home": "faq",
+      "source": "Price units in the catalogue: person, car, group, hour, quad, buggy (shown next to every price)",
+      "q": {
+        "en": "Are prices per person or per group?",
+        "it": "I prezzi sono a persona o a gruppo?",
+        "es": "¿Los precios son por persona o por grupo?",
+        "fr": "Les prix sont-ils par personne ou par groupe ?",
+        "de": "Gelten die Preise pro Person oder pro Gruppe?",
+        "ru": "Цены указаны за человека или за группу?",
+        "tr": "Fiyatlar kişi başı mı, grup başı mı?"
+      },
+      "a": {
+        "en": "It depends on the trip. Every price on a trip page shows what it covers: per person, per car, per group, per hour, or per quad or buggy.",
+        "it": "Dipende dall'escursione. Ogni prezzo nella pagina dell'escursione indica a cosa si riferisce: a persona, ad auto, a gruppo, all'ora oppure per quad o buggy.",
+        "es": "Depende de la excursión. Cada precio en la página de la excursión indica a qué corresponde: por persona, por coche, por grupo, por hora o por quad o buggy.",
+        "fr": "Cela dépend de l'excursion. Chaque prix sur la page de l'excursion indique ce qu'il couvre : par personne, par voiture, par groupe, par heure, ou par quad ou buggy.",
+        "de": "Das hängt vom Ausflug ab. Jeder Preis auf der Ausflugsseite zeigt, wofür er gilt: pro Person, pro Auto, pro Gruppe, pro Stunde oder pro Quad bzw. Buggy.",
+        "ru": "Это зависит от экскурсии. У каждой цены на странице экскурсии указано, за что она: за человека, за автомобиль, за группу, за час, за квадроцикл или багги.",
+        "tr": "Tura göre değişir. Tur sayfasındaki her fiyat neyi kapsadığını gösterir: kişi başı, araç başı, grup başı, saatlik ya da ATV veya buggy başına."
+      }
+    },
+    {
+      "candidate": 14,
+      "home": "faq",
+      "source": "Prices without an amount render as onRequest; message noPayment (price confirmed on WhatsApp)",
+      "q": {
+        "en": "Why do some trips say “On request”?",
+        "it": "Perché alcune escursioni indicano “Su richiesta”?",
+        "es": "¿Por qué algunas excursiones indican “Bajo petición”?",
+        "fr": "Pourquoi certaines excursions indiquent-elles « Sur demande » ?",
+        "de": "Warum steht bei manchen Ausflügen „Auf Anfrage“?",
+        "ru": "Почему у некоторых экскурсий указано «По запросу»?",
+        "tr": "Bazı turlarda neden “Talep üzerine” yazıyor?"
+      },
+      "a": {
+        "en": "“On request” means no fixed price is published for that option. Send a request without obligation and the team replies on WhatsApp with the exact price.",
+        "it": "“Su richiesta” significa che per quell'opzione non è pubblicato un prezzo fisso. Invia una richiesta senza impegno e il team ti risponde su WhatsApp con il prezzo esatto.",
+        "es": "“Bajo petición” significa que para esa opción no hay un precio fijo publicado. Envía una solicitud sin compromiso y el equipo te responde por WhatsApp con el precio exacto.",
+        "fr": "« Sur demande » signifie qu'aucun prix fixe n'est publié pour cette option. Envoyez une demande sans engagement et l'équipe vous répond sur WhatsApp avec le prix exact.",
+        "de": "„Auf Anfrage“ bedeutet, dass für diese Option kein fester Preis veröffentlicht ist. Senden Sie eine unverbindliche Anfrage, und unser Team nennt Ihnen den genauen Preis per WhatsApp.",
+        "ru": "«По запросу» означает, что фиксированная цена для этого варианта не опубликована. Отправьте заявку без обязательств, и команда сообщит точную цену в WhatsApp.",
+        "tr": "“Talep üzerine”, o seçenek için sabit bir fiyat yayımlanmadığı anlamına gelir. Bağlayıcı olmayan bir talep gönderin, ekibimiz WhatsApp üzerinden kesin fiyatı iletsin."
+      }
+    },
+    {
+      "candidate": 15,
+      "home": "faq",
+      "source": "Private prices from the database; label privateOnRequest; request option format = private",
+      "q": {
+        "en": "How much does a private trip cost?",
+        "it": "Quanto costa un'escursione privata?",
+        "es": "¿Cuánto cuesta una excursión privada?",
+        "fr": "Combien coûte une excursion privée ?",
+        "de": "Was kostet ein privater Ausflug?",
+        "ru": "Сколько стоит индивидуальная экскурсия?",
+        "tr": "Özel tur ne kadar?"
+      },
+      "a": {
+        "en": "Where a private price is set, it is shown on the trip page. Otherwise the trip shows “Private on request”: choose Private when you send the request and the team replies with the price.",
+        "it": "Se è previsto un prezzo privato, lo trovi nella pagina dell'escursione. Altrimenti l'escursione indica “Privato su richiesta”: scegli Privato quando invii la richiesta e il team ti risponde con il prezzo.",
+        "es": "Si hay un precio privado, aparece en la página de la excursión. Si no, la excursión indica “Privada bajo petición”: elige Privada al enviar la solicitud y el equipo te responde con el precio.",
+        "fr": "Lorsqu'un prix privé est fixé, il figure sur la page de l'excursion. Sinon, l'excursion indique « Privatisation sur demande » : choisissez En privé en envoyant la demande et l'équipe vous répond avec le prix.",
+        "de": "Ist ein Privatpreis festgelegt, steht er auf der Ausflugsseite. Andernfalls zeigt der Ausflug „Privat auf Anfrage“: Wählen Sie beim Senden der Anfrage „Privat“, und unser Team nennt Ihnen den Preis.",
+        "ru": "Если цена индивидуальной поездки задана, она указана на странице экскурсии. Если нет, там написано «Индивидуально по запросу»: выберите «Индивидуально» при отправке заявки, и команда сообщит цену.",
+        "tr": "Özel fiyat belirlenmişse tur sayfasında gösterilir. Belirlenmemişse turda “Talep üzerine özel tur” yazar: talebi gönderirken Özel'i seçin, ekibimiz fiyatı size iletsin."
+      }
+    },
+    {
+      "candidate": 17,
+      "home": "faq",
+      "source": "No payment form exists (AGENTS.md hard rule); message noPayment",
+      "q": {
+        "en": "Do I pay online?",
+        "it": "Si paga online?",
+        "es": "¿Se paga en línea?",
+        "fr": "Faut-il payer en ligne ?",
+        "de": "Bezahle ich online?",
+        "ru": "Нужно ли платить онлайн?",
+        "tr": "Ödemeyi internetten mi yapıyorum?"
+      },
+      "a": {
+        "en": "No. The website never takes payment. You send a request, and the team confirms availability, pickup time and price with you on WhatsApp.",
+        "it": "No. Il sito non accetta mai pagamenti. Invii una richiesta e il team conferma con te disponibilità, orario di ritiro e prezzo su WhatsApp.",
+        "es": "No. La web nunca cobra pagos. Envías una solicitud y el equipo confirma contigo disponibilidad, hora de recogida y precio por WhatsApp.",
+        "fr": "Non. Le site n'encaisse jamais de paiement. Vous envoyez une demande, et l'équipe confirme avec vous les disponibilités, l'heure de prise en charge et le prix sur WhatsApp.",
+        "de": "Nein. Auf der Website wird nie bezahlt. Sie senden eine Anfrage, und unser Team bestätigt Verfügbarkeit, Abholzeit und Preis per WhatsApp.",
+        "ru": "Нет. Сайт никогда не принимает оплату. Вы отправляете заявку, а команда подтверждает с вами наличие мест, время трансфера и цену в WhatsApp.",
+        "tr": "Hayır. Web sitesi hiçbir zaman ödeme almaz. Talebinizi gönderirsiniz, ekibimiz müsaitliği, alınış saatini ve fiyatı sizinle WhatsApp üzerinden teyit eder."
+      }
+    },
+    {
+      "candidate": 27,
+      "home": "faq",
+      "source": "Trip pages show the departure time; request asks for hotel/pickup details and pickup area; message noPayment (pickup time confirmed on WhatsApp)",
+      "q": {
+        "en": "What time will I be picked up?",
+        "it": "A che ora passate a prendermi?",
+        "es": "¿A qué hora me recogen?",
+        "fr": "À quelle heure vient-on me chercher ?",
+        "de": "Wann werde ich abgeholt?",
+        "ru": "Во сколько меня заберут?",
+        "tr": "Beni saat kaçta alacaksınız?"
+      },
+      "a": {
+        "en": "Each trip page shows the departure time. The team confirms your exact pickup time on WhatsApp, using the hotel or pickup details you give in your request.",
+        "it": "Ogni pagina dell'escursione indica l'orario di partenza. Il team ti conferma l'orario esatto di ritiro su WhatsApp, in base all'hotel o al punto di ritiro indicato nella richiesta.",
+        "es": "Cada página de excursión muestra la hora de salida. El equipo te confirma la hora exacta de recogida por WhatsApp, según el hotel o los datos de recogida que indiques en la solicitud.",
+        "fr": "Chaque page d'excursion indique l'heure de départ. L'équipe vous confirme l'heure exacte de prise en charge sur WhatsApp, d'après l'hôtel ou les indications de prise en charge données dans votre demande.",
+        "de": "Jede Ausflugsseite zeigt die Abfahrtszeit. Ihre genaue Abholzeit bestätigt unser Team per WhatsApp, anhand des Hotels bzw. der Abholangaben in Ihrer Anfrage.",
+        "ru": "На странице каждой экскурсии указано время отправления. Точное время трансфера команда подтвердит в WhatsApp с учётом отеля или места встречи, указанных в заявке.",
+        "tr": "Her tur sayfasında hareket saati yazar. Kesin alınış saatinizi ekibimiz, talebinizde belirttiğiniz otel veya alınış bilgilerine göre WhatsApp üzerinden teyit eder."
+      }
+    },
+    {
+      "candidate": 49,
+      "home": "faq",
+      "source": "Catalogue: red-canyon-blue-hole (full day, snorkelling at the Blue Hole), dahab-day-trip (full day)",
+      "q": {
+        "en": "Can I see Dahab and the Blue Hole in one day?",
+        "it": "Si possono visitare Dahab e il Blue Hole in un giorno?",
+        "es": "¿Se puede ver Dahab y el Blue Hole en un día?",
+        "fr": "Peut-on voir Dahab et le Blue Hole en une journée ?",
+        "de": "Kann ich Dahab und das Blue Hole an einem Tag sehen?",
+        "ru": "Можно ли увидеть Дахаб и Голубую дыру за один день?",
+        "tr": "Dahab ve Blue Hole bir günde görülebilir mi?"
+      },
+      "a": {
+        "en": "Yes. The Red Canyon (Salama) & Blue Hole trip is a full day from Sharm El Sheikh with snorkelling at the Blue Hole, and the Dahab Day Trip is a full day in Dahab. Each trip page lists what is included.",
+        "it": "Sì. L'escursione Red Canyon (Salama) e Blue Hole dura un'intera giornata da Sharm El Sheikh, con snorkeling al Blue Hole, e la gita di un giorno a Dahab è una giornata intera a Dahab. Ogni pagina indica cosa è incluso.",
+        "es": "Sí. La excursión Red Canyon (Salama) y Blue Hole es un día completo desde Sharm El Sheikh con snorkel en el Blue Hole, y la excursión de un día a Dahab es un día completo en Dahab. Cada página indica qué incluye.",
+        "fr": "Oui. L'excursion Red Canyon (Salama) et Blue Hole dure une journée complète au départ de Sharm El Sheikh, avec snorkeling au Blue Hole, et l'excursion d'une journée à Dahab est une journée entière à Dahab. Chaque page indique ce qui est inclus.",
+        "de": "Ja. Der Ausflug Red Canyon (Salama) & Blue Hole ist ein ganzer Tag ab Sharm El Sheikh mit Schnorcheln am Blue Hole, und der Tagesausflug nach Dahab ist ein ganzer Tag in Dahab. Jede Ausflugsseite zeigt, was enthalten ist.",
+        "ru": "Да. Экскурсия «Красный каньон (Салама) и Голубая дыра» — это целый день из Шарм-эль-Шейха со снорклингом в Голубой дыре, а однодневная поездка в Дахаб — целый день в Дахабе. На странице каждой экскурсии указано, что включено.",
+        "tr": "Evet. Red Canyon (Salama) ve Blue Hole turu, Blue Hole'da şnorkelle Şarm El-Şeyh'ten tam günlük bir turdur; Dahab günübirlik turu da Dahab'da tam bir gün sürer. Her tur sayfasında nelerin dahil olduğu yazar."
+      }
+    },
+    {
+      "candidate": 58,
+      "home": "faq",
+      "source": "Private collection copy: “Your own car, your own guide, your start time” (data/catalog.json, privateIntro)",
+      "q": {
+        "en": "What does a private trip mean?",
+        "it": "Cosa significa escursione privata?",
+        "es": "¿Qué significa una excursión privada?",
+        "fr": "Que signifie une excursion privée ?",
+        "de": "Was bedeutet ein privater Ausflug?",
+        "ru": "Что означает индивидуальная экскурсия?",
+        "tr": "Özel tur ne demek?"
+      },
+      "a": {
+        "en": "A private trip means your own car and your own guide, at the start time and pace you choose, instead of joining a group.",
+        "it": "Un'escursione privata significa la tua auto e la tua guida, con l'orario e il ritmo che scegli tu, invece di unirti a un gruppo.",
+        "es": "Una excursión privada significa tu propio coche y tu propio guía, con la hora de inicio y el ritmo que elijas, en lugar de unirte a un grupo.",
+        "fr": "Une excursion privée, c'est votre propre voiture et votre propre guide, à l'heure de départ et au rythme que vous choisissez, au lieu de rejoindre un groupe.",
+        "de": "Ein privater Ausflug bedeutet Ihr eigenes Auto und Ihren eigenen Guide, mit Startzeit und Tempo nach Ihrer Wahl, statt sich einer Gruppe anzuschließen.",
+        "ru": "Индивидуальная экскурсия — это ваш собственный автомобиль и ваш гид, в удобное вам время и в вашем темпе, без присоединения к группе.",
+        "tr": "Özel tur, bir gruba katılmak yerine size ait araç ve rehberle, seçtiğiniz başlangıç saatinde ve tempoda yapılan turdur."
+      }
+    },
+    {
+      "candidate": 59,
+      "home": "faq",
+      "source": "Catalogue: 8 trips format=private, the other 30 private_on_request=true; Private collection copy “Any trip can be private — some are private only”",
+      "q": {
+        "en": "Can any excursion be made private?",
+        "it": "Tutte le escursioni possono essere private?",
+        "es": "¿Cualquier excursión puede ser privada?",
+        "fr": "Toutes les excursions peuvent-elles être privées ?",
+        "de": "Kann jeder Ausflug privat gebucht werden?",
+        "ru": "Можно ли любую экскурсию сделать индивидуальной?",
+        "tr": "Her tur özel yapılabilir mi?"
+      },
+      "a": {
+        "en": "Yes. Some trips are private only; the others can be booked as private on request. Choose Private when you send the request.",
+        "it": "Sì. Alcune escursioni sono solo private; le altre si possono prenotare in privato su richiesta. Scegli Privato quando invii la richiesta.",
+        "es": "Sí. Algunas excursiones son solo privadas; las demás se pueden reservar en privado bajo petición. Elige Privada al enviar la solicitud.",
+        "fr": "Oui. Certaines excursions sont uniquement privées ; les autres peuvent être réservées en privé sur demande. Choisissez En privé en envoyant la demande.",
+        "de": "Ja. Manche Ausflüge gibt es nur privat; alle anderen können auf Anfrage privat gebucht werden. Wählen Sie beim Senden der Anfrage „Privat“.",
+        "ru": "Да. Некоторые экскурсии проводятся только индивидуально, остальные можно заказать индивидуально по запросу. При отправке заявки выберите «Индивидуально».",
+        "tr": "Evet. Bazı turlar yalnızca özeldir; diğerleri talep üzerine özel olarak ayırtılabilir. Talebi gönderirken Özel'i seçin."
+      }
+    },
+    {
+      "candidate": 60,
+      "home": "faq",
+      "source": "Private collection copy “your start time”; request notes field; confirmation on WhatsApp",
+      "q": {
+        "en": "Can I choose the start time of a private trip?",
+        "it": "Posso scegliere l'orario di partenza di un'escursione privata?",
+        "es": "¿Puedo elegir la hora de inicio de una excursión privada?",
+        "fr": "Puis-je choisir l'heure de départ d'une excursion privée ?",
+        "de": "Kann ich die Startzeit eines privaten Ausflugs wählen?",
+        "ru": "Можно ли выбрать время начала индивидуальной экскурсии?",
+        "tr": "Özel turun başlangıç saatini seçebilir miyim?"
+      },
+      "a": {
+        "en": "Yes. On a private trip you choose the start time. Write your preferred time in the request and the team confirms it on WhatsApp.",
+        "it": "Sì. Nelle escursioni private l'orario di partenza lo scegli tu. Indica l'orario che preferisci nella richiesta e il team te lo conferma su WhatsApp.",
+        "es": "Sí. En una excursión privada eliges la hora de inicio. Escribe la hora que prefieras en la solicitud y el equipo te la confirma por WhatsApp.",
+        "fr": "Oui. Pour une excursion privée, c'est vous qui choisissez l'heure de départ. Indiquez l'heure souhaitée dans votre demande et l'équipe vous la confirme sur WhatsApp.",
+        "de": "Ja. Bei einem privaten Ausflug wählen Sie die Startzeit. Geben Sie Ihre Wunschzeit in der Anfrage an, und unser Team bestätigt sie per WhatsApp.",
+        "ru": "Да. Время начала индивидуальной экскурсии выбираете вы. Укажите удобное время в заявке, и команда подтвердит его в WhatsApp.",
+        "tr": "Evet. Özel turda başlangıç saatini siz seçersiniz. Tercih ettiğiniz saati talebinize yazın, ekibimiz WhatsApp üzerinden teyit etsin."
+      }
+    },
+    {
+      "candidate": 28,
+      "home": "cairo-from-sharm-plane-or-bus",
+      "source": "Catalogue: cairo-bus-old-museum and cairo-bus-gem, duration “1 long day (overnight bus)”, departure 00:30–01:00",
+      "q": {
+        "en": "Is the one-day Cairo bus trip overnight?",
+        "it": "L'escursione di un giorno al Cairo in pullman parte di notte?",
+        "es": "¿La excursión de un día a El Cairo en autobús sale de noche?",
+        "fr": "L'excursion d'une journée au Caire en bus part-elle de nuit ?",
+        "de": "Fährt der eintägige Bus-Ausflug nach Kairo über Nacht?",
+        "ru": "Однодневная поездка в Каир на автобусе начинается ночью?",
+        "tr": "Kahire'ye günübirlik otobüs turu gece mi başlıyor?"
+      },
+      "a": {
+        "en": "Yes. Both one-day Cairo bus trips leave Sharm El Sheikh shortly after midnight on an overnight bus and run as one long day. The exact pickup window is on each trip page.",
+        "it": "Sì. Entrambe le escursioni di un giorno al Cairo in pullman partono da Sharm El Sheikh poco dopo mezzanotte con un pullman notturno e sono un'unica lunga giornata. L'orario esatto di ritiro è indicato in ogni pagina.",
+        "es": "Sí. Las dos excursiones de un día a El Cairo en autobús salen de Sharm El Sheikh poco después de medianoche en un autobús nocturno y son un único día largo. La franja exacta de recogida figura en cada página.",
+        "fr": "Oui. Les deux excursions d'une journée au Caire en bus quittent Sharm El Sheikh peu après minuit en bus de nuit et forment une seule longue journée. Le créneau exact de prise en charge figure sur chaque page.",
+        "de": "Ja. Beide eintägigen Bus-Ausflüge nach Kairo starten kurz nach Mitternacht in Sharm El Sheikh mit einem Nachtbus und sind ein einziger langer Tag. Das genaue Abholzeitfenster steht auf jeder Ausflugsseite.",
+        "ru": "Да. Обе однодневные автобусные поездки в Каир отправляются из Шарм-эль-Шейха вскоре после полуночи на ночном автобусе и занимают один длинный день. Точное время трансфера указано на странице каждой экскурсии.",
+        "tr": "Evet. Kahire'ye iki günübirlik otobüs turu da Şarm El-Şeyh'ten gece yarısından kısa süre sonra gece otobüsüyle yola çıkar ve tek bir uzun gün sürer. Kesin alınış saat aralığı her tur sayfasında yazar."
+      }
+    },
+    {
+      "candidate": 29,
+      "home": "cairo-from-sharm-plane-or-bus",
+      "source": "Catalogue: cairo-plane-1-day (round-trip flight, transport in Cairo, licensed guide, GEM, Pyramids & Sphinx, lunch; departure 04:30–06:00) vs the two bus trips (overnight)",
+      "q": {
+        "en": "Cairo from Sharm by plane or by bus: what is the difference?",
+        "it": "Cairo da Sharm in aereo o in pullman: che differenza c'è?",
+        "es": "El Cairo desde Sharm en avión o en autobús: ¿qué diferencia hay?",
+        "fr": "Le Caire depuis Sharm en avion ou en bus : quelle différence ?",
+        "de": "Kairo ab Sharm mit dem Flugzeug oder mit dem Bus: Was ist der Unterschied?",
+        "ru": "Каир из Шарма на самолёте или на автобусе: в чём разница?",
+        "tr": "Şarm'dan Kahire'ye uçakla mı otobüsle mi: fark nedir?"
+      },
+      "a": {
+        "en": "By plane, the day trip includes the round-trip flight, transport in Cairo, a licensed guide, the Grand Egyptian Museum, the Giza Pyramids, the Great Sphinx and lunch, with pickup early in the morning. By bus, you travel overnight and choose the version with the Old Egyptian Museum or the Grand Egyptian Museum. Prices are on each trip page.",
+        "it": "In aereo, l'escursione di un giorno comprende volo di andata e ritorno, trasporto al Cairo, guida autorizzata, Grande Museo Egizio, piramidi di Giza, Grande Sfinge e pranzo, con ritiro di prima mattina. In pullman si viaggia di notte e si sceglie la versione con il Museo Egizio storico o con il Grande Museo Egizio. I prezzi sono in ogni pagina.",
+        "es": "En avión, la excursión de un día incluye vuelo de ida y vuelta, transporte en El Cairo, guía oficial, Gran Museo Egipcio, pirámides de Guiza, Gran Esfinge y almuerzo, con recogida a primera hora de la mañana. En autobús se viaja de noche y se elige la versión con el Museo Egipcio clásico o con el Gran Museo Egipcio. Los precios figuran en cada página.",
+        "fr": "En avion, l'excursion d'une journée comprend le vol aller-retour, le transport au Caire, un guide agréé, le Grand Musée égyptien, les pyramides de Gizeh, le Grand Sphinx et le déjeuner, avec prise en charge tôt le matin. En bus, vous voyagez de nuit et choisissez la version avec l'ancien Musée égyptien ou avec le Grand Musée égyptien. Les prix figurent sur chaque page.",
+        "de": "Mit dem Flugzeug umfasst der Tagesausflug Hin- und Rückflug, Transport in Kairo, einen lizenzierten Guide, das Grand Egyptian Museum, die Pyramiden von Gizeh, die Große Sphinx und Mittagessen, mit Abholung am frühen Morgen. Mit dem Bus reisen Sie über Nacht und wählen die Variante mit dem alten Ägyptischen Museum oder mit dem Grand Egyptian Museum. Die Preise stehen auf jeder Ausflugsseite.",
+        "ru": "На самолёте однодневная поездка включает перелёт туда и обратно, транспорт в Каире, лицензированного гида, Большой Египетский музей, пирамиды Гизы, Большого Сфинкса и обед; трансфер рано утром. На автобусе вы едете ночью и выбираете вариант со старым Египетским музеем или с Большим Египетским музеем. Цены указаны на странице каждой экскурсии.",
+        "tr": "Uçakla günübirlik tura gidiş-dönüş uçuş, Kahire'de ulaşım, lisanslı rehber, Büyük Mısır Müzesi, Giza Piramitleri, Büyük Sfenks ve öğle yemeği dahildir; alınış sabah erken saattedir. Otobüsle gece yolculuk yapılır ve Eski Mısır Müzesi ya da Büyük Mısır Müzesi seçenekli tur seçilir. Fiyatlar her tur sayfasında yazar."
+      }
+    },
+    {
+      "candidate": 48,
+      "home": "cairo-from-sharm-plane-or-bus",
+      "source": "Catalogue: cairo-bus-old-museum vs cairo-bus-gem (same inclusions except the museum)",
+      "q": {
+        "en": "What is the difference between the two one-day Cairo bus trips?",
+        "it": "Che differenza c'è tra le due escursioni di un giorno al Cairo in pullman?",
+        "es": "¿Qué diferencia hay entre las dos excursiones de un día a El Cairo en autobús?",
+        "fr": "Quelle est la différence entre les deux excursions d'une journée au Caire en bus ?",
+        "de": "Was unterscheidet die beiden eintägigen Bus-Ausflüge nach Kairo?",
+        "ru": "Чем отличаются две однодневные автобусные поездки в Каир?",
+        "tr": "Kahire'ye iki günübirlik otobüs turu arasındaki fark nedir?"
+      },
+      "a": {
+        "en": "The museum. One visits the Old Egyptian Museum, the other the Grand Egyptian Museum. Both include the Giza Pyramids, the Great Sphinx, lunch, a licensed guide and round-trip transport.",
+        "it": "Il museo. Una visita il Museo Egizio storico, l'altra il Grande Museo Egizio. Entrambe includono piramidi di Giza, Grande Sfinge, pranzo, guida autorizzata e trasporto di andata e ritorno.",
+        "es": "El museo. Una visita el Museo Egipcio clásico y la otra el Gran Museo Egipcio. Ambas incluyen las pirámides de Guiza, la Gran Esfinge, almuerzo, guía oficial y transporte de ida y vuelta.",
+        "fr": "Le musée. L'une visite l'ancien Musée égyptien, l'autre le Grand Musée égyptien. Les deux comprennent les pyramides de Gizeh, le Grand Sphinx, le déjeuner, un guide agréé et le transport aller-retour.",
+        "de": "Das Museum. Der eine besucht das alte Ägyptische Museum, der andere das Grand Egyptian Museum. Beide umfassen die Pyramiden von Gizeh, die Große Sphinx, Mittagessen, einen lizenzierten Guide und den Transport hin und zurück.",
+        "ru": "Музей. В одной поездке посещают старый Египетский музей, в другой — Большой Египетский музей. Обе включают пирамиды Гизы, Большого Сфинкса, обед, лицензированного гида и транспорт туда и обратно.",
+        "tr": "Müze. Biri Eski Mısır Müzesi'ni, diğeri Büyük Mısır Müzesi'ni ziyaret eder. İkisine de Giza Piramitleri, Büyük Sfenks, öğle yemeği, lisanslı rehber ve gidiş-dönüş ulaşım dahildir."
+      }
+    },
+    {
+      "candidate": 44,
+      "home": "ras-mohammed-boat-bus-or-private",
+      "source": "Catalogue: ras-mohammed-white-island-boat (full day; yacht, 2 snorkelling stops, White Island; lunch & soft drinks, snorkelling equipment, marina fees, transfer included) vs ras-mohammed-bus (~5 h; Gate of Allah, mangroves, earthquake crack, Magic Lake; licensed guide and all entrance fees included); ras-mohammed-private-car",
+      "q": {
+        "en": "Ras Mohammed by boat or by bus: what is the difference?",
+        "it": "Ras Mohammed in barca o in pullman: che differenza c'è?",
+        "es": "Ras Mohammed en barco o en autobús: ¿qué diferencia hay?",
+        "fr": "Ras Mohammed en bateau ou en bus : quelle différence ?",
+        "de": "Ras Mohammed mit dem Boot oder mit dem Bus: Was ist der Unterschied?",
+        "ru": "Рас-Мохаммед на яхте или на автобусе: в чём разница?",
+        "tr": "Ras Mohammed tekneyle mi otobüsle mi: fark nedir?"
+      },
+      "a": {
+        "en": "By boat it is a full day at sea: a yacht cruise with two snorkelling stops and a visit to White Island, with lunch, soft drinks, snorkelling equipment and marina fees included. By bus it is about five hours on land: the Gate of Allah, the mangroves, the earthquake crack and a swim in the Magic Lake, with a licensed guide and entrance fees included. A private-car version is also available.",
+        "it": "In barca è un'intera giornata in mare: crociera in yacht con due soste di snorkeling e visita all'Isola Bianca, con pranzo, bibite, attrezzatura da snorkeling e tasse della marina inclusi. In pullman sono circa cinque ore via terra: Porta di Allah, mangrovie, crepa del terremoto e bagno nel Lago Magico, con guida autorizzata e ingressi inclusi. Esiste anche la versione con auto privata.",
+        "es": "En barco es un día completo en el mar: crucero en yate con dos paradas de snorkel y visita a la Isla Blanca, con almuerzo, refrescos, equipo de snorkel y tasas del puerto incluidos. En autobús son unas cinco horas por tierra: la Puerta de Alá, los manglares, la grieta del terremoto y un baño en el Lago Mágico, con guía oficial y entradas incluidas. También hay una versión en coche privado.",
+        "fr": "En bateau, c'est une journée complète en mer : croisière en yacht avec deux arrêts snorkeling et visite de l'île Blanche, déjeuner, boissons, équipement de snorkeling et taxes de marina inclus. En bus, ce sont environ cinq heures sur terre : la porte d'Allah, les mangroves, la faille du tremblement de terre et une baignade au lac Magique, avec guide agréé et entrées incluses. Une version en voiture privée existe aussi.",
+        "de": "Mit dem Boot ist es ein ganzer Tag auf See: Yachtfahrt mit zwei Schnorchelstopps und Besuch der Weißen Insel, inklusive Mittagessen, Softdrinks, Schnorchelausrüstung und Marinagebühren. Mit dem Bus sind es etwa fünf Stunden an Land: das Tor Allahs, die Mangroven, der Erdbebenspalt und ein Bad im Magic Lake, inklusive lizenziertem Guide und Eintritten. Es gibt auch eine Variante mit Privatauto.",
+        "ru": "На яхте — целый день в море: морская прогулка с двумя остановками для снорклинга и посещением Белого острова; обед, напитки, снаряжение для снорклинга и сборы марины включены. На автобусе — около пяти часов по суше: Врата Аллаха, мангровые заросли, трещина от землетрясения и купание в Волшебном озере; лицензированный гид и входные билеты включены. Есть и вариант на индивидуальном автомобиле.",
+        "tr": "Tekneyle denizde tam bir gündür: iki şnorkel molası ve Beyaz Ada ziyaretiyle yat turu; öğle yemeği, meşrubat, şnorkel ekipmanı ve marina ücretleri dahildir. Otobüsle karada yaklaşık beş saattir: Allah Kapısı, mangrovlar, deprem yarığı ve Sihirli Göl'de yüzme; lisanslı rehber ve giriş ücretleri dahildir. Özel araçlı bir seçenek de vardır."
+      }
+    },
+    {
+      "candidate": 31,
+      "home": "sharm-excursions-for-families",
+      "source": "Family filter on the collection pages except Packages (trips with the family flag, apps/web/src/components/collection-view.tsx)",
+      "q": {
+        "en": "Which excursions are good for children?",
+        "it": "Quali escursioni sono adatte ai bambini?",
+        "es": "¿Qué excursiones son adecuadas para niños?",
+        "fr": "Quelles excursions conviennent aux enfants ?",
+        "de": "Welche Ausflüge eignen sich für Kinder?",
+        "ru": "Какие экскурсии подходят детям?",
+        "tr": "Hangi turlar çocuklar için uygun?"
+      },
+      "a": {
+        "en": "Trips marked as suitable for families appear under the “Family” filter on the collection pages. For any other trip, ask us in your request before you book.",
+        "it": "Le escursioni adatte alle famiglie compaiono con il filtro “Famiglie” nelle pagine delle categorie. Per le altre escursioni, chiedici nella richiesta prima di prenotare.",
+        "es": "Las excursiones aptas para familias aparecen con el filtro “Familia” en las páginas de categorías. Para cualquier otra excursión, consúltanos en tu solicitud antes de reservar.",
+        "fr": "Les excursions adaptées aux familles apparaissent avec le filtre « En famille » sur les pages de catégories. Pour toute autre excursion, posez-nous la question dans votre demande avant de réserver.",
+        "de": "Familiengeeignete Ausflüge erscheinen auf den Kategorieseiten unter dem Filter „Für Familien“. Bei allen anderen Ausflügen fragen Sie uns bitte in Ihrer Anfrage, bevor Sie buchen.",
+        "ru": "Экскурсии, подходящие для семей, отображаются с фильтром «С семьёй» на страницах категорий. О любой другой экскурсии спросите нас в заявке до бронирования.",
+        "tr": "Ailelere uygun turlar kategori sayfalarında “Aileler için” filtresiyle görünür. Diğer turlar için rezervasyondan önce talebinizde bize sorun."
+      }
+    }
+  ]
+}

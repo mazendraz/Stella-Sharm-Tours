@@ -25,7 +25,7 @@ export const homepageSchema = z.strictObject({
     contact_heading: localizedSchema,
     contact_text: localizedSchema,
     private_trip_slugs: slugs.optional(),
-    featured_trip_slugs: slugs.max(4).optional(),
+    featured_trip_slugs: slugs.max(12).optional(),
   }),
   how_steps: z
     .array(z.strictObject({ title: localizedSchema, text: localizedSchema }))

@@ -7,6 +7,10 @@ import {
   minBookingDate,
   type Quote,
 } from '../../packages/shared/src/booking';
+import {
+  displayCurrencyFor,
+  formatPrice,
+} from '../../packages/shared/src/display-currency';
 import { screenPath } from '../screens';
 
 const itineraryStorage = 'stella.mytrip.v1';
@@ -213,12 +217,13 @@ test('shows the dated primary option and asks for review when the estimate chang
     const errors: string[] = [];
     const logError = (error: Error) => errors.push(error.message);
     page.on('pageerror', logError);
+    // The sign follows the display-currency rule: English pages use the
+    // browser's English region (en-US → $, en-GB → £), other languages €.
+    const acceptLanguage = await page.evaluate(() =>
+      navigator.languages.join(','),
+    );
     const figure = (amount: number) =>
-      new Intl.NumberFormat(locale, {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0,
-      }).format(amount);
+      formatPrice(amount, locale, displayCurrencyFor(locale, acceptLanguage));
     let original: Quote | undefined;
     let submissions = 0;
     let outdatedSubmission: string | undefined;
@@ -631,6 +636,17 @@ test('home/trip accessibility, no overflow, screenshots', async ({
   for (const path of ['/en', '/en/t/quad-bike-safari']) {
     await page.goto(path);
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    // Off-screen sections use content-visibility: auto and report a 720 px
+    // placeholder until rendered, so axe would measure placeholder geometry
+    // (e.g. a sticky card deck over the next section). Scroll through once,
+    // as a visitor does; `auto` then keeps every section's real size.
+    await page.evaluate(async () => {
+      for (let y = 0; y < document.body.scrollHeight; y += innerHeight / 2) {
+        scrollTo(0, y);
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+      }
+      scrollTo(0, 0);
+    });
     await page.waitForTimeout(400);
     const violations = (
       await new AxeBuilder({ page })

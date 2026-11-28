@@ -94,7 +94,7 @@ The owner decides which videos play at the top of the home page and in which ord
 - **Add slide**: pick a video from Media (only `ready` videos with rights ≠ Unknown are selectable) or upload from the phone → pipeline (grade, vertical + horizontal, poster) → trim to ≤ 20 s and choose the poster frame. Then: link to a collection (pre-fills colour, texts and button) or write kicker/headline/sub line (language tabs), button target (collection / trip / package / My trip / WhatsApp / page), seconds on screen (3–20, default 6), show on (all / mobile / desktop), optional start/end date. Save as draft or Publish.
 - **Switch off** a slide without deleting it; **Delete** = archive (restorable).
 - **Preview**: phone-frame preview that plays the slides in order with the real timing; live preview pane on desktop.
-- Warnings (never block, except rights): video without rights → cannot publish; more than 10 live slides; no live slide (site falls back to a cover image); Private slide not in position 1 (hint: "Private tours are your priority — move it first?").
+- Warnings (never block, except rights): video without rights → cannot publish; more than 10 live slides; no live slide (site falls back to a cover image); Private slide not near the top (hint: "Private tours are your priority — move this slide first?"; the owner chose All of Egypt 1st and Private 2nd on 2026-11-28).
 - Every change → revision + audit log ("Mona moved _Desert_ from 3 to 1") + revalidate `site` (site updates within 60 s).
 
 #### Other blocks
@@ -186,3 +186,10 @@ POST   /preview-link {path}
 - A staff member who has never seen the admin can change a price and reply to a request on their phone without help.
 - Every write can be undone or restored from history.
 - An `editor` cannot change prices or settings, even by calling the API directly (tested).
+
+## Search (SEO) section (added 2026-11-28)
+
+Website → Search (SEO), content roles: content health per trip and language,
+an on-demand live check of the public site, per-tour snippet preview and
+completeness checklist, and connection-required states for Search Console,
+Bing, GA4 and PageSpeed. Spec and limits: `docs/seo/SEO-IMPLEMENTATION-REPORT.md`.

@@ -1,3 +1,7 @@
+import {
+  formatPrice,
+  type DisplayCurrency,
+} from '@stella/shared/display-currency';
 export function internalHref(href: string, locale: string): string {
   if (href.startsWith('/') && !href.startsWith('//') && !href.includes('\\'))
     return '/' + locale + (href === '/' ? '' : href);
@@ -33,12 +37,13 @@ export function displayPhone(number: string) {
   const egypt = /^\+20(\d{3})(\d{3})(\d{4})$/.exec(number.replace(/\s/g, ''));
   return egypt ? `+20 ${egypt[1]} ${egypt[2]} ${egypt[3]}` : number;
 }
-export function money(amount: number, locale: string) {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(amount);
+/** The amount never changes; only the sign does (€25 → £25 / $25). */
+export function money(
+  amount: number,
+  locale: string,
+  currency: DisplayCurrency = 'EUR',
+) {
+  return formatPrice(amount, locale, currency);
 }
 export function track(
   event: string,

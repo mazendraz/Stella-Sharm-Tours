@@ -14,6 +14,7 @@ import {
   bigserial,
   primaryKey,
   uniqueIndex,
+  unique,
   index,
   check,
   customType,
@@ -436,16 +437,29 @@ export const faqs = pgTable('faqs', {
     .default('published'),
   archivedAt: archived(),
 });
-export const reviews = pgTable('reviews', {
-  id: id(),
-  author: text('author'),
-  text: localized('text'),
-  source: text('source'),
-  sourceUrl: text('source_url').notNull(),
-  rating: smallint('rating'),
-  visitMonth: date('visit_month'),
-  status: text('status').notNull().default('hidden'),
-});
+// Real third-party reviews (Google). `text` holds one key: the original
+// language (or 'und'), verbatim — reviews are quoted, never translated.
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: id(),
+    author: text('author'),
+    text: jsonb('text').$type<Record<string, string>>(),
+    source: text('source'),
+    sourceUrl: text('source_url').notNull(),
+    rating: smallint('rating'),
+    visitMonth: date('visit_month'),
+    status: text('status').notNull().default('hidden'),
+    // Google review id; the import key. NULLs stay distinct in PostgreSQL.
+    externalId: text('external_id').unique(),
+    lang: text('lang'),
+    featured: boolean('featured').notNull().default(false),
+    sort: integer('sort').notNull().default(0),
+    edited: boolean('edited').notNull().default(false),
+    capturedAt: timestamp('captured_at', { withTimezone: true }),
+  },
+  (t) => [index('reviews_published_order').on(t.status, t.featured, t.sort)],
+);
 export const bookingRequests = pgTable(
   'booking_requests',
   {
@@ -466,6 +480,10 @@ export const bookingRequests = pgTable(
     email: text('email'),
     notes: text('notes'),
     estimateEur: numeric('estimate_eur', { precision: 10, scale: 2 }),
+    // Sign shown to the customer (owner 2026-11-26); the amount is unchanged.
+    currency: text('currency', { enum: ['EUR', 'GBP', 'USD'] })
+      .notNull()
+      .default('EUR'),
     status: text('status', {
       enum: ['new', 'contacted', 'confirmed', 'completed', 'cancelled', 'spam'],
     })
@@ -492,6 +510,7 @@ export const bookingRequests = pgTable(
     ),
     check('request_mode', sql`${t.mode} in ('single','multi')`),
     check('request_format', sql`${t.format} in ('group','private')`),
+    check('request_currency', sql`${t.currency} in ('EUR','GBP','USD')`),
   ],
 );
 export const bookingRequestReceipts = pgTable(
@@ -674,5 +693,123 @@ export const contentDrafts = pgTable(
   },
   (t) => [
     uniqueIndex('draft_entity_section').on(t.entity, t.entityId, t.section),
+  ],
+);
+/**
+ * Travel guides, destination and activity pages (migration 0017). Text is
+ * localized like trips; `body` is plain text with "## " headings and "- "
+ * lists, rendered as HTML by the site. Related trips/pages are slugs so a
+ * renamed or unpublished target simply drops out of the page.
+ */
+export const contentPages = pgTable(
+  'content_pages',
+  {
+    id: id(),
+    slug: text('slug').notNull().unique(),
+    kind: text('kind', { enum: ['guide', 'destination', 'activity'] })
+      .notNull()
+      .default('guide'),
+    category: text('category'),
+    title: localized('title').notNull(),
+    summary: localized('summary'),
+    body: localized('body'),
+    seoTitle: localized('seo_title'),
+    seoDescription: localized('seo_description'),
+    authorName: text('author_name'),
+    authorRole: text('author_role'),
+    sources: jsonb('sources')
+      .$type<{ title: string; url: string }[]>()
+      .notNull()
+      .default([]),
+    faqs: jsonb('faqs')
+      .$type<{ q: Localized; a: Localized }[]>()
+      .notNull()
+      .default([]),
+    coverMediaId: uuid('cover_media_id').references(() => media.id),
+    relatedTrips: text('related_trips').array().notNull().default([]),
+    relatedPages: text('related_pages').array().notNull().default([]),
+    sort: integer('sort').notNull().default(0),
+    status: text('status', { enum: ['draft', 'published'] })
+      .notNull()
+      .default('draft'),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: created(),
+    updatedAt: updated(),
+    archivedAt: archived(),
+  },
+  (t) => [
+    index('content_pages_status_kind').on(t.status, t.kind, t.sort),
+    check(
+      'content_page_kind',
+      sql`${t.kind} in ('guide','destination','activity')`,
+    ),
+    check('content_page_status', sql`${t.status} in ('draft','published')`),
+    check('content_page_slug', sql`${t.slug} ~ '^[a-z0-9-]{1,120}$'`),
+  ],
+);
+/**
+ * Manually recorded search / AI-visibility checks (migration 0017). One row
+ * per prompt أ— platform أ— date. Nothing is scraped; rows come from staff
+ * entry or CSV import.
+ */
+export const visibilityMeasurements = pgTable(
+  'visibility_measurements',
+  {
+    id: id(),
+    measuredOn: date('measured_on').notNull(),
+    platform: text('platform').notNull(),
+    kind: text('kind', { enum: ['ai', 'search'] }).notNull(),
+    promptId: text('prompt_id'),
+    query: text('query').notNull(),
+    lang: text('lang').notNull(),
+    market: text('market'),
+    branded: boolean('branded').notNull().default(false),
+    mentioned: boolean('mentioned').notNull(),
+    citedUrl: text('cited_url'),
+    recommendedPosition: smallint('recommended_position'),
+    organicPosition: smallint('organic_position'),
+    competitors: text('competitors').array().notNull().default([]),
+    sources: text('sources').array().notNull().default([]),
+    notes: text('notes'),
+    createdBy: uuid('created_by').references(() => adminUsers.id),
+    createdAt: created(),
+  },
+  (t) => [
+    index('visibility_platform_date').on(t.platform, t.measuredOn),
+    check(
+      'visibility_platform',
+      sql`${t.platform} in ('google-search','google-ai-overviews','google-ai-mode','chatgpt-search','gemini','perplexity','bing','copilot')`,
+    ),
+    check('visibility_kind', sql`${t.kind} in ('ai','search')`),
+  ],
+);
+/**
+ * Verification Center answers (migration 0018): per tour (or site-wide when
+ * `trip_id` is null) and per topic, whether the owner has confirmed a fact.
+ * Internal only: the note is never published. Confirmed facts still have to
+ * be entered in the trip editor before the site shows them.
+ */
+export const verificationFacts = pgTable(
+  'verification_facts',
+  {
+    id: id(),
+    tripId: uuid('trip_id').references(() => trips.id, { onDelete: 'cascade' }),
+    topic: text('topic').notNull(),
+    status: text('status', { enum: ['missing', 'to_confirm', 'verified'] })
+      .notNull()
+      .default('missing'),
+    note: text('note'),
+    updatedBy: uuid('updated_by').references(() => adminUsers.id),
+    updatedAt: updated(),
+  },
+  (t) => [
+    unique('verification_facts_scope_topic')
+      .on(t.tripId, t.topic)
+      .nullsNotDistinct(),
+    check(
+      'verification_fact_status',
+      sql`${t.status} in ('missing','to_confirm','verified')`,
+    ),
+    check('verification_fact_topic', sql`${t.topic} ~ '^[a-zA-Z]{2,40}$'`),
   ],
 );

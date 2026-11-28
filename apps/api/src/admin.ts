@@ -281,13 +281,17 @@ export async function usableMedia(
   for (const id of ids) {
     if (!id) continue;
     const [m] = await db.select().from(s.media).where(eq(s.media.id, id));
-    if (
-      !m ||
-      m.archivedAt ||
-      m.status !== 'ready' ||
-      m.rightsStatus === 'unknown'
-    )
-      fail(422, 'MEDIA_NOT_PUBLISHABLE');
+    // Name the file and the reason so the admin can say exactly what to fix.
+    const reason = !m
+      ? 'missing'
+      : m.archivedAt
+        ? 'archived'
+        : m.status !== 'ready'
+          ? 'not_ready'
+          : m.rightsStatus === 'unknown'
+            ? 'unknown_rights'
+            : null;
+    if (reason) fail(422, 'MEDIA_NOT_PUBLISHABLE', { mediaId: id, reason });
   }
 }
 async function validateLiveHero(
@@ -373,8 +377,13 @@ export async function canPublishTrip(tx: Transaction, id: string) {
   if (!trip || trip.archivedAt || !trip.title.en.trim())
     fail(422, 'TRIP_NOT_PUBLISHABLE');
   if (trip.story) {
-    if (trip.story.scenes.some((scene) => !scene.mediaId))
-      fail(422, 'MEDIA_NOT_PUBLISHABLE');
+    const empty = trip.story.scenes.find((scene) => !scene.mediaId);
+    if (empty)
+      fail(422, 'MEDIA_NOT_PUBLISHABLE', {
+        mediaId: null,
+        reason: 'no_media',
+        sceneId: empty.id,
+      });
     await usableMedia(tx, [
       ...new Set(trip.story.scenes.map((scene) => scene.mediaId)),
     ]);
@@ -554,6 +563,7 @@ export function registerAdmin(
     email: s.bookingRequests.email,
     notes: s.bookingRequests.notes,
     estimateEur: s.bookingRequests.estimateEur,
+    currency: s.bookingRequests.currency,
     status: s.bookingRequests.status,
     assignedTo: s.bookingRequests.assignedTo,
     internalNote: s.bookingRequests.internalNote,

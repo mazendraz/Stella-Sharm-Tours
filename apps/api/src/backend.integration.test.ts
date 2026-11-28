@@ -19,6 +19,7 @@ import { bundledCoreText } from '@stella/shared/i18n/core-content';
 import { bookingStay } from '@stella/shared/i18n/booking-messages';
 import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
+import { usableMedia } from './admin';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
 import {
   createSearch,
@@ -433,6 +434,43 @@ describe('real PostgreSQL catalog and requests', () => {
       );
     }
   });
+  it('reports SEO health from the database for content roles only', async () => {
+    expect((await (await login('sales')).call('/v1/admin/seo')).status).toBe(
+      403,
+    );
+    const editor = await login('editor'),
+      response = await editor.call('/v1/admin/seo');
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.summary.publishedTrips).toBe(38);
+    expect(
+      body.integrations.every(
+        (i: { status: string }) => i.status === 'notConnected',
+      ),
+    ).toBe(true);
+    const boat = body.health.find(
+      (h: { slug: string }) => h.slug === 'ras-mohammed-white-island-boat',
+    );
+    expect(boat.seo.it.title).toContain('Sharm El Sheikh');
+    expect(boat.seo.en.description.length).toBeLessThanOrEqual(158);
+    // Checking a live page only accepts known slugs and core languages.
+    expect(
+      (
+        await editor.call('/v1/admin/seo/page', 'POST', {
+          slug: 'not-a-trip',
+          locale: 'en',
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await editor.call('/v1/admin/seo/page', 'POST', {
+          slug: 'quad-bike-safari',
+          locale: 'xx',
+        })
+      ).status,
+    ).toBe(422);
+  });
   it('bounds public reads independently of booking limits and returns Retry-After', async () => {
     const limited = createApp(apiConnection.db, {
       ...cfg,
@@ -579,10 +617,14 @@ describe('real PostgreSQL catalog and requests', () => {
       .set({ amountEur: '15' })
       .where(eq(s.tripPrices.id, rows[0]!.id));
   });
-  it('returns validated public DTOs, Private-first slides, 7 core locales, ETag and no editorial/private fields', async () => {
+  it('returns validated public DTOs, All of Egypt then Private slides, 7 core locales, ETag and no editorial/private fields', async () => {
     const response = await app.request('/v1/public/site?locale=ru'),
       site = siteSchema.parse(await response.json());
-    expect(site.hero_slides[0]?.href).toBe('/c/private');
+    // Owner order: All of Egypt first (one slide per device), then Private.
+    expect(site.hero_slides[0]?.href).toBe('/c/all');
+    expect(site.hero_slides.find((h) => h.href !== '/c/all')?.href).toBe(
+      '/c/private',
+    );
     expect(site.locales.map((l) => l.code)).toEqual([
       'en',
       'it',
@@ -814,6 +856,40 @@ describe('real PostgreSQL catalog and requests', () => {
         .set({ headline: hero!.headline, collectionId: hero!.collectionId })
         .where(eq(s.heroSlides.id, hero!.id));
     }
+  });
+  it('hands Italian, Russian and Turkish requests to the second WhatsApp line', async () => {
+    for (const [locale, digits] of [
+      ['it', '201008605904'],
+      ['ru', '201008605904'],
+      ['tr', '201008605904'],
+      ['de', '201069012881'],
+    ]) {
+      const response = await submit(booking({ locale }));
+      expect(response.status).toBe(201);
+      expect((await response.json()).whatsapp_url).toMatch(
+        new RegExp('^https://wa\\.me/' + digits + '\\?text='),
+      );
+    }
+  });
+  it('stores the currency an English visitor saw and euros for every other language', async () => {
+    for (const [locale, currency, stored] of [
+      ['en', 'GBP', 'GBP'],
+      ['en', 'USD', 'USD'],
+      ['en', undefined, 'EUR'],
+      ['it', 'USD', 'EUR'],
+    ] as const) {
+      const response = await submit(
+        booking({ locale, ...(currency ? { currency } : {}) }),
+      );
+      expect(response.status).toBe(201);
+      const { ref } = await response.json();
+      const [row] = await connection.db
+        .select({ currency: s.bookingRequests.currency })
+        .from(s.bookingRequests)
+        .where(eq(s.bookingRequests.ref, ref));
+      expect(row?.currency).toBe(stored);
+    }
+    expect((await submit(booking({ currency: 'EGP' }))).status).toBe(422);
   });
   it('recomputes prices, ignores day hints, persists snapshots and queues an ID-only notification atomically', async () => {
     const response = await submit(booking());
@@ -2422,6 +2498,28 @@ describe('security-session regression cases', () => {
       .set({ archivedAt: new Date(), status: 'draft' })
       .where(eq(s.heroSlides.id, slide.id));
   });
+  it('names the file and the reason when media blocks publishing', async () => {
+    const [media] = await connection.db
+      .insert(s.media)
+      .values({
+        kind: 'video',
+        originalPath: 'qa/unknown-rights-blocker.mp4',
+        status: 'ready',
+        rightsStatus: 'unknown',
+      })
+      .returning();
+    await expect(usableMedia(connection.db, [media!.id])).rejects.toMatchObject(
+      {
+        status: 422,
+        message: 'MEDIA_NOT_PUBLISHABLE',
+        details: { mediaId: media!.id, reason: 'unknown_rights' },
+      },
+    );
+    const missing = randomUUID();
+    await expect(usableMedia(connection.db, [missing])).rejects.toMatchObject({
+      details: { mediaId: missing, reason: 'missing' },
+    });
+  });
   it('restores an initially empty media alt value together with unknown rights', async () => {
     const owner = await dashboardAccount(),
       [media] = await connection.db
@@ -3910,5 +4008,312 @@ describe('media, notifications, jobs and translation privacy', () => {
       NODE_ENV: 'production',
     });
     expect((await production.request('/v1/openapi.json')).status).toBe(401);
+  });
+});
+
+describe('travel guides, verification answers and visibility records', () => {
+  const seven = (text: string) =>
+    Object.fromEntries(locales.map((l) => [l, text + ' (' + l + ')'])) as {
+      en: string;
+    } & Record<string, string>;
+  const long = (word: string) =>
+    seven(Array.from({ length: 320 }, () => word).join(' '));
+  const ready = (slug: string) => ({
+    slug,
+    kind: 'guide',
+    title: seven('QA guide'),
+    summary: seven('A short summary'),
+    body: long('paragraph'),
+    authorName: 'QA staff member',
+    sources: [{ title: 'Egyptian parks', url: 'https://example.org/parks' }],
+    faqs: [{ q: seven('A question?'), a: seven('An answer.') }],
+    relatedTrips: ['quad-bike-safari'],
+  });
+  const publicList = async () =>
+    (await (await app.request('/v1/public/content?locale=en')).json()) as {
+      slug: string;
+      related_trips: string[];
+    }[];
+  const post = (client: Client, path: string) =>
+    client.call('/v1/admin/content-pages/' + path, 'POST', {});
+  let ownerSession: Client | undefined;
+  const ownerClient = async () => (ownerSession ??= await fresh('owner'));
+  // Own sessions: earlier tests end some of the shared role sessions.
+  const fresh = async (role: (typeof roles)[number]) => {
+    const email = role + '-p3-' + randomUUID() + '@example.test';
+    await connection.db.insert(s.adminUsers).values({
+      email,
+      name: 'QA phase 3 ' + role,
+      role,
+      passwordHash: await passwordHash(password),
+    });
+    const client = new Client();
+    expect(
+      (await client.call('/v1/admin/auth/login', 'POST', { email, password }))
+        .status,
+    ).toBe(200);
+    return client;
+  };
+
+  it('keeps drafts private and publishes only complete, confirmed pages', async () => {
+    const editor = await fresh('editor'),
+      sales = await fresh('sales');
+    expect((await sales.call('/v1/admin/content-pages')).status).toBe(403);
+    const thin = await editor.call('/v1/admin/content-pages', 'POST', {
+      slug: 'qa-thin-guide',
+      kind: 'guide',
+      title: { en: 'Thin' },
+      body: { en: 'Too short [CONFIRM: fee]' },
+    });
+    expect(thin.status).toBe(201);
+    const thinId = ((await thin.json()) as { id: string }).id;
+    // Unsafe link schemes and malformed slugs never reach the database.
+    expect(
+      (
+        await editor.call('/v1/admin/content-pages', 'POST', {
+          ...ready('qa-bad-source'),
+          sources: [{ title: 'x', url: 'javascript:alert(1)' }],
+        })
+      ).status,
+    ).toBe(422);
+    expect(
+      (await editor.call('/v1/admin/content-pages', 'POST', ready('<b>x</b>')))
+        .status,
+    ).toBe(422);
+    expect(
+      (
+        await editor.call(
+          '/v1/admin/content-pages',
+          'POST',
+          ready('qa-thin-guide'),
+        )
+      ).status,
+    ).toBe(409);
+    const detail = await editor.call('/v1/admin/content-pages/' + thinId);
+    expect(((await detail.json()) as { blockers: string[] }).blockers).toEqual(
+      expect.arrayContaining([
+        'bodyTooShort',
+        'noSummary',
+        'noAuthor',
+        'noSources',
+        'noRelatedTrips',
+        'unconfirmedFacts',
+        'translationsMissing',
+      ]),
+    );
+    // Editors cannot publish; owners cannot publish a blocked page.
+    expect((await post(editor, thinId + '/publish')).status).toBe(403);
+    expect((await post(await ownerClient(), thinId + '/publish')).status).toBe(
+      422,
+    );
+    expect((await publicList()).map((p) => p.slug)).not.toContain(
+      'qa-thin-guide',
+    );
+    expect(
+      (await app.request('/v1/public/content/qa-thin-guide?locale=en')).status,
+    ).toBe(404);
+
+    const created = await editor.call(
+      '/v1/admin/content-pages',
+      'POST',
+      ready('qa-ready-guide'),
+    );
+    const id = ((await created.json()) as { id: string }).id;
+    const check = await editor.call('/v1/admin/content-pages/' + id);
+    expect(((await check.json()) as { blockers: string[] }).blockers).toEqual(
+      [],
+    );
+    // Still a draft: nothing public until an owner/manager publishes.
+    expect((await publicList()).map((p) => p.slug)).not.toContain(
+      'qa-ready-guide',
+    );
+    expect((await post(await ownerClient(), id + '/publish')).status).toBe(200);
+    expect((await publicList()).map((p) => p.slug)).toContain('qa-ready-guide');
+    const italian = (await (
+      await app.request('/v1/public/content/qa-ready-guide?locale=it')
+    ).json()) as {
+      title: { text: string; lang: string };
+      related_trips: string[];
+      faqs: unknown[];
+    };
+    expect(italian.title).toEqual({ text: 'QA guide (it)', lang: 'it' });
+    expect(italian.related_trips).toEqual(['quad-bike-safari']);
+    expect(italian.faqs).toHaveLength(1);
+    // The list carries the related trips so trip pages can link back.
+    expect(
+      (await publicList()).find((p) => p.slug === 'qa-ready-guide')
+        ?.related_trips,
+    ).toEqual(['quad-bike-safari']);
+
+    // A live page: editors cannot change it, nobody can save it back into an
+    // unpublishable state, and its address cannot change while live.
+    expect(
+      (
+        await editor.call('/v1/admin/content-pages/' + id, 'PUT', {
+          ...ready('qa-ready-guide'),
+          summary: seven('Changed'),
+        })
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await (
+          await ownerClient()
+        ).call('/v1/admin/content-pages/' + id, 'PUT', {
+          ...ready('qa-ready-guide'),
+          faqs: [{ q: seven('Fee?'), a: seven('[CONFIRM: amount]') }],
+        })
+      ).status,
+    ).toBe(422);
+    expect(
+      (
+        await (
+          await ownerClient()
+        ).call(
+          '/v1/admin/content-pages/' + id,
+          'PUT',
+          ready('qa-renamed-guide'),
+        )
+      ).status,
+    ).toBe(409);
+    expect((await post(await ownerClient(), id + '/unpublish')).status).toBe(
+      200,
+    );
+    expect(
+      (await app.request('/v1/public/content/qa-ready-guide?locale=en')).status,
+    ).toBe(404);
+    // Unpublished pages also leave the list, so no trip links to them.
+    expect((await publicList()).map((p) => p.slug)).not.toContain(
+      'qa-ready-guide',
+    );
+    expect((await post(await ownerClient(), thinId + '/archive')).status).toBe(
+      200,
+    );
+    expect(
+      (await editor.call('/v1/admin/content-pages/' + thinId)).status,
+    ).toBe(404);
+    const audit = await connection.db
+      .select({ action: s.auditLog.action })
+      .from(s.auditLog)
+      .where(
+        and(eq(s.auditLog.entity, 'content_page'), eq(s.auditLog.entityId, id)),
+      );
+    expect(audit.map((a) => a.action)).toEqual(
+      expect.arrayContaining(['create', 'publish', 'unpublish']),
+    );
+  });
+
+  it('records verification answers for owners/managers only, never publicly', async () => {
+    const editor = await fresh('editor'),
+      manager = await fresh('manager');
+    const [trip] = await connection.db
+      .select({ id: s.trips.id })
+      .from(s.trips)
+      .where(eq(s.trips.slug, 'quad-bike-safari'));
+    const put = (client: Client, body: unknown) =>
+      client.call('/v1/admin/verification', 'PUT', body);
+    expect((await editor.call('/v1/admin/verification')).status).toBe(200);
+    expect(
+      (
+        await put(editor, {
+          tripId: trip!.id,
+          topic: 'pickup',
+          status: 'verified',
+        })
+      ).status,
+    ).toBe(403);
+    expect(
+      (
+        await put(manager, {
+          tripId: trip!.id,
+          topic: 'aiTraining',
+          status: 'verified',
+        })
+      ).status,
+    ).toBe(422);
+    for (const status of ['to_confirm', 'verified'])
+      expect(
+        (
+          await put(manager, {
+            tripId: trip!.id,
+            topic: 'pickup',
+            status,
+            note: 'Naama Bay and Hadaba',
+          })
+        ).status,
+      ).toBe(200);
+    expect(
+      (
+        await put(manager, {
+          tripId: null,
+          topic: 'aiTraining',
+          status: 'to_confirm',
+        })
+      ).status,
+    ).toBe(200);
+    const { facts } = (await (
+      await editor.call('/v1/admin/verification')
+    ).json()) as { facts: { tripId: string | null; status: string }[] };
+    // One row per scope and topic: the second save updated the first.
+    expect(facts.filter((f) => f.tripId === trip!.id)).toEqual([
+      expect.objectContaining({ status: 'verified' }),
+    ]);
+    expect(facts.filter((f) => f.tripId === null)).toHaveLength(1);
+    const publicTrip = await (
+      await app.request('/v1/public/trips/quad-bike-safari?locale=en')
+    ).text();
+    expect(publicTrip).not.toContain('Naama Bay and Hadaba');
+  });
+
+  it('stores manual visibility checks and limits deletion to owners/managers', async () => {
+    const editor = await fresh('editor'),
+      sales = await fresh('sales');
+    const row = {
+      measuredOn: '2026-12-01',
+      platform: 'perplexity',
+      kind: 'ai',
+      query: '=HYPERLINK("http://x","best excursions")',
+      lang: 'en',
+      mentioned: true,
+      recommendedPosition: 2,
+      competitors: ['Viator'],
+    };
+    expect((await sales.call('/v1/admin/visibility')).status).toBe(403);
+    expect(
+      (
+        await editor.call('/v1/admin/visibility', 'POST', {
+          ...row,
+          platform: 'scraped-engine',
+        })
+      ).status,
+    ).toBe(422);
+    const created = await editor.call('/v1/admin/visibility', 'POST', row);
+    expect(created.status).toBe(201);
+    const { id } = (await created.json()) as { id: string };
+    expect(
+      (
+        await editor.call('/v1/admin/visibility/import', 'POST', {
+          rows: [row, { ...row, platform: 'bing', kind: 'search' }],
+        })
+      ).status,
+    ).toBe(201);
+    const list = (await (await editor.call('/v1/admin/visibility')).json()) as {
+      id: string;
+      query: string;
+    }[];
+    expect(list.length).toBeGreaterThanOrEqual(3);
+    // Stored as typed; neutralised only when exported to CSV.
+    expect(list.find((r) => r.id === id)!.query).toBe(row.query);
+    expect(
+      (await editor.call('/v1/admin/visibility/' + id, 'DELETE')).status,
+    ).toBe(403);
+    expect(
+      (await (await ownerClient()).call('/v1/admin/visibility/' + id, 'DELETE'))
+        .status,
+    ).toBe(200);
+    expect(
+      (await (await ownerClient()).call('/v1/admin/visibility/' + id, 'DELETE'))
+        .status,
+    ).toBe(404);
   });
 });

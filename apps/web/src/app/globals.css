@@ -1454,6 +1454,44 @@ body:has(.panel-with-footer) .trip-navigation-page {
 .trip-grid .trip-image {
   block-size: 220px;
 }
+/* "All of Egypt": every trip, one titled section per collection. */
+.chip-count {
+  margin-inline-start: 6px;
+  padding-inline: 7px;
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--ink);
+  font-size: 11px;
+}
+.chip.active .chip-count {
+  background: #ffffff33;
+  color: white;
+}
+.all-group {
+  scroll-margin-block-start: 90px;
+}
+.all-group h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block: 8px 18px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--line);
+  font-size: 24px;
+}
+.all-group h2 small {
+  margin-inline-start: auto;
+  color: var(--ink-3);
+  font-size: 14px;
+  font-weight: 650;
+}
+.all-group-dot {
+  flex: none;
+  inline-size: 12px;
+  block-size: 12px;
+  border-radius: 50%;
+  background: var(--group);
+}
 .empty-filter {
   padding-block: 45px;
   text-align: center;
@@ -3125,6 +3163,60 @@ body:has(.panel-with-footer) .trip-navigation-page {
   gap: 7px;
 }
 
+/* Floating WhatsApp button, bottom inline-start (left in LTR) on every page
+   and in panels. It sits on top of TripNavigation (tab bar on phones), and
+   is lifted over the trip page's sticky price bar so it never covers it. */
+.wa-float {
+  --wa-lift: 0px;
+  position: absolute;
+  inset-block-end: calc(100% + 14px + var(--wa-lift));
+  inset-inline-start: 16px;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  inline-size: 56px;
+  block-size: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #062b16;
+  box-shadow:
+    0 8px 22px #25d36655,
+    0 2px 6px #0002;
+  transition:
+    transform 0.15s,
+    background 0.15s;
+}
+.wa-float:hover {
+  background: #1fbe5b;
+  transform: scale(1.05);
+}
+.wa-float:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+body:has(.trip-page .trip-sticky) .trip-navigation-page .wa-float,
+.panel:has(.trip-sticky) .wa-float {
+  --wa-lift: 78px;
+}
+@media (min-width: 1024px) {
+  .wa-float {
+    inset-inline-start: 24px;
+    inset-block-end: calc(100% + 24px + var(--wa-lift));
+  }
+  body:has(.trip-page .trip-sticky) .trip-navigation-page .wa-float,
+  .panel:has(.trip-sticky) .wa-float {
+    --wa-lift: 82px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wa-float {
+    transition: none;
+  }
+  .wa-float:hover {
+    transform: none;
+  }
+}
+
 /* Date range calendar in the request form. */
 .range-field {
   border: 0;
@@ -3833,5 +3925,251 @@ input[type='search']::-webkit-search-decoration {
   .request-summary-facts > div {
     grid-template-columns: 1fr;
     gap: 2px;
+  }
+}
+
+/* Travel guides (/guides): reading layout on the existing tokens. */
+.guide-page,
+.guides-index {
+  max-inline-size: 760px;
+}
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.breadcrumb li + li::before {
+  content: '›';
+  margin-inline-end: 8px;
+  color: var(--ink-2);
+}
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  color: var(--ink-2);
+}
+.guide-page > h1 {
+  margin-block-end: 16px;
+}
+.guide-page .lead,
+.guides-index .lead {
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+.guide-meta {
+  margin-block: 8px 32px;
+  color: var(--ink-2);
+  font-size: 14px;
+}
+.guide-body {
+  line-height: 1.7;
+}
+.guide-body h2,
+.guide-page section > h2,
+.guides-index section > h2 {
+  margin-block: 40px 12px;
+}
+.guide-body ul,
+.guide-links,
+.guide-sources {
+  padding-inline-start: 1.2em;
+}
+.guide-links li,
+.guide-sources li {
+  margin-block: 6px;
+}
+.guide-links a,
+.guide-sources a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  color: var(--history);
+  text-decoration: underline;
+}
+/* Guides that link to this trip, below the trip and its booking bar. */
+.trip-guides {
+  max-inline-size: 900px;
+  margin-inline: auto;
+  padding-block: 32px 48px;
+}
+.trip-guides h2 {
+  margin-block-end: 8px;
+}
+.trip-guides p {
+  margin-block: 0 8px;
+  color: var(--ink-2);
+}
+/* ---------- Loading experience (one design language) ----------
+   Navigation bar: thin brand gradient at the very top, only for slow page
+   changes; never covers content or the tab bar / WhatsApp button. */
+.nav-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 1000;
+  block-size: 3px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+.nav-progress span {
+  display: block;
+  block-size: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--sea));
+  border-start-end-radius: 3px;
+  border-end-end-radius: 3px;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+[dir='rtl'] .nav-progress span {
+  transform-origin: 100% 50%;
+}
+.nav-progress.pending,
+.nav-progress.slow {
+  opacity: 1;
+}
+.nav-progress.pending span,
+.nav-progress.slow span {
+  /* Eases towards 90 %: it shows activity, not a time estimate. */
+  animation: nav-progress 9s cubic-bezier(0.1, 0.6, 0.2, 1) forwards;
+}
+@keyframes nav-progress {
+  to {
+    transform: scaleX(0.9);
+  }
+}
+.nav-slow {
+  position: fixed;
+  inset-block-start: calc(10px + env(safe-area-inset-top));
+  inset-inline: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 12px;
+  margin-inline: auto;
+  max-inline-size: 520px;
+  padding: 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper-2);
+  box-shadow: 0 10px 30px rgb(27 23 18 / 0.12);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  animation: fade-in 0.2s var(--ease);
+}
+.nav-slow-retry {
+  min-block-size: 44px;
+  padding-inline: 12px;
+  border: 0;
+  background: none;
+  color: var(--sea);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+/* Skeletons reuse the existing shimmer and keep the final component size. */
+.skeleton-block {
+  display: block;
+  border-radius: 14px;
+  background: linear-gradient(
+    100deg,
+    var(--line) 30%,
+    var(--paper-2) 50%,
+    var(--line) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton 1.6s infinite;
+}
+.skeleton-card .trip-image {
+  border-radius: 22px;
+}
+.trip-grid .skeleton-card .trip-image {
+  block-size: 220px;
+}
+.skeleton-line {
+  block-size: 18px;
+  margin-block-start: 17px;
+  inline-size: 72%;
+}
+.skeleton-line.short {
+  block-size: 12px;
+  margin-block-start: 10px;
+  inline-size: 46%;
+}
+.skeleton-card.day-card {
+  min-block-size: 118px;
+}
+.skeleton-thumb {
+  flex: none;
+  inline-size: 64px;
+  block-size: 64px;
+  border-radius: 16px;
+}
+.skeleton-stack {
+  flex: 1;
+}
+.skeleton-stack .skeleton-line {
+  margin-block-start: 0;
+}
+/* Story viewer: same frame as a loaded story, so nothing jumps. */
+.story-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+  padding: calc(64px + env(safe-area-inset-top)) 16px 28px;
+}
+.story-loading-bars {
+  display: flex;
+  gap: 4px;
+}
+.story-loading-bars i {
+  flex: 1;
+  block-size: 3px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.28);
+}
+.story-loading-media {
+  border-radius: 22px;
+  background: linear-gradient(
+    100deg,
+    rgb(255 255 255 / 0.08) 30%,
+    rgb(255 255 255 / 0.18) 50%,
+    rgb(255 255 255 / 0.08) 70%
+  );
+  background-size: 200% 100%;
+}
+.story-loading-text {
+  color: rgb(255 255 255 / 0.86);
+  font-size: 15px;
+  text-align: center;
+}
+.story-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 16px;
+  padding: 24px;
+  color: #fff;
+  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No moving bar: a calm static line while a page loads. */
+  .nav-progress.pending span,
+  .nav-progress.slow span {
+    transform: none;
+    opacity: 0.7;
   }
 }
