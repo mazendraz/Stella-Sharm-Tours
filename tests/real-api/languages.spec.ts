@@ -31,9 +31,27 @@ for (const locale of locales)
         .click();
       await expect(page).toHaveURL(new RegExp('/' + locale + '$'));
       await expect(page.locator('html')).toHaveAttribute('lang', locale);
-      await expect(page.locator('.hero-copy h1')).toContainText(
-        bundledCoreText('Your trip, your way.', locale)!,
-      );
+      // The first hero slide is admin-controlled (owner order 2026-11-28:
+      // All of Egypt, then Private): expect its translated title from the API.
+      const heroApi =
+        process.env.STELLA_INTEGRATION_VERIFY === '1'
+          ? 'http://localhost:4984'
+          : 'http://localhost:4000';
+      const firstSlide = (
+        await (
+          await request.get(heroApi + '/v1/public/site?locale=' + locale)
+        ).json()
+      ).hero_slides[0].title;
+      expect(firstSlide.lang).toBe(locale);
+      await expect
+        .poll(
+          async () => {
+            await page.reload();
+            return page.locator('.hero-copy h1').innerText();
+          },
+          { timeout: 60000 },
+        )
+        .toBe(firstSlide.text);
       await expect(page.locator('.auto-notice')).toHaveCount(0);
       await page.goto('/' + locale + '/c/sea');
       await expect(page.locator('h1').first()).toContainText(
