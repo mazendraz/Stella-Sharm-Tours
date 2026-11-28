@@ -918,6 +918,2749 @@
         }
       }
     },
+    "/v1/admin/visibility": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "measuredOn": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "google-search",
+                      "google-ai-overviews",
+                      "google-ai-mode",
+                      "chatgpt-search",
+                      "gemini",
+                      "perplexity",
+                      "bing",
+                      "copilot"
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "ai",
+                      "search"
+                    ]
+                  },
+                  "promptId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 20
+                  },
+                  "query": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 500
+                  },
+                  "lang": {
+                    "type": "string",
+                    "pattern": "^[a-z]{2,3}$"
+                  },
+                  "market": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 40
+                  },
+                  "branded": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "mentioned": {
+                    "type": "boolean"
+                  },
+                  "citedUrl": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uri"
+                  },
+                  "recommendedPosition": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "organicPosition": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 1,
+                    "maximum": 100
+                  },
+                  "competitors": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "maxItems": 30,
+                    "default": []
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "maxItems": 30,
+                    "default": []
+                  },
+                  "notes": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "measuredOn",
+                  "platform",
+                  "kind",
+                  "query",
+                  "lang",
+                  "mentioned"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/visibility/import": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rows": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "measuredOn": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "google-search",
+                            "google-ai-overviews",
+                            "google-ai-mode",
+                            "chatgpt-search",
+                            "gemini",
+                            "perplexity",
+                            "bing",
+                            "copilot"
+                          ]
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "ai",
+                            "search"
+                          ]
+                        },
+                        "promptId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "maxLength": 20
+                        },
+                        "query": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 500
+                        },
+                        "lang": {
+                          "type": "string",
+                          "pattern": "^[a-z]{2,3}$"
+                        },
+                        "market": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "maxLength": 40
+                        },
+                        "branded": {
+                          "type": "boolean",
+                          "default": false
+                        },
+                        "mentioned": {
+                          "type": "boolean"
+                        },
+                        "citedUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "format": "uri"
+                        },
+                        "recommendedPosition": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 100
+                        },
+                        "organicPosition": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ],
+                          "minimum": 1,
+                          "maximum": 100
+                        },
+                        "competitors": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "maxItems": 30,
+                          "default": []
+                        },
+                        "sources": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          },
+                          "maxItems": 30,
+                          "default": []
+                        },
+                        "notes": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "maxLength": 2000
+                        }
+                      },
+                      "required": [
+                        "measuredOn",
+                        "platform",
+                        "kind",
+                        "query",
+                        "lang",
+                        "mentioned"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "minItems": 1,
+                    "maxItems": 2000
+                  }
+                },
+                "required": [
+                  "rows"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/visibility/{id}": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/verification": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tripId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid"
+                  },
+                  "topic": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z]{2,40}$"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "missing",
+                      "to_confirm",
+                      "verified"
+                    ]
+                  },
+                  "note": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 2000
+                  }
+                },
+                "required": [
+                  "tripId",
+                  "topic",
+                  "status"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/content-pages": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "slug": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{1,120}$"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "guide",
+                      "destination",
+                      "activity"
+                    ]
+                  },
+                  "category": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 60
+                  },
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "summary": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "body": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "seoTitle": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "seoDescription": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "authorName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 120
+                  },
+                  "authorRole": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 120
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 30
+                  },
+                  "faqs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "q": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "it": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "es": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "fr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "de": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "ru": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "tr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": [
+                            "en"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "a": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "it": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "es": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "fr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "de": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "ru": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "tr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": [
+                            "en"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "q",
+                        "a"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 20
+                  },
+                  "coverMediaId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid"
+                  },
+                  "relatedTrips": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,120}$"
+                    },
+                    "maxItems": 12
+                  },
+                  "relatedPages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,120}$"
+                    },
+                    "maxItems": 12
+                  },
+                  "sort": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  }
+                },
+                "required": [
+                  "slug",
+                  "kind",
+                  "title"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/content-pages/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "slug": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9-]{1,120}$"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "guide",
+                      "destination",
+                      "activity"
+                    ]
+                  },
+                  "category": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 60
+                  },
+                  "title": {
+                    "type": "object",
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "summary": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "body": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "seoTitle": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "seoDescription": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "it": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "es": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "fr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "de": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "ru": {
+                        "type": "string",
+                        "maxLength": 20000
+                      },
+                      "tr": {
+                        "type": "string",
+                        "maxLength": 20000
+                      }
+                    },
+                    "required": [
+                      "en"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "authorName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 120
+                  },
+                  "authorRole": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 120
+                  },
+                  "sources": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "url"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 30
+                  },
+                  "faqs": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "q": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "it": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "es": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "fr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "de": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "ru": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "tr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": [
+                            "en"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "a": {
+                          "type": "object",
+                          "properties": {
+                            "en": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 20000
+                            },
+                            "it": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "es": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "fr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "de": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "ru": {
+                              "type": "string",
+                              "maxLength": 20000
+                            },
+                            "tr": {
+                              "type": "string",
+                              "maxLength": 20000
+                            }
+                          },
+                          "required": [
+                            "en"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "q",
+                        "a"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 20
+                  },
+                  "coverMediaId": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "uuid"
+                  },
+                  "relatedTrips": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,120}$"
+                    },
+                    "maxItems": 12
+                  },
+                  "relatedPages": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9-]{1,120}$"
+                    },
+                    "maxItems": 12
+                  },
+                  "sort": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  }
+                },
+                "required": [
+                  "slug",
+                  "kind",
+                  "title"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/content-pages/{id}/publish": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/content-pages/{id}/unpublish": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/content-pages/{id}/archive": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validated admin result; sensitive auth and IP fields are excluded",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "201": {
+            "description": "Created draft or user"
+          },
+          "202": {
+            "description": "Accepted for processing"
+          },
+          "401": {
+            "description": "Authentication failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Role, CSRF, Origin or reauthentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation or business rule rejected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/admin/package-parts": {
       "get": {
         "tags": [
@@ -27502,6 +30245,575 @@
                   "required": [
                     "title",
                     "blocks"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/content": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$",
+              "default": "en"
+            },
+            "required": false,
+            "name": "locale",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published localized content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "slug": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "guide",
+                          "destination",
+                          "activity"
+                        ]
+                      },
+                      "category": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "title": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "lang": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 16
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "lang"
+                        ]
+                      },
+                      "summary": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "lang": {
+                            "type": "string",
+                            "minLength": 2,
+                            "maxLength": 16
+                          }
+                        },
+                        "required": [
+                          "text",
+                          "lang"
+                        ]
+                      },
+                      "cover": {
+                        "type": [
+                          "object",
+                          "null"
+                        ],
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          },
+                          "alt": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "width": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "height": {
+                            "type": "number",
+                            "exclusiveMinimum": 0
+                          },
+                          "variants": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "video": {
+                            "type": "object",
+                            "properties": {
+                              "vertical": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              },
+                              "horizontal": {
+                                "type": [
+                                  "string",
+                                  "null"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "vertical",
+                              "horizontal"
+                            ]
+                          },
+                          "rights_status": {
+                            "type": "string",
+                            "enum": [
+                              "owned",
+                              "licensed",
+                              "permission",
+                              "unknown"
+                            ],
+                            "default": "unknown"
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "alt",
+                          "width",
+                          "height"
+                        ]
+                      },
+                      "updated_at": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "slug",
+                      "kind",
+                      "category",
+                      "title",
+                      "summary",
+                      "cover",
+                      "updated_at"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/content/{slug}": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]{1,120}$"
+            },
+            "required": true,
+            "name": "slug",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$",
+              "default": "en"
+            },
+            "required": false,
+            "name": "locale",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published localized content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "slug": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "guide",
+                        "destination",
+                        "activity"
+                      ]
+                    },
+                    "category": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "title": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
+                      ]
+                    },
+                    "summary": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
+                      ]
+                    },
+                    "body": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
+                      ]
+                    },
+                    "seo_title": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
+                      ]
+                    },
+                    "seo_description": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "lang": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 16
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "lang"
+                      ]
+                    },
+                    "author": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "role": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "role"
+                      ]
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "url"
+                        ]
+                      }
+                    },
+                    "faqs": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "q": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "a": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "q",
+                          "a"
+                        ]
+                      }
+                    },
+                    "cover": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "properties": {
+                        "url": {
+                          "type": "string"
+                        },
+                        "alt": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "lang": {
+                              "type": "string",
+                              "minLength": 2,
+                              "maxLength": 16
+                            }
+                          },
+                          "required": [
+                            "text",
+                            "lang"
+                          ]
+                        },
+                        "width": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "height": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        },
+                        "variants": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          }
+                        },
+                        "video": {
+                          "type": "object",
+                          "properties": {
+                            "vertical": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "horizontal": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "vertical",
+                            "horizontal"
+                          ]
+                        },
+                        "rights_status": {
+                          "type": "string",
+                          "enum": [
+                            "owned",
+                            "licensed",
+                            "permission",
+                            "unknown"
+                          ],
+                          "default": "unknown"
+                        }
+                      },
+                      "required": [
+                        "url",
+                        "alt",
+                        "width",
+                        "height"
+                      ]
+                    },
+                    "related_trips": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "related_pages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "guide",
+                              "destination",
+                              "activity"
+                            ]
+                          },
+                          "title": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "slug",
+                          "kind",
+                          "title"
+                        ]
+                      }
+                    },
+                    "published_at": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "updated_at": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "slug",
+                    "kind",
+                    "category",
+                    "title",
+                    "summary",
+                    "body",
+                    "seo_title",
+                    "seo_description",
+                    "author",
+                    "sources",
+                    "faqs",
+                    "cover",
+                    "related_trips",
+                    "related_pages",
+                    "published_at",
+                    "updated_at"
                   ]
                 }
               }
