@@ -14,6 +14,7 @@ import {
   bigserial,
   primaryKey,
   uniqueIndex,
+  unique,
   index,
   check,
   customType,
@@ -674,5 +675,123 @@ export const contentDrafts = pgTable(
   },
   (t) => [
     uniqueIndex('draft_entity_section').on(t.entity, t.entityId, t.section),
+  ],
+);
+/**
+ * Travel guides, destination and activity pages (migration 0017). Text is
+ * localized like trips; `body` is plain text with "## " headings and "- "
+ * lists, rendered as HTML by the site. Related trips/pages are slugs so a
+ * renamed or unpublished target simply drops out of the page.
+ */
+export const contentPages = pgTable(
+  'content_pages',
+  {
+    id: id(),
+    slug: text('slug').notNull().unique(),
+    kind: text('kind', { enum: ['guide', 'destination', 'activity'] })
+      .notNull()
+      .default('guide'),
+    category: text('category'),
+    title: localized('title').notNull(),
+    summary: localized('summary'),
+    body: localized('body'),
+    seoTitle: localized('seo_title'),
+    seoDescription: localized('seo_description'),
+    authorName: text('author_name'),
+    authorRole: text('author_role'),
+    sources: jsonb('sources')
+      .$type<{ title: string; url: string }[]>()
+      .notNull()
+      .default([]),
+    faqs: jsonb('faqs')
+      .$type<{ q: Localized; a: Localized }[]>()
+      .notNull()
+      .default([]),
+    coverMediaId: uuid('cover_media_id').references(() => media.id),
+    relatedTrips: text('related_trips').array().notNull().default([]),
+    relatedPages: text('related_pages').array().notNull().default([]),
+    sort: integer('sort').notNull().default(0),
+    status: text('status', { enum: ['draft', 'published'] })
+      .notNull()
+      .default('draft'),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    createdAt: created(),
+    updatedAt: updated(),
+    archivedAt: archived(),
+  },
+  (t) => [
+    index('content_pages_status_kind').on(t.status, t.kind, t.sort),
+    check(
+      'content_page_kind',
+      sql`${t.kind} in ('guide','destination','activity')`,
+    ),
+    check('content_page_status', sql`${t.status} in ('draft','published')`),
+    check('content_page_slug', sql`${t.slug} ~ '^[a-z0-9-]{1,120}$'`),
+  ],
+);
+/**
+ * Manually recorded search / AI-visibility checks (migration 0017). One row
+ * per prompt أ— platform أ— date. Nothing is scraped; rows come from staff
+ * entry or CSV import.
+ */
+export const visibilityMeasurements = pgTable(
+  'visibility_measurements',
+  {
+    id: id(),
+    measuredOn: date('measured_on').notNull(),
+    platform: text('platform').notNull(),
+    kind: text('kind', { enum: ['ai', 'search'] }).notNull(),
+    promptId: text('prompt_id'),
+    query: text('query').notNull(),
+    lang: text('lang').notNull(),
+    market: text('market'),
+    branded: boolean('branded').notNull().default(false),
+    mentioned: boolean('mentioned').notNull(),
+    citedUrl: text('cited_url'),
+    recommendedPosition: smallint('recommended_position'),
+    organicPosition: smallint('organic_position'),
+    competitors: text('competitors').array().notNull().default([]),
+    sources: text('sources').array().notNull().default([]),
+    notes: text('notes'),
+    createdBy: uuid('created_by').references(() => adminUsers.id),
+    createdAt: created(),
+  },
+  (t) => [
+    index('visibility_platform_date').on(t.platform, t.measuredOn),
+    check(
+      'visibility_platform',
+      sql`${t.platform} in ('google-search','google-ai-overviews','google-ai-mode','chatgpt-search','gemini','perplexity','bing','copilot')`,
+    ),
+    check('visibility_kind', sql`${t.kind} in ('ai','search')`),
+  ],
+);
+/**
+ * Verification Center answers (migration 0018): per tour (or site-wide when
+ * `trip_id` is null) and per topic, whether the owner has confirmed a fact.
+ * Internal only: the note is never published. Confirmed facts still have to
+ * be entered in the trip editor before the site shows them.
+ */
+export const verificationFacts = pgTable(
+  'verification_facts',
+  {
+    id: id(),
+    tripId: uuid('trip_id').references(() => trips.id, { onDelete: 'cascade' }),
+    topic: text('topic').notNull(),
+    status: text('status', { enum: ['missing', 'to_confirm', 'verified'] })
+      .notNull()
+      .default('missing'),
+    note: text('note'),
+    updatedBy: uuid('updated_by').references(() => adminUsers.id),
+    updatedAt: updated(),
+  },
+  (t) => [
+    unique('verification_facts_scope_topic')
+      .on(t.tripId, t.topic)
+      .nullsNotDistinct(),
+    check(
+      'verification_fact_status',
+      sql`${t.status} in ('missing','to_confirm','verified')`,
+    ),
+    check('verification_fact_topic', sql`${t.topic} ~ '^[a-zA-Z]{2,40}$'`),
   ],
 );
