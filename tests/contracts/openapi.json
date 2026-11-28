@@ -30999,6 +30999,14 @@
                     "type": "string",
                     "maxLength": 1000
                   },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR",
+                      "GBP",
+                      "USD"
+                    ]
+                  },
                   "hp": {
                     "type": "string",
                     "enum": [
