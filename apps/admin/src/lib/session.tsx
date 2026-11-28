@@ -27,7 +27,6 @@ const errorKeys: Record<string, string> = {
   RATE_LIMITED: 'rate',
   FORBIDDEN: 'forbidden',
   DRAFT_ONLY: 'forbidden',
-  INVALID_CODE: 'codeIncorrect',
   INVALID_CREDENTIALS: 'invalidLogin',
   CONFLICT: 'errConflict',
   TRIP_NOT_PUBLISHED: 'errTripNotPublished',
@@ -374,18 +373,14 @@ export function Session({
                 event.preventDefault();
                 if (busy) return;
                 const fields = new FormData(event.currentTarget),
-                  password = String(fields.get('password') ?? ''),
-                  code = String(fields.get('code') ?? '').replace(/\s/g, '');
+                  password = String(fields.get('password') ?? '');
                 if (!password) {
                   setReauthError(t('passwordRequired'));
                   return;
                 }
                 setBusy(true);
                 try {
-                  await base('/v1/admin/auth/reauth', 'POST', {
-                    password,
-                    ...(me?.totp_enabled && code ? { code } : {}),
-                  });
+                  await base('/v1/admin/auth/reauth', 'POST', { password });
                   setReauth(false);
                   resolver.current?.(true);
                   resolver.current = null;
@@ -393,11 +388,7 @@ export function Session({
                   setReauthError(
                     error instanceof ApiError && error.code === 'RATE_LIMITED'
                       ? t('rate')
-                      : t(
-                          me?.totp_enabled
-                            ? 'wrongPasswordOrCode'
-                            : 'wrongPassword',
-                        ),
+                      : t('wrongPassword'),
                   );
                 } finally {
                   setBusy(false);
@@ -413,18 +404,6 @@ export function Session({
                   autoFocus
                 />
               </div>
-              {me?.totp_enabled && (
-                <div className="field">
-                  <label htmlFor="reauth-code">{t('code6')}</label>
-                  <input
-                    id="reauth-code"
-                    name="code"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={64}
-                  />
-                </div>
-              )}
               {reauthError && (
                 <p className="field-error" role="alert">
                   {reauthError}

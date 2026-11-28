@@ -3,6 +3,8 @@ import { tripData } from '@/lib/route-data';
 import { getSite } from '@/lib/api';
 import { metadataFor, JsonLd } from '@/lib/seo';
 import { whatsapp } from '@/lib/links';
+import { getCurrency } from '@/lib/currency';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import { siteOrigin } from '@/lib/env';
 export async function generateMetadata({
   params,
@@ -29,12 +31,13 @@ export default async function TripPage({
   const { locale, slug } = await params,
     trip = await tripData(slug, locale),
     site = await getSite(locale),
-    requestedPrivate = (await searchParams).format === 'private';
+    requestedPrivate = (await searchParams).format === 'private',
+    currency = await getCurrency();
   return (
     <main id="main" className="trip-page">
       <TripView
         trip={trip}
-        whatsappUrl={whatsapp(site.contacts.whatsapp_primary)}
+        whatsappUrl={whatsapp(whatsappNumberFor(locale, site.contacts))}
         requestedPrivate={requestedPrivate}
       />
       <JsonLd
@@ -50,7 +53,7 @@ export default async function TripPage({
             .map((p) => ({
               '@type': 'Offer',
               price: p.amount_eur,
-              priceCurrency: 'EUR',
+              priceCurrency: currency,
             })),
           itinerary: trip.itinerary.map((p) => p.text.text),
         }}

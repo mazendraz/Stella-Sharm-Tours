@@ -92,6 +92,34 @@
       "when": 1795392060000,
       "tag": "0012_privacy_erasures",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795608629074,
+      "tag": "0013_remove_two_step_verification",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1795711205455,
+      "tag": "0014_request_display_currency",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1795715127307,
+      "tag": "0015_search_keywords",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1795718078713,
+      "tag": "0016_google_reviews",
+      "breakpoints": true
     }
   ]
 }

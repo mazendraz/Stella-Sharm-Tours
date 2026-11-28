@@ -31,11 +31,13 @@ import { CountryPicker } from './country-picker';
 import { RequestSummaryCard } from './request-summary';
 import type { RequestSummary } from '@/lib/request-summary';
 import { useApiOrigin } from './runtime-config';
+import { useCurrency } from './currency';
 export default function RequestSheet({
   site,
 }: {
   site: Pick<ShellSite, 'pickup_areas' | 'booking_min_days_ahead'> | null;
 }) {
+  const currency = useCurrency();
   const apiOrigin = useApiOrigin();
   const t = useTranslations(),
     locale = useLocale(),
@@ -233,6 +235,7 @@ export default function RequestSheet({
       email: String(data.get('email') ?? ''),
       notes: String(data.get('notes') ?? ''),
       locale,
+      currency,
       hp: String(data.get('website') ?? ''),
       t: opened.current,
     });
@@ -363,6 +366,10 @@ export default function RequestSheet({
         /* The confirmation remains displayed before navigation. */
       }
       track('request_submit_ok');
+      useTripStore.getState().completeRequest(
+        confirmed.ref,
+        trips.map((trip) => trip.slug),
+      );
       setSuccess(confirmed);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return;
@@ -530,7 +537,7 @@ export default function RequestSheet({
                             {p.amount_eur === null ? (
                               t('onRequest')
                             ) : (
-                              <bdi>{money(p.amount_eur, locale)}</bdi>
+                              <bdi>{money(p.amount_eur, locale, currency)}</bdi>
                             )}
                           </strong>
                         </button>
@@ -676,7 +683,7 @@ export default function RequestSheet({
                       <bdi>
                         {item.amount_eur === null
                           ? t('onRequest')
-                          : money(item.amount_eur, locale)}
+                          : money(item.amount_eur, locale, currency)}
                       </bdi>
                     </li>
                   ))}
@@ -690,7 +697,7 @@ export default function RequestSheet({
                 {quote?.estimate_eur === null && quote.known_eur > 0 && (
                   <div className="estimate-subtotal">
                     <span>{t('pricedTripsSubtotal')}</span>
-                    <bdi>{money(quote.known_eur, locale)}</bdi>
+                    <bdi>{money(quote.known_eur, locale, currency)}</bdi>
                   </div>
                 )}
                 <div className="estimate">
@@ -700,7 +707,7 @@ export default function RequestSheet({
                       {quote.estimate_eur === null ? (
                         t('onRequest')
                       ) : (
-                        <bdi>{money(quote.estimate_eur, locale)}</bdi>
+                        <bdi>{money(quote.estimate_eur, locale, currency)}</bdi>
                       )}
                     </strong>
                   ) : (

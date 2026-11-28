@@ -86,7 +86,7 @@ export function AdminApp() {
         <Skeleton rows={3} />
       </main>
     );
-  if (!me?.mfa_passed) return <Auth key={me?.id ?? 'signed-out'} />;
+  if (!me) return <Auth key="signed-out" />;
   return (
     <ConfirmProvider>
       <GuardProvider>

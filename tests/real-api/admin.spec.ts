@@ -1,12 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
 import { randomBytes, randomUUID } from 'node:crypto';
-import { passwordHash, seal } from '../../apps/api/src/auth';
+import { passwordHash } from '../../apps/api/src/auth';
 import { localDatabase } from './setup';
-const otp = createRequire(resolve('apps/api/package.json'))(
-  'otplib',
-) as typeof import('../../apps/api/node_modules/otplib');
 const verification = process.env.STELLA_INTEGRATION_VERIFY === '1';
 const apiOrigin = verification
   ? 'http://localhost:4984'
@@ -22,12 +17,11 @@ test('authenticated API price and hero edits invalidate web caches, and Undo res
     'Revalidation is shared by all viewport sizes.',
   );
   test.setTimeout(120000);
-  const { pool, env } = await localDatabase(
+  const { pool } = await localDatabase(
       verification ? 'verification' : 'development',
     ),
     id = randomUUID(),
     password = randomBytes(24).toString('base64url'),
-    secret = otp.generateSecret(),
     email = id + '@example.test',
     cookies = new Map<string, string>();
   const call = async (path: string, method = 'GET', body?: unknown) => {
@@ -75,25 +69,17 @@ test('authenticated API price and hero edits invalidate web caches, and Undo res
   });
   try {
     await pool.query(
-      'insert into admin_users(id,email,name,role,password_hash,totp_enabled,totp_secret_enc) values($1,$2,$3,$4,$5,true,$6)',
+      'insert into admin_users(id,email,name,role,password_hash) values($1,$2,$3,$4,$5)',
       [
         id,
         email,
         'Local revalidation QA',
         'manager',
         await passwordHash(password),
-        seal(secret, env.TOTP_ENC_KEY!, id),
       ],
     );
     expect(
       (await call('/auth/login', 'POST', { email, password })).status,
-    ).toBe(200);
-    expect(
-      (
-        await call('/auth/2fa/verify', 'POST', {
-          code: otp.generateSync({ secret }),
-        })
-      ).status,
     ).toBe(200);
     await page.goto('/en/t/tiran-island-boat');
     await expect(page.locator('.price-row').first()).toContainText('35');

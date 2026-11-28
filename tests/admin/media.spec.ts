@@ -3,13 +3,11 @@ import AxeBuilder from '@axe-core/playwright';
 import { randomUUID, randomBytes } from 'node:crypto';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
-import { passwordHash, seal } from '../../apps/api/src/auth';
+import { passwordHash } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import { locales } from '../../packages/shared/src/index';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
 const require = createRequire(resolve('apps/api/package.json')),
-  otp =
-    require('otplib') as typeof import('../../apps/api/node_modules/otplib'),
   sharp =
     require('sharp') as typeof import('../../apps/api/node_modules/sharp');
 // TODO(admin-rebuild): rewrite against the new full-page editors (see REBUILD_NOTES.md).
@@ -21,34 +19,24 @@ test.fixme('phone upload resizes a real image, processes privately, saves seven 
     'Actual pipeline is shared across widths.',
   );
   test.setTimeout(180000);
-  const { pool, env } = await localDatabase(
+  const { pool } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
       : 'development',
   );
   const id = randomUUID(),
     email = id + '@example.test',
-    password = 'QA-' + randomBytes(24).toString('base64url'),
-    secret = otp.generateSecret();
+    password = 'QA-' + randomBytes(24).toString('base64url');
   let mediaId = '';
   try {
     await pool.query(
-      'insert into admin_users(id,email,name,role,password_hash,totp_enabled,totp_secret_enc) values($1,$2,$3,$4,$5,true,$6)',
-      [
-        id,
-        email,
-        'Media UI QA',
-        'owner',
-        await passwordHash(password),
-        seal(secret, env.TOTP_ENC_KEY!, id),
-      ],
+      'insert into admin_users(id,email,name,role,password_hash) values($1,$2,$3,$4,$5)',
+      [id, email, 'Media UI QA', 'owner', await passwordHash(password)],
     );
     await page.goto('/');
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
-    await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
     await expect(page.locator('main h1')).toHaveText(en.requests);
     await page.goto('/media');
     const buffer = await sharp({

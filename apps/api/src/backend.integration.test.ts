@@ -21,6 +21,13 @@ import { locales } from '@stella/shared';
 import { loadCatalog } from './catalog';
 import { siteSchema, tripSchema } from '@stella/shared/public-contract';
 import {
+  createSearch,
+  normalize,
+  searchIndexSchema,
+} from '@stella/shared/search';
+import { gzipSync } from 'node:zlib';
+import { estimateTrip } from '@stella/shared/price';
+import {
   addCalendarDays,
   cairoDate,
   minBookingDate,
@@ -29,8 +36,7 @@ import {
 import { configSchema, type Config } from './config';
 import { createApp } from './app';
 import { createMediaImporter, processMedia, runTool } from './media';
-import { passwordHash, sha, seal, unseal, sessionHash, aad } from './auth';
-import { generateSecret, generateSync } from 'otplib';
+import { passwordHash, sha, unseal, sessionHash, aad } from './auth';
 import {
   fakeProvider,
   publicTranslationFields,
@@ -65,7 +71,7 @@ let container: StartedPostgreSqlContainer | undefined,
   cfg: Config,
   app: ReturnType<typeof createApp>,
   seed: Awaited<ReturnType<typeof seedCatalog>>;
-let owner: Client, ownerRecovery: string[];
+let owner: Client;
 const clients = new Map<string, Client>(),
   password = 'QA-' + randomBytes(24).toString('base64url'),
   nonce = randomUUID(),
@@ -117,35 +123,17 @@ class Client {
 async function login(role: (typeof roles)[number]) {
   if (clients.has(role)) return clients.get(role)!;
   const email = role + '-' + nonce + '@example.test';
-  const secret = generateSecret(),
-    [user] = await connection.db
-      .insert(s.adminUsers)
-      .values({
-        email,
-        name: 'QA ' + role,
-        role,
-        passwordHash: await passwordHash(password),
-        totpEnabled: role === 'owner' || role === 'manager',
-      })
-      .returning();
-  if (user!.totpEnabled)
-    await connection.db
-      .update(s.adminUsers)
-      .set({ totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, user!.id) })
-      .where(eq(s.adminUsers.id, user!.id));
+  await connection.db.insert(s.adminUsers).values({
+    email,
+    name: 'QA ' + role,
+    role,
+    passwordHash: await passwordHash(password),
+  });
   const client = new Client();
   expect(
     (await client.call('/v1/admin/auth/login', 'POST', { email, password }))
       .status,
   ).toBe(200);
-  if (user!.totpEnabled)
-    expect(
-      (
-        await client.call('/v1/admin/auth/2fa/verify', 'POST', {
-          code: generateSync({ secret }),
-        })
-      ).status,
-    ).toBe(200);
   clients.set(role, client);
   return client;
 }
@@ -274,17 +262,9 @@ beforeAll(async () => {
     password,
   });
   expect(logged.status).toBe(200);
-  expect((await logged.json()).mfa_required).toBe(true);
-  expect((await owner.call('/v1/admin/requests')).status).toBe(403);
-  const twofa = await owner.call('/v1/admin/auth/2fa/setup', 'POST', {}),
-    uri = (await twofa.json()).uri as string,
-    secret = new URL(uri).searchParams.get('secret')!;
-  const enabled = await owner.call('/v1/admin/auth/2fa/enable', 'POST', {
-    code: generateSync({ secret }),
-  });
-  expect(enabled.status).toBe(200);
-  ownerRecovery = (await enabled.json()).recovery_codes;
-  expect(ownerRecovery).toHaveLength(10);
+  // Email + password is the whole sign-in (owner decision, 2026-11-25).
+  expect(Object.keys(await logged.json())).toEqual(['csrf_token']);
+  expect((await owner.call('/v1/admin/requests')).status).toBe(200);
 });
 const completeQaCopy = (text: string) =>
   Object.fromEntries(locales.map((locale) => [locale, text])) as s.Localized;
@@ -363,7 +343,6 @@ describe('runtime database privileges', () => {
         SELECT
           has_column_privilege(current_user,'admin_users','email','SELECT') AS staff_email,
           has_column_privilege(current_user,'admin_users','password_hash','SELECT') AS password_hash,
-          has_column_privilege(current_user,'admin_users','totp_secret_enc','SELECT') AS mfa_secret,
           has_column_privilege(current_user,'admin_users','role','UPDATE') AS change_role,
           has_table_privilege(current_user,'audit_log','SELECT,INSERT,UPDATE,DELETE') AS audit_access,
           has_table_privilege(current_user,'sessions','SELECT,INSERT,UPDATE,DELETE') AS sessions_access,
@@ -376,7 +355,6 @@ describe('runtime database privileges', () => {
       expect(access).toEqual({
         staff_email: true,
         password_hash: false,
-        mfa_secret: false,
         change_role: false,
         audit_access: false,
         sessions_access: false,
@@ -641,6 +619,155 @@ describe('real PostgreSQL catalog and requests', () => {
       (await app.request('/v1/public/site?locale=en&unexpected=1')).status,
     ).toBe(422);
   });
+  it('serves one multilingual search index of published content', async () => {
+    const response = await app.request('/v1/public/search-index?locale=en');
+    expect(response.status).toBe(200);
+    const body = await response.text();
+    const index = searchIndexSchema.parse(JSON.parse(body));
+    expect(gzipSync(body).length).toBeLessThanOrEqual(80 * 1024);
+    const slugs = index.entries.map((e) => e.slug);
+    expect(slugs).toContain('tiran-island-boat');
+    expect(slugs).toContain('sea');
+    expect(slugs).not.toContain('egypt-in-4-days'); // draft package
+    const site = siteSchema.parse(
+      await (await app.request('/v1/public/site?locale=en')).json(),
+    );
+    expect(index.suggested).toEqual(site.featured_trips.map((t) => t.slug));
+    // Every core language the site shows is searchable from the EN index.
+    const ru = tripSchema.parse(
+      await (
+        await app.request('/v1/public/trips/tiran-island-boat?locale=ru')
+      ).json(),
+    );
+    expect(ru.title.lang).toBe('ru');
+    const tiran = index.entries.find((e) => e.slug === 'tiran-island-boat')!;
+    expect(tiran.fields.title).toContain(normalize(ru.title.text));
+    expect(tiran.fields.keywords).toContain('جزيره تيران');
+    expect(tiran.title).toEqual({ text: 'Tiran Island by Boat', lang: 'en' });
+    // Prices come from the database, computed exactly as the trip card does
+    // (one adult, group unless the trip is private-only; null on request).
+    const everyTrip = (
+      await loadCatalog(connection.db, 'en', cfg.MEDIA_PUBLIC_URL)
+    ).trips;
+    expect(everyTrip.length).toBeGreaterThan(30);
+    for (const en of everyTrip) {
+      const slug = en.slug;
+      const card = estimateTrip(
+        en,
+        1,
+        0,
+        en.format === 'private' ? 'private' : 'group',
+      );
+      expect(index.entries.find((e) => e.slug === slug)!.from_price_eur).toBe(
+        card.onRequest ? null : card.amount,
+      );
+    }
+    const [primary] = await connection.db
+      .select()
+      .from(s.tripPrices)
+      .where(
+        and(
+          eq(s.tripPrices.isPrimary, true),
+          eq(
+            s.tripPrices.tripId,
+            sql`(select id from trips where slug = 'tiran-island-boat')`,
+          ),
+        ),
+      );
+    await connection.db
+      .update(s.tripPrices)
+      .set({ amountEur: '999' })
+      .where(eq(s.tripPrices.id, primary!.id));
+    try {
+      const repriced = searchIndexSchema.parse(
+        await (await app.request('/v1/public/search-index?locale=en')).json(),
+      );
+      expect(
+        repriced.entries.find((e) => e.slug === 'tiran-island-boat')!
+          .from_price_eur,
+      ).toBe(999);
+    } finally {
+      await connection.db
+        .update(s.tripPrices)
+        .set({ amountEur: primary!.amountEur })
+        .where(eq(s.tripPrices.id, primary!.id));
+    }
+    expect(tiran.thumb?.video).toBeUndefined();
+    expect(JSON.stringify(index)).not.toMatch(/editorial|original_path/);
+    const search = createSearch(index);
+    expect(search('isola di tiran')[0]?.slug).toBe('tiran-island-boat');
+    expect(
+      (await app.request('/v1/public/search-index?locale=zz')).status,
+    ).toBe(404);
+    expect(
+      (await app.request('/v1/public/search-index?locale=en&q=tiran')).status,
+    ).toBe(422);
+    expect(
+      (await app.request('/v1/public/search-index?locale=en&locale=it')).status,
+    ).toBe(422);
+  });
+  it('saves search keywords from the admin and searches them without a deploy', async () => {
+    const [trip] = await connection.db
+      .select()
+      .from(s.trips)
+      .where(eq(s.trips.slug, 'glass-bottom-boat'));
+    const [sea] = await connection.db
+      .select()
+      .from(s.collections)
+      .where(eq(s.collections.slug, 'sea'));
+    try {
+      const saved = await owner.call(
+        '/v1/admin/trips/' + trip!.id + '/seo',
+        'PATCH',
+        { searchKeywords: { it: ['barca di vetro'], extra: ['قارب قزاز'] } },
+      );
+      expect(saved.status).toBe(200);
+      const tooMany = await owner.call(
+        '/v1/admin/trips/' + trip!.id + '/seo',
+        'PATCH',
+        {
+          searchKeywords: {
+            en: Array.from({ length: 31 }, (_, i) => 'word' + i),
+          },
+        },
+      );
+      expect(tooMany.status).toBe(422);
+      const duplicate = await owner.call(
+        '/v1/admin/collections/' + sea!.id,
+        'PATCH',
+        { searchKeywords: { en: ['Reef', 'reef'] } },
+      );
+      expect(duplicate.status).toBe(422);
+      expect(
+        (
+          await owner.call('/v1/admin/collections/' + sea!.id, 'PATCH', {
+            searchKeywords: { en: ['underwater world'] },
+          })
+        ).status,
+      ).toBe(200);
+      const after = await owner.call('/v1/admin/trips/' + trip!.id, 'GET');
+      expect((await after.json()).trip.searchKeywords).toEqual({
+        it: ['barca di vetro'],
+        extra: ['قارب قزاز'],
+      });
+      const search = createSearch(
+        searchIndexSchema.parse(
+          await (await app.request('/v1/public/search-index?locale=en')).json(),
+        ),
+      );
+      expect(search('قارب قزاز')[0]?.slug).toBe('glass-bottom-boat');
+      expect(search('underwater world').map((e) => e.slug)).toContain('sea');
+    } finally {
+      await connection.db
+        .update(s.trips)
+        .set({ searchKeywords: trip!.searchKeywords })
+        .where(eq(s.trips.id, trip!.id));
+      await connection.db
+        .update(s.collections)
+        .set({ searchKeywords: sea!.searchKeywords })
+        .where(eq(s.collections.id, sea!.id));
+    }
+  });
   it('rejects an incomplete live hero edit and keeps legacy slides from blocking bookings', async () => {
     const [hero] = await connection.db
       .select()
@@ -687,6 +814,40 @@ describe('real PostgreSQL catalog and requests', () => {
         .set({ headline: hero!.headline, collectionId: hero!.collectionId })
         .where(eq(s.heroSlides.id, hero!.id));
     }
+  });
+  it('hands Italian, Russian and Turkish requests to the second WhatsApp line', async () => {
+    for (const [locale, digits] of [
+      ['it', '201008605904'],
+      ['ru', '201008605904'],
+      ['tr', '201008605904'],
+      ['de', '201069012881'],
+    ]) {
+      const response = await submit(booking({ locale }));
+      expect(response.status).toBe(201);
+      expect((await response.json()).whatsapp_url).toMatch(
+        new RegExp('^https://wa\\.me/' + digits + '\\?text='),
+      );
+    }
+  });
+  it('stores the currency an English visitor saw and euros for every other language', async () => {
+    for (const [locale, currency, stored] of [
+      ['en', 'GBP', 'GBP'],
+      ['en', 'USD', 'USD'],
+      ['en', undefined, 'EUR'],
+      ['it', 'USD', 'EUR'],
+    ] as const) {
+      const response = await submit(
+        booking({ locale, ...(currency ? { currency } : {}) }),
+      );
+      expect(response.status).toBe(201);
+      const { ref } = await response.json();
+      const [row] = await connection.db
+        .select({ currency: s.bookingRequests.currency })
+        .from(s.bookingRequests)
+        .where(eq(s.bookingRequests.ref, ref));
+      expect(row?.currency).toBe(stored);
+    }
+    expect((await submit(booking({ currency: 'EGP' }))).status).toBe(422);
   });
   it('recomputes prices, ignores day hints, persists snapshots and queues an ID-only notification atomically', async () => {
     const response = await submit(booking());
@@ -1228,46 +1389,32 @@ describe('real PostgreSQL catalog and requests', () => {
   });
 });
 describe('admin security and real mutations', () => {
-  it('prevents TOTP replay and consumes a recovery code once under concurrent requests', async () => {
-    const id = randomUUID(),
-      secret = generateSecret(),
-      email = 'mfa-' + nonce + '@example.test',
-      recovery = 'QA-' + randomBytes(16).toString('hex');
-    await connection.db.insert(s.adminUsers).values({
-      id,
-      email,
-      name: 'MFA QA',
-      role: 'editor',
-      passwordHash: await passwordHash(password),
-      totpEnabled: true,
-      totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, id),
-      recoveryCodesHash: [sha(recovery)],
-    });
-    const first = new Client(),
-      second = new Client();
-    for (const client of [first, second])
+  it('signs in with email and password only and no longer serves two-step endpoints', async () => {
+    const client = await login('editor');
+    expect((await client.call('/v1/admin/trips')).status).toBe(200);
+    const me = await (await client.call('/v1/admin/me')).json();
+    expect(me).not.toHaveProperty('mfa_passed');
+    expect(me).not.toHaveProperty('totp_enabled');
+    for (const path of ['setup', 'enable', 'verify'])
       expect(
-        (await client.call('/v1/admin/auth/login', 'POST', { email, password }))
-          .status,
-      ).toBe(200);
-    const code = generateSync({ secret });
+        (
+          await client.call('/v1/admin/auth/2fa/' + path, 'POST', {
+            code: '123456',
+          })
+        ).status,
+      ).toBe(404);
+    // Reauthentication takes the password alone.
     expect(
-      (await first.call('/v1/admin/auth/2fa/verify', 'POST', { code })).status,
+      (
+        await client.call('/v1/admin/auth/reauth', 'POST', {
+          password,
+          code: '123456',
+        })
+      ).status,
+    ).toBe(422);
+    expect(
+      (await client.call('/v1/admin/auth/reauth', 'POST', { password })).status,
     ).toBe(200);
-    expect(
-      (await second.call('/v1/admin/auth/2fa/verify', 'POST', { code })).status,
-    ).toBe(401);
-    const third = new Client();
-    expect(
-      (await third.call('/v1/admin/auth/login', 'POST', { email, password }))
-        .status,
-    ).toBe(200);
-    const results = await Promise.all(
-      [second, third].map((client) =>
-        client.call('/v1/admin/auth/2fa/verify', 'POST', { code: recovery }),
-      ),
-    );
-    expect(results.map((r) => r.status).sort()).toEqual([200, 401]);
   });
   it('uses secure host-only cookies and stores only session hashes', async () => {
     const client = await login('sales');
@@ -1895,12 +2042,7 @@ describe('admin security and real mutations', () => {
       403,
     );
     expect(
-      (
-        await owner.call('/v1/admin/auth/reauth', 'POST', {
-          password,
-          code: ownerRecovery[0],
-        })
-      ).status,
+      (await owner.call('/v1/admin/auth/reauth', 'POST', { password })).status,
     ).toBe(200);
     const request = await submit(
       booking({ phone: '+201055500111', name: '=SUM(1,2)' }),
@@ -2113,8 +2255,7 @@ describe('security-session regression cases', () => {
       .delete(s.pageBlocks)
       .where(eq(s.pageBlocks.pageKey, 'privacy'));
   });
-  async function account(role: (typeof roles)[number] = 'editor', mfa = false) {
-    const secret = generateSecret();
+  async function account(role: (typeof roles)[number] = 'editor') {
     const [user] = await connection.db
       .insert(s.adminUsers)
       .values({
@@ -2122,14 +2263,8 @@ describe('security-session regression cases', () => {
         name: 'Security QA',
         role,
         passwordHash: await passwordHash(password),
-        totpEnabled: mfa,
       })
       .returning();
-    if (mfa)
-      await connection.db
-        .update(s.adminUsers)
-        .set({ totpSecretEnc: seal(secret, cfg.TOTP_ENC_KEY, user!.id) })
-        .where(eq(s.adminUsers.id, user!.id));
     const client = new Client();
     expect(
       (
@@ -2139,20 +2274,10 @@ describe('security-session regression cases', () => {
         })
       ).status,
     ).toBe(200);
-    return { user: user!, secret, client };
+    return { user: user!, client };
   }
-  async function dashboardAccount(role: (typeof roles)[number] = 'owner') {
-    const result = await account(role, role === 'owner' || role === 'manager');
-    if (result.user.totpEnabled)
-      expect(
-        (
-          await result.client.call('/v1/admin/auth/2fa/verify', 'POST', {
-            code: generateSync({ secret: result.secret }),
-          })
-        ).status,
-      ).toBe(200);
-    return result;
-  }
+  const dashboardAccount = (role: (typeof roles)[number] = 'owner') =>
+    account(role);
   it('undoes new and duplicated trips by archiving and preserves seven-language translation provenance', async () => {
     const manager = await dashboardAccount('manager'),
       [collection] = await connection.db.select().from(s.collections).limit(1);
@@ -2410,16 +2535,9 @@ describe('security-session regression cases', () => {
       ).status,
     ).toBe(200);
   });
-  it('lets the owner require MFA for optional roles and immediately revokes their existing sessions', async () => {
+  it('rejects the removed two-step requirement on staff accounts', async () => {
     const owner = await dashboardAccount(),
       editor = await dashboardAccount('editor');
-    expect(
-      (
-        await owner.client.call('/v1/admin/users/' + editor.user.id, 'PATCH', {
-          mfaRequired: true,
-        })
-      ).status,
-    ).toBe(403);
     await connection.db
       .update(s.sessions)
       .set({ reauthAt: new Date() })
@@ -2430,14 +2548,8 @@ describe('security-session regression cases', () => {
           mfaRequired: true,
         })
       ).status,
-    ).toBe(200);
-    expect((await editor.client.call('/v1/admin/me')).status).toBe(401);
-    const response = await editor.client.call('/v1/admin/auth/login', 'POST', {
-      email: editor.user.email,
-      password,
-    });
-    expect((await response.json()).enrollment_required).toBe(true);
-    expect((await editor.client.call('/v1/admin/trips')).status).toBe(403);
+    ).toBe(422);
+    expect((await editor.client.call('/v1/admin/trips')).status).toBe(200);
   });
   it('keeps code-managed review rows read-only and blocks publication with incomplete core copy', async () => {
     const queue = await owner.call('/v1/admin/i18n/queue?locale=fr&entity=ui');
@@ -2500,6 +2612,15 @@ describe('security-session regression cases', () => {
           await app.request('/v1/public/trips/' + trip!.slug + '?locale=fr')
         ).json(),
       );
+    const queue = async () => {
+      const response = await owner.call('/v1/admin/i18n/queue?locale=fr');
+      expect(response.status).toBe(200);
+      return (await response.json()) as Array<{
+        entity: string;
+        id: string;
+        field: string;
+      }>;
+    };
     for (const [entity, id, field, source, read] of [
       [
         'trip',
@@ -2527,6 +2648,9 @@ describe('security-session regression cases', () => {
       ],
     ] as const) {
       const before = read(await publicTrip());
+      const matchesTime = (row: Awaited<ReturnType<typeof queue>>[number]) =>
+        row.entity === entity && row.id === id && row.field === field;
+      const wasQueued = (await queue()).some(matchesTime);
       const text = 'Heure de contrôle ' + source;
       const response = await owner.call('/v1/admin/i18n/review', 'POST', {
         entity,
@@ -2538,6 +2662,7 @@ describe('security-session regression cases', () => {
       });
       expect(response.status).toBe(200);
       expect(read(await publicTrip())).toContain(text);
+      expect((await queue()).some(matchesTime)).toBe(false);
       const revision = response.headers
         .get('X-Stella-Revisions')!
         .split(',')[0];
@@ -2551,6 +2676,7 @@ describe('security-session regression cases', () => {
         ).status,
       ).toBe(200);
       expect(read(await publicTrip())).toEqual(before);
+      expect((await queue()).some(matchesTime)).toBe(wasQueued);
     }
   });
   it('stages editor translation reviews, publishes only with manager authority and undoes the exact field', async () => {
@@ -2941,48 +3067,6 @@ describe('security-session regression cases', () => {
       ).length,
     ).toBe(0);
   });
-  it('requires a recent password check before optional-MFA secret enrollment', async () => {
-    const { client } = await account();
-    expect(
-      (await client.call('/v1/admin/auth/2fa/setup', 'POST', {})).status,
-    ).toBe(403);
-    expect(
-      (await client.call('/v1/admin/auth/reauth', 'POST', { password })).status,
-    ).toBe(200);
-    expect(
-      (await client.call('/v1/admin/auth/2fa/setup', 'POST', {})).status,
-    ).toBe(200);
-  });
-  it('does not resurrect a revoked pending session while an MFA check waits for the user lock', async () => {
-    const { user, client, secret } = await account('manager', true);
-    const blocker = await connection.pool.connect();
-    let pending: Promise<Response> | undefined;
-    try {
-      await blocker.query('begin');
-      await blocker.query('select id from admin_users where id=$1 for update', [
-        user.id,
-      ]);
-      pending = client.call('/v1/admin/auth/2fa/verify', 'POST', {
-        code: generateSync({ secret }),
-      });
-      await blockedOnUser();
-      await blocker.query('delete from sessions where user_id=$1', [user.id]);
-      await blocker.query('commit');
-      expect((await pending).status).toBe(401);
-      expect(
-        (
-          await connection.db
-            .select()
-            .from(s.sessions)
-            .where(eq(s.sessions.userId, user.id))
-        ).length,
-      ).toBe(0);
-    } finally {
-      await blocker.query('rollback');
-      blocker.release();
-      await pending;
-    }
-  });
   it('does not complete a login checked against a password replaced concurrently', async () => {
     const { user } = await account();
     const changed = await passwordHash(randomBytes(24).toString('base64url'));
@@ -3020,23 +3104,8 @@ describe('security-session regression cases', () => {
       await pending;
     }
   });
-  it('registers a device only after MFA, suppresses repeat alerts and supplies all seven email copies without raw secrets', async () => {
-    const { user, client, secret } = await account('manager', true);
-    expect(
-      (
-        await connection.db
-          .select()
-          .from(s.adminDevices)
-          .where(eq(s.adminDevices.userId, user.id))
-      ).length,
-    ).toBe(0);
-    expect(
-      (
-        await client.call('/v1/admin/auth/2fa/verify', 'POST', {
-          code: generateSync({ secret }),
-        })
-      ).status,
-    ).toBe(200);
+  it('registers a device at login, suppresses repeat alerts and supplies all seven email copies without raw secrets', async () => {
+    const { user, client } = await account('manager');
     const raw = client.cookies.get('__Host-stella_device')!;
     const [device] = await connection.db
       .select()
@@ -3059,15 +3128,7 @@ describe('security-session regression cases', () => {
       );
       expect(messages).toHaveLength(1);
       expect(messages[0]!.text).not.toContain(raw);
-      expect(messages[0]!.text).not.toContain(secret);
     }
-    expect(
-      (
-        await client.call('/v1/admin/auth/2fa/verify', 'POST', {
-          code: generateSync({ secret }),
-        })
-      ).status,
-    ).toBe(409);
     const { user: editor, client: first } = await account();
     expect(
       (
@@ -3132,14 +3193,7 @@ describe('security-session regression cases', () => {
         })
       ).status,
     ).toBe(403);
-    const { client, user, secret } = await account('manager', true);
-    expect(
-      (
-        await client.call('/v1/admin/auth/2fa/verify', 'POST', {
-          code: generateSync({ secret }),
-        })
-      ).status,
-    ).toBe(200);
+    const { client } = await account('manager');
     expect(
       (
         await client.call('/v1/admin/privacy/requests/export', 'POST', {
@@ -3147,18 +3201,8 @@ describe('security-session regression cases', () => {
         })
       ).status,
     ).toBe(403);
-    const recovery = randomBytes(10).toString('hex');
-    await connection.db
-      .update(s.adminUsers)
-      .set({ recoveryCodesHash: [sha(recovery)] })
-      .where(eq(s.adminUsers.id, user.id));
     expect(
-      (
-        await client.call('/v1/admin/auth/reauth', 'POST', {
-          password,
-          code: recovery,
-        })
-      ).status,
+      (await client.call('/v1/admin/auth/reauth', 'POST', { password })).status,
     ).toBe(200);
     const exported = await client.call(
       '/v1/admin/privacy/requests/export',
@@ -3171,7 +3215,7 @@ describe('security-session regression cases', () => {
     expect(payload.requests[0].notes).toBe('private erasure note');
     expect(payload.requests[0].items).toHaveLength(1);
     expect(JSON.stringify(payload)).not.toMatch(
-      /ipHash|userAgent|passwordHash|totpSecret/,
+      /ipHash|userAgent|passwordHash/,
     );
     expect(
       (await client.call('/v1/admin/privacy/requests/erase', 'POST', { phone }))
@@ -3794,6 +3838,15 @@ describe('media, notifications, jobs and translation privacy', () => {
     expect(
       payloads.every(({ locale }) => locale === 'pl' || locale === 'ar'),
     ).toBe(true);
+    // Enabled auto languages become searchable, and show in their language.
+    const autoIndex = searchIndexSchema.parse(
+      await (await app.request('/v1/public/search-index?locale=pl')).json(),
+    );
+    const autoTiran = autoIndex.entries.find(
+      (e) => e.slug === 'tiran-island-boat',
+    )!;
+    expect(autoTiran.title.lang).toBe('pl');
+    expect(autoTiran.fields.title).toContain('pl tiran island by boat');
     const [privateCollection] = await connection.db
       .select()
       .from(s.collections)

@@ -32,7 +32,6 @@ export const loginSchema = z.strictObject({
   email: z.email().max(254),
   password: z.string().min(1).max(256),
 });
-export const otpSchema = z.strictObject({ code: z.string().min(6).max(64) });
 export const resetRequestSchema = z.strictObject({ email: z.email().max(254) });
 export const privacyRequestSchema = z.strictObject({
   phone: z.string().regex(/^\+[1-9]\d{7,14}$/),
@@ -44,10 +43,7 @@ export const passwordTokenSchema = z.strictObject({
   token: z.string().regex(/^[A-Za-z0-9_-]{43}$/),
   password: z.string().min(12).max(256),
 });
-export const reauthSchema = loginSchema
-  .pick({ password: true })
-  .extend({ code: z.string().min(6).max(64).optional() })
-  .strict();
+export const reauthSchema = loginSchema.pick({ password: true }).strict();
 export const basicsSchema = z.strictObject({
   title: localizedSchema.optional(),
   slug: z
@@ -87,7 +83,27 @@ export const scheduleSchema = z.strictObject({
   overnight: z.boolean().optional(),
   onRequest: z.boolean().optional(),
 });
+const keywordList = z
+  .array(z.string().trim().min(1).max(60))
+  .max(30)
+  .refine(
+    (words) =>
+      new Set(words.map((w) => w.toLocaleLowerCase())).size === words.length,
+    { message: 'DUPLICATE_KEYWORD' },
+  );
+/** Words visitors type to find a trip; matching aid only, never shown. */
+export const searchKeywordsSchema = z.strictObject({
+  en: keywordList.optional(),
+  it: keywordList.optional(),
+  es: keywordList.optional(),
+  fr: keywordList.optional(),
+  de: keywordList.optional(),
+  ru: keywordList.optional(),
+  tr: keywordList.optional(),
+  extra: keywordList.optional(),
+});
 export const seoSchema = z.strictObject({
+  searchKeywords: searchKeywordsSchema.nullable().optional(),
   seoTitle: localizedSchema.nullable().optional(),
   seoDescription: localizedSchema.nullable().optional(),
 });
@@ -214,4 +230,5 @@ export const collectionEditSchema = z.strictObject({
     .array(z.strictObject({ title: localizedSchema, sub: localizedSchema }))
     .max(4)
     .optional(),
+  searchKeywords: searchKeywordsSchema.nullable().optional(),
 });

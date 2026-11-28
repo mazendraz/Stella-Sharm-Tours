@@ -75,7 +75,7 @@ try {
     ).href +
       '\n\nEmail: ' +
       ownerEmail +
-      '\nSingle use; expires in 30 minutes. Set your own password, enroll MFA, and store recovery codes privately.\n',
+      '\nSingle use; expires in 30 minutes. Set your own password and keep it private.\n',
     { mode: 0o600 },
   );
   console.log(

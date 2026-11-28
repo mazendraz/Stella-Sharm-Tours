@@ -12,19 +12,29 @@ import { TripCard } from './trip-card';
 import { money, track } from '@/lib/links';
 import { useTripStore } from './store';
 import { estimateTrip } from '@stella/shared/price';
+import { useCurrency } from './currency';
+type Group = Pick<
+  CollectionDetail['collection'],
+  'slug' | 'name' | 'short_name' | 'color'
+>;
 export function CollectionView({
   data,
   preview = false,
 }: {
-  data: CollectionDetail;
+  data: CollectionDetail & { groups?: Group[] };
   preview?: boolean;
 }) {
+  const currency = useCurrency();
   const { collection: c, trips, combo } = data,
     t = useTranslations(),
     locale = useLocale();
   const hero = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
+  // Lets the floating WhatsApp button name this collection in its message.
+  useEffect(() => {
+    if (!preview) useTripStore.getState().nameCollection(c.slug, c.name);
+  }, [c.slug, c.name, preview]);
   useEffect(() => {
     const node = hero.current;
     const scroller = node?.closest('.panel-scroll');
@@ -71,6 +81,27 @@ export function CollectionView({
         ? Number(b.format === 'private') - Number(a.format === 'private')
         : 0,
     );
+  // "All of Egypt": every trip, one section per collection, with chips to
+  // narrow it to one collection.
+  const sections =
+    c.kind === 'packages' && data.groups?.length
+      ? data.groups.flatMap((g) => {
+          const list = trips.filter((tr) => tr.collection === g.slug);
+          return list.length
+            ? [
+                {
+                  ...g,
+                  title: g.slug === c.slug ? c.short_name : g.name,
+                  label: g.slug === c.slug ? c.short_name : g.short_name,
+                  trips: list,
+                },
+              ]
+            : [];
+        })
+      : null;
+  const visibleSections = sections?.filter(
+    (g) => filter === 'all' || filter === 'g:' + g.slug,
+  );
   return (
     <article
       data-collection-ready={ready}
@@ -107,7 +138,7 @@ export function CollectionView({
               <bdi>
                 {c.min_price_eur === null
                   ? t('onRequest')
-                  : money(c.min_price_eur, locale)}
+                  : money(c.min_price_eur, locale, currency)}
               </bdi>
             </b>
             <span>{t('prices')}</span>
@@ -171,11 +202,57 @@ export function CollectionView({
             ))}
           </div>
         )}
-        <div className="trip-grid">
-          {shown.map((trip) => (
-            <TripCard key={trip.slug} trip={trip} privateMode={privateMode} />
-          ))}
-        </div>
+        {sections && visibleSections ? (
+          <>
+            <div className="filter-row" role="group" aria-label={t('journeys')}>
+              {[
+                { key: 'all', label: t('all') },
+                ...sections.map((g) => ({
+                  key: 'g:' + g.slug,
+                  label: g.label.text,
+                  count: g.trips.length,
+                })),
+              ].map((f) => (
+                <button
+                  className={'chip ' + (filter === f.key ? 'active' : '')}
+                  key={f.key}
+                  aria-pressed={filter === f.key}
+                  onClick={() => setFilter(f.key)}
+                >
+                  {f.label}
+                  {'count' in f && (
+                    <span className="chip-count">{f.count}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            {visibleSections.map((g) => (
+              <section
+                key={g.slug}
+                className="all-group"
+                aria-labelledby={'group-' + g.slug}
+                style={{ '--group': g.color } as React.CSSProperties}
+              >
+                <h2 id={'group-' + g.slug}>
+                  <span className="all-group-dot" aria-hidden="true" />
+                  <Content value={g.title} />
+                  <small>{g.trips.length}</small>
+                </h2>
+                <div className="trip-grid">
+                  {g.trips.map((trip) => (
+                    <TripCard key={trip.slug} trip={trip} privateMode={false} />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </>
+        ) : (
+          <div className="trip-grid">
+            {shown.map((trip) => (
+              <TripCard key={trip.slug} trip={trip} privateMode={privateMode} />
+            ))}
+          </div>
+        )}
         {!shown.length && c.kind !== 'packages' && (
           <div className="empty-filter">
             <p>{t('emptyFilter')}</p>
@@ -196,7 +273,7 @@ export function CollectionView({
                 <bdi>
                   {estimateTrip(combo, 1).onRequest
                     ? t('onRequest')
-                    : money(estimateTrip(combo, 1).amount, locale)}
+                    : money(estimateTrip(combo, 1).amount, locale, currency)}
                 </bdi>
               </strong>
             </p>

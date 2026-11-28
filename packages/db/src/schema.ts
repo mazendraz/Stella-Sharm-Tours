@@ -20,11 +20,11 @@ import {
 } from 'drizzle-orm/pg-core';
 import type { Locale } from '@stella/shared';
 import type { Confirmation } from '@stella/shared/booking';
+import type { SearchKeywords } from '@stella/shared/search';
 export type Localized = { en: string } & Partial<
   Record<Locale, string | undefined>
 >;
 const citext = customType<{ data: string }>({ dataType: () => 'citext' });
-const bytea = customType<{ data: Buffer }>({ dataType: () => 'bytea' });
 const id = () => uuid('id').primaryKey().defaultRandom();
 const created = () =>
   timestamp('created_at', { withTimezone: true }).notNull().defaultNow();
@@ -43,11 +43,6 @@ export const adminUsers = pgTable(
     role: text('role', {
       enum: ['owner', 'manager', 'editor', 'sales'],
     }).notNull(),
-    totpSecretEnc: bytea('totp_secret_enc'),
-    totpEnabled: boolean('totp_enabled').notNull().default(false),
-    mfaRequired: boolean('mfa_required').notNull().default(false),
-    recoveryCodesHash: text('recovery_codes_hash').array(),
-    lastTotpStep: bigint('last_totp_step', { mode: 'number' }),
     failedLogins: integer('failed_logins').notNull().default(0),
     lockedUntil: timestamp('locked_until', { withTimezone: true }),
     lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
@@ -171,6 +166,7 @@ export const collections = pgTable(
     headline: localized('headline'),
     subline: localized('subline'),
     perks: jsonb('perks').$type<{ title: Localized; sub: Localized }[]>(),
+    searchKeywords: jsonb('search_keywords').$type<SearchKeywords>(),
     color: text('color').notNull().default('#1B1712'),
     coverMediaId: uuid('cover_media_id').references(() => media.id),
     heroVideoId: uuid('hero_video_id').references(() => media.id),
@@ -230,6 +226,7 @@ export const trips = pgTable(
     editorialNotes: jsonb('editorial_notes').$type<string[]>(),
     seoTitle: localized('seo_title'),
     seoDescription: localized('seo_description'),
+    searchKeywords: jsonb('search_keywords').$type<SearchKeywords>(),
     featuredOrder: smallint('featured_order'),
     sort: integer('sort').notNull().default(0),
     status: text('status', { enum: ['draft', 'published', 'hidden'] })
@@ -439,16 +436,29 @@ export const faqs = pgTable('faqs', {
     .default('published'),
   archivedAt: archived(),
 });
-export const reviews = pgTable('reviews', {
-  id: id(),
-  author: text('author'),
-  text: localized('text'),
-  source: text('source'),
-  sourceUrl: text('source_url').notNull(),
-  rating: smallint('rating'),
-  visitMonth: date('visit_month'),
-  status: text('status').notNull().default('hidden'),
-});
+// Real third-party reviews (Google). `text` holds one key: the original
+// language (or 'und'), verbatim — reviews are quoted, never translated.
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: id(),
+    author: text('author'),
+    text: jsonb('text').$type<Record<string, string>>(),
+    source: text('source'),
+    sourceUrl: text('source_url').notNull(),
+    rating: smallint('rating'),
+    visitMonth: date('visit_month'),
+    status: text('status').notNull().default('hidden'),
+    // Google review id; the import key. NULLs stay distinct in PostgreSQL.
+    externalId: text('external_id').unique(),
+    lang: text('lang'),
+    featured: boolean('featured').notNull().default(false),
+    sort: integer('sort').notNull().default(0),
+    edited: boolean('edited').notNull().default(false),
+    capturedAt: timestamp('captured_at', { withTimezone: true }),
+  },
+  (t) => [index('reviews_published_order').on(t.status, t.featured, t.sort)],
+);
 export const bookingRequests = pgTable(
   'booking_requests',
   {
@@ -469,6 +479,10 @@ export const bookingRequests = pgTable(
     email: text('email'),
     notes: text('notes'),
     estimateEur: numeric('estimate_eur', { precision: 10, scale: 2 }),
+    // Sign shown to the customer (owner 2026-11-26); the amount is unchanged.
+    currency: text('currency', { enum: ['EUR', 'GBP', 'USD'] })
+      .notNull()
+      .default('EUR'),
     status: text('status', {
       enum: ['new', 'contacted', 'confirmed', 'completed', 'cancelled', 'spam'],
     })
@@ -495,6 +509,7 @@ export const bookingRequests = pgTable(
     ),
     check('request_mode', sql`${t.mode} in ('single','multi')`),
     check('request_format', sql`${t.format} in ('group','private')`),
+    check('request_currency', sql`${t.currency} in ('EUR','GBP','USD')`),
   ],
 );
 export const bookingRequestReceipts = pgTable(
@@ -548,7 +563,6 @@ export const sessions = pgTable(
       .defaultNow(),
     ipHash: text('ip_hash'),
     userAgent: text('user_agent'),
-    mfaPassed: boolean('mfa_passed').notNull().default(false),
     reauthAt: timestamp('reauth_at', { withTimezone: true }),
   },
   (t) => [index('sessions_user').on(t.userId)],

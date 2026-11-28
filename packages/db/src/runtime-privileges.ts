@@ -7,6 +7,7 @@ const apiGrants = [
   'SELECT, INSERT, DELETE ON auth_tokens, package_items, trip_media',
   'SELECT, INSERT ON audit_log, booking_request_items, booking_request_receipts, revisions',
   'SELECT, INSERT, UPDATE ON privacy_erasures',
+  'SELECT, UPDATE ON reviews',
   'SELECT ON public_media_renditions, translation_usage',
   'INSERT ON outbox',
 ] as const;

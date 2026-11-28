@@ -28,6 +28,12 @@ import { useConfirm } from '../components/ui/dialog';
 import type { MenuItem } from '../components/ui/menu';
 import { CreateDialog } from '../components/create-dialog';
 import { HistorySection } from '../components/history';
+import type { SearchKeywords } from '@stella/shared/search';
+import {
+  SearchKeywordsField,
+  keywordsFrom,
+  keywordsOut,
+} from '../components/search-keywords';
 
 const typeKey = (kind: unknown) =>
   kind === 'private_virtual'
@@ -274,6 +280,7 @@ type CollectionState = {
   };
   media: { coverMediaId: string | null; heroVideoId: string | null };
   perks: { items: Perk[] };
+  search: { keywords: SearchKeywords };
 };
 
 export function CollectionEditor({ id }: { id: string }) {
@@ -314,9 +321,15 @@ export function CollectionEditor({ id }: { id: string }) {
           sub: loc(p.sub, translations.data!, `perks[${i}].sub`),
         })),
       },
+      search: { keywords: keywordsFrom(row.searchKeywords) },
     };
   }, [row?.updatedAt, translations.dataUpdatedAt, !!row]);
-  const labels = { basics: t('basics'), media: t('media'), perks: t('perks') };
+  const labels = {
+    basics: t('basics'),
+    media: t('media'),
+    perks: t('perks'),
+    search: t('searchKeywords'),
+  };
   const isVirtual = row?.kind === 'private_virtual';
   const patch = async (body: unknown) =>
     (await write('/v1/admin/collections/' + id, 'PATCH', body)).revisions;
@@ -324,7 +337,7 @@ export function CollectionEditor({ id }: { id: string }) {
     id: 'collection-' + id,
     initial,
     sourceKey: String(row?.updatedAt) + translations.dataUpdatedAt,
-    order: ['basics', 'media', 'perks'],
+    order: ['basics', 'media', 'perks', 'search'],
     labels,
     success: t('collectionSaved'),
     afterSave: () => Promise.all([list.refetch(), translations.refetch()]),
@@ -350,6 +363,7 @@ export function CollectionEditor({ id }: { id: string }) {
             sub: locOut(p.sub),
           })),
         }),
+      search: (v) => patch({ searchKeywords: keywordsOut(v.keywords) }),
     },
   });
   if (list.isError)
@@ -561,6 +575,16 @@ export function CollectionEditor({ id }: { id: string }) {
                     max={4}
                     onChange={(items) => editor.set('perks', { items })}
                     showErrors={editor.showErrors}
+                  />
+                ),
+              },
+              {
+                id: 'search',
+                label: labels.search,
+                content: (
+                  <SearchKeywordsField
+                    value={v.search.keywords}
+                    onChange={(keywords) => editor.set('search', { keywords })}
                   />
                 ),
               },

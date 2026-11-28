@@ -21,7 +21,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: audit.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: audit.",
         "security": [
           {
             "AdminSession": []
@@ -73,7 +73,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -140,7 +140,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: prices.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: prices.",
         "security": [
           {
             "AdminSession": []
@@ -216,7 +216,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -283,7 +283,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -335,7 +335,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -402,7 +402,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: prices.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: prices.",
         "security": [
           {
             "AdminSession": []
@@ -454,7 +454,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -521,7 +521,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -584,7 +584,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -651,7 +651,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -723,7 +723,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -790,7 +790,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: translations.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: translations.",
         "security": [
           {
             "AdminSession": []
@@ -875,7 +875,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -942,7 +942,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: translations.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: translations.",
         "security": [
           {
             "AdminSession": []
@@ -1055,7 +1055,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1122,7 +1122,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -1195,7 +1195,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1262,7 +1262,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -1326,7 +1326,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1391,7 +1391,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -1467,7 +1467,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1534,7 +1534,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -1586,7 +1586,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1653,7 +1653,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -1763,7 +1763,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1828,7 +1828,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -1900,7 +1900,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1967,7 +1967,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -2019,7 +2019,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -2084,7 +2084,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -2594,7 +2594,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -2736,7 +2736,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -2872,7 +2872,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -3013,7 +3013,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -3154,418 +3154,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation or business rule rejected",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/admin/auth/2fa/setup": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
-        "security": [
-          {
-            "AdminSession": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {},
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Validated admin result; sensitive auth and IP fields are excluded",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "201": {
-            "description": "Created draft or user"
-          },
-          "202": {
-            "description": "Accepted for processing"
-          },
-          "401": {
-            "description": "Authentication failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation or business rule rejected",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/admin/auth/2fa/enable": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
-        "security": [
-          {
-            "AdminSession": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "minLength": 6,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "code"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Validated admin result; sensitive auth and IP fields are excluded",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "201": {
-            "description": "Created draft or user"
-          },
-          "202": {
-            "description": "Accepted for processing"
-          },
-          "401": {
-            "description": "Authentication failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation or business rule rejected",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/admin/auth/2fa/verify": {
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
-        "security": [
-          {
-            "AdminSession": []
-          }
-        ],
-        "requestBody": {
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "minLength": 6,
-                    "maxLength": 64
-                  }
-                },
-                "required": [
-                  "code"
-                ],
-                "additionalProperties": false
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Validated admin result; sensitive auth and IP fields are excluded",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "201": {
-            "description": "Created draft or user"
-          },
-          "202": {
-            "description": "Accepted for processing"
-          },
-          "401": {
-            "description": "Authentication failed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "object",
-                      "properties": {
-                        "code": {
-                          "type": "string"
-                        },
-                        "message": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "code",
-                        "message"
-                      ]
-                    }
-                  },
-                  "required": [
-                    "error"
-                  ]
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -3632,7 +3221,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -3649,11 +3238,6 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 256
-                  },
-                  "code": {
-                    "type": "string",
-                    "minLength": 6,
-                    "maxLength": 64
                   }
                 },
                 "required": [
@@ -3710,7 +3294,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -3777,7 +3361,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -3841,7 +3425,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -3908,7 +3492,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -3972,7 +3556,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4039,7 +3623,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: export.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: export.",
         "security": [
           {
             "AdminSession": []
@@ -4111,7 +3695,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4178,7 +3762,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: export.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: export.",
         "security": [
           {
             "AdminSession": []
@@ -4257,7 +3841,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4324,7 +3908,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -4376,7 +3960,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4441,7 +4025,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -4514,7 +4098,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4581,7 +4165,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -4633,7 +4217,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4700,7 +4284,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -4786,7 +4370,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4853,7 +4437,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -4929,7 +4513,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -4996,7 +4580,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: export.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: export.",
         "security": [
           {
             "AdminSession": []
@@ -5143,7 +4727,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -5210,7 +4794,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -5328,7 +4912,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -5395,7 +4979,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -5540,7 +5124,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -5607,7 +5191,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -5671,7 +5255,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -5736,7 +5320,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: requests.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: requests.",
         "security": [
           {
             "AdminSession": []
@@ -5838,7 +5422,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -5905,7 +5489,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -6000,7 +5584,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -6065,7 +5649,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -6301,7 +5885,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -6368,7 +5952,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -6432,7 +6016,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -6499,7 +6083,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -6758,7 +6342,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -6825,7 +6409,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -7068,7 +6652,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -7135,7 +6719,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -7349,7 +6933,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -7416,7 +7000,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -7441,6 +7025,87 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "searchKeywords": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "it": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "es": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "fr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "de": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "ru": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "tr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "extra": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      }
+                    },
+                    "additionalProperties": false
+                  },
                   "seoTitle": {
                     "type": [
                       "object",
@@ -7575,7 +7240,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -7642,7 +7307,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: prices.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: prices.",
         "security": [
           {
             "AdminSession": []
@@ -7841,7 +7506,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -7908,7 +7573,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -8051,7 +7716,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8118,7 +7783,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -8271,7 +7936,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8338,7 +8003,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -8444,7 +8109,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8511,7 +8176,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -8587,7 +8252,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8654,7 +8319,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -8730,7 +8395,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8797,7 +8462,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -8873,7 +8538,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -8940,7 +8605,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -9016,7 +8681,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9083,7 +8748,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -9164,7 +8829,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9231,7 +8896,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -9308,7 +8973,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9375,7 +9040,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: prices.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: prices.",
         "security": [
           {
             "AdminSession": []
@@ -9491,7 +9156,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9558,7 +9223,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: prices.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: prices.",
         "security": [
           {
             "AdminSession": []
@@ -9633,7 +9298,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9700,7 +9365,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -9766,7 +9431,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -9831,7 +9496,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -10113,6 +9778,87 @@
                     },
                     "maxItems": 4
                   },
+                  "searchKeywords": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "it": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "es": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "fr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "de": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "ru": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "tr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "extra": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      }
+                    },
+                    "additionalProperties": false
+                  },
                   "slug": {
                     "type": "string",
                     "pattern": "^[a-z0-9-]{1,120}$"
@@ -10173,7 +9919,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -10240,7 +9986,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -10316,7 +10062,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -10383,7 +10129,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -10459,7 +10205,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -10526,7 +10272,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -10602,7 +10348,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -10669,7 +10415,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -10962,6 +10708,87 @@
                       "additionalProperties": false
                     },
                     "maxItems": 4
+                  },
+                  "searchKeywords": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "en": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "it": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "es": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "fr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "de": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "ru": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "tr": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      },
+                      "extra": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 60
+                        },
+                        "maxItems": 30
+                      }
+                    },
+                    "additionalProperties": false
                   }
                 },
                 "additionalProperties": false
@@ -11015,7 +10842,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11082,7 +10909,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -11158,7 +10985,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11225,7 +11052,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -11302,7 +11129,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11369,7 +11196,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -11435,7 +11262,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11500,7 +11327,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -11675,7 +11502,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11742,7 +11569,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -11929,7 +11756,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -11996,7 +11823,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroDraft.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroDraft.",
         "security": [
           {
             "AdminSession": []
@@ -12048,7 +11875,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -12113,7 +11940,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroDraft.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroDraft.",
         "security": [
           {
             "AdminSession": []
@@ -12408,7 +12235,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -12475,7 +12302,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroDraft.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroDraft.",
         "security": [
           {
             "AdminSession": []
@@ -12782,7 +12609,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -12847,7 +12674,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -12923,7 +12750,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -12990,7 +12817,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -13067,7 +12894,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13134,7 +12961,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -13210,7 +13037,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13277,7 +13104,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -13353,7 +13180,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13420,7 +13247,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -13496,7 +13323,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13563,7 +13390,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: heroLive.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: heroLive.",
         "security": [
           {
             "AdminSession": []
@@ -13639,7 +13466,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13706,7 +13533,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -13794,7 +13621,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13859,7 +13686,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -13931,7 +13758,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -13998,7 +13825,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14062,7 +13889,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14127,7 +13954,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14278,7 +14105,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14343,7 +14170,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14419,7 +14246,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14486,7 +14313,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14568,7 +14395,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14635,7 +14462,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14731,7 +14558,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14798,7 +14625,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -14864,7 +14691,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -14929,7 +14756,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -15084,7 +14911,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15151,7 +14978,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -15227,7 +15054,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15294,7 +15121,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -15370,7 +15197,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15437,7 +15264,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -15604,7 +15431,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15669,7 +15496,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: publish.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: publish.",
         "security": [
           {
             "AdminSession": []
@@ -15745,7 +15572,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15812,7 +15639,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -15876,7 +15703,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -15941,7 +15768,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -16181,7 +16008,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -16248,7 +16075,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: settings.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: settings.",
         "security": [
           {
             "AdminSession": []
@@ -16300,7 +16127,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -16365,7 +16192,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: settings.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: settings.",
         "security": [
           {
             "AdminSession": []
@@ -16641,7 +16468,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -16708,7 +16535,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -16760,7 +16587,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -16825,7 +16652,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -16856,9 +16683,6 @@
                       "editor",
                       "sales"
                     ]
-                  },
-                  "mfaRequired": {
-                    "type": "boolean"
                   }
                 },
                 "required": [
@@ -16917,7 +16741,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -16984,7 +16808,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: users.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: users.",
         "security": [
           {
             "AdminSession": []
@@ -17024,9 +16848,6 @@
                     ]
                   },
                   "disabled": {
-                    "type": "boolean"
-                  },
-                  "mfaRequired": {
                     "type": "boolean"
                   }
                 },
@@ -17081,7 +16902,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17148,7 +16969,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: audit.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: audit.",
         "security": [
           {
             "AdminSession": []
@@ -17258,7 +17079,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17325,7 +17146,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: audit.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: audit.",
         "security": [
           {
             "AdminSession": []
@@ -17397,7 +17218,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17464,7 +17285,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: authenticated; restore additionally checks entity permission.",
         "security": [
           {
             "AdminSession": []
@@ -17544,7 +17365,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17611,7 +17432,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: content.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: content.",
         "security": [
           {
             "AdminSession": []
@@ -17683,7 +17504,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17750,7 +17571,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: languages.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: languages.",
         "security": [
           {
             "AdminSession": []
@@ -17802,7 +17623,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -17867,7 +17688,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: languages.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: languages.",
         "security": [
           {
             "AdminSession": []
@@ -17963,7 +17784,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18030,7 +17851,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: languages.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: languages.",
         "security": [
           {
             "AdminSession": []
@@ -18082,7 +17903,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18149,7 +17970,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: translations.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: translations.",
         "security": [
           {
             "AdminSession": []
@@ -18233,7 +18054,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18300,7 +18121,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: translations.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: translations.",
         "security": [
           {
             "AdminSession": []
@@ -18352,7 +18173,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18417,7 +18238,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: languages.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: languages.",
         "security": [
           {
             "AdminSession": []
@@ -18494,7 +18315,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18561,7 +18382,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: translations.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: translations.",
         "security": [
           {
             "AdminSession": []
@@ -18663,7 +18484,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -18730,7 +18551,7 @@
         "tags": [
           "Admin"
         ],
-        "description": "Session, MFA and CSRF/Origin required for mutations. Permission: languages.",
+        "description": "Session and CSRF/Origin required for mutations. Permission: languages.",
         "security": [
           {
             "AdminSession": []
@@ -18806,7 +18627,7 @@
             }
           },
           "403": {
-            "description": "Role, MFA, CSRF, Origin or reauthentication required",
+            "description": "Role, CSRF, Origin or reauthentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -21697,6 +21518,268 @@
                       "previews"
                     ]
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/public/search-index": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}(?:-[A-Za-z0-9]+)?$",
+              "default": "en"
+            },
+            "required": false,
+            "name": "locale",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Published localized content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "version": {
+                      "type": "string"
+                    },
+                    "locale": {
+                      "type": "string"
+                    },
+                    "suggested": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "entries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "trip",
+                              "package",
+                              "collection"
+                            ]
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "collection": {
+                            "type": [
+                              "string",
+                              "null"
+                            ]
+                          },
+                          "title": {
+                            "type": "object",
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "collection_name": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "thumb": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "url": {
+                                "type": "string"
+                              },
+                              "alt": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "type": "string"
+                                  },
+                                  "lang": {
+                                    "type": "string",
+                                    "minLength": 2,
+                                    "maxLength": 16
+                                  }
+                                },
+                                "required": [
+                                  "text",
+                                  "lang"
+                                ]
+                              },
+                              "width": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "height": {
+                                "type": "number",
+                                "exclusiveMinimum": 0
+                              },
+                              "variants": {
+                                "type": "object",
+                                "additionalProperties": {
+                                  "type": "string"
+                                }
+                              },
+                              "video": {
+                                "type": "object",
+                                "properties": {
+                                  "vertical": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  },
+                                  "horizontal": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "vertical",
+                                  "horizontal"
+                                ]
+                              },
+                              "rights_status": {
+                                "type": "string",
+                                "enum": [
+                                  "owned",
+                                  "licensed",
+                                  "permission",
+                                  "unknown"
+                                ],
+                                "default": "unknown"
+                              }
+                            },
+                            "required": [
+                              "url",
+                              "alt",
+                              "width",
+                              "height"
+                            ]
+                          },
+                          "from_price_eur": {
+                            "type": [
+                              "number",
+                              "null"
+                            ],
+                            "minimum": 0
+                          },
+                          "duration": {
+                            "type": [
+                              "object",
+                              "null"
+                            ],
+                            "properties": {
+                              "text": {
+                                "type": "string"
+                              },
+                              "lang": {
+                                "type": "string",
+                                "minLength": 2,
+                                "maxLength": 16
+                              }
+                            },
+                            "required": [
+                              "text",
+                              "lang"
+                            ]
+                          },
+                          "fields": {
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "keywords": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "places": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              },
+                              "collection": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "keywords",
+                              "places",
+                              "collection"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "slug",
+                          "collection",
+                          "title",
+                          "collection_name",
+                          "thumb",
+                          "from_price_eur",
+                          "duration",
+                          "fields"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "version",
+                    "locale",
+                    "suggested",
+                    "entries"
+                  ]
                 }
               }
             }
@@ -27194,6 +27277,14 @@
                   "notes": {
                     "type": "string",
                     "maxLength": 1000
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "EUR",
+                      "GBP",
+                      "USD"
+                    ]
                   },
                   "hp": {
                     "type": "string",

@@ -29,6 +29,7 @@ const fieldKeys: Record<string, string> = {
   onRequest: 'onRequest',
   seoTitle: 'seoTitle',
   seoDescription: 'seoDescription',
+  searchKeywords: 'searchKeywords',
   name: 'name',
   shortName: 'shortName',
   headline: 'headline',

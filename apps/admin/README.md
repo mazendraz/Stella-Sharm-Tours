@@ -15,7 +15,7 @@ private, single-use 30-minute link to `.local/admin/owner-setup.txt`. Open that 
 locally; do not paste its token into chat, Git or logs. The helper refuses to
 replace an established password. Existing users use **Forgot password** and the
 local Mailpit inbox; invites/reset links never go to a real provider in local QA.
-Owner/manager enrollment requires an authenticator and private recovery codes.
+Staff sign in with email and password only (owner decision, 2026-11-25).
 
 `pnpm admin:messages` validates/generates all seven dictionaries and offline copy.
 `node scripts/admin-icons.mjs` renders PNG install icons from the existing SVG.

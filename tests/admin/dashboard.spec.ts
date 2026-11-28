@@ -1,10 +1,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
 import { mkdir } from 'node:fs/promises';
-import { passwordHash, seal } from '../../apps/api/src/auth';
+import { passwordHash } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import { locales } from '../../packages/shared/src/index';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
@@ -16,23 +14,19 @@ import ru from '../../apps/admin/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/admin/messages/tr.json' with { type: 'json' };
 import { screenPath } from '../screens';
 const messages = { en, it, es, fr, de, ru, tr };
-const otp = createRequire(resolve('apps/api/package.json'))(
-  'otplib',
-) as typeof import('../../apps/api/node_modules/otplib');
 test('seven-language login and authenticated navigation, accessibility and private offline shell', async ({
   page,
   context,
 }, info) => {
   test.setTimeout(300000);
-  const { pool, env } = await localDatabase(
+  const { pool } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
       : 'development',
   );
   const id = randomUUID(),
     email = id + '@example.test',
-    password = 'QA-' + randomBytes(24).toString('base64url'),
-    secret = otp.generateSecret();
+    password = 'QA-' + randomBytes(24).toString('base64url');
   const errors: string[] = [];
   let checkingOffline = false;
   page.on('pageerror', (error) => errors.push(error.message));
@@ -46,15 +40,8 @@ test('seven-language login and authenticated navigation, accessibility and priva
   });
   try {
     await pool.query(
-      'insert into admin_users(id,email,name,role,password_hash,totp_enabled,totp_secret_enc) values($1,$2,$3,$4,$5,true,$6)',
-      [
-        id,
-        email,
-        'Admin browser QA',
-        'owner',
-        await passwordHash(password),
-        seal(secret, env.TOTP_ENC_KEY!, id),
-      ],
+      'insert into admin_users(id,email,name,role,password_hash) values($1,$2,$3,$4,$5)',
+      [id, email, 'Admin browser QA', 'owner', await passwordHash(password)],
     );
     await page.goto('/');
     const handoffDirectory = screenPath('current', 'admin', info.project.name);
@@ -93,8 +80,6 @@ test('seven-language login and authenticated navigation, accessibility and priva
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
-    await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
     await expect(page.locator('main h1')).toHaveText(en.overview);
     const native = {
       en: 'English',

@@ -554,6 +554,7 @@ export function registerAdmin(
     email: s.bookingRequests.email,
     notes: s.bookingRequests.notes,
     estimateEur: s.bookingRequests.estimateEur,
+    currency: s.bookingRequests.currency,
     status: s.bookingRequests.status,
     assignedTo: s.bookingRequests.assignedTo,
     internalNote: s.bookingRequests.internalNote,

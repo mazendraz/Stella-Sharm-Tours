@@ -5,7 +5,6 @@ import {
   localizedSchema,
   slugSchema,
   loginSchema,
-  otpSchema,
   resetRequestSchema,
   passwordTokenSchema,
   reauthSchema,
@@ -37,7 +36,6 @@ export type AdminContract = {
   body?: z.ZodType;
   query?: z.ZodObject;
   permission?: Permission;
-  pending?: boolean;
   anonymous?: boolean;
 };
 const empty = z.strictObject({}),
@@ -233,15 +231,8 @@ export const adminContracts: AdminContract[] = [
     body: passwordTokenSchema,
     anonymous: true,
   })),
-  { method: 'post', path: '/auth/2fa/setup', body: empty, pending: true },
-  ...(['enable', 'verify'] as const).map((name) => ({
-    method: 'post' as const,
-    path: '/auth/2fa/' + name,
-    body: otpSchema,
-    pending: true,
-  })),
   { method: 'post', path: '/auth/reauth', body: reauthSchema },
-  { method: 'post', path: '/auth/logout', body: empty, pending: true },
+  { method: 'post', path: '/auth/logout', body: empty },
   { method: 'post', path: '/auth/logout-all', body: empty },
   {
     method: 'post',
@@ -255,7 +246,7 @@ export const adminContracts: AdminContract[] = [
     permission: 'export',
     body: eraseRequestSchema,
   },
-  { method: 'get', path: '/me', pending: true },
+  { method: 'get', path: '/me' },
   { method: 'get', path: '/me/sessions' },
   {
     method: 'patch',
@@ -560,7 +551,6 @@ export const adminContracts: AdminContract[] = [
       email: z.email().max(254),
       name: z.string().trim().min(1).max(80),
       role: z.enum(roles),
-      mfaRequired: z.boolean().optional(),
     }),
   },
   {
@@ -571,7 +561,6 @@ export const adminContracts: AdminContract[] = [
       name: z.string().trim().min(1).max(80).optional(),
       role: z.enum(roles).optional(),
       disabled: z.boolean().optional(),
-      mfaRequired: z.boolean().optional(),
     }),
   },
   {
@@ -687,7 +676,7 @@ export function registerAdminOpenApi(app: OpenAPIHono<ApiEnv>) {
       tags: ['Admin'],
       description: contract.anonymous
         ? 'Anonymous auth operation with exact admin Origin and rate limits.'
-        : `Session, MFA and CSRF/Origin required for mutations. Permission: ${contract.permission ?? 'authenticated; restore additionally checks entity permission'}.`,
+        : `Session and CSRF/Origin required for mutations. Permission: ${contract.permission ?? 'authenticated; restore additionally checks entity permission'}.`,
       security: contract.anonymous ? [] : [{ AdminSession: [] }],
       request: {
         ...(Object.keys(params).length ? { params: z.object(params) } : {}),
@@ -727,7 +716,7 @@ export function registerAdminOpenApi(app: OpenAPIHono<ApiEnv>) {
           content: { 'application/json': { schema: error } },
         },
         403: {
-          description: 'Role, MFA, CSRF, Origin or reauthentication required',
+          description: 'Role, CSRF, Origin or reauthentication required',
           content: { 'application/json': { schema: error } },
         },
         422: {

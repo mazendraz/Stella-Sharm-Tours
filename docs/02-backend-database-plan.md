@@ -24,9 +24,12 @@
 | GET    | `/v1/public/collections/:slug?locale=` | collection + published trips + combo package. `private` returns all trips with `format in ('private','both')`, private-only first                       |
 | GET    | `/v1/public/trips/:slug?locale=`       | full trip incl. prices, itinerary, inclusions, media                                                                                                    |
 | GET    | `/v1/public/packages/:slug?locale=`    | package + its trips                                                                                                                                     |
+| GET    | `/v1/public/search-index?locale=`      | published trips, packages, collections: display fields + normalized text of every live locale + `search_keywords`                                       |
 | GET    | `/v1/public/faq?locale=`               |                                                                                                                                                         |
 | GET    | `/v1/public/pages/:key?locale=`        | legal/static pages                                                                                                                                      |
 | POST   | `/v1/requests`                         | booking request (see §4)                                                                                                                                |
+
+**Search index** (2026-11-26, spec `docs/superpowers/specs/2026-11-26-trip-search-design.md`): `trips.search_keywords` and `collections.search_keywords` (jsonb, migration `0015`, `{ en?, it?, es?, fr?, de?, ru?, tr?, extra? }`, ≤ 30 words of ≤ 60 chars per list, no case-insensitive duplicates) are staff-edited matching aids: never displayed, never machine-translated. The seed fills them from `data/search-keywords.json` without overwriting admin edits. `from_price_eur` is computed with `estimateTrip` exactly like the trip card. Matching runs in the browser (`packages/shared/src/search.ts`); its quality contract is `search-golden.test.ts`.
 
 Responses set `Cache-Control: public, s-maxage=60, stale-while-revalidate=600` and an `ETag`. The web app also uses Next.js tags (`collection:<slug>`, `trip:<slug>`, `site`) and the API calls the web app's `/api/revalidate` (secret header) after any admin change.
 
@@ -295,7 +298,7 @@ Body (zod): `{ mode, items:[{ trip_slug, price_id?, hours?, day_index? }], start
 ## 8. Tests
 
 - Unit: price calculator, day ordering, ref generator, zod schemas.
-- Integration (Testcontainers Postgres): seed, public endpoints, request creation, auth + 2FA, RBAC matrix, upload rejection cases.
+- Integration (Testcontainers Postgres): seed, public endpoints, request creation, auth, RBAC matrix, upload rejection cases.
 - Contract: OpenAPI snapshot.
 
 ## 9. Tasks

@@ -16,6 +16,7 @@ import {
   storedScheduleNotice,
 } from '@stella/shared/i18n/booking-messages';
 import { isCoreLocale } from '@stella/shared';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import { bookingGuests } from '@stella/shared/i18n/guests';
 import { calculateBookingQuote } from './booking-quote';
 import { consume } from './rate';
@@ -159,11 +160,15 @@ function persistRequest(
         return !trip.runDays.includes(date.getUTCDay());
       });
       const contacts = settings.contacts as
-        { whatsapp_primary?: string } | undefined;
-      if (
-        !contacts?.whatsapp_primary ||
-        !/^\+[1-9]\d{6,14}$/.test(contacts.whatsapp_primary)
-      )
+        | { whatsapp_primary?: string; whatsapp_secondary?: string | null }
+        | undefined;
+      // IT/RU/TR requests go to the second line when it is set (owner, 2026-11-26).
+      const routed = whatsappNumberFor(b.locale, contacts);
+      const whatsappNumber =
+        routed && /^\+[1-9]\d{6,14}$/.test(routed)
+          ? routed
+          : contacts?.whatsapp_primary;
+      if (!whatsappNumber || !/^\+[1-9]\d{6,14}$/.test(whatsappNumber))
         fail(503, 'CONTACT_UNAVAILABLE');
       const prefix: Record<string, string> = {
         en: 'Booking request',
@@ -232,6 +237,9 @@ function persistRequest(
               .filter(Boolean)
               .join('\n') || null,
           estimateEur: estimate === null ? null : String(estimate),
+          // Only English pages show £ or $; anything else is stored as EUR.
+          currency:
+            b.currency && b.locale.split('-')[0] === 'en' ? b.currency : 'EUR',
           ipHash,
           userAgent: userAgent.slice(0, 300),
           internalNote: scheduleReview ? storedScheduleNotice : null,
@@ -259,7 +267,7 @@ function persistRequest(
         estimate_eur: estimate,
         whatsapp_url:
           'https://wa.me/' +
-          contacts.whatsapp_primary.replace(/\D/g, '') +
+          whatsappNumber.replace(/\D/g, '') +
           '?text=' +
           encodeURIComponent(message),
         message,

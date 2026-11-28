@@ -25,8 +25,10 @@ import type { ShellSite } from '@stella/shared/card-trip';
 import dynamic from 'next/dynamic';
 import { useTripStore } from './store';
 import { officeMap, track, whatsapp } from '@/lib/links';
+import { whatsappNumberFor } from '@stella/shared/whatsapp';
 import type { SavedTrip } from '@/lib/saved-trips';
 import { Content } from './text';
+import { SearchButton } from './search-button';
 import { coreLocaleOptions, isCoreLocale } from '@stella/shared';
 // In-site page history, so Back returns to the previous Stella page and a
 // guest who landed here from a link or search gets a sensible parent page.
@@ -128,7 +130,11 @@ export function Shell({
     ...coreLocaleOptions,
     ...(site?.locales.filter((l) => !isCoreLocale(l.code)) ?? []),
   ];
-  const wa = whatsapp(site?.contacts.whatsapp_primary ?? null);
+  const waNumber = whatsappNumberFor(locale, site?.contacts),
+    wa = whatsapp(waNumber);
+  useEffect(() => {
+    useTripStore.setState({ whatsappNumber: waNumber });
+  }, [waNumber]);
   useEffect(() => {
     useTripStore.getState().hydrate();
     try {
@@ -223,6 +229,7 @@ export function Shell({
               ))}
             </nav>
             <div className="nav-tools">
+              <SearchButton collections={collections} whatsappUrl={wa} />
               <details className="languages">
                 <summary
                   aria-label={
@@ -416,7 +423,7 @@ export function Shell({
               )}
             </div>
           </footer>
-          <TripNavigation />
+          <TripNavigation whatsappNumber={waNumber} />
           {request && <RequestSheet site={site} />}
         </div>
       </>

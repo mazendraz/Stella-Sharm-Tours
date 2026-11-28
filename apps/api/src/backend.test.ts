@@ -108,7 +108,7 @@ describe('security primitives and source normalization', () => {
     expect(await verify(encoded, password)).toBe(true);
     expect(await verify(encoded, 'incorrect')).toBe(false);
   });
-  it('binds encrypted TOTP to its user and rejects tampering', () => {
+  it('binds sealed values to their user and rejects tampering', () => {
     const key = randomBytes(32).toString('base64'),
       enc = seal('TESTSECRET', key, 'user-a');
     expect(unseal(enc, key, 'user-a')).toBe('TESTSECRET');
@@ -120,16 +120,16 @@ describe('security primitives and source normalization', () => {
   it('keeps sealed values and signatures bound to one purpose', () => {
     const key = randomBytes(32).toString('base64');
     const token = seal('reset-token', key, aad('auth-token', 'user-a'));
-    // A reset token cannot be opened as a TOTP secret, and vice versa.
-    expect(() => unseal(token, key, aad('totp', 'user-a'))).toThrow();
-    expect(() => unsealPurpose(token, key, 'totp', 'user-a')).toThrow();
+    // A token sealed for one user cannot be opened as another user's.
+    expect(() => unseal(token, key, aad('auth-token', 'user-b'))).toThrow();
+    expect(() => unsealPurpose(token, key, 'auth-token', 'user-b')).toThrow();
     expect(unsealPurpose(token, key, 'auth-token', 'user-a')).toEqual({
       value: 'reset-token',
       legacy: false,
     });
     // Values sealed before purpose-bound AAD still open, flagged as legacy.
     const legacy = seal('OLDSECRET', key, 'user-a');
-    expect(unsealPurpose(legacy, key, 'totp', 'user-a')).toEqual({
+    expect(unsealPurpose(legacy, key, 'auth-token', 'user-a')).toEqual({
       value: 'OLDSECRET',
       legacy: true,
     });

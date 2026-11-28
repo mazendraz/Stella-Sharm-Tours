@@ -1,14 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
 import { sha } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
-const otp = createRequire(resolve('apps/api/package.json'))(
-  'otplib',
-) as typeof import('../../apps/api/node_modules/otplib');
-test('one-use setup link, mandatory MFA enrollment, recovery sign-in and reset form', async ({
+test('one-use setup link, password-only sign-in and reset form', async ({
   page,
 }) => {
   const { pool } = await localDatabase(
@@ -36,27 +31,7 @@ test('one-use setup link, mandatory MFA enrollment, recovery sign-in and reset f
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
-    const secret = await page.locator('.qr code').innerText();
-    await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
-    const recovery = await page
-      .locator('.recovery-codes code')
-      .first()
-      .innerText();
-    await page
-      .getByRole('button', { name: en.savedCodes, exact: true })
-      .click();
-    await expect(page.locator('main h1')).toHaveText(en.overview);
-    await page
-      .locator('.avatar-btn:visible, .account-trigger:visible')
-      .first()
-      .click();
-    await page.getByRole('menuitem', { name: en.logout, exact: true }).click();
-    await page.getByLabel(en.email, { exact: true }).fill(email);
-    await page.getByLabel(en.password, { exact: true }).fill(password);
-    await page.getByRole('button', { name: en.login, exact: true }).click();
-    await page.getByLabel(en.code).fill(recovery);
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
+    // Email + password is the whole sign-in (owner decision, 2026-11-25).
     await expect(page.locator('main h1')).toHaveText(en.overview);
     await page
       .locator('.avatar-btn:visible, .account-trigger:visible')

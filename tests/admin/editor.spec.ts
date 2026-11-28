@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { randomUUID, randomBytes } from 'node:crypto';
-import { createRequire } from 'node:module';
-import { resolve } from 'node:path';
-import { passwordHash, seal } from '../../apps/api/src/auth';
+import { passwordHash } from '../../apps/api/src/auth';
 import { localDatabase } from '../real-api/setup';
 import en from '../../apps/admin/messages/en.json' with { type: 'json' };
 import it from '../../apps/admin/messages/it.json' with { type: 'json' };
@@ -13,9 +11,6 @@ import de from '../../apps/admin/messages/de.json' with { type: 'json' };
 import ru from '../../apps/admin/messages/ru.json' with { type: 'json' };
 import tr from '../../apps/admin/messages/tr.json' with { type: 'json' };
 import { coreLocaleOptions } from '../../packages/shared/src/index';
-const otp = createRequire(resolve('apps/api/package.json'))(
-  'otplib',
-) as typeof import('../../apps/api/node_modules/otplib');
 
 // Rebuilt admin (docs/stella-admin-rebuild-spec.md): full-page editor, one Save,
 // one language bar, unsaved-changes guard, Undo in the toast, no no-op saves.
@@ -25,27 +20,19 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
 }, info) => {
   test.skip(info.project.name !== 'desktop', 'one viewport is enough');
   test.setTimeout(60_000);
-  const { pool, env } = await localDatabase(
+  const { pool } = await localDatabase(
     process.env.STELLA_INTEGRATION_VERIFY === '1'
       ? 'verification'
       : 'development',
   );
   const id = randomUUID(),
     email = id + '@example.test',
-    password = 'QA-' + randomBytes(24).toString('base64url'),
-    secret = otp.generateSecret();
+    password = 'QA-' + randomBytes(24).toString('base64url');
   let copyId = '';
   try {
     await pool.query(
-      'insert into admin_users(id,email,name,role,password_hash,totp_enabled,totp_secret_enc) values($1,$2,$3,$4,$5,true,$6)',
-      [
-        id,
-        email,
-        'Editor QA',
-        'owner',
-        await passwordHash(password),
-        seal(secret, env.TOTP_ENC_KEY!, id),
-      ],
+      'insert into admin_users(id,email,name,role,password_hash) values($1,$2,$3,$4,$5)',
+      [id, email, 'Editor QA', 'owner', await passwordHash(password)],
     );
     const source = (
       await pool.query(
@@ -56,8 +43,6 @@ test('trip editor: duplicate, guard, seven-language save, Undo and no-op save', 
     await page.getByLabel(en.email, { exact: true }).fill(email);
     await page.getByLabel(en.password, { exact: true }).fill(password);
     await page.getByRole('button', { name: en.login, exact: true }).click();
-    await page.getByLabel(en.code).fill(otp.generateSync({ secret }));
-    await page.getByRole('button', { name: en.verify, exact: true }).click();
     await expect(page.locator('main h1')).toHaveText(en.overview);
     await page.goto('/trips/' + source.id);
     await page

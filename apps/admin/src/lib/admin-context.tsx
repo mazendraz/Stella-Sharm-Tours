@@ -29,8 +29,6 @@ export type Me = {
   email: string;
   name: string;
   role: Role;
-  mfa_passed: boolean;
-  totp_enabled: boolean;
   csrf_token: string;
 };
 export class ApiError extends Error {

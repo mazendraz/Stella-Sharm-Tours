@@ -1,12 +1,17 @@
 import type { Locale } from '@stella/shared';
+import { isDisplayCurrency } from '@stella/shared/display-currency';
 
 /** The business runs in Egypt: every date/time shown to staff is Cairo time. */
 export const TZ = 'Africa/Cairo';
 
-/** €1,234 when there are no cents, €1,234.50 when there are. */
+/**
+ * €1,234 when there are no cents, €1,234.50 when there are. Booking requests
+ * pass the currency the customer saw (£/$/€); the amount is never converted.
+ */
 export function money(
   amount: number | string | null | undefined,
   locale: Locale,
+  currency: string = 'EUR',
 ): string | null {
   if (amount === null || amount === undefined || amount === '') return null;
   const value = Number(amount);
@@ -14,7 +19,7 @@ export function money(
   const cents = Math.round(value * 100) % 100 !== 0;
   return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'EUR',
+    currency: isDisplayCurrency(currency) ? currency : 'EUR',
     minimumFractionDigits: cents ? 2 : 0,
     maximumFractionDigits: cents ? 2 : 0,
   }).format(value);

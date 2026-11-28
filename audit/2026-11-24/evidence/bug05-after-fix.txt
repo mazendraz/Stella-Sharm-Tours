@@ -1,0 +1,5 @@
+S0 published:                 page=200 api=200
+S1 unpublished+revalidated:   page=404 api=404
+S2 after web restart:         page=404 again=404 api=404
+S3 +65 s (revalidate=60):     page=404 api=404
+restored: published page=200

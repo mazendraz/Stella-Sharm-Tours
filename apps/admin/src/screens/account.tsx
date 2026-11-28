@@ -1,6 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+import { useEffect, useState } from 'react';
 import { can } from '@stella/shared/admin';
 import { useAdmin, useData, ApiError } from '../lib/admin-context';
 import type { Row } from '../lib/content';
@@ -8,7 +7,7 @@ import { dateTime, relative } from '../lib/format';
 import { PageHeader } from '../components/ui/page-header';
 import { FormField } from '../components/ui/field';
 import { useConfirm } from '../components/ui/dialog';
-import { Callout, Skeleton } from '../components/ui/states';
+import { Skeleton } from '../components/ui/states';
 import { PasswordInput } from '../components/password-input';
 import { deviceName } from './team';
 
@@ -35,7 +34,6 @@ export function Account() {
         </dl>
       </section>
       <PasswordSection />
-      <TwoStepSection />
       <SessionsSection />
       {can(me!.role, 'requests') && <PushSection />}
     </div>
@@ -43,11 +41,10 @@ export function Account() {
 }
 
 function PasswordSection() {
-  const { t, me, request, clear, report, errorText } = useAdmin(),
+  const { t, request, clear, report, errorText } = useAdmin(),
     [current, setCurrent] = useState(''),
     [next, setNext] = useState(''),
     [repeat, setRepeat] = useState(''),
-    [code, setCode] = useState(''),
     [errors, setErrors] = useState<Record<string, string>>({}),
     [busy, setBusy] = useState(false);
   return (
@@ -62,7 +59,6 @@ function PasswordSection() {
           if (!current) found.current = t('passwordRequired');
           if (next.length < 12) found.next = t('passwordRule');
           if (next !== repeat) found.repeat = t('passwordsDiffer');
-          if (me!.totp_enabled && !code.trim()) found.code = t('requiredField');
           setErrors(found);
           if (Object.keys(found).length) return;
           setBusy(true);
@@ -70,18 +66,13 @@ function PasswordSection() {
             try {
               await request('/v1/admin/auth/reauth', 'POST', {
                 password: current,
-                ...(me!.totp_enabled ? { code: code.replace(/\s/g, '') } : {}),
               });
             } catch (error) {
               setErrors({
                 current:
                   error instanceof ApiError && error.code === 'RATE_LIMITED'
                     ? t('rate')
-                    : t(
-                        me!.totp_enabled
-                          ? 'wrongPasswordOrCode'
-                          : 'wrongPassword',
-                      ),
+                    : t('wrongPassword'),
               });
               return;
             }
@@ -108,20 +99,6 @@ function PasswordSection() {
             />
           )}
         </FormField>
-        {me!.totp_enabled && (
-          <FormField label={t('code6')} error={errors.code}>
-            {(p) => (
-              <input
-                {...p}
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                value={code}
-                maxLength={64}
-                onChange={(e) => setCode(e.target.value)}
-              />
-            )}
-          </FormField>
-        )}
         <FormField
           label={t('newPasswordLabel')}
           hint={t('passwordRule')}
@@ -152,138 +129,6 @@ function PasswordSection() {
           {t('updatePassword')}
         </button>
       </form>
-    </section>
-  );
-}
-
-function TwoStepSection() {
-  const { t, me, request, refresh, report } = useAdmin(),
-    [uri, setUri] = useState(''),
-    [code, setCode] = useState(''),
-    [codes, setCodes] = useState<string[]>([]),
-    [error, setError] = useState(''),
-    [busy, setBusy] = useState(false),
-    inFlight = useRef(false);
-  const secret = uri ? (new URL(uri).searchParams.get('secret') ?? '') : '';
-  return (
-    <section className="panel" aria-labelledby="mfa-h">
-      <h2 id="mfa-h">{t('mfa')}</h2>
-      <p>
-        <span
-          className={'badge-status ' + (me!.totp_enabled ? 'green' : 'amber')}
-        >
-          <span className="dot" aria-hidden />
-          {t(me!.totp_enabled ? 'twoStepOnShort' : 'twoStepOffShort')}
-        </span>
-      </p>
-      {!me!.totp_enabled && !uri && (
-        <button
-          type="button"
-          className="btn btn-primary"
-          disabled={busy}
-          onClick={async () => {
-            // One request per click, even on double-clicks (was firing 4×).
-            if (inFlight.current) return;
-            inFlight.current = true;
-            setBusy(true);
-            try {
-              const result = await request<{ uri: string }>(
-                '/v1/admin/auth/2fa/setup',
-                'POST',
-                {},
-              );
-              setUri(result.uri);
-            } catch (e) {
-              report(e);
-            } finally {
-              inFlight.current = false;
-              setBusy(false);
-            }
-          }}
-        >
-          {busy && <span className="spinner" aria-hidden />}
-          {t('setup2fa')}
-        </button>
-      )}
-      {uri && (
-        <form
-          noValidate
-          className="mfa-setup"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            if (busy) return;
-            if (!/^\d{6}$/.test(code.trim())) {
-              setError(t('code6Invalid'));
-              return;
-            }
-            setBusy(true);
-            try {
-              const result = await request<{ recovery_codes: string[] }>(
-                '/v1/admin/auth/2fa/enable',
-                'POST',
-                { code: code.trim() },
-              );
-              setUri('');
-              setCodes(result.recovery_codes);
-              await refresh();
-            } catch {
-              setError(t('code6Wrong'));
-            } finally {
-              setBusy(false);
-            }
-          }}
-        >
-          <ol className="steps">
-            <li>{t('scan')}</li>
-            <li>{t('enterCode')}</li>
-          </ol>
-          <div className="qr-box">
-            <QRCodeSVG value={uri} size={180} aria-label={t('qrLabel')} />
-            <p className="muted small">
-              {t('cantScan')} <code className="mono">{secret}</code>
-            </p>
-          </div>
-          <FormField label={t('code6')} error={error}>
-            {(p) => (
-              <input
-                {...p}
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
-            )}
-          </FormField>
-          <button className="btn btn-primary" disabled={busy}>
-            {busy && <span className="spinner" aria-hidden />}
-            {t('verify')}
-          </button>
-        </form>
-      )}
-      {codes.length > 0 && (
-        <Callout
-          tone="success"
-          action={
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => setCodes([])}
-            >
-              {t('savedCodes')}
-            </button>
-          }
-        >
-          <p>{t('recovery')}</p>
-          <ul className="recovery-codes">
-            {codes.map((c) => (
-              <li key={c}>
-                <code>{c}</code>
-              </li>
-            ))}
-          </ul>
-        </Callout>
-      )}
     </section>
   );
 }

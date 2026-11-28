@@ -6,6 +6,8 @@ import type { Collection } from '@stella/shared/public-contract';
 import { isCoreLocale } from '@stella/shared';
 import { getSite, getCollections } from '@/lib/api';
 import { Shell } from '@/components/shell';
+import { CurrencyProvider } from '@/components/currency';
+import { getCurrency } from '@/lib/currency';
 import { navCollection, shellSite } from '@stella/shared/card-trip';
 export default async function LocaleLayout({
   children,
@@ -39,13 +41,15 @@ export default async function LocaleLayout({
       locale={locale}
       timeZone="Africa/Cairo"
     >
-      <Shell
-        site={site && shellSite(site)}
-        collections={collections.map(navCollection)}
-      >
-        {children}
-        {modal}
-      </Shell>
+      <CurrencyProvider currency={await getCurrency()}>
+        <Shell
+          site={site && shellSite(site)}
+          collections={collections.map(navCollection)}
+        >
+          {children}
+          {modal}
+        </Shell>
+      </CurrencyProvider>
     </NextIntlClientProvider>
   );
 }

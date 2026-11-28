@@ -231,7 +231,7 @@ LCP < 2.5s · CLS < 0.05 · INP < 200ms · JS on home < 150 KB gzip · first vid
 
 ## 10. Analytics events (Umami)
 
-`hero_slide_change`, `collection_open`, `trip_open`, `trip_add`, `trip_remove`, `mytrip_open`, `request_open`, `request_submit_ok`, `request_submit_error`, `whatsapp_click`, `lang_change` (with `from`, `to`, `auto: bool`), `auto_notice_read_en`, `private_section_view`, `private_mode_on`, `private_quote_click`. No personal data in events.
+`search_open`, `search_select` (`type`, `slug`, `position`), `search_no_results` (never the query text), `hero_slide_change`, `collection_open`, `trip_open`, `trip_add`, `trip_remove`, `mytrip_open`, `request_open`, `request_submit_ok`, `request_submit_error`, `whatsapp_click`, `lang_change` (with `from`, `to`, `auto: bool`), `auto_notice_read_en`, `private_section_view`, `private_mode_on`, `private_quote_click`. No personal data in events.
 
 ## 11. Tasks (tick as you go)
 
@@ -265,6 +265,7 @@ DB/admin/worker acceptance gates. Full evidence: [frontend verification](fronten
 - [x] M3.2 Motion polish + reduced-motion local audit
 - [x] M3.3 SEO (metadata, JSON-LD, sitemap) + local Lighthouse score gates; strict LCP budget remains open
 - [x] M3.4 Visual QA against the mockup at 390 / 768 / 1440
+- [x] M3.5 **Trip search (owner request, 2026-11-26)**: header search button on every public page opens a full-screen (mobile) / centered (desktop) dialog with collection chips and the admin's featured trips; results update per keystroke from a lazily loaded index (`/api/search-index`), across every live language, with typo, accent and Arabic-spelling tolerance and staff keywords. Combobox keyboard pattern, Back/Esc close, RTL, reduced motion, 7-language strings. Spec and plan: `docs/superpowers/specs|plans/2026-11-26-trip-search*`. Golden set (≥ 120 queries) in `packages/shared/src/search-golden.test.ts`; browser checks in `tests/e2e/search.spec.ts`.
 
 ### Outstanding acceptance — not signed off
 

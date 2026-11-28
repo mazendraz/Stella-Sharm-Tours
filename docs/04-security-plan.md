@@ -17,23 +17,23 @@ Goal: nothing breaks, nothing leaks, and a mistake in the admin can be undone. B
 
 ## 1. Threats we design against
 
-| Threat                                           | Mitigation                                                                                                              |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Admin account takeover (phished/reused password) | argon2id, mandatory TOTP 2FA for owner/manager, lockout, new-device email alert, session list with "log out everywhere" |
-| Staff mistake (wrong price, deleted trip)        | revisions + one-tap Undo, soft delete, role limits, audit log, staging                                                  |
-| Spam / fake booking requests                     | honeypot, min fill time, rate limits, phone/email format checks, `spam` status                                          |
-| Injection (SQL, XSS)                             | Drizzle parameterised queries only, zod validation, React escaping, sanitised rich text, strict CSP                     |
-| Malicious upload                                 | magic-byte check, re-encode everything, no SVG/HTML, size limits, files served from a separate subdomain with `nosniff` |
-| Server compromise                                | SSH keys only, firewall, unattended upgrades, non-root containers, DB not public, secrets outside git                   |
-| Data loss                                        | encrypted off-site backups, monthly restore test                                                                        |
-| Data leak of customers' phone numbers            | least-privilege roles, IP hashing, log scrubbing, retention limit, HTTPS everywhere                                     |
+| Threat                                           | Mitigation                                                                                                                                    |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Admin account takeover (phished/reused password) | argon2id, breached-password list, lockout, new-device email alert, session list with "log out everywhere" (no 2FA: owner decision 2026-11-25) |
+| Staff mistake (wrong price, deleted trip)        | revisions + one-tap Undo, soft delete, role limits, audit log, staging                                                                        |
+| Spam / fake booking requests                     | honeypot, min fill time, rate limits, phone/email format checks, `spam` status                                                                |
+| Injection (SQL, XSS)                             | Drizzle parameterised queries only, zod validation, React escaping, sanitised rich text, strict CSP                                           |
+| Malicious upload                                 | magic-byte check, re-encode everything, no SVG/HTML, size limits, files served from a separate subdomain with `nosniff`                       |
+| Server compromise                                | SSH keys only, firewall, unattended upgrades, non-root containers, DB not public, secrets outside git                                         |
+| Data loss                                        | encrypted off-site backups, monthly restore test                                                                                              |
+| Data leak of customers' phone numbers            | least-privilege roles, IP hashing, log scrubbing, retention limit, HTTPS everywhere                                                           |
 
 ## 2. Authentication (admin)
 
 - Passwords: argon2id (`m=19456, t=2, p=1` minimum), min 12 chars, checked against a local breached-password list (top 100k), no forced rotation.
-- **2FA (TOTP)** mandatory for `owner` and `manager`, optional-but-nagged for others. Secrets encrypted at rest (AES-256-GCM with `TOTP_ENC_KEY`). 10 one-time recovery codes, hashed.
+- **No two-step verification (owner decision, 2026-11-25).** Staff sign in with email + password only; TOTP, recovery codes and the per-user "require 2FA" switch were removed (migration `0013`). Accepted risk: a leaked or phished staff password is enough to sign in, so the new-device email alert, lockout and "log out everywhere" are the remaining account-takeover controls. `TOTP_ENC_KEY` keeps its name and now only encrypts queued setup/reset links (AES-256-GCM).
 - Login rate limit: 5 attempts / 15 min / account + 20 / 15 min / IP; then exponential lockout. Same generic error for wrong email or password.
-- Sessions: random 256-bit id, only HMAC-SHA-256 with `SESSION_SECRET` stored; rotating that secret immediately invalidates cookies. Cookie `__Host-stella_admin` (`Secure; HttpOnly; SameSite=Strict; Path=/`). Idle timeout 8 h, absolute 30 days; re-auth (password + TOTP) for sensitive actions: changing roles, users, contacts/WhatsApp number, exporting/erasing requests. The file-04 upgrade requires staff to log in again.
+- Sessions: random 256-bit id, only HMAC-SHA-256 with `SESSION_SECRET` stored; rotating that secret immediately invalidates cookies. Cookie `__Host-stella_admin` (`Secure; HttpOnly; SameSite=Strict; Path=/`). Idle timeout 8 h, absolute 30 days; re-auth (password) for sensitive actions: changing roles, users, contacts/WhatsApp number, exporting/erasing requests. The file-04 upgrade requires staff to log in again.
 - New-device recognition is notification-only, never authentication: a separate random Secure/HttpOnly/Strict cookie expires after 90 days; hashes only, maximum 20 recognized devices per user. Register/send only after complete authentication. Logout everywhere removes sessions and recognized devices. Email copy ships in all seven core locales.
 - Password reset: single-use token (hashed, 30 min), sent only to the account email; invalidates all sessions.
 - First owner created by a one-time setup link from the seed (no default passwords anywhere).
@@ -140,8 +140,7 @@ on its low/informational security items:
 
 - **Staff account lockout (SEC-03).** Anyone who knows a staff e-mail can keep the
   account locked for up to an hour. Kept deliberately: the lockout also slows
-  password guessing for editors and sales staff, who may not use TOTP. Owner
-  decision pending on exempting TOTP-enabled accounts.
+  password guessing now that no account uses two-step verification.
 - **In-memory public read limits (SEC-04).** Reset on restart and evict the
   oldest callers above 10,000 keys. Accepted for a single VPS; booking, quote and
   login limits are stored in PostgreSQL and unaffected. Add a Caddy rate limit
