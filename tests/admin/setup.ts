@@ -40,6 +40,9 @@ export default async function setup() {
       `delete from audit_log where user_id in (${stale})`,
       `delete from revisions where created_by in (${stale})`,
       `delete from push_subscriptions where user_id in (${stale})`,
+      `delete from content_pages where slug like 'qa-guide-%'`,
+      `delete from visibility_measurements where created_by in (${stale})`,
+      `delete from verification_facts where updated_by in (${stale})`,
       `delete from admin_users where id in (${stale})`,
     ])
       await pool.query(sql);

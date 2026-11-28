@@ -48,10 +48,12 @@ export function Shell({
   site,
   children,
   collections,
+  guides = false,
 }: {
   site: ShellSite | null;
   children: ReactNode;
   collections: Collection[];
+  guides?: boolean;
 }) {
   const t = useTranslations(),
     locale = useLocale(),
@@ -401,6 +403,9 @@ export function Shell({
                 </a>
               )}
               <Link href={'/' + locale + '/faq'}>{t('faq')}</Link>
+              {guides && (
+                <Link href={'/' + locale + '/guides'}>{t('guides')}</Link>
+              )}
             </nav>
             <div className="footer-bottom">
               <p className="small-text">{t('noPayment')}</p>

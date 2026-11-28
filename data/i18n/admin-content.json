@@ -1,0 +1,1649 @@
+{
+  "travelContent": [
+    "Travel guides",
+    "Guide di viaggio",
+    "Guías de viaje",
+    "Guides de voyage",
+    "Reiseführer",
+    "Путеводители",
+    "Gezi rehberleri"
+  ],
+  "verificationCenter": [
+    "Verification",
+    "Verifica",
+    "Verificación",
+    "Vérification",
+    "Prüfung",
+    "Проверка",
+    "Doğrulama"
+  ],
+  "aiVisibility": [
+    "AI visibility",
+    "Visibilità IA",
+    "Visibilidad en IA",
+    "Visibilité IA",
+    "KI-Sichtbarkeit",
+    "Видимость в ИИ",
+    "Yapay zekâ görünürlüğü"
+  ],
+  "errSlugTaken": [
+    "Another page already uses this address.",
+    "Un'altra pagina usa già questo indirizzo.",
+    "Otra página ya usa esta dirección.",
+    "Une autre page utilise déjà cette adresse.",
+    "Eine andere Seite verwendet diese Adresse bereits.",
+    "Этот адрес уже используется другой страницей.",
+    "Bu adresi başka bir sayfa kullanıyor."
+  ],
+  "errUnpublishPageFirst": [
+    "Unpublish the page before changing its address.",
+    "Ritira la pagina prima di cambiarne l'indirizzo.",
+    "Despublica la página antes de cambiar su dirección.",
+    "Dépubliez la page avant de modifier son adresse.",
+    "Nehmen Sie die Seite offline, bevor Sie ihre Adresse ändern.",
+    "Снимите страницу с публикации, прежде чем менять её адрес.",
+    "Adresini değiştirmeden önce sayfayı yayından kaldırın."
+  ],
+  "contentPagesIntro": [
+    "Guides, destination and activity pages. Drafts stay private until every check passes and an owner or manager publishes them.",
+    "Guide, pagine di destinazioni e attività. Le bozze restano private finché tutti i controlli non sono superati e un titolare o un manager le pubblica.",
+    "Guías y páginas de destinos y actividades. Los borradores siguen privados hasta que pasan todas las comprobaciones y un propietario o gerente los publica.",
+    "Guides, pages de destinations et d'activités. Les brouillons restent privés tant que tous les contrôles ne sont pas validés et qu'un propriétaire ou un responsable ne les a pas publiés.",
+    "Reiseführer, Ziel- und Aktivitätsseiten. Entwürfe bleiben privat, bis alle Prüfungen bestanden sind und Inhaber oder Manager sie veröffentlichen.",
+    "Путеводители, страницы направлений и занятий. Черновики остаются закрытыми, пока не пройдены все проверки и владелец или менеджер их не опубликует.",
+    "Rehberler, destinasyon ve aktivite sayfaları. Taslaklar tüm kontrollerden geçene ve bir sahip ya da yönetici yayımlayana kadar gizli kalır."
+  ],
+  "contentNew": [
+    "New page",
+    "Nuova pagina",
+    "Nueva página",
+    "Nouvelle page",
+    "Neue Seite",
+    "Новая страница",
+    "Yeni sayfa"
+  ],
+  "contentNone": [
+    "No pages yet",
+    "Ancora nessuna pagina",
+    "Aún no hay páginas",
+    "Aucune page pour l'instant",
+    "Noch keine Seiten",
+    "Страниц пока нет",
+    "Henüz sayfa yok"
+  ],
+  "contentNoneBody": [
+    "Load the prepared drafts with pnpm db:seed-content, or create a page. Nothing appears on the website until it is published.",
+    "Carica le bozze preparate con pnpm db:seed-content oppure crea una pagina. Sul sito non appare nulla finché non viene pubblicato.",
+    "Carga los borradores preparados con pnpm db:seed-content o crea una página. Nada aparece en la web hasta que se publica.",
+    "Chargez les brouillons préparés avec pnpm db:seed-content ou créez une page. Rien n'apparaît sur le site avant publication.",
+    "Laden Sie die vorbereiteten Entwürfe mit pnpm db:seed-content oder legen Sie eine Seite an. Auf der Website erscheint nichts vor der Veröffentlichung.",
+    "Загрузите подготовленные черновики командой pnpm db:seed-content или создайте страницу. На сайте ничего не появится до публикации.",
+    "Hazır taslakları pnpm db:seed-content ile yükleyin veya bir sayfa oluşturun. Yayımlanana kadar sitede hiçbir şey görünmez."
+  ],
+  "contentKind_guide": [
+    "Guide",
+    "Guida",
+    "Guía",
+    "Guide",
+    "Reiseführer",
+    "Путеводитель",
+    "Rehber"
+  ],
+  "contentKind_destination": [
+    "Destination",
+    "Destinazione",
+    "Destino",
+    "Destination",
+    "Reiseziel",
+    "Направление",
+    "Destinasyon"
+  ],
+  "contentKind_activity": [
+    "Activity",
+    "Attività",
+    "Actividad",
+    "Activité",
+    "Aktivität",
+    "Занятие",
+    "Aktivite"
+  ],
+  "contentBlockedCount": [
+    "{n} to fix before publishing",
+    "{n} da sistemare prima della pubblicazione",
+    "{n} por corregir antes de publicar",
+    "{n} à corriger avant publication",
+    "{n} vor der Veröffentlichung zu beheben",
+    "Исправить до публикации: {n}",
+    "Yayımlamadan önce düzeltilecek: {n}"
+  ],
+  "contentSaved": [
+    "Page saved",
+    "Pagina salvata",
+    "Página guardada",
+    "Page enregistrée",
+    "Seite gespeichert",
+    "Страница сохранена",
+    "Sayfa kaydedildi"
+  ],
+  "contentSaveFailed": [
+    "The page could not be saved.",
+    "Impossibile salvare la pagina.",
+    "No se pudo guardar la página.",
+    "La page n'a pas pu être enregistrée.",
+    "Die Seite konnte nicht gespeichert werden.",
+    "Не удалось сохранить страницу.",
+    "Sayfa kaydedilemedi."
+  ],
+  "contentPublishBlocked": [
+    "Not published: fix the items listed under Ready to publish.",
+    "Non pubblicata: sistema le voci elencate in Pronta per la pubblicazione.",
+    "No publicada: corrige los puntos de Lista para publicar.",
+    "Non publiée : corrigez les points listés sous Prête à publier.",
+    "Nicht veröffentlicht: Beheben Sie die Punkte unter Bereit zur Veröffentlichung.",
+    "Не опубликовано: исправьте пункты в разделе «Готовность к публикации».",
+    "Yayımlanmadı: Yayına hazırlık altındaki maddeleri düzeltin."
+  ],
+  "contentAll": [
+    "All travel guides",
+    "Tutte le guide di viaggio",
+    "Todas las guías de viaje",
+    "Tous les guides de voyage",
+    "Alle Reiseführer",
+    "Все путеводители",
+    "Tüm gezi rehberleri"
+  ],
+  "contentPublished": [
+    "Published",
+    "Pubblicata",
+    "Publicada",
+    "Publiée",
+    "Veröffentlicht",
+    "Опубликована",
+    "Yayında"
+  ],
+  "contentDraft": [
+    "Draft",
+    "Bozza",
+    "Borrador",
+    "Brouillon",
+    "Entwurf",
+    "Черновик",
+    "Taslak"
+  ],
+  "contentReadiness": [
+    "Ready to publish",
+    "Pronta per la pubblicazione",
+    "Lista para publicar",
+    "Prête à publier",
+    "Bereit zur Veröffentlichung",
+    "Готовность к публикации",
+    "Yayına hazırlık"
+  ],
+  "contentReady": [
+    "All checks pass. An owner or manager can publish this page.",
+    "Tutti i controlli sono superati. Un titolare o un manager può pubblicare questa pagina.",
+    "Todas las comprobaciones están bien. Un propietario o gerente puede publicar esta página.",
+    "Tous les contrôles sont validés. Un propriétaire ou un responsable peut publier cette page.",
+    "Alle Prüfungen bestanden. Inhaber oder Manager können diese Seite veröffentlichen.",
+    "Все проверки пройдены. Владелец или менеджер может опубликовать страницу.",
+    "Tüm kontroller tamam. Bir sahip ya da yönetici bu sayfayı yayımlayabilir."
+  ],
+  "contentBlocker_bodyTooShort": [
+    "The English text is too short to be useful (guides 300 words, destinations 250, activities 200).",
+    "Il testo inglese è troppo breve per essere utile (guide 300 parole, destinazioni 250, attività 200).",
+    "El texto en inglés es demasiado corto para ser útil (guías 300 palabras, destinos 250, actividades 200).",
+    "Le texte anglais est trop court pour être utile (guides 300 mots, destinations 250, activités 200).",
+    "Der englische Text ist zu kurz (Reiseführer 300 Wörter, Reiseziele 250, Aktivitäten 200).",
+    "Английский текст слишком короткий (путеводитель — 300 слов, направление — 250, занятие — 200).",
+    "İngilizce metin yararlı olamayacak kadar kısa (rehber 300 kelime, destinasyon 250, aktivite 200)."
+  ],
+  "contentBlocker_noSummary": [
+    "Add a short summary.",
+    "Aggiungi un breve riassunto.",
+    "Añade un resumen breve.",
+    "Ajoutez un court résumé.",
+    "Fügen Sie eine kurze Zusammenfassung hinzu.",
+    "Добавьте краткое описание.",
+    "Kısa bir özet ekleyin."
+  ],
+  "contentBlocker_noAuthor": [
+    "Name the author (a real staff member).",
+    "Indica l'autore (una persona reale dello staff).",
+    "Indica el autor (una persona real del equipo).",
+    "Indiquez l'auteur (un vrai membre de l'équipe).",
+    "Nennen Sie den Autor (eine echte Person aus dem Team).",
+    "Укажите автора (реального сотрудника).",
+    "Yazarı belirtin (gerçek bir ekip üyesi)."
+  ],
+  "contentBlocker_noSources": [
+    "Add at least one source (https link) for the facts on the page.",
+    "Aggiungi almeno una fonte (link https) per i fatti riportati.",
+    "Añade al menos una fuente (enlace https) para los datos de la página.",
+    "Ajoutez au moins une source (lien https) pour les faits de la page.",
+    "Fügen Sie mindestens eine Quelle (https-Link) für die Fakten hinzu.",
+    "Добавьте хотя бы один источник (ссылку https) для фактов на странице.",
+    "Sayfadaki bilgiler için en az bir kaynak (https bağlantısı) ekleyin."
+  ],
+  "contentBlocker_noRelatedTrips": [
+    "Link at least one related trip.",
+    "Collega almeno un'escursione correlata.",
+    "Enlaza al menos una excursión relacionada.",
+    "Liez au moins une excursion associée.",
+    "Verknüpfen Sie mindestens einen passenden Ausflug.",
+    "Свяжите страницу хотя бы с одной экскурсией.",
+    "En az bir ilgili turu bağlayın."
+  ],
+  "contentBlocker_unconfirmedFacts": [
+    "The text still contains [CONFIRM] markers. Replace them with facts the owner has confirmed.",
+    "Il testo contiene ancora segni [CONFIRM]. Sostituiscili con fatti confermati dal titolare.",
+    "El texto aún contiene marcas [CONFIRM]. Sustitúyelas por datos confirmados por el propietario.",
+    "Le texte contient encore des marqueurs [CONFIRM]. Remplacez-les par des faits confirmés par le propriétaire.",
+    "Der Text enthält noch [CONFIRM]-Markierungen. Ersetzen Sie sie durch vom Inhaber bestätigte Fakten.",
+    "В тексте остались метки [CONFIRM]. Замените их фактами, подтверждёнными владельцем.",
+    "Metinde hâlâ [CONFIRM] işaretleri var. Bunları sahibin onayladığı bilgilerle değiştirin."
+  ],
+  "contentBlocker_relatedTripNotPublished": [
+    "A linked trip is not published. Remove it or publish the trip first.",
+    "Un'escursione collegata non è pubblicata. Rimuovila o pubblicala prima.",
+    "Una excursión enlazada no está publicada. Quítala o publícala antes.",
+    "Une excursion liée n'est pas publiée. Retirez-la ou publiez-la d'abord.",
+    "Ein verknüpfter Ausflug ist nicht veröffentlicht. Entfernen oder zuerst veröffentlichen.",
+    "Связанная экскурсия не опубликована. Уберите её или сначала опубликуйте.",
+    "Bağlı bir tur yayında değil. Kaldırın ya da önce turu yayımlayın."
+  ],
+  "contentBlocker_translationsMissing": [
+    "Every text needs all seven languages (EN, IT, ES, FR, DE, RU, TR), written or reviewed by a person.",
+    "Ogni testo deve essere in tutte e sette le lingue (EN, IT, ES, FR, DE, RU, TR), scritto o rivisto da una persona.",
+    "Cada texto necesita los siete idiomas (EN, IT, ES, FR, DE, RU, TR), escritos o revisados por una persona.",
+    "Chaque texte doit exister dans les sept langues (EN, IT, ES, FR, DE, RU, TR), rédigé ou relu par une personne.",
+    "Jeder Text braucht alle sieben Sprachen (EN, IT, ES, FR, DE, RU, TR), von einem Menschen geschrieben oder geprüft.",
+    "Каждый текст нужен на всех семи языках (EN, IT, ES, FR, DE, RU, TR), написанный или проверенный человеком.",
+    "Her metin yedi dilin tümünde olmalı (EN, IT, ES, FR, DE, RU, TR) ve bir kişi tarafından yazılmış ya da kontrol edilmiş olmalı."
+  ],
+  "contentUnpublish": [
+    "Unpublish",
+    "Ritira dal sito",
+    "Despublicar",
+    "Dépublier",
+    "Offline nehmen",
+    "Снять с публикации",
+    "Yayından kaldır"
+  ],
+  "contentPublish": [
+    "Publish",
+    "Pubblica",
+    "Publicar",
+    "Publier",
+    "Veröffentlichen",
+    "Опубликовать",
+    "Yayımla"
+  ],
+  "contentArchive": [
+    "Archive draft",
+    "Archivia bozza",
+    "Archivar borrador",
+    "Archiver le brouillon",
+    "Entwurf archivieren",
+    "Архивировать черновик",
+    "Taslağı arşivle"
+  ],
+  "contentBasics": [
+    "Basics",
+    "Informazioni di base",
+    "Datos básicos",
+    "Informations de base",
+    "Grunddaten",
+    "Основное",
+    "Temel bilgiler"
+  ],
+  "contentSlug": [
+    "Address (slug)",
+    "Indirizzo (slug)",
+    "Dirección (slug)",
+    "Adresse (slug)",
+    "Adresse (Slug)",
+    "Адрес (slug)",
+    "Adres (slug)"
+  ],
+  "contentSlugHint": [
+    "Lowercase letters, numbers and hyphens. The page address becomes /en/guides/<slug> (and the same in every language).",
+    "Lettere minuscole, numeri e trattini. L'indirizzo diventa /it/guides/<slug> (uguale in ogni lingua).",
+    "Minúsculas, números y guiones. La dirección será /es/guides/<slug> (igual en todos los idiomas).",
+    "Minuscules, chiffres et tirets. L'adresse devient /fr/guides/<slug> (identique dans chaque langue).",
+    "Kleinbuchstaben, Ziffern und Bindestriche. Die Adresse lautet /de/guides/<slug> (in jeder Sprache gleich).",
+    "Строчные латинские буквы, цифры и дефисы. Адрес страницы: /ru/guides/<slug> (одинаковый для всех языков).",
+    "Küçük harf, rakam ve kısa çizgi. Adres /tr/guides/<slug> olur (her dilde aynı)."
+  ],
+  "contentKind": [
+    "Page type",
+    "Tipo di pagina",
+    "Tipo de página",
+    "Type de page",
+    "Seitentyp",
+    "Тип страницы",
+    "Sayfa türü"
+  ],
+  "contentCategory": [
+    "Category (optional)",
+    "Categoria (facoltativa)",
+    "Categoría (opcional)",
+    "Catégorie (facultatif)",
+    "Kategorie (optional)",
+    "Категория (необязательно)",
+    "Kategori (isteğe bağlı)"
+  ],
+  "contentAuthor": [
+    "Author",
+    "Autore",
+    "Autor",
+    "Auteur",
+    "Autor",
+    "Автор",
+    "Yazar"
+  ],
+  "contentAuthorHint": [
+    "A real person who wrote or checked the page. Shown on the page.",
+    "Una persona reale che ha scritto o controllato la pagina. Appare sulla pagina.",
+    "Una persona real que escribió o revisó la página. Se muestra en la página.",
+    "Une vraie personne qui a rédigé ou vérifié la page. Affiché sur la page.",
+    "Eine echte Person, die die Seite geschrieben oder geprüft hat. Wird angezeigt.",
+    "Реальный человек, который написал или проверил страницу. Показывается на странице.",
+    "Sayfayı yazan veya kontrol eden gerçek bir kişi. Sayfada gösterilir."
+  ],
+  "contentAuthorRole": [
+    "Author's role (optional)",
+    "Ruolo dell'autore (facoltativo)",
+    "Cargo del autor (opcional)",
+    "Fonction de l'auteur (facultatif)",
+    "Rolle des Autors (optional)",
+    "Должность автора (необязательно)",
+    "Yazarın görevi (isteğe bağlı)"
+  ],
+  "contentCover": [
+    "Cover image",
+    "Immagine di copertina",
+    "Imagen de portada",
+    "Image de couverture",
+    "Titelbild",
+    "Обложка",
+    "Kapak görseli"
+  ],
+  "contentCoverHint": [
+    "Only images with confirmed usage rights appear on the site. Write the alt text in Media.",
+    "Sul sito compaiono solo immagini con diritti d'uso confermati. Scrivi il testo alternativo in Media.",
+    "En la web solo aparecen imágenes con derechos de uso confirmados. Escribe el texto alternativo en Medios.",
+    "Seules les images aux droits d'utilisation confirmés apparaissent sur le site. Rédigez le texte alternatif dans Médias.",
+    "Auf der Website erscheinen nur Bilder mit bestätigten Nutzungsrechten. Den Alternativtext pflegen Sie unter Medien.",
+    "На сайте показываются только изображения с подтверждёнными правами. Альтернативный текст задаётся в разделе «Медиа».",
+    "Sitede yalnızca kullanım hakkı onaylı görseller görünür. Alternatif metni Medya bölümünde yazın."
+  ],
+  "contentText": [
+    "Text",
+    "Testo",
+    "Texto",
+    "Texte",
+    "Text",
+    "Текст",
+    "Metin"
+  ],
+  "contentLangHint": [
+    "• marks a language still missing a title or text. Publishing needs all seven.",
+    "• indica una lingua a cui mancano ancora titolo o testo. Per pubblicare servono tutte e sette.",
+    "• indica un idioma al que aún le falta título o texto. Para publicar hacen falta los siete.",
+    "• signale une langue sans titre ou sans texte. La publication exige les sept.",
+    "• markiert eine Sprache ohne Titel oder Text. Zum Veröffentlichen sind alle sieben nötig.",
+    "• — у языка ещё нет заголовка или текста. Для публикации нужны все семь.",
+    "• işareti başlığı veya metni eksik dili gösterir. Yayın için yedisi de gerekir."
+  ],
+  "contentTitle": [
+    "Title",
+    "Titolo",
+    "Título",
+    "Titre",
+    "Titel",
+    "Заголовок",
+    "Başlık"
+  ],
+  "contentSummary": [
+    "Summary",
+    "Riassunto",
+    "Resumen",
+    "Résumé",
+    "Zusammenfassung",
+    "Краткое описание",
+    "Özet"
+  ],
+  "contentBody": [
+    "Page text",
+    "Testo della pagina",
+    "Texto de la página",
+    "Texte de la page",
+    "Seitentext",
+    "Текст страницы",
+    "Sayfa metni"
+  ],
+  "contentBodyHint": [
+    "Blank line = new paragraph. \"## \" starts a heading, \"- \" a list item. No prices: they come from the trips. Mark facts to check as [CONFIRM: …].",
+    "Riga vuota = nuovo paragrafo. \"## \" inizia un titolo, \"- \" una voce di elenco. Niente prezzi: arrivano dalle escursioni. Segna i fatti da verificare con [CONFIRM: …].",
+    "Línea en blanco = párrafo nuevo. \"## \" inicia un encabezado, \"- \" un elemento de lista. Sin precios: vienen de las excursiones. Marca los datos por verificar con [CONFIRM: …].",
+    "Ligne vide = nouveau paragraphe. « ## » commence un intertitre, « - » un élément de liste. Pas de prix : ils viennent des excursions. Marquez les faits à vérifier avec [CONFIRM: …].",
+    "Leerzeile = neuer Absatz. „## “ beginnt eine Überschrift, „- “ einen Listenpunkt. Keine Preise: Sie kommen aus den Ausflügen. Zu prüfende Fakten mit [CONFIRM: …] markieren.",
+    "Пустая строка — новый абзац. «## » — заголовок, «- » — пункт списка. Без цен: они берутся из экскурсий. Факты для проверки помечайте [CONFIRM: …].",
+    "Boş satır = yeni paragraf. \"## \" başlık, \"- \" liste maddesi başlatır. Fiyat yazmayın: fiyatlar turlardan gelir. Kontrol edilecek bilgileri [CONFIRM: …] ile işaretleyin."
+  ],
+  "contentPreview": [
+    "Preview (this language)",
+    "Anteprima (questa lingua)",
+    "Vista previa (este idioma)",
+    "Aperçu (cette langue)",
+    "Vorschau (diese Sprache)",
+    "Предпросмотр (этот язык)",
+    "Önizleme (bu dil)"
+  ],
+  "contentPreviewEmpty": [
+    "No text in this language yet.",
+    "Ancora nessun testo in questa lingua.",
+    "Aún no hay texto en este idioma.",
+    "Pas encore de texte dans cette langue.",
+    "Noch kein Text in dieser Sprache.",
+    "На этом языке текста пока нет.",
+    "Bu dilde henüz metin yok."
+  ],
+  "seoTitleField": [
+    "Search title",
+    "Titolo per i motori di ricerca",
+    "Título para buscadores",
+    "Titre pour les moteurs de recherche",
+    "Suchtitel",
+    "Заголовок для поиска",
+    "Arama başlığı"
+  ],
+  "seoTitleHint": [
+    "About 50–60 characters. Leave empty to use the automatic title.",
+    "Circa 50–60 caratteri. Lascia vuoto per usare il titolo automatico.",
+    "Unos 50–60 caracteres. Déjalo vacío para usar el título automático.",
+    "Environ 50 à 60 caractères. Laissez vide pour le titre automatique.",
+    "Etwa 50–60 Zeichen. Leer lassen für den automatischen Titel.",
+    "Около 50–60 символов. Оставьте пустым — будет автоматический заголовок.",
+    "Yaklaşık 50–60 karakter. Otomatik başlık için boş bırakın."
+  ],
+  "seoDescriptionField": [
+    "Search description",
+    "Descrizione per i motori di ricerca",
+    "Descripción para buscadores",
+    "Description pour les moteurs de recherche",
+    "Suchbeschreibung",
+    "Описание для поиска",
+    "Arama açıklaması"
+  ],
+  "seoDescriptionHint": [
+    "About 120–158 characters. Leave empty to use the automatic description.",
+    "Circa 120–158 caratteri. Lascia vuoto per usare la descrizione automatica.",
+    "Unos 120–158 caracteres. Déjalo vacío para usar la descripción automática.",
+    "Environ 120 à 158 caractères. Laissez vide pour la description automatique.",
+    "Etwa 120–158 Zeichen. Leer lassen für die automatische Beschreibung.",
+    "Около 120–158 символов. Оставьте пустым — будет автоматическое описание.",
+    "Yaklaşık 120–158 karakter. Otomatik açıklama için boş bırakın."
+  ],
+  "contentFaqs": [
+    "Questions and answers",
+    "Domande e risposte",
+    "Preguntas y respuestas",
+    "Questions et réponses",
+    "Fragen und Antworten",
+    "Вопросы и ответы",
+    "Sorular ve cevaplar"
+  ],
+  "contentAddFaq": [
+    "Add question",
+    "Aggiungi domanda",
+    "Añadir pregunta",
+    "Ajouter une question",
+    "Frage hinzufügen",
+    "Добавить вопрос",
+    "Soru ekle"
+  ],
+  "contentFaqN": [
+    "Question {n}",
+    "Domanda {n}",
+    "Pregunta {n}",
+    "Question {n}",
+    "Frage {n}",
+    "Вопрос {n}",
+    "Soru {n}"
+  ],
+  "contentQuestion": [
+    "Question",
+    "Domanda",
+    "Pregunta",
+    "Question",
+    "Frage",
+    "Вопрос",
+    "Soru"
+  ],
+  "contentAnswer": [
+    "Answer",
+    "Risposta",
+    "Respuesta",
+    "Réponse",
+    "Antwort",
+    "Ответ",
+    "Cevap"
+  ],
+  "contentRemove": [
+    "Remove",
+    "Rimuovi",
+    "Quitar",
+    "Retirer",
+    "Entfernen",
+    "Удалить",
+    "Kaldır"
+  ],
+  "contentLinks": [
+    "Links and sources",
+    "Collegamenti e fonti",
+    "Enlaces y fuentes",
+    "Liens et sources",
+    "Verknüpfungen und Quellen",
+    "Ссылки и источники",
+    "Bağlantılar ve kaynaklar"
+  ],
+  "contentRelatedTrips": [
+    "Related trips (up to 12)",
+    "Escursioni correlate (fino a 12)",
+    "Excursiones relacionadas (hasta 12)",
+    "Excursions associées (12 au plus)",
+    "Passende Ausflüge (bis zu 12)",
+    "Связанные экскурсии (до 12)",
+    "İlgili turlar (en fazla 12)"
+  ],
+  "contentRelatedPages": [
+    "Related pages",
+    "Pagine correlate",
+    "Páginas relacionadas",
+    "Pages associées",
+    "Verwandte Seiten",
+    "Связанные страницы",
+    "İlgili sayfalar"
+  ],
+  "contentRelatedPagesHint": [
+    "Addresses (slugs) of other guides, separated by commas. Unpublished ones are left out on the site.",
+    "Indirizzi (slug) di altre guide, separati da virgole. Quelle non pubblicate non compaiono sul sito.",
+    "Direcciones (slugs) de otras guías, separadas por comas. Las no publicadas no aparecen en la web.",
+    "Adresses (slugs) d'autres guides, séparées par des virgules. Celles non publiées n'apparaissent pas sur le site.",
+    "Adressen (Slugs) anderer Reiseführer, durch Kommas getrennt. Unveröffentlichte erscheinen nicht.",
+    "Адреса (slug) других путеводителей через запятую. Неопубликованные на сайте не показываются.",
+    "Diğer rehberlerin adresleri (slug), virgülle ayrılmış. Yayında olmayanlar sitede gösterilmez."
+  ],
+  "contentSources": [
+    "Sources",
+    "Fonti",
+    "Fuentes",
+    "Sources",
+    "Quellen",
+    "Источники",
+    "Kaynaklar"
+  ],
+  "contentSourceTitle": [
+    "Source name",
+    "Nome della fonte",
+    "Nombre de la fuente",
+    "Nom de la source",
+    "Name der Quelle",
+    "Название источника",
+    "Kaynak adı"
+  ],
+  "contentSourceUrl": [
+    "Source link (https)",
+    "Link della fonte (https)",
+    "Enlace de la fuente (https)",
+    "Lien de la source (https)",
+    "Link zur Quelle (https)",
+    "Ссылка на источник (https)",
+    "Kaynak bağlantısı (https)"
+  ],
+  "contentAddSource": [
+    "Add source",
+    "Aggiungi fonte",
+    "Añadir fuente",
+    "Ajouter une source",
+    "Quelle hinzufügen",
+    "Добавить источник",
+    "Kaynak ekle"
+  ],
+  "contentLockedPublished": [
+    "This page is live. Ask an owner or manager to unpublish it before you change it.",
+    "Questa pagina è online. Chiedi a un titolare o a un manager di ritirarla prima di modificarla.",
+    "Esta página está publicada. Pide a un propietario o gerente que la despublique antes de cambiarla.",
+    "Cette page est en ligne. Demandez à un propriétaire ou un responsable de la dépublier avant de la modifier.",
+    "Diese Seite ist online. Bitten Sie Inhaber oder Manager, sie vor Änderungen offline zu nehmen.",
+    "Страница опубликована. Попросите владельца или менеджера снять её с публикации, прежде чем менять.",
+    "Bu sayfa yayında. Değiştirmeden önce bir sahip ya da yöneticiden yayından kaldırmasını isteyin."
+  ],
+  "contentSave": [
+    "Save page",
+    "Salva pagina",
+    "Guardar página",
+    "Enregistrer la page",
+    "Seite speichern",
+    "Сохранить страницу",
+    "Sayfayı kaydet"
+  ],
+  "verificationIntro": [
+    "Facts the owner must confirm before the website may state them. Answers recorded here are internal notes: enter confirmed facts in the trip editor to publish them.",
+    "Fatti che il titolare deve confermare prima che il sito li riporti. Le risposte registrate qui sono note interne: inserisci i fatti confermati nell'editor dell'escursione per pubblicarli.",
+    "Datos que el propietario debe confirmar antes de que la web los muestre. Las respuestas que se registran aquí son notas internas: introduce los datos confirmados en el editor de la excursión para publicarlos.",
+    "Faits que le propriétaire doit confirmer avant que le site puisse les afficher. Les réponses notées ici sont internes : saisissez les faits confirmés dans l'éditeur de l'excursion pour les publier.",
+    "Fakten, die der Inhaber bestätigen muss, bevor die Website sie nennt. Antworten hier sind interne Notizen: Tragen Sie bestätigte Fakten im Ausflugseditor ein, um sie zu veröffentlichen.",
+    "Факты, которые владелец должен подтвердить, прежде чем сайт их укажет. Ответы здесь — внутренние заметки: чтобы опубликовать подтверждённые факты, внесите их в редактор экскурсии.",
+    "Sitede yer almadan önce sahibin onaylaması gereken bilgiler. Burada kaydedilen cevaplar dahili notlardır: yayımlamak için onaylanan bilgileri tur düzenleyicisine girin."
+  ],
+  "verifyExport": [
+    "Export open items (CSV)",
+    "Esporta voci aperte (CSV)",
+    "Exportar pendientes (CSV)",
+    "Exporter les points ouverts (CSV)",
+    "Offene Punkte exportieren (CSV)",
+    "Экспорт открытых пунктов (CSV)",
+    "Açık maddeleri dışa aktar (CSV)"
+  ],
+  "verifyApprovals": [
+    "Site-wide approvals",
+    "Approvazioni per tutto il sito",
+    "Aprobaciones para toda la web",
+    "Validations pour tout le site",
+    "Freigaben für die ganze Website",
+    "Согласования для всего сайта",
+    "Site geneli onaylar"
+  ],
+  "verifyApprovalsBody": [
+    "These decisions block whole areas of content (policies, FAQs, crawler settings) until the owner or legal adviser approves them.",
+    "Queste decisioni bloccano intere aree di contenuto (condizioni, FAQ, impostazioni dei crawler) finché il titolare o il consulente legale non le approva.",
+    "Estas decisiones bloquean áreas enteras de contenido (condiciones, preguntas frecuentes, ajustes de rastreadores) hasta que el propietario o el asesor legal las aprueba.",
+    "Ces décisions bloquent des pans entiers de contenu (conditions, FAQ, réglages des robots) jusqu'à validation par le propriétaire ou le conseiller juridique.",
+    "Diese Entscheidungen sperren ganze Inhaltsbereiche (Bedingungen, FAQ, Crawler-Einstellungen), bis Inhaber oder Rechtsberatung sie freigeben.",
+    "Эти решения блокируют целые разделы (условия, вопросы и ответы, настройки поисковых роботов), пока их не одобрят владелец или юрист.",
+    "Bu kararlar, sahip ya da hukuk danışmanı onaylayana kadar içeriğin bütün bölümlerini (koşullar, SSS, tarayıcı ayarları) engeller."
+  ],
+  "verifyOwnerOnly": [
+    "Only an owner or manager can record answers.",
+    "Solo un titolare o un manager può registrare le risposte.",
+    "Solo un propietario o gerente puede registrar respuestas.",
+    "Seul un propriétaire ou un responsable peut enregistrer les réponses.",
+    "Nur Inhaber oder Manager können Antworten erfassen.",
+    "Записывать ответы может только владелец или менеджер.",
+    "Cevapları yalnızca bir sahip ya da yönetici kaydedebilir."
+  ],
+  "verifySiteWide": [
+    "Whole website",
+    "Tutto il sito",
+    "Toda la web",
+    "Tout le site",
+    "Gesamte Website",
+    "Весь сайт",
+    "Tüm site"
+  ],
+  "approval_legal": [
+    "Terms and privacy wording approved by a legal adviser",
+    "Testi di termini e privacy approvati da un consulente legale",
+    "Textos de condiciones y privacidad aprobados por un asesor legal",
+    "Conditions et politique de confidentialité validées par un conseiller juridique",
+    "Texte zu AGB und Datenschutz von Rechtsberatung freigegeben",
+    "Условия и политика конфиденциальности одобрены юристом",
+    "Koşullar ve gizlilik metinleri hukuk danışmanınca onaylandı"
+  ],
+  "approval_cancellation": [
+    "Cancellation, refund and weather policy",
+    "Condizioni di cancellazione, rimborso e maltempo",
+    "Política de cancelación, reembolso y meteorología",
+    "Conditions d'annulation, de remboursement et météo",
+    "Storno-, Erstattungs- und Wetterregeln",
+    "Условия отмены, возврата и при плохой погоде",
+    "İptal, iade ve hava durumu koşulları"
+  ],
+  "approval_guideLanguages": [
+    "Guide languages actually offered",
+    "Lingue delle guide effettivamente offerte",
+    "Idiomas de guía que se ofrecen de verdad",
+    "Langues des guides réellement proposées",
+    "Tatsächlich angebotene Guide-Sprachen",
+    "Языки гидов, которые реально доступны",
+    "Gerçekten sunulan rehber dilleri"
+  ],
+  "approval_pickup": [
+    "Hotel pickup areas and pickup times",
+    "Zone e orari di prelievo in hotel",
+    "Zonas y horarios de recogida en el hotel",
+    "Zones et horaires de prise en charge à l'hôtel",
+    "Abholgebiete und -zeiten am Hotel",
+    "Районы и время трансфера из отеля",
+    "Otelden alış bölgeleri ve saatleri"
+  ],
+  "approval_fees": [
+    "Extra fees paid on the spot (parks, marinas, tickets)",
+    "Costi extra pagati sul posto (parchi, porti, biglietti)",
+    "Tasas extra que se pagan allí (parques, puertos, entradas)",
+    "Frais supplémentaires payés sur place (parcs, marinas, billets)",
+    "Vor Ort zu zahlende Zusatzgebühren (Parks, Häfen, Eintritt)",
+    "Дополнительные сборы на месте (парки, марины, билеты)",
+    "Yerinde ödenen ek ücretler (parklar, marinalar, biletler)"
+  ],
+  "approval_faq": [
+    "Answers to the 42 FAQ candidates that need business approval",
+    "Risposte alle 42 FAQ candidate da approvare",
+    "Respuestas a las 42 preguntas frecuentes pendientes de aprobación",
+    "Réponses aux 42 questions de FAQ à valider",
+    "Antworten auf die 42 FAQ-Entwürfe, die eine Freigabe brauchen",
+    "Ответы на 42 вопроса из FAQ, требующих согласования",
+    "Onay bekleyen 42 SSS adayına cevaplar"
+  ],
+  "approval_aiTraining": [
+    "Allow or block AI training crawlers",
+    "Consentire o bloccare i crawler per l'addestramento IA",
+    "Permitir o bloquear rastreadores de entrenamiento de IA",
+    "Autoriser ou bloquer les robots d'entraînement d'IA",
+    "KI-Trainings-Crawler erlauben oder sperren",
+    "Разрешить или запретить роботов для обучения ИИ",
+    "Yapay zekâ eğitim tarayıcılarına izin ver veya engelle"
+  ],
+  "approval_licence": [
+    "Tourism licence and company details to show",
+    "Licenza turistica e dati aziendali da mostrare",
+    "Licencia turística y datos de la empresa que se mostrarán",
+    "Licence de tourisme et coordonnées de l'entreprise à afficher",
+    "Anzuzeigende Tourismuslizenz und Firmendaten",
+    "Туристическая лицензия и реквизиты компании для показа",
+    "Gösterilecek turizm lisansı ve şirket bilgileri"
+  ],
+  "verifyTours": [
+    "Tours",
+    "Escursioni",
+    "Excursiones",
+    "Excursions",
+    "Ausflüge",
+    "Экскурсии",
+    "Turlar"
+  ],
+  "verifyOpenCount": [
+    "{n} open",
+    "{n} aperte",
+    "{n} pendientes",
+    "{n} ouverts",
+    "{n} offen",
+    "Открыто: {n}",
+    "{n} açık"
+  ],
+  "verifyOpen": [
+    "Open items",
+    "Voci aperte",
+    "Pendientes",
+    "Points ouverts",
+    "Offene Punkte",
+    "Открытые пункты",
+    "Açık maddeler"
+  ],
+  "verifyFilterField": [
+    "Missing field",
+    "Campo mancante",
+    "Campo que falta",
+    "Champ manquant",
+    "Fehlendes Feld",
+    "Чего не хватает",
+    "Eksik alan"
+  ],
+  "verifyAnyField": [
+    "Any",
+    "Qualsiasi",
+    "Cualquiera",
+    "Tous",
+    "Beliebig",
+    "Любое",
+    "Hepsi"
+  ],
+  "verifyGroupPage": [
+    "On the trip page",
+    "Nella pagina dell'escursione",
+    "En la página de la excursión",
+    "Sur la page de l'excursion",
+    "Auf der Ausflugsseite",
+    "На странице экскурсии",
+    "Tur sayfasında"
+  ],
+  "verifyGroupOwner": [
+    "Owner must confirm",
+    "Da confermare dal titolare",
+    "Debe confirmar el propietario",
+    "À confirmer par le propriétaire",
+    "Vom Inhaber zu bestätigen",
+    "Должен подтвердить владелец",
+    "Sahibin onaylaması gerekenler"
+  ],
+  "verifyReady": [
+    "ready",
+    "pronta",
+    "lista",
+    "prête",
+    "fertig",
+    "готово",
+    "hazır"
+  ],
+  "verifyFeatured": [
+    "featured on the homepage",
+    "in evidenza in homepage",
+    "destacada en la portada",
+    "mise en avant sur l'accueil",
+    "auf der Startseite hervorgehoben",
+    "на главной странице",
+    "ana sayfada öne çıkan"
+  ],
+  "verifyAnswerCounts": [
+    "{verified} of {total} facts confirmed",
+    "{verified} di {total} fatti confermati",
+    "{verified} de {total} datos confirmados",
+    "{verified} faits confirmés sur {total}",
+    "{verified} von {total} Fakten bestätigt",
+    "Подтверждено фактов: {verified} из {total}",
+    "{total} bilginin {verified} tanesi onaylandı"
+  ],
+  "verifyMissing": [
+    "Missing on the page",
+    "Manca nella pagina",
+    "Falta en la página",
+    "Manque sur la page",
+    "Fehlt auf der Seite",
+    "Нет на странице",
+    "Sayfada eksik"
+  ],
+  "verifyNothingMissing": [
+    "Nothing missing",
+    "Non manca nulla",
+    "No falta nada",
+    "Rien ne manque",
+    "Nichts fehlt",
+    "Всё на месте",
+    "Eksik yok"
+  ],
+  "verifyHave": [
+    "Already on the page",
+    "Già nella pagina",
+    "Ya en la página",
+    "Déjà sur la page",
+    "Schon auf der Seite",
+    "Уже на странице",
+    "Sayfada mevcut"
+  ],
+  "verifyTranslations": [
+    "Translations",
+    "Traduzioni",
+    "Traducciones",
+    "Traductions",
+    "Übersetzungen",
+    "Переводы",
+    "Çeviriler"
+  ],
+  "verifyLangsMissing": [
+    "Missing: {langs}",
+    "Mancano: {langs}",
+    "Faltan: {langs}",
+    "Manquent : {langs}",
+    "Fehlen: {langs}",
+    "Нет: {langs}",
+    "Eksik: {langs}"
+  ],
+  "verifyAllLangs": [
+    "All seven languages",
+    "Tutte e sette le lingue",
+    "Los siete idiomas",
+    "Les sept langues",
+    "Alle sieben Sprachen",
+    "Все семь языков",
+    "Yedi dilin tümü"
+  ],
+  "verifyPublication": [
+    "Website",
+    "Sito",
+    "Web",
+    "Site",
+    "Website",
+    "Сайт",
+    "Site"
+  ],
+  "verifyLiveOk": [
+    "Live, no blocking problems",
+    "Online, nessun problema bloccante",
+    "Publicada, sin problemas graves",
+    "En ligne, aucun problème bloquant",
+    "Online, keine schweren Probleme",
+    "Опубликована, серьёзных проблем нет",
+    "Yayında, engelleyici sorun yok"
+  ],
+  "verifyLiveIssues": [
+    "Live, with problems to fix",
+    "Online, con problemi da risolvere",
+    "Publicada, con problemas por resolver",
+    "En ligne, avec des problèmes à corriger",
+    "Online, mit zu behebenden Problemen",
+    "Опубликована, есть проблемы",
+    "Yayında, düzeltilecek sorunlar var"
+  ],
+  "verifyShowAnswers": [
+    "Show owner answers",
+    "Mostra risposte del titolare",
+    "Ver respuestas del propietario",
+    "Afficher les réponses du propriétaire",
+    "Antworten des Inhabers anzeigen",
+    "Показать ответы владельца",
+    "Sahibin cevaplarını göster"
+  ],
+  "verifyHideAnswers": [
+    "Hide owner answers",
+    "Nascondi risposte del titolare",
+    "Ocultar respuestas del propietario",
+    "Masquer les réponses du propriétaire",
+    "Antworten des Inhabers ausblenden",
+    "Скрыть ответы владельца",
+    "Sahibin cevaplarını gizle"
+  ],
+  "verifyTopic_includes": [
+    "What is included",
+    "Cosa è incluso",
+    "Qué incluye",
+    "Ce qui est inclus",
+    "Was inbegriffen ist",
+    "Что входит",
+    "Neler dahil"
+  ],
+  "verifyTopic_excludes": [
+    "What is not included",
+    "Cosa non è incluso",
+    "Qué no incluye",
+    "Ce qui n'est pas inclus",
+    "Was nicht inbegriffen ist",
+    "Что не входит",
+    "Neler dahil değil"
+  ],
+  "verifyTopic_fees": [
+    "Extra fees and amounts",
+    "Costi extra e importi",
+    "Tasas extra e importes",
+    "Frais supplémentaires et montants",
+    "Zusatzgebühren und Beträge",
+    "Доп. сборы и суммы",
+    "Ek ücretler ve tutarları"
+  ],
+  "verifyTopic_pickup": [
+    "Hotel pickup",
+    "Prelievo in hotel",
+    "Recogida en el hotel",
+    "Prise en charge à l'hôtel",
+    "Abholung am Hotel",
+    "Трансфер из отеля",
+    "Otelden alış"
+  ],
+  "verifyTopic_guideLanguages": [
+    "Guide languages",
+    "Lingue della guida",
+    "Idiomas del guía",
+    "Langues du guide",
+    "Guide-Sprachen",
+    "Языки гида",
+    "Rehber dilleri"
+  ],
+  "verifyTopic_age": [
+    "Age limits and suitability",
+    "Limiti di età e idoneità",
+    "Límites de edad e idoneidad",
+    "Limites d'âge et public concerné",
+    "Altersgrenzen und Eignung",
+    "Возраст и ограничения",
+    "Yaş sınırları ve uygunluk"
+  ],
+  "verifyTopic_accessibility": [
+    "Accessibility and mobility",
+    "Accessibilità e mobilità",
+    "Accesibilidad y movilidad",
+    "Accessibilité et mobilité",
+    "Barrierefreiheit und Mobilität",
+    "Доступность для людей с ограничениями",
+    "Erişilebilirlik ve hareket kısıtları"
+  ],
+  "verifyTopic_safety": [
+    "Safety (life jackets, swimming ability)",
+    "Sicurezza (giubbotti, capacità di nuotare)",
+    "Seguridad (chalecos, saber nadar)",
+    "Sécurité (gilets, savoir nager)",
+    "Sicherheit (Schwimmwesten, Schwimmfähigkeit)",
+    "Безопасность (жилеты, умение плавать)",
+    "Güvenlik (can yeleği, yüzme bilgisi)"
+  ],
+  "verifyTopic_documents": [
+    "Documents needed",
+    "Documenti necessari",
+    "Documentos necesarios",
+    "Documents nécessaires",
+    "Benötigte Dokumente",
+    "Нужные документы",
+    "Gerekli belgeler"
+  ],
+  "verifyTopic_bring": [
+    "What to bring",
+    "Cosa portare",
+    "Qué llevar",
+    "Que faut-il apporter",
+    "Was mitbringen",
+    "Что взять с собой",
+    "Yanınıza alacaklarınız"
+  ],
+  "verifyTopic_cancellation": [
+    "Cancellation and weather",
+    "Cancellazione e maltempo",
+    "Cancelación y meteorología",
+    "Annulation et météo",
+    "Stornierung und Wetter",
+    "Отмена и погода",
+    "İptal ve hava durumu"
+  ],
+  "verifyStatus_missing": [
+    "Missing",
+    "Mancante",
+    "Falta",
+    "Manquant",
+    "Fehlt",
+    "Нет данных",
+    "Eksik"
+  ],
+  "verifyStatus_to_confirm": [
+    "To confirm",
+    "Da confermare",
+    "Por confirmar",
+    "À confirmer",
+    "Zu bestätigen",
+    "Требует подтверждения",
+    "Onay bekliyor"
+  ],
+  "verifyStatus_verified": [
+    "Confirmed by the owner",
+    "Confermato dal titolare",
+    "Confirmado por el propietario",
+    "Confirmé par le propriétaire",
+    "Vom Inhaber bestätigt",
+    "Подтверждено владельцем",
+    "Sahip tarafından onaylandı"
+  ],
+  "verifyStatusLabel": [
+    "status",
+    "stato",
+    "estado",
+    "statut",
+    "Status",
+    "статус",
+    "durum"
+  ],
+  "verifyNote": [
+    "internal note",
+    "nota interna",
+    "nota interna",
+    "note interne",
+    "interne Notiz",
+    "внутренняя заметка",
+    "dahili not"
+  ],
+  "verifyNotePlaceholder": [
+    "What the owner confirmed, by whom and when (internal, not published)",
+    "Cosa ha confermato il titolare, chi e quando (interno, non pubblicato)",
+    "Qué confirmó el propietario, quién y cuándo (interno, no se publica)",
+    "Ce que le propriétaire a confirmé, par qui et quand (interne, non publié)",
+    "Was der Inhaber bestätigt hat, von wem und wann (intern, nicht veröffentlicht)",
+    "Что подтвердил владелец, кто и когда (внутреннее, не публикуется)",
+    "Sahibin neyi, kimin aracılığıyla ve ne zaman onayladığı (dahili, yayımlanmaz)"
+  ],
+  "verifySave": [
+    "Save answer",
+    "Salva risposta",
+    "Guardar respuesta",
+    "Enregistrer la réponse",
+    "Antwort speichern",
+    "Сохранить ответ",
+    "Cevabı kaydet"
+  ],
+  "verifySaved": [
+    "Answer saved",
+    "Risposta salvata",
+    "Respuesta guardada",
+    "Réponse enregistrée",
+    "Antwort gespeichert",
+    "Ответ сохранён",
+    "Cevap kaydedildi"
+  ],
+  "verifyOwner": [
+    "owner",
+    "titolare",
+    "propietario",
+    "propriétaire",
+    "Inhaber",
+    "владелец",
+    "sahip"
+  ],
+  "verifyStaff": [
+    "staff",
+    "staff",
+    "equipo",
+    "équipe",
+    "Team",
+    "сотрудники",
+    "ekip"
+  ],
+  "visibilityIntro": [
+    "Search and AI-answer checks recorded by hand or imported from the monthly benchmark CSV. Nothing is collected automatically, and there are no estimates.",
+    "Controlli su ricerca e risposte IA registrati a mano o importati dal CSV del benchmark mensile. Nulla viene raccolto automaticamente e non ci sono stime.",
+    "Comprobaciones de búsqueda y respuestas de IA registradas a mano o importadas del CSV del benchmark mensual. No se recoge nada automáticamente ni hay estimaciones.",
+    "Contrôles de recherche et de réponses d'IA saisis à la main ou importés du CSV du benchmark mensuel. Rien n'est collecté automatiquement et il n'y a aucune estimation.",
+    "Prüfungen in Suche und KI-Antworten, von Hand erfasst oder aus der monatlichen Benchmark-CSV importiert. Nichts wird automatisch gesammelt, es gibt keine Schätzungen.",
+    "Проверки поиска и ответов ИИ, внесённые вручную или импортированные из ежемесячного CSV-бенчмарка. Ничего не собирается автоматически, оценок нет.",
+    "Arama ve yapay zekâ cevaplarına dair elle girilen veya aylık karşılaştırma CSV'sinden alınan kontroller. Hiçbir şey otomatik toplanmaz, tahmin yoktur."
+  ],
+  "visibilityTrend": [
+    "Monthly results (non-branded questions)",
+    "Risultati mensili (domande senza marchio)",
+    "Resultados mensuales (preguntas sin marca)",
+    "Résultats mensuels (questions sans la marque)",
+    "Monatliche Ergebnisse (Fragen ohne Markennamen)",
+    "Результаты по месяцам (вопросы без названия бренда)",
+    "Aylık sonuçlar (marka adı geçmeyen sorular)"
+  ],
+  "visibilityEmpty": [
+    "No checks recorded yet",
+    "Ancora nessun controllo registrato",
+    "Aún no hay comprobaciones",
+    "Aucun contrôle enregistré",
+    "Noch keine Prüfungen erfasst",
+    "Проверок пока нет",
+    "Henüz kayıtlı kontrol yok"
+  ],
+  "visibilityEmptyBody": [
+    "Fill in the monthly template (node scripts/visibility-benchmark.mjs template YYYY-MM) and import it, or add a check below.",
+    "Compila il modello mensile (node scripts/visibility-benchmark.mjs template AAAA-MM) e importalo, oppure aggiungi un controllo qui sotto.",
+    "Rellena la plantilla mensual (node scripts/visibility-benchmark.mjs template AAAA-MM) e impórtala, o añade una comprobación abajo.",
+    "Remplissez le modèle mensuel (node scripts/visibility-benchmark.mjs template AAAA-MM) et importez-le, ou ajoutez un contrôle ci-dessous.",
+    "Füllen Sie die Monatsvorlage aus (node scripts/visibility-benchmark.mjs template JJJJ-MM) und importieren Sie sie, oder erfassen Sie unten eine Prüfung.",
+    "Заполните ежемесячный шаблон (node scripts/visibility-benchmark.mjs template ГГГГ-ММ) и импортируйте его или добавьте проверку ниже.",
+    "Aylık şablonu doldurup (node scripts/visibility-benchmark.mjs template YYYY-AA) içe aktarın veya aşağıdan bir kontrol ekleyin."
+  ],
+  "visibilityMonth": [
+    "Month",
+    "Mese",
+    "Mes",
+    "Mois",
+    "Monat",
+    "Месяц",
+    "Ay"
+  ],
+  "visibilityPlatform": [
+    "Platform",
+    "Piattaforma",
+    "Plataforma",
+    "Plateforme",
+    "Plattform",
+    "Платформа",
+    "Platform"
+  ],
+  "visibilityTested": [
+    "Checked",
+    "Controllate",
+    "Comprobadas",
+    "Contrôlées",
+    "Geprüft",
+    "Проверено",
+    "Kontrol edilen"
+  ],
+  "visibilityMentioned": [
+    "Brand named",
+    "Marchio citato",
+    "Marca nombrada",
+    "Marque citée",
+    "Marke genannt",
+    "Бренд упомянут",
+    "Marka anıldı"
+  ],
+  "visibilityCited": [
+    "Website cited",
+    "Sito citato",
+    "Web citada",
+    "Site cité",
+    "Website zitiert",
+    "Сайт процитирован",
+    "Site kaynak gösterildi"
+  ],
+  "visibilityRecommended": [
+    "Recommended",
+    "Consigliato",
+    "Recomendado",
+    "Recommandé",
+    "Empfohlen",
+    "Рекомендован",
+    "Önerildi"
+  ],
+  "visibilityTop3": [
+    "Organic top 3",
+    "Top 3 organico",
+    "Top 3 orgánico",
+    "Top 3 organique",
+    "Organische Top 3",
+    "Топ-3 в обычной выдаче",
+    "Organik ilk 3"
+  ],
+  "visibilityTrendNote": [
+    "Rates count only rows actually checked, never untested ones. AI recommendation order is not a Google ranking: organic positions come from Google Search and Bing only.",
+    "Le percentuali contano solo le righe controllate davvero, mai quelle non testate. L'ordine dei consigli IA non è un ranking Google: le posizioni organiche vengono solo da Google Search e Bing.",
+    "Los porcentajes solo cuentan filas realmente comprobadas, nunca las no probadas. El orden de recomendación de la IA no es un ranking de Google: las posiciones orgánicas solo vienen de Google Search y Bing.",
+    "Les taux ne comptent que les lignes réellement contrôlées, jamais celles non testées. L'ordre de recommandation d'une IA n'est pas un classement Google : les positions organiques ne viennent que de Google Search et Bing.",
+    "Quoten zählen nur tatsächlich geprüfte Zeilen, nie ungetestete. Die Reihenfolge von KI-Empfehlungen ist kein Google-Ranking: Organische Positionen stammen nur aus Google Search und Bing.",
+    "В долях учитываются только реально проверенные строки. Порядок рекомендаций ИИ — не позиция в Google: позиции в обычной выдаче берутся только из Google Search и Bing.",
+    "Oranlar yalnızca gerçekten kontrol edilen satırları sayar, test edilmeyenleri asla. Yapay zekânın öneri sırası bir Google sıralaması değildir: organik sıralar yalnızca Google Search ve Bing'den gelir."
+  ],
+  "visibilityCompetitors": [
+    "Competitors named most often",
+    "Concorrenti citati più spesso",
+    "Competidores más nombrados",
+    "Concurrents les plus cités",
+    "Am häufigsten genannte Mitbewerber",
+    "Чаще всего упоминаемые конкуренты",
+    "En sık anılan rakipler"
+  ],
+  "visibilityHistory": [
+    "Recorded checks ({n})",
+    "Controlli registrati ({n})",
+    "Comprobaciones registradas ({n})",
+    "Contrôles enregistrés ({n})",
+    "Erfasste Prüfungen ({n})",
+    "Записанные проверки ({n})",
+    "Kayıtlı kontroller ({n})"
+  ],
+  "visibilityBranded": [
+    "branded",
+    "con marchio",
+    "con marca",
+    "avec la marque",
+    "mit Marke",
+    "с брендом",
+    "markalı"
+  ],
+  "visibilityYes": [
+    "Yes",
+    "Sì",
+    "Sí",
+    "Oui",
+    "Ja",
+    "Да",
+    "Evet"
+  ],
+  "visibilityNo": [
+    "No",
+    "No",
+    "No",
+    "Non",
+    "Nein",
+    "Нет",
+    "Hayır"
+  ],
+  "visibilityShowMore": [
+    "Show more",
+    "Mostra altri",
+    "Mostrar más",
+    "Afficher plus",
+    "Mehr anzeigen",
+    "Показать ещё",
+    "Daha fazla göster"
+  ],
+  "visibilityDelete": [
+    "Delete",
+    "Elimina",
+    "Eliminar",
+    "Supprimer",
+    "Löschen",
+    "Удалить",
+    "Sil"
+  ],
+  "visibilityDeleteTitle": [
+    "Delete this check?",
+    "Eliminare questo controllo?",
+    "¿Eliminar esta comprobación?",
+    "Supprimer ce contrôle ?",
+    "Diese Prüfung löschen?",
+    "Удалить эту проверку?",
+    "Bu kontrol silinsin mi?"
+  ],
+  "visibilityDeleteRow": [
+    "Delete the check \"{q}\" from {d}",
+    "Elimina il controllo \"{q}\" del {d}",
+    "Eliminar la comprobación \"{q}\" del {d}",
+    "Supprimer le contrôle « {q} » du {d}",
+    "Prüfung „{q}“ vom {d} löschen",
+    "Удалить проверку «{q}» от {d}",
+    "{d} tarihli \"{q}\" kontrolünü sil"
+  ],
+  "visibilityDeleted": [
+    "Check deleted",
+    "Controllo eliminato",
+    "Comprobación eliminada",
+    "Contrôle supprimé",
+    "Prüfung gelöscht",
+    "Проверка удалена",
+    "Kontrol silindi"
+  ],
+  "visibilityImportExport": [
+    "Import and export",
+    "Importa ed esporta",
+    "Importar y exportar",
+    "Importer et exporter",
+    "Import und Export",
+    "Импорт и экспорт",
+    "İçe ve dışa aktar"
+  ],
+  "visibilityCsvHint": [
+    "Same columns as the benchmark template in docs/seo/benchmark. Rows without a test date are skipped. Exported cells that could run as spreadsheet formulas start with an apostrophe.",
+    "Stesse colonne del modello del benchmark in docs/seo/benchmark. Le righe senza data del test vengono saltate. Le celle esportate che potrebbero essere eseguite come formule iniziano con un apostrofo.",
+    "Mismas columnas que la plantilla del benchmark en docs/seo/benchmark. Se omiten las filas sin fecha de prueba. Las celdas exportadas que podrían ejecutarse como fórmulas empiezan con un apóstrofo.",
+    "Mêmes colonnes que le modèle du benchmark dans docs/seo/benchmark. Les lignes sans date de test sont ignorées. Les cellules exportées qui pourraient s'exécuter comme formules commencent par une apostrophe.",
+    "Gleiche Spalten wie die Benchmark-Vorlage in docs/seo/benchmark. Zeilen ohne Testdatum werden übersprungen. Exportierte Zellen, die als Tabellenformel laufen könnten, beginnen mit einem Apostroph.",
+    "Те же столбцы, что и в шаблоне бенчмарка в docs/seo/benchmark. Строки без даты проверки пропускаются. Экспортируемые ячейки, которые могли бы выполниться как формулы, начинаются с апострофа.",
+    "docs/seo/benchmark içindeki karşılaştırma şablonuyla aynı sütunlar. Test tarihi olmayan satırlar atlanır. Tablo formülü gibi çalışabilecek dışa aktarılan hücreler kesme işaretiyle başlar."
+  ],
+  "visibilityImport": [
+    "Import CSV",
+    "Importa CSV",
+    "Importar CSV",
+    "Importer un CSV",
+    "CSV importieren",
+    "Импорт CSV",
+    "CSV içe aktar"
+  ],
+  "visibilityExport": [
+    "Export CSV",
+    "Esporta CSV",
+    "Exportar CSV",
+    "Exporter en CSV",
+    "CSV exportieren",
+    "Экспорт CSV",
+    "CSV dışa aktar"
+  ],
+  "visibilityImportErrors": [
+    "{n} lines could not be imported",
+    "{n} righe non importate",
+    "{n} líneas no se pudieron importar",
+    "{n} lignes n'ont pas pu être importées",
+    "{n} Zeilen konnten nicht importiert werden",
+    "Не удалось импортировать строк: {n}",
+    "{n} satır içe aktarılamadı"
+  ],
+  "visibilityLine": [
+    "Line {n}",
+    "Riga {n}",
+    "Línea {n}",
+    "Ligne {n}",
+    "Zeile {n}",
+    "Строка {n}",
+    "Satır {n}"
+  ],
+  "visibilityNothingToImport": [
+    "No tested rows found in the file.",
+    "Nel file non ci sono righe testate.",
+    "No hay filas comprobadas en el archivo.",
+    "Aucune ligne testée dans le fichier.",
+    "Keine geprüften Zeilen in der Datei.",
+    "В файле нет проверенных строк.",
+    "Dosyada test edilmiş satır yok."
+  ],
+  "visibilityImported": [
+    "{n} checks imported",
+    "{n} controlli importati",
+    "{n} comprobaciones importadas",
+    "{n} contrôles importés",
+    "{n} Prüfungen importiert",
+    "Импортировано проверок: {n}",
+    "{n} kontrol içe aktarıldı"
+  ],
+  "visibilitySaved": [
+    "Check saved",
+    "Controllo salvato",
+    "Comprobación guardada",
+    "Contrôle enregistré",
+    "Prüfung gespeichert",
+    "Проверка сохранена",
+    "Kontrol kaydedildi"
+  ],
+  "visibilitySaveFailed": [
+    "The check could not be saved.",
+    "Impossibile salvare il controllo.",
+    "No se pudo guardar la comprobación.",
+    "Le contrôle n'a pas pu être enregistré.",
+    "Die Prüfung konnte nicht gespeichert werden.",
+    "Не удалось сохранить проверку.",
+    "Kontrol kaydedilemedi."
+  ],
+  "visibilityAdd": [
+    "Add a check",
+    "Aggiungi un controllo",
+    "Añadir una comprobación",
+    "Ajouter un contrôle",
+    "Prüfung erfassen",
+    "Добавить проверку",
+    "Kontrol ekle"
+  ],
+  "visibilityDate": [
+    "Date checked",
+    "Data del controllo",
+    "Fecha de la comprobación",
+    "Date du contrôle",
+    "Prüfdatum",
+    "Дата проверки",
+    "Kontrol tarihi"
+  ],
+  "visibilityLanguage": [
+    "Language",
+    "Lingua",
+    "Idioma",
+    "Langue",
+    "Sprache",
+    "Язык",
+    "Dil"
+  ],
+  "visibilityMarket": [
+    "Market (country)",
+    "Mercato (paese)",
+    "Mercado (país)",
+    "Marché (pays)",
+    "Markt (Land)",
+    "Рынок (страна)",
+    "Pazar (ülke)"
+  ],
+  "visibilityQuery": [
+    "Question or search",
+    "Domanda o ricerca",
+    "Pregunta o búsqueda",
+    "Question ou recherche",
+    "Frage oder Suche",
+    "Вопрос или запрос",
+    "Soru veya arama"
+  ],
+  "visibilityMentionedQ": [
+    "Stella Sharm Tours was named",
+    "Stella Sharm Tours è stata citata",
+    "Se nombró a Stella Sharm Tours",
+    "Stella Sharm Tours a été citée",
+    "Stella Sharm Tours wurde genannt",
+    "Stella Sharm Tours упомянута",
+    "Stella Sharm Tours anıldı"
+  ],
+  "visibilityBrandedQ": [
+    "The question names the brand",
+    "La domanda contiene il marchio",
+    "La pregunta incluye la marca",
+    "La question contient la marque",
+    "Die Frage nennt die Marke",
+    "В вопросе есть название бренда",
+    "Soruda marka adı geçiyor"
+  ],
+  "visibilityCitedUrl": [
+    "Our page cited (link)",
+    "Nostra pagina citata (link)",
+    "Nuestra página citada (enlace)",
+    "Notre page citée (lien)",
+    "Zitierte eigene Seite (Link)",
+    "Процитированная наша страница (ссылка)",
+    "Kaynak gösterilen sayfamız (bağlantı)"
+  ],
+  "visibilityRecPos": [
+    "Recommendation position",
+    "Posizione nei consigli",
+    "Posición en la recomendación",
+    "Position dans la recommandation",
+    "Position in der Empfehlung",
+    "Место в рекомендации",
+    "Öneri sırası"
+  ],
+  "visibilityOrgPos": [
+    "Organic position",
+    "Posizione organica",
+    "Posición orgánica",
+    "Position organique",
+    "Organische Position",
+    "Позиция в обычной выдаче",
+    "Organik sıra"
+  ],
+  "visibilityCompetitorsField": [
+    "Competitors named",
+    "Concorrenti citati",
+    "Competidores nombrados",
+    "Concurrents cités",
+    "Genannte Mitbewerber",
+    "Упомянутые конкуренты",
+    "Anılan rakipler"
+  ],
+  "visibilitySources": [
+    "Sources the answer used",
+    "Fonti usate nella risposta",
+    "Fuentes de la respuesta",
+    "Sources utilisées par la réponse",
+    "Von der Antwort genutzte Quellen",
+    "Источники в ответе",
+    "Cevabın kullandığı kaynaklar"
+  ],
+  "visibilityListHint": [
+    "Separate with semicolons (;)",
+    "Separa con punto e virgola (;)",
+    "Separa con punto y coma (;)",
+    "Séparez par des points-virgules (;)",
+    "Mit Semikolon (;) trennen",
+    "Разделяйте точкой с запятой (;)",
+    "Noktalı virgülle (;) ayırın"
+  ],
+  "visibilitySave": [
+    "Save check",
+    "Salva controllo",
+    "Guardar comprobación",
+    "Enregistrer le contrôle",
+    "Prüfung speichern",
+    "Сохранить проверку",
+    "Kontrolü kaydet"
+  ],
+  "platform_google-search": [
+    "Google Search",
+    "Google Search",
+    "Google Search",
+    "Google Search",
+    "Google Search",
+    "Google Search",
+    "Google Search"
+  ],
+  "platform_google-ai-overviews": [
+    "Google AI Overviews",
+    "Google AI Overviews",
+    "Google AI Overviews",
+    "Google AI Overviews",
+    "Google AI Overviews",
+    "Google AI Overviews",
+    "Google AI Overviews"
+  ],
+  "platform_google-ai-mode": [
+    "Google AI Mode",
+    "Google AI Mode",
+    "Google AI Mode",
+    "Google AI Mode",
+    "Google AI Mode",
+    "Google AI Mode",
+    "Google AI Mode"
+  ],
+  "platform_chatgpt-search": [
+    "ChatGPT Search",
+    "ChatGPT Search",
+    "ChatGPT Search",
+    "ChatGPT Search",
+    "ChatGPT Search",
+    "ChatGPT Search",
+    "ChatGPT Search"
+  ],
+  "platform_gemini": [
+    "Gemini",
+    "Gemini",
+    "Gemini",
+    "Gemini",
+    "Gemini",
+    "Gemini",
+    "Gemini"
+  ],
+  "platform_perplexity": [
+    "Perplexity",
+    "Perplexity",
+    "Perplexity",
+    "Perplexity",
+    "Perplexity",
+    "Perplexity",
+    "Perplexity"
+  ],
+  "platform_bing": [
+    "Bing",
+    "Bing",
+    "Bing",
+    "Bing",
+    "Bing",
+    "Bing",
+    "Bing"
+  ],
+  "platform_copilot": [
+    "Microsoft Copilot",
+    "Microsoft Copilot",
+    "Microsoft Copilot",
+    "Microsoft Copilot",
+    "Microsoft Copilot",
+    "Microsoft Copilot",
+    "Microsoft Copilot"
+  ],
+  "seoEditTexts": [
+    "Own search texts ({lang})",
+    "Testi di ricerca propri ({lang})",
+    "Textos de búsqueda propios ({lang})",
+    "Textes de recherche personnalisés ({lang})",
+    "Eigene Suchtexte ({lang})",
+    "Свои тексты для поиска ({lang})",
+    "Özel arama metinleri ({lang})"
+  ],
+  "seoSocialNote": [
+    "Social previews (Facebook, WhatsApp) use the same title and description, with the trip's cover image.",
+    "Le anteprime social (Facebook, WhatsApp) usano lo stesso titolo e la stessa descrizione, con l'immagine di copertina dell'escursione.",
+    "Las vistas previas en redes (Facebook, WhatsApp) usan el mismo título y descripción, con la imagen de portada de la excursión.",
+    "Les aperçus sur les réseaux (Facebook, WhatsApp) reprennent ce titre et cette description, avec l'image de couverture de l'excursion.",
+    "Vorschauen in sozialen Netzwerken (Facebook, WhatsApp) nutzen denselben Titel und dieselbe Beschreibung mit dem Titelbild des Ausflugs.",
+    "Превью в соцсетях (Facebook, WhatsApp) используют тот же заголовок и описание с обложкой экскурсии.",
+    "Sosyal medya önizlemeleri (Facebook, WhatsApp) aynı başlık ve açıklamayı, turun kapak görseliyle kullanır."
+  ],
+  "seoSaveTexts": [
+    "Save search texts",
+    "Salva testi di ricerca",
+    "Guardar textos de búsqueda",
+    "Enregistrer les textes de recherche",
+    "Suchtexte speichern",
+    "Сохранить тексты для поиска",
+    "Arama metinlerini kaydet"
+  ]
+}

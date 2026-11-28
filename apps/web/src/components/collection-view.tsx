@@ -171,6 +171,8 @@ export function CollectionView({
             ))}
           </div>
         )}
+        {/* Trip cards use <h3>; keep the outline h1 → h2 → h3. */}
+        <h2 className="sr-only">{t('journeys')}</h2>
         <div className="trip-grid">
           {shown.map((trip) => (
             <TripCard key={trip.slug} trip={trip} privateMode={privateMode} />

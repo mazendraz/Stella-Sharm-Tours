@@ -620,6 +620,7 @@ export async function loadCatalog(
       return trip ? storyFor(trip) : null;
     },
     text,
+    media,
     settings,
     collection: (slug: string) => {
       const collection = collections.find((c) => c.slug === slug);

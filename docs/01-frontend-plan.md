@@ -224,6 +224,7 @@ Full spec: **`docs/08-i18n-plan.md`**. Summary:
 - `sitemap.xml` and `robots.txt` generated from published collections/trips.
 - JSON-LD: `TravelAgency` (home), `TouristTrip` + `Offer` (trip), `BreadcrumbList`.
 - Canonical URLs per locale.
+- 2026-11-27 SEO audit (`docs/seo/`): metadata in `<head>` for every user agent (`htmlLimitedBots`), localized home/collection/FAQ/contact titles and descriptions, connected JSON-LD graph (TravelAgency, WebSite, WebPage, TouristTrip, BreadcrumbList, CollectionPage, FAQPage, ContactPage), sitemap images, `AI_TRAINING_CRAWLERS` robots switch, optional `/llms.txt`, and the `pnpm seo:check` crawl gate in CI.
 
 ## 9. Performance budget (mobile, 4G, mid Android)
 
