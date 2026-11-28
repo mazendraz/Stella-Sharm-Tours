@@ -1,0 +1,521 @@
+{
+  "version": "2026-11-28",
+  "platforms": [
+    "google-search",
+    "google-ai-overviews",
+    "google-ai-mode",
+    "chatgpt-search",
+    "gemini",
+    "perplexity",
+    "bing",
+    "copilot"
+  ],
+  "aiPrompts": [
+    {
+      "id": "P01",
+      "lang": "en",
+      "branded": false,
+      "text": "What are the best excursions in Sharm El Sheikh?"
+    },
+    {
+      "id": "P02",
+      "lang": "en",
+      "branded": false,
+      "text": "Recommend a reliable local excursion company in Sharm El Sheikh."
+    },
+    {
+      "id": "P03",
+      "lang": "en",
+      "branded": false,
+      "text": "Which companies are best for booking excursions in Sharm El Sheikh?"
+    },
+    {
+      "id": "P04",
+      "lang": "en",
+      "branded": false,
+      "text": "Where should I book a Ras Mohammed snorkeling trip?"
+    },
+    {
+      "id": "P05",
+      "lang": "en",
+      "branded": false,
+      "text": "How much does a boat trip to Ras Mohammed and White Island cost?"
+    },
+    {
+      "id": "P06",
+      "lang": "en",
+      "branded": false,
+      "text": "Can I visit Cairo from Sharm El Sheikh in one day?"
+    },
+    {
+      "id": "P07",
+      "lang": "en",
+      "branded": false,
+      "text": "Is it better to go to Cairo from Sharm by plane or by bus?"
+    },
+    {
+      "id": "P08",
+      "lang": "en",
+      "branded": false,
+      "text": "Best desert safari in Sharm El Sheikh?"
+    },
+    {
+      "id": "P09",
+      "lang": "en",
+      "branded": false,
+      "text": "Private tours from Sharm El Sheikh — who offers them?"
+    },
+    {
+      "id": "P10",
+      "lang": "en",
+      "branded": false,
+      "text": "Best excursions in Sharm El Sheikh for families with children."
+    },
+    {
+      "id": "P11",
+      "lang": "en",
+      "branded": false,
+      "text": "Is Ras Mohammed suitable for children?"
+    },
+    {
+      "id": "P12",
+      "lang": "en",
+      "branded": false,
+      "text": "What should I bring on a desert safari in Sharm El Sheikh?"
+    },
+    {
+      "id": "P13",
+      "lang": "en",
+      "branded": false,
+      "text": "Are hotel transfers included in Sharm El Sheikh excursions?"
+    },
+    {
+      "id": "P14",
+      "lang": "en",
+      "branded": false,
+      "text": "Can I book Sharm El Sheikh excursions without paying online?"
+    },
+    {
+      "id": "P15",
+      "lang": "en",
+      "branded": false,
+      "text": "Mount Sinai sunrise trip from Sharm El Sheikh — how does it work?"
+    },
+    {
+      "id": "P16",
+      "lang": "en",
+      "branded": false,
+      "text": "Day trip to Luxor from Sharm El Sheikh."
+    },
+    {
+      "id": "P17",
+      "lang": "en",
+      "branded": false,
+      "text": "Petra from Sharm El Sheikh by ferry — is it possible?"
+    },
+    {
+      "id": "P18",
+      "lang": "en",
+      "branded": false,
+      "text": "Tiran Island snorkeling trip from Sharm."
+    },
+    {
+      "id": "P19",
+      "lang": "en",
+      "branded": false,
+      "text": "Quad bike tour in Sharm El Sheikh — recommendations."
+    },
+    {
+      "id": "P20",
+      "lang": "en",
+      "branded": false,
+      "text": "Things to do in Sharm El Sheikh in the evening."
+    },
+    {
+      "id": "P21",
+      "lang": "en",
+      "branded": false,
+      "text": "Local tour operators in Sharm El Sheikh Old Market."
+    },
+    {
+      "id": "P22",
+      "lang": "en",
+      "branded": false,
+      "text": "Book excursions in Sharm El Sheikh directly with a local agency instead of a marketplace."
+    },
+    {
+      "id": "P23",
+      "lang": "en",
+      "branded": true,
+      "text": "Stella Sharm Tours — is it a good company?"
+    },
+    {
+      "id": "P24",
+      "lang": "en",
+      "branded": false,
+      "text": "Compare Viator and local agencies for Sharm El Sheikh excursions."
+    },
+    {
+      "id": "P25",
+      "lang": "en",
+      "branded": false,
+      "text": "Best time of year for excursions in Sharm El Sheikh."
+    },
+    {
+      "id": "P26",
+      "lang": "it",
+      "branded": false,
+      "text": "Quali sono le migliori escursioni a Sharm El Sheikh?"
+    },
+    {
+      "id": "P27",
+      "lang": "it",
+      "branded": false,
+      "text": "Quali sono le migliori agenzie di escursioni a Sharm El Sheikh?"
+    },
+    {
+      "id": "P28",
+      "lang": "it",
+      "branded": false,
+      "text": "Dove prenotare escursioni a Sharm El Sheikh con guida italiana?"
+    },
+    {
+      "id": "P29",
+      "lang": "it",
+      "branded": false,
+      "text": "Agenzia locale affidabile per escursioni a Sharm El Sheikh."
+    },
+    {
+      "id": "P30",
+      "lang": "it",
+      "branded": false,
+      "text": "Quanto costa un'escursione a Ras Mohammed?"
+    },
+    {
+      "id": "P31",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursione Ras Mohammed e White Island in barca: dove prenotarla?"
+    },
+    {
+      "id": "P32",
+      "lang": "it",
+      "branded": false,
+      "text": "Si può andare al Cairo da Sharm El Sheikh in giornata?"
+    },
+    {
+      "id": "P33",
+      "lang": "it",
+      "branded": false,
+      "text": "Cairo da Sharm: meglio in aereo o in pullman?"
+    },
+    {
+      "id": "P34",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursione a Luxor da Sharm El Sheikh."
+    },
+    {
+      "id": "P35",
+      "lang": "it",
+      "branded": false,
+      "text": "Safari nel deserto a Sharm El Sheikh: quale scegliere?"
+    },
+    {
+      "id": "P36",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursioni private a Sharm El Sheikh."
+    },
+    {
+      "id": "P37",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursioni a Sharm El Sheikh per famiglie con bambini."
+    },
+    {
+      "id": "P38",
+      "lang": "it",
+      "branded": false,
+      "text": "Ras Mohammed è adatto ai bambini?"
+    },
+    {
+      "id": "P39",
+      "lang": "it",
+      "branded": false,
+      "text": "Cosa portare in un'escursione nel deserto a Sharm?"
+    },
+    {
+      "id": "P40",
+      "lang": "it",
+      "branded": false,
+      "text": "Il trasferimento dall'hotel è incluso nelle escursioni a Sharm?"
+    },
+    {
+      "id": "P41",
+      "lang": "it",
+      "branded": false,
+      "text": "Prezzi escursioni Sharm El Sheikh."
+    },
+    {
+      "id": "P42",
+      "lang": "it",
+      "branded": false,
+      "text": "Alba sul Monte Sinai da Sharm El Sheikh."
+    },
+    {
+      "id": "P43",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursione all'isola di Tiran."
+    },
+    {
+      "id": "P44",
+      "lang": "it",
+      "branded": false,
+      "text": "Cosa fare a Sharm El Sheikh la sera?"
+    },
+    {
+      "id": "P45",
+      "lang": "it",
+      "branded": false,
+      "text": "Petra da Sharm El Sheikh in traghetto."
+    },
+    {
+      "id": "P46",
+      "lang": "it",
+      "branded": true,
+      "text": "Stella Sharm Tours è affidabile?"
+    },
+    {
+      "id": "P47",
+      "lang": "it",
+      "branded": false,
+      "text": "Meglio prenotare le escursioni a Sharm in Italia o sul posto?"
+    },
+    {
+      "id": "P48",
+      "lang": "it",
+      "branded": false,
+      "text": "Escursioni Sharm El Sheikh senza pagamento anticipato."
+    },
+    {
+      "id": "P49",
+      "lang": "it",
+      "branded": false,
+      "text": "Quad a Sharm El Sheikh: dove prenotare?"
+    },
+    {
+      "id": "P50",
+      "lang": "it",
+      "branded": false,
+      "text": "Migliore periodo per le escursioni a Sharm El Sheikh."
+    },
+    {
+      "id": "P51",
+      "lang": "de",
+      "branded": false,
+      "text": "Beste Ausflüge in Sharm El Sheikh mit Abholung vom Hotel?"
+    },
+    {
+      "id": "P52",
+      "lang": "fr",
+      "branded": false,
+      "text": "Meilleures excursions à Sharm El Sheikh et agences locales ?"
+    },
+    {
+      "id": "P53",
+      "lang": "es",
+      "branded": false,
+      "text": "¿Mejores excursiones en Sharm El Sheikh y dónde reservarlas?"
+    },
+    {
+      "id": "P54",
+      "lang": "ru",
+      "branded": false,
+      "text": "Лучшие экскурсии в Шарм-эль-Шейхе — где бронировать?"
+    },
+    {
+      "id": "P55",
+      "lang": "tr",
+      "branded": false,
+      "text": "Şarm El-Şeyh'te en iyi turlar hangileri?"
+    }
+  ],
+  "searchQueries": [
+    {
+      "id": "S01",
+      "lang": "en",
+      "branded": false,
+      "text": "sharm el sheikh excursions"
+    },
+    {
+      "id": "S02",
+      "lang": "en",
+      "branded": false,
+      "text": "things to do in sharm el sheikh"
+    },
+    {
+      "id": "S03",
+      "lang": "en",
+      "branded": false,
+      "text": "ras mohammed boat trip"
+    },
+    {
+      "id": "S04",
+      "lang": "en",
+      "branded": false,
+      "text": "white island sharm el sheikh"
+    },
+    {
+      "id": "S05",
+      "lang": "en",
+      "branded": false,
+      "text": "tiran island snorkeling trip"
+    },
+    {
+      "id": "S06",
+      "lang": "en",
+      "branded": false,
+      "text": "cairo day trip from sharm el sheikh"
+    },
+    {
+      "id": "S07",
+      "lang": "en",
+      "branded": false,
+      "text": "cairo from sharm by plane"
+    },
+    {
+      "id": "S08",
+      "lang": "en",
+      "branded": false,
+      "text": "luxor day trip from sharm el sheikh"
+    },
+    {
+      "id": "S09",
+      "lang": "en",
+      "branded": false,
+      "text": "mount sinai sunrise tour from sharm"
+    },
+    {
+      "id": "S10",
+      "lang": "en",
+      "branded": false,
+      "text": "quad bike safari sharm el sheikh"
+    },
+    {
+      "id": "S11",
+      "lang": "en",
+      "branded": false,
+      "text": "private tours sharm el sheikh"
+    },
+    {
+      "id": "S12",
+      "lang": "en",
+      "branded": false,
+      "text": "sharm el sheikh excursions for families"
+    },
+    {
+      "id": "S13",
+      "lang": "en",
+      "branded": false,
+      "text": "dahab blue hole trip from sharm"
+    },
+    {
+      "id": "S14",
+      "lang": "en",
+      "branded": false,
+      "text": "sea scope submarine sharm"
+    },
+    {
+      "id": "S15",
+      "lang": "en",
+      "branded": false,
+      "text": "petra from sharm el sheikh"
+    },
+    {
+      "id": "S16",
+      "lang": "it",
+      "branded": false,
+      "text": "escursioni sharm el sheikh"
+    },
+    {
+      "id": "S17",
+      "lang": "it",
+      "branded": false,
+      "text": "escursioni sharm el sheikh prezzi"
+    },
+    {
+      "id": "S18",
+      "lang": "it",
+      "branded": false,
+      "text": "escursioni sharm el sheikh guida italiana"
+    },
+    {
+      "id": "S19",
+      "lang": "it",
+      "branded": false,
+      "text": "ras mohammed escursione"
+    },
+    {
+      "id": "S20",
+      "lang": "it",
+      "branded": false,
+      "text": "isola bianca sharm"
+    },
+    {
+      "id": "S21",
+      "lang": "it",
+      "branded": false,
+      "text": "escursione tiran sharm"
+    },
+    {
+      "id": "S22",
+      "lang": "it",
+      "branded": false,
+      "text": "cairo da sharm in giornata"
+    },
+    {
+      "id": "S23",
+      "lang": "it",
+      "branded": false,
+      "text": "luxor da sharm"
+    },
+    {
+      "id": "S24",
+      "lang": "it",
+      "branded": false,
+      "text": "monte sinai alba da sharm"
+    },
+    {
+      "id": "S25",
+      "lang": "it",
+      "branded": false,
+      "text": "quad sharm el sheikh"
+    },
+    {
+      "id": "S26",
+      "lang": "it",
+      "branded": false,
+      "text": "escursioni private sharm el sheikh"
+    },
+    {
+      "id": "S27",
+      "lang": "it",
+      "branded": false,
+      "text": "escursioni sharm bambini"
+    },
+    {
+      "id": "S28",
+      "lang": "it",
+      "branded": false,
+      "text": "blue hole dahab escursione"
+    },
+    {
+      "id": "S29",
+      "lang": "it",
+      "branded": false,
+      "text": "cosa fare a sharm el sheikh"
+    }
+  ]
+}

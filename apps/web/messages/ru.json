@@ -185,5 +185,10 @@
   "searchResults": "{count, plural, =0 {Ничего не найдено} one {# результат} few {# результата} many {# результатов} other {# результата}}",
   "searchNoResults": "По запросу «{query}» экскурсий не найдено",
   "searchAskWhatsapp": "Спросите нас в WhatsApp",
-  "searchLoadFailed": "Не удалось загрузить поиск."
+  "searchLoadFailed": "Не удалось загрузить поиск.",
+  "seoHomeTitle": "Экскурсии в Шарм-эль-Шейхе и индивидуальные туры | Stella Sharm Tours",
+  "seoHomeDescription": "Экскурсии из Шарм-эль-Шейха: Рас-Мохаммед и Тиран на лодке, сафари в пустыне, Каир, Луксор и Петра — в группе или индивидуально, с трансфером от отеля.",
+  "seoCollectionTitle": "{name}: экскурсии из Шарм-эль-Шейха",
+  "seoFaqDescription": "Ответы на частые вопросы о бронировании экскурсий в Шарм-эль-Шейхе в Stella Sharm Tours.",
+  "seoContactDescription": "Свяжитесь со Stella Sharm Tours через WhatsApp или по телефону либо приходите в наш офис в районе Old Market в Шарм-эль-Шейхе."
 }

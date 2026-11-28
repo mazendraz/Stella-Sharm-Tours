@@ -185,5 +185,10 @@
   "searchResults": "{count, plural, =0 {Sonuç yok} one {# sonuç} other {# sonuç}}",
   "searchNoResults": "“{query}” ile eşleşen tur yok",
   "searchAskWhatsapp": "WhatsApp’tan bize sorun",
-  "searchLoadFailed": "Arama yüklenemedi."
+  "searchLoadFailed": "Arama yüklenemedi.",
+  "seoHomeTitle": "Şarm El-Şeyh Turları ve Özel Turlar | Stella Sharm Tours",
+  "seoHomeDescription": "Şarm El-Şeyh’ten turlar: tekneyle Ras Mohammed ve Tiran, çöl safarileri, Kahire, Luksor ve Petra — grupla ya da özel, otelden alınarak.",
+  "seoCollectionTitle": "{name}: Şarm El-Şeyh’ten turlar",
+  "seoFaqDescription": "Stella Sharm Tours ile Şarm El-Şeyh’te tur rezervasyonu hakkında sık sorulan soruların yanıtları.",
+  "seoContactDescription": "Stella Sharm Tours’a WhatsApp’tan veya telefonla ulaşın ya da Şarm El-Şeyh’teki Old Market’te bulunan ofisimize uğrayın."
 }

@@ -47,7 +47,8 @@
     "test:prepare": "tsx scripts/prepare-tests.ts",
     "test:integration:native": "tsx scripts/test-native-postgres.ts",
     "test:e2e": "playwright test",
-    "preview:fixture": "node tests/fixtures/server.mjs"
+    "preview:fixture": "node tests/fixtures/server.mjs",
+    "seo:check": "node scripts/seo-check.mjs"
   },
   "dependencies": {
     "tsx": "4.23.15"

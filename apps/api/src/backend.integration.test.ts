@@ -433,6 +433,43 @@ describe('real PostgreSQL catalog and requests', () => {
       );
     }
   });
+  it('reports SEO health from the database for content roles only', async () => {
+    expect((await (await login('sales')).call('/v1/admin/seo')).status).toBe(
+      403,
+    );
+    const editor = await login('editor'),
+      response = await editor.call('/v1/admin/seo');
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.summary.publishedTrips).toBe(38);
+    expect(
+      body.integrations.every(
+        (i: { status: string }) => i.status === 'notConnected',
+      ),
+    ).toBe(true);
+    const boat = body.health.find(
+      (h: { slug: string }) => h.slug === 'ras-mohammed-white-island-boat',
+    );
+    expect(boat.seo.it.title).toContain('Sharm El Sheikh');
+    expect(boat.seo.en.description.length).toBeLessThanOrEqual(158);
+    // Checking a live page only accepts known slugs and core languages.
+    expect(
+      (
+        await editor.call('/v1/admin/seo/page', 'POST', {
+          slug: 'not-a-trip',
+          locale: 'en',
+        })
+      ).status,
+    ).toBe(404);
+    expect(
+      (
+        await editor.call('/v1/admin/seo/page', 'POST', {
+          slug: 'quad-bike-safari',
+          locale: 'xx',
+        })
+      ).status,
+    ).toBe(422);
+  });
   it('bounds public reads independently of booking limits and returns Retry-After', async () => {
     const limited = createApp(apiConnection.db, {
       ...cfg,

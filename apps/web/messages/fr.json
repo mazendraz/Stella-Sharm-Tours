@@ -185,5 +185,10 @@
   "searchResults": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
   "searchNoResults": "Aucune excursion ne correspond à « {query} »",
   "searchAskWhatsapp": "Demandez-nous sur WhatsApp",
-  "searchLoadFailed": "Impossible de charger la recherche."
+  "searchLoadFailed": "Impossible de charger la recherche.",
+  "seoHomeTitle": "Excursions à Sharm El Sheikh et circuits privés | Stella Sharm Tours",
+  "seoHomeDescription": "Excursions depuis Sharm El Sheikh : Ras Mohammed et Tiran en bateau, safaris dans le désert, Le Caire, Louxor et Pétra — en groupe ou en privé, au départ de l’hôtel.",
+  "seoCollectionTitle": "{name} : excursions depuis Sharm El Sheikh",
+  "seoFaqDescription": "Réponses aux questions fréquentes sur la réservation d’excursions à Sharm El Sheikh avec Stella Sharm Tours.",
+  "seoContactDescription": "Contactez Stella Sharm Tours par WhatsApp ou par téléphone, ou rendez-vous à notre agence de l’Old Market, à Sharm El Sheikh."
 }

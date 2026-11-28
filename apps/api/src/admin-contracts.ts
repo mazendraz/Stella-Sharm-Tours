@@ -29,6 +29,7 @@ import type { ApiEnv } from './types';
 import { homepageSchema } from './homepage';
 import { translationReviewSchema } from './translation-review';
 import { pushSubscriptionSchema } from './push';
+import { seoContracts } from './admin-seo';
 type Method = 'get' | 'post' | 'put' | 'patch' | 'delete';
 export type AdminContract = {
   method: Method;
@@ -163,6 +164,14 @@ export const adminContracts: AdminContract[] = [
   },
   { method: 'get', path: '/request-assignees', permission: 'requests' },
   { method: 'get', path: '/price-list', permission: 'prices' },
+  { method: 'get', path: '/seo', permission: 'content' },
+  {
+    method: 'post',
+    path: '/seo/page',
+    permission: 'content',
+    body: seoContracts.page,
+  },
+  { method: 'post', path: '/seo/check', permission: 'content', body: empty },
   {
     method: 'get',
     path: '/package-parts',

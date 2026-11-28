@@ -18,13 +18,15 @@ import { whatsapp } from '@/lib/links';
 import { metadataFor, JsonLd } from '@/lib/seo';
 import { Unavailable } from '@/components/unavailable';
 import { siteOrigin } from '@/lib/env';
+import { graph, orgId, webPage } from '@/lib/structured-data';
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  return metadataFor(locale, '');
+  const t = await getTranslations({ locale });
+  return metadataFor(locale, '', t('seoHomeTitle'), t('seoHomeDescription'));
 }
 export default async function Home({
   params,
@@ -208,14 +210,19 @@ export default async function Home({
         </div>
       </main>
       <JsonLd
-        value={{
-          '@context': 'https://schema.org',
-          '@type': 'TravelAgency',
-          name: site.name,
-          url: siteOrigin,
-          inLanguage: locale,
-          ...(site.contacts.phone ? { telephone: site.contacts.phone } : {}),
-        }}
+        value={graph([
+          webPage(
+            'WebPage',
+            siteOrigin + '/' + locale,
+            siteOrigin,
+            locale,
+            t('seoHomeTitle'),
+            {
+              description: t('seoHomeDescription'),
+              mainEntity: { '@id': orgId(siteOrigin) },
+            },
+          ),
+        ])}
       />
     </>
   );

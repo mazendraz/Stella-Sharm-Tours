@@ -43,6 +43,7 @@ import { loadSearchSource } from './search-index';
 import { buildSearchIndex, searchIndexSchema } from '@stella/shared/search';
 import { registerAdminUi } from './admin-ui';
 import { registerPush } from './push';
+import { registerAdminSeo } from './admin-seo';
 import { fail } from './errors';
 import {
   processedPath,
@@ -497,6 +498,7 @@ export function createApp(
   registerHomepage(app, db, cfg, auth);
   registerAdminUi(app, db, auth, cfg);
   registerPush(app, db, cfg, auth);
+  registerAdminSeo(app, db, cfg, auth);
   registerAdminOpenApi(app);
   if (cfg.NODE_ENV === 'production') app.use('/v1/openapi.json', auth.guard());
   const publicSchemas: Record<string, z.ZodType> = {

@@ -24,6 +24,16 @@ Object.assign(
     ),
   ),
 );
+// SEO screen (2026-11-27).
+Object.assign(
+  source,
+  JSON.parse(
+    await readFile(
+      new URL('../data/i18n/admin-seo.json', import.meta.url),
+      'utf8',
+    ),
+  ),
+);
 const locales = ['en', 'it', 'es', 'fr', 'de', 'ru', 'tr'];
 for (const [key, values] of Object.entries(source))
   if (
