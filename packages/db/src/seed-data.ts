@@ -243,7 +243,10 @@ export async function seedCatalog(db: Database, options: Options) {
           ctaType: 'collection' as const,
           ctaTarget: c.id,
           ctaLabel: { en: 'See trips' },
-          sort: c.order,
+          // Owner decision (2026-11-28): "All of Egypt" is the first hero
+          // video, then Private, then the other collections in catalog order.
+          // Hero order stays independent of the collection order.
+          sort: c.id === 'all' ? 0 : c.order + 1,
           durationS: 6,
           status:
             row.coverMediaId ||

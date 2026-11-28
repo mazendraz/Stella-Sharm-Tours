@@ -617,10 +617,14 @@ describe('real PostgreSQL catalog and requests', () => {
       .set({ amountEur: '15' })
       .where(eq(s.tripPrices.id, rows[0]!.id));
   });
-  it('returns validated public DTOs, Private-first slides, 7 core locales, ETag and no editorial/private fields', async () => {
+  it('returns validated public DTOs, All of Egypt then Private slides, 7 core locales, ETag and no editorial/private fields', async () => {
     const response = await app.request('/v1/public/site?locale=ru'),
       site = siteSchema.parse(await response.json());
-    expect(site.hero_slides[0]?.href).toBe('/c/private');
+    // Owner order: All of Egypt first (one slide per device), then Private.
+    expect(site.hero_slides[0]?.href).toBe('/c/all');
+    expect(site.hero_slides.find((h) => h.href !== '/c/all')?.href).toBe(
+      '/c/private',
+    );
     expect(site.locales.map((l) => l.code)).toEqual([
       'en',
       'it',

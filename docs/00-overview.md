@@ -14,7 +14,7 @@ The site sells nothing online. A customer picks one trip, a whole collection, or
 
 ## Product structure (from the client)
 
-Trips are grouped into **collections**, shown in this order (admin can reorder/rename): 0. **Private with Stella** ⭐ — _client priority_. A virtual collection: every private-only trip, plus the promise that any other trip can be made private on request. Seeded as the first hero slide (the admin controls the hero order), first on the home page and as a Group | Private switch inside every collection (see frontend plan §3.0).
+Trips are grouped into **collections**, shown in this order (admin can reorder/rename): 0. **Private with Stella** ⭐ — _client priority_. A virtual collection: every private-only trip, plus the promise that any other trip can be made private on request. Seeded as the second hero slide, after "All of Egypt" (owner, 2026-11-28; the admin controls the hero order), first on the home page and as a Group | Private switch inside every collection (see frontend plan §3.0).
 
 1. **Pharaohs & Temples** — Cairo (bus/plane, 1–2 days), Alexandria, Luxor, Mount Sinai, St Catherine.
 2. **The Red Sea** — Ras Mohammed (bus / boat / private), Tiran, Sea Scope, glass-bottom boat, speed boat, water sports.
@@ -84,7 +84,7 @@ this file. Implementation gates remain unchecked until verified.
 - [x] Include the current language plan: EN/IT/ES/FR/DE/RU/TR core (client decision 2026-11-11; was EN/IT/ES/RU) + every other language auto-translated, worker translations,
       human overrides, RTL support and no customer data sent to providers.
 - [x] Confirm home hero slides come from admin-controlled `hero_slides`, with
-      Private first in the seed; collection order does not control hero order.
+      All of Egypt then Private in the seed; collection order does not control hero order.
 
 ### Phase 00.2 — Sources and architecture
 

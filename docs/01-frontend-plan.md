@@ -72,7 +72,7 @@ On mobile the collection and trip pages also open as **overlay layers** from the
 
 Private tours matter most to the business, so they appear in two places:
 
-1. **At the start of the home page**: the seed makes the first hero slide "Private with Stella — Your trip, your way." (the owner can reorder slides in the admin; the admin shows a hint if no Private slide is first), and the first section under the hero is a dark navy/gold block with 4 perks (own car, own guide, own start time, own pace), a carousel of private-only trips, and CTAs "See private trips" / "Ask for a private quote". "Private with Stella" is also the first collection card.
+1. **At the start of the home page**: the seed makes "All of Egypt. One trip." the first hero slide and "Private with Stella — Your trip, your way." the second (owner, 2026-11-28; the owner can reorder slides in the admin), and the first section under the hero is a dark navy/gold block with 4 perks (own car, own guide, own start time, own pace), a carousel of private-only trips, and CTAs "See private trips" / "Ask for a private quote". "Private with Stella" is also the first collection card.
 2. **Inside every collection**: a sticky segmented switch **Group trips | Private** under the stats. _Group_ lists group trips. _Private_ shows a short banner ("Make any [collection] trip private"), the private-only trips first, then every other trip tagged **"Private on request"**. Opening Request from Private mode preselects _Private_ in the booking sheet.
    Data: `trips.format` (`group` | `private` | `both`) + `private_surcharge_pct` (null = price on request). The virtual collection `private` = all trips with `format in ('private','both')`.
    Analytics: `private_section_view`, `private_mode_on`, `private_quote_click`.
@@ -84,7 +84,7 @@ Bright, warm and optimistic. All client video is colour-graded (brighter, warmer
 ### 3.1 Home
 
 1. **Story hero** (full screen, `100svh` minus 64px so the next card peeks).
-   - **Slides come from the `hero_slides` table, in the order the owner sets in the admin (Homepage → Hero videos).** They are not tied to the collections: the owner picks which video is 1st, 2nd, 3rd, 4th…, can switch a slide off, schedule it (start/end date) or show it on mobile or desktop only. The seed creates a mobile and desktop slide per collection when both videos are ready, with Private first on each device.
+   - **Slides come from the `hero_slides` table, in the order the owner sets in the admin (Homepage → Hero videos).** They are not tied to the collections: the owner picks which video is 1st, 2nd, 3rd, 4th…, can switch a slide off, schedule it (start/end date) or show it on mobile or desktop only. The seed creates a mobile and desktop slide per collection when both videos are ready, with All of Egypt first and Private second on each device (owner, 2026-11-28).
    - Each slide: background video (vertical 720×1280 on mobile, horizontal 1280×720 on desktop, poster first) or an image, kicker, Marcellus headline, sub line (translated), primary CTA (to a collection, trip, package, My trip, WhatsApp or an internal page; default label "See [collection] trips"), secondary "WhatsApp".
    - Each slide stays `duration_s` seconds (default 6, set per slide in the admin). Only slide 1's poster is preloaded (LCP); the next slide's video starts loading only when the current one is playing.
    - No published slide → fall back to a single static slide with the first collection's cover image.

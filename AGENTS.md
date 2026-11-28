@@ -23,7 +23,7 @@ To start: follow `CODEX_PROMPT.md`.
 - **No Supabase, no Firebase, no hosted BaaS.** PostgreSQL runs locally (Docker) in dev and on the client's VPS in production.
 - **No online payments.** Bookings are _requests_: stored in our DB, staff notified, customer gets a prefilled WhatsApp message. Never add a payment form.
 - **Mobile first.** Every screen is designed and tested at 390×844 first, then scaled up. Most customers arrive on phones.
-- **Private tours are a headline feature** (client priority): first hero slide in the seed, a Private section at the top of home, a Private collection, and a Group | Private switch in every collection. Spec: `docs/01-frontend-plan.md` §3.0.
+- **Private tours are a headline feature** (client priority): second hero slide in the seed right after "All of Egypt" (owner, 2026-11-28), a Private section at the top of home, a Private collection, and a Group | Private switch in every collection. Spec: `docs/01-frontend-plan.md` §3.0.
 - **Look: bright, warm, optimistic** — light overlays, colour-graded media.
 - **Prices come from the database only.** Never hard-code a price in a component. The admin must be able to change any price without a deploy.
 - **Never invent content.** No fake reviews, ratings, customer counts, staff photos or "years of experience". If a value is missing, render nothing or "On request".

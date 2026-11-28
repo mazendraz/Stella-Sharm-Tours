@@ -241,7 +241,7 @@ Run migrations with `drizzle-kit generate` → review SQL → `drizzle-kit migra
 - Imports media listed in each trip's `media` from `assets/` through the same pipeline as uploads (so variants are generated).
 - Trips whose price is `null` get `on_request = true`.
 - Leaves missing `it`, `es`, `fr`, `de`, `ru`, `tr` values empty (collection names/headlines have `it` in the catalog). A configured worker backfills missing core content as machine fallbacks flagged for staff review, and every enabled supported auto locale; without a key the site falls back to EN. Core UI dictionaries stay in the repo and are never machine-overwritten.
-- Creates **hero slides**: one per collection in catalog order, **Private first**, `duration_s = 6`. A slide whose video has `rights_status='unknown'` uses the collection cover image instead. Retain the slide as a draft when it has neither a publishable video nor a supplied cover. The current catalog includes a cover for all seven collections.
+- Creates **hero slides**: one per collection: **All of Egypt first, then Private**, then the rest in catalog order (owner, 2026-11-28), `duration_s = 6`. A slide whose video has `rights_status='unknown'` uses the collection cover image instead. Retain the slide as a draft when it has neither a publishable video nor a supplied cover. The current catalog includes a cover for all seven collections.
 - Settings `i18n` and `i18n_glossary` with the defaults from `docs/08-i18n-plan.md`.
 - Creates the first **owner** user from env `SEED_OWNER_EMAIL` with a one-time setup link printed in the console (no default password).
 - Idempotent: upsert by slug.
