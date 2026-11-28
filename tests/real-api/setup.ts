@@ -30,10 +30,12 @@ export async function localDatabase(
   } else if (
     env.NODE_ENV !== 'development' ||
     url.hostname !== '127.0.0.1' ||
-    url.port !== '55433' ||
+    // A second disposable stack (another worktree) may use other loopback
+    // ports; the host, database name and test mail domain stay fixed.
+    url.port !== (process.env.STELLA_DEV_POSTGRES_PORT ?? '55433') ||
     url.pathname !== '/stella_dev' ||
     env.STAFF_NOTIFY_EMAIL !== 'staff@example.test' ||
-    env.SMTP_PORT !== '11025'
+    env.SMTP_PORT !== (process.env.STELLA_DEV_SMTP_PORT ?? '11025')
   )
     throw new Error(
       'This browser suite requires the isolated generated local development configuration',

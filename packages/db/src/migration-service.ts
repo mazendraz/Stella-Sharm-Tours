@@ -23,7 +23,8 @@ export function migrationFiles(migrationsFolder = folder) {
   }));
 }
 
-export async function migrateDatabase(url: string) {
+/** `migrationsFolder` is for migration-order rehearsals; deploys use the default. */
+export async function migrateDatabase(url: string, migrationsFolder = folder) {
   const { db, pool } = connectDatabase(url);
   try {
     // Stop before Drizzle would silently skip an older, unapplied file.
@@ -34,10 +35,13 @@ export async function migrateDatabase(url: string) {
       const applied = await pool.query<AppliedRow>(
         'SELECT hash, created_at FROM drizzle.__drizzle_migrations',
       );
-      const skipped = skippedMigrations(migrationFiles(), applied.rows);
+      const skipped = skippedMigrations(
+        migrationFiles(migrationsFolder),
+        applied.rows,
+      );
       if (skipped.length) throw new Error(skippedMessage(skipped));
     }
-    await migrate(db, { migrationsFolder: folder });
+    await migrate(db, { migrationsFolder });
   } finally {
     await pool.end();
   }
